@@ -31,6 +31,7 @@ type TherapyState = {
   startAddingInterval: () => void;
   startEditingInterval: (id: string) => void;
   commitDraft: () => void;
+  removeInterval: (id: string) => void;
   strokeStrategy: StrokeStrategy;
   setStrokeStrategy: (s: StrokeStrategy) => void;
   dayPattern: DayPattern;
@@ -87,13 +88,18 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
     setEditingId(null);
   }
 
+  function removeInterval(id: string) {
+    setIntervals(prev => prev.filter(iv => iv.id !== id));
+    if (editingId === id) setEditingId(null);
+  }
+
   return (
     <TherapyContext.Provider value={{
       baseDose, setBaseDose,
       intervals,
       draft, setDraft,
       editingId,
-      startAddingInterval, startEditingInterval, commitDraft,
+      startAddingInterval, startEditingInterval, commitDraft, removeInterval,
       strokeStrategy, setStrokeStrategy,
       dayPattern, setDayPattern,
     }}>

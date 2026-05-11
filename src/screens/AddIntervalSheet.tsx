@@ -6,12 +6,17 @@ const imgEbene1 = "/icons/0e3066d4-f803-4f37-8c9a-74477a140254.svg";
 // Step 1 — when
 export function AddIntervalSheetWhen() {
   const navigate = useNavigate();
-  const { draft, setDraft, intervals } = useTherapy();
+  const { draft, setDraft, intervals, editingId, removeInterval } = useTherapy();
   const lengthMin = Math.max(0, draft.endMin - draft.startMin);
   const lengthH = Math.floor(lengthMin / 60);
   const lengthM = lengthMin % 60;
   const pctDay = ((lengthMin / 1440) * 100).toFixed(1);
   const cancelTarget = intervals.length > 0 ? 'intervals-populated' : 'intervals-empty';
+  const onDelete = () => {
+    if (!editingId) return;
+    removeInterval(editingId);
+    navigate(intervals.length > 1 ? 'intervals-populated' : 'intervals-empty');
+  };
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#0d0d1a] h-[1920px] left-0 top-0 w-[1200px]" />
@@ -142,8 +147,22 @@ export function AddIntervalSheetWhen() {
           </div>
         </div>
         <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[120px] not-italic text-[#667380] text-[22px] top-[960px] w-[1000px]">{`No overlap with existing intervals on Weekdays. You'll set the dose on the next step.`}</p>
-        <div onClick={() => navigate(cancelTarget)} className="absolute bg-white border-2 border-[#0b7fa8] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1210px] w-[500px] cursor-pointer">
-          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[200.5px] not-italic text-[#0b7fa8] text-[28px] top-[26px] whitespace-nowrap">
+        {editingId && (
+          <div
+            onClick={onDelete}
+            className="absolute bg-white border-2 border-[#c44539] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1210px] w-[220px] cursor-pointer flex items-center justify-center"
+          >
+            <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold not-italic text-[#c44539] text-[24px] whitespace-nowrap">
+              Delete
+            </p>
+          </div>
+        )}
+        <div
+          onClick={() => navigate(cancelTarget)}
+          className={`absolute bg-white border-2 border-[#0b7fa8] border-solid h-[90px] overflow-clip rounded-[45px] top-[1210px] cursor-pointer ${editingId ? 'left-[240px] w-[340px]' : 'left-[80px] w-[500px]'}`}
+        >
+          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic text-[#0b7fa8] text-[28px] top-[26px] whitespace-nowrap"
+             style={{ left: editingId ? 120 : 200.5 }}>
             Cancel
           </p>
         </div>
