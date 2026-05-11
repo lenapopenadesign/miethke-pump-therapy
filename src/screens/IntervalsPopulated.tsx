@@ -57,7 +57,7 @@ function EditIcon({ className }: { className?: string }) {
 }
 
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtTime, doseColor, type DayPattern } from '../therapy';
+import { useTherapy, fmtTime, doseColor, estimatedDailyTotal, type DayPattern } from '../therapy';
 
 const DAY_PATTERNS: { key: DayPattern; label: string; x: number; w: number }[] = [
   { key: 'same',             label: 'Same daily',         x: 84,      w: 338.667 },
@@ -83,6 +83,8 @@ export function IntervalsPopulated() {
   const onEdit = (id: string) => { startEditingInterval(id, 'intervals-populated'); navigate('add-interval-when'); };
   // sort by startMin for chart and list order
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  const estDaily = estimatedDailyTotal(baseDose, intervals);
+  const estHourly = estDaily / 24;
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
@@ -167,15 +169,30 @@ export function IntervalsPopulated() {
         );
       })}
 
-      <div onClick={onAdd} className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1547px] w-[1040px] cursor-pointer">
+      {/* Estimated 24h total */}
+      <div className="absolute bg-[#d9ebf5] border-2 border-[#0b7fa8] border-solid h-[60px] left-[80px] rounded-[12px] top-[1020px] w-[1040px] flex items-center justify-between" style={{ paddingLeft: 24, paddingRight: 24 }}>
+        <p className="font-['Inter:Bold',sans-serif] font-bold not-italic text-[#063b66] text-[22px] whitespace-nowrap">
+          Estimated 24h total
+        </p>
+        <div className="flex items-baseline gap-[18px] whitespace-nowrap">
+          <p className="font-['Inter:Bold',sans-serif] font-bold not-italic text-[#063b66] text-[24px]">
+            {estDaily.toFixed(0)} µg/day
+          </p>
+          <p className="font-['Inter:Regular',sans-serif] font-normal not-italic text-[#667380] text-[20px]">
+            ≈ {estHourly.toFixed(1)} µg/h
+          </p>
+        </div>
+      </div>
+
+      <div onClick={onAdd} className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1601px] w-[1040px] cursor-pointer">
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[371px] not-italic text-[#0b7fa8] text-[22px] top-[16.5px] whitespace-pre">{`+  Add interval to Weekdays`}</p>
       </div>
 
-      <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[1036px] w-[1040px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[1056px] whitespace-nowrap">
+      <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[1100px] w-[1040px]" />
+      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[1120px] whitespace-nowrap">
         Intervals ({ordered.length})
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#9ea8b2] text-[18px] top-[1061px] whitespace-nowrap">
+      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#9ea8b2] text-[18px] top-[1125px] whitespace-nowrap">
         Tap to edit
       </p>
 
@@ -184,7 +201,7 @@ export function IntervalsPopulated() {
           key={iv.id}
           onClick={() => onEdit(iv.id)}
           className="absolute bg-white border border-[#d9dbde] border-solid h-[80px] left-[80px] overflow-clip rounded-[12px] w-[1040px] cursor-pointer"
-          style={{ top: 1106 + i * 84 }}
+          style={{ top: 1170 + i * 84 }}
         >
           <div className="absolute h-[48px] left-[15px] rounded-[4px] top-[15px] w-[8px]" style={{ background: doseColor(iv.dose, baseDose) }} />
           <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[39px] not-italic text-[#063b66] text-[22px] top-[11px] whitespace-nowrap">{iv.label}</p>
