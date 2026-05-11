@@ -194,7 +194,12 @@ export function AddIntervalSheetDose() {
   const deltaSign = deltaH >= 0 ? '↑' : '↓';
   const morMgH = morphineMgDay(draft.dose) / 24;
   const bupMgH = bupivacaineMgDay(draft.dose) / 24;
-  const save = () => { commitDraft(); navigate(sheetReturnTo); };
+  const save = () => {
+    commitDraft();
+    // Adding from intervals-empty should land on intervals-populated, not back on the empty view
+    const target = sheetReturnTo === 'intervals-empty' ? 'intervals-populated' : sheetReturnTo;
+    navigate(target);
+  };
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#0d0d1a] h-[1920px] left-0 top-0 w-[1200px]" />
