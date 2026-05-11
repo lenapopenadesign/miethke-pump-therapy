@@ -40,9 +40,12 @@ function IconsStepper({ className }: IconsStepperProps) {
 }
 
 import { useNavigate } from '../navigation';
+import { useTherapy } from '../therapy';
 
 export function IntervalsEmpty() {
   const navigate = useNavigate();
+  const { startAddingInterval } = useTherapy();
+  const onAdd = () => { startAddingInterval(); navigate('add-interval-when'); };
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
@@ -99,7 +102,7 @@ export function IntervalsEmpty() {
       <p className="-translate-x-1/2 absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[600px] not-italic text-[#667380] text-[22px] text-center top-[1004px] w-[1040px]">
         Therapy will run at the base dose around the clock. Add intervals to vary the dose at specific times of day (e.g. higher during physiotherapy, lower at night).
       </p>
-      <div onClick={() => navigate('add-interval-when')} className="absolute bg-[#0b7fa8] h-[100px] left-[80px] overflow-clip rounded-[50px] top-[1155px] w-[1040px] cursor-pointer">
+      <div onClick={onAdd} className="absolute bg-[#0b7fa8] h-[100px] left-[80px] overflow-clip rounded-[50px] top-[1155px] w-[1040px] cursor-pointer">
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[356.5px] not-italic text-[28px] text-white top-[33px] whitespace-pre">{`+  Add your first interval`}</p>
       </div>
       <div onClick={() => navigate('review')} className="absolute bg-white border border-[#d9dbde] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1275px] w-[1040px] cursor-pointer">

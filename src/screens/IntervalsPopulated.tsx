@@ -56,26 +56,27 @@ function EditIcon({ className }: { className?: string }) {
   );
 }
 
-type Interval = {
-  top: number;
-  barColor: string;
-  label: string;
-  time: string;
-  dose: string;
-};
-
-const INTERVALS: Interval[] = [
-  { top: 1106, barColor: '#8cc7e8', label: 'Night',        time: '00:00 – 07:59', dose: '200 µg/day' },
-  { top: 1190, barColor: '#055273', label: 'Morning peak', time: '08:00 – 10:29', dose: '480 µg/day' },
-  { top: 1274, barColor: '#0b7fa8', label: 'Daytime',      time: '10:30 – 16:29', dose: '360 µg/day' },
-  { top: 1358, barColor: '#0b7fa8', label: 'Evening',      time: '16:30 – 20:59', dose: '450 µg/day' },
-  { top: 1442, barColor: '#4da6d6', label: 'Wind-down',    time: '21:00 – 23:59', dose: '280 µg/day' },
-];
-
 import { useNavigate } from '../navigation';
+import { useTherapy, fmtTime, doseColor } from '../therapy';
+
+// Chart layout in 1200x1920 frame
+const CHART_LEFT = 110;
+const CHART_WIDTH = 980;
+const CHART_BOTTOM_Y = 970;
+const BAR_HEIGHT_SCALE = 0.38; // px per µg/day
+
+function timeRangeLabel(startMin: number, endMin: number): string {
+  const endDisplay = endMin >= 1440 ? '23:59' : fmtTime(Math.max(0, endMin - 1));
+  return `${fmtTime(startMin)} – ${endDisplay}`;
+}
 
 export function IntervalsPopulated() {
   const navigate = useNavigate();
+  const { intervals, baseDose, startAddingInterval, startEditingInterval } = useTherapy();
+  const onAdd = () => { startAddingInterval(); navigate('add-interval-when'); };
+  const onEdit = (id: string) => { startEditingInterval(id); navigate('add-interval-when'); };
+  // sort by startMin for chart and list order
+  const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
@@ -112,7 +113,7 @@ export function IntervalsPopulated() {
         24-hour view
       </p>
       <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[360px] not-italic text-[#667380] text-[20px] top-[702px] whitespace-nowrap">
-        Base dose · 360 µg/day
+        Base dose · {baseDose} µg/day
       </p>
 
       {/* Chart container */}
@@ -123,39 +124,61 @@ export function IntervalsPopulated() {
           {t}
         </p>
       ))}
-      <div className="absolute bg-[#9ea8b2] h-[2px] left-[110px] top-[910px] w-[980px]" />
-      <p className="absolute font-['Inter:Medium',sans-serif] font-medium leading-[normal] left-[110px] not-italic text-[#667380] text-[14px] top-[916px] whitespace-nowrap">
-        Base · 360 µg/d
+      {/* Base-dose reference line */}
+      <div
+        className="absolute bg-[#9ea8b2] h-[2px] rounded-[4px]"
+        style={{ left: CHART_LEFT, top: CHART_BOTTOM_Y - baseDose * BAR_HEIGHT_SCALE, width: CHART_WIDTH }}
+      />
+      <p
+        className="absolute font-['Inter:Medium',sans-serif] font-medium leading-[normal] not-italic text-[#667380] text-[14px] whitespace-nowrap"
+        style={{ left: CHART_LEFT, top: CHART_BOTTOM_Y - baseDose * BAR_HEIGHT_SCALE + 6 }}
+      >
+        Base · {baseDose} µg/d
       </p>
-      <div className="absolute bg-[#8cc7e8] h-[76px] left-[110px] rounded-[4px] top-[894px] w-[324.258px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[258.63px] not-italic text-[14px] text-white top-[900px] whitespace-nowrap">200</p>
-      <div className="absolute bg-[#055273] h-[182.4px] left-[436.67px] rounded-[4px] top-[787.6px] w-[99.675px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[473px] not-italic text-[14px] text-white top-[793.6px] whitespace-nowrap">480</p>
-      <div className="absolute bg-[#0b7fa8] h-[136.8px] left-[538.75px] rounded-[4px] top-[833.2px] w-[242.592px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[646.55px] not-italic text-[14px] text-white top-[839.2px] whitespace-nowrap">360</p>
-      <div className="absolute bg-[#0b7fa8] h-[171px] left-[783.75px] rounded-[4px] top-[799px] w-[181.342px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[860.92px] not-italic text-[14px] text-white top-[805px] whitespace-nowrap">450</p>
-      <div className="absolute bg-[#4da6d6] h-[106.4px] left-[967.5px] rounded-[4px] top-[863.6px] w-[120.092px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[1014.55px] not-italic text-[14px] text-white top-[869.6px] whitespace-nowrap">280</p>
 
-      <div onClick={() => navigate('add-interval-when')} className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1547px] w-[1040px] cursor-pointer">
+      {/* Interval bars */}
+      {ordered.map((iv) => {
+        const left = CHART_LEFT + (iv.startMin / 1440) * CHART_WIDTH;
+        const width = ((iv.endMin - iv.startMin) / 1440) * CHART_WIDTH;
+        const height = iv.dose * BAR_HEIGHT_SCALE;
+        const top = CHART_BOTTOM_Y - height;
+        return (
+          <div
+            key={iv.id}
+            onClick={() => onEdit(iv.id)}
+            className="absolute rounded-[4px] cursor-pointer flex items-start justify-center"
+            style={{ left, top, width, height, background: doseColor(iv.dose, baseDose) }}
+          >
+            <p className="font-['Inter:Bold',sans-serif] font-bold text-[14px] text-white pt-[6px]">
+              {iv.dose}
+            </p>
+          </div>
+        );
+      })}
+
+      <div onClick={onAdd} className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1547px] w-[1040px] cursor-pointer">
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[371px] not-italic text-[#0b7fa8] text-[22px] top-[16.5px] whitespace-pre">{`+  Add interval to Weekdays`}</p>
       </div>
 
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[1036px] w-[1040px]" />
       <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[1056px] whitespace-nowrap">
-        Intervals (5)
+        Intervals ({ordered.length})
       </p>
       <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#9ea8b2] text-[18px] top-[1061px] whitespace-nowrap">
         Tap to edit
       </p>
 
-      {INTERVALS.map((iv) => (
-        <div key={iv.label} className="absolute bg-white border border-[#d9dbde] border-solid h-[80px] left-[80px] overflow-clip rounded-[12px] w-[1040px]" style={{ top: iv.top }}>
-          <div className="absolute h-[48px] left-[15px] rounded-[4px] top-[15px] w-[8px]" style={{ background: iv.barColor }} />
+      {ordered.map((iv, i) => (
+        <div
+          key={iv.id}
+          onClick={() => onEdit(iv.id)}
+          className="absolute bg-white border border-[#d9dbde] border-solid h-[80px] left-[80px] overflow-clip rounded-[12px] w-[1040px] cursor-pointer"
+          style={{ top: 1106 + i * 84 }}
+        >
+          <div className="absolute h-[48px] left-[15px] rounded-[4px] top-[15px] w-[8px]" style={{ background: doseColor(iv.dose, baseDose) }} />
           <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[39px] not-italic text-[#063b66] text-[22px] top-[11px] whitespace-nowrap">{iv.label}</p>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[39px] not-italic text-[#667380] text-[18px] top-[43px] whitespace-nowrap">{iv.time}</p>
-          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[799px] not-italic text-[#063b66] text-[22px] top-[24px] whitespace-nowrap">{iv.dose}</p>
+          <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[39px] not-italic text-[#667380] text-[18px] top-[43px] whitespace-nowrap">{timeRangeLabel(iv.startMin, iv.endMin)}</p>
+          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[799px] not-italic text-[#063b66] text-[22px] top-[24px] whitespace-nowrap">{iv.dose} µg/day</p>
           <EditIcon className="absolute left-[972px] overflow-clip size-[40px] top-[19px]" />
         </div>
       ))}

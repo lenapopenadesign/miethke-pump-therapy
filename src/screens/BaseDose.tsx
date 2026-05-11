@@ -41,9 +41,18 @@ function BBraunMiethkeSignet({ className }: { className?: string }) {
 }
 
 import { useNavigate } from '../navigation';
+import { useTherapy, morphineMgDay, bupivacaineMgDay, hourlyUg } from '../therapy';
 
 export function BaseDose() {
   const navigate = useNavigate();
+  const { baseDose, setBaseDose } = useTherapy();
+  const stepDown = () => setBaseDose(Math.max(0, baseDose - 10));
+  const stepUp = () => setBaseDose(Math.min(2000, baseDose + 10));
+  const morMgD = morphineMgDay(baseDose);
+  const morMgH = morMgD / 24;
+  const bupMgD = bupivacaineMgDay(baseDose);
+  const bupMgH = bupMgD / 24;
+  const hourly = hourlyUg(baseDose);
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
@@ -206,7 +215,7 @@ export function BaseDose() {
           </div>
           <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
             <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-              <div className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px]">
+              <div onClick={stepDown} className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px] cursor-pointer select-none">
                 <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[16px] not-italic text-[#063b66] text-[36px] top-[7px] whitespace-nowrap">
                   −
                 </p>
@@ -214,15 +223,21 @@ export function BaseDose() {
               <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
                 <div className="bg-white border-2 border-[#0b7fa8] border-solid col-1 h-[60px] ml-0 mt-0 relative rounded-[12px] row-1 w-[200px]" />
                 <div className="col-1 content-stretch flex gap-[21px] items-center leading-[normal] ml-[26px] mt-[8px] not-italic relative row-1 whitespace-nowrap">
-                  <p className="font-['Inter:Bold',sans-serif] font-bold relative shrink-0 text-[#063b66] text-[36px]">
-                    360
-                  </p>
+                  <input
+                    type="number"
+                    value={baseDose}
+                    min={0}
+                    max={2000}
+                    step={10}
+                    onChange={e => setBaseDose(Math.max(0, Math.min(2000, Number(e.target.value) || 0)))}
+                    className="font-['Inter:Bold',sans-serif] font-bold text-[#063b66] text-[36px] bg-transparent outline-none border-0 p-0 w-[120px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  />
                   <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#667380] text-[16px]">
                     µg/day
                   </p>
                 </div>
               </div>
-              <div className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px]">
+              <div onClick={stepUp} className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px] cursor-pointer select-none">
                 <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[20px] not-italic text-[#063b66] text-[32px] top-[7px] whitespace-nowrap">
                   +
                 </p>
@@ -230,7 +245,7 @@ export function BaseDose() {
             </div>
             <div className="content-stretch flex gap-[20px] items-center leading-[normal] not-italic relative shrink-0 whitespace-nowrap">
               <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold relative shrink-0 text-[#0b7fa8] text-[24px]">
-                ≈ 15.0
+                ≈ {hourly.toFixed(1)}
               </p>
               <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#9ea8b2] text-[16px]">
                 µg/h
@@ -246,13 +261,13 @@ export function BaseDose() {
             calculated · 0.139% of Baclofen
           </p>
           <p className="absolute font-['Inter:Bold',sans-serif] font-bold left-[599px] text-[#667380] text-[26px] top-[26px]">
-            0.50
+            {morMgD.toFixed(2)}
           </p>
           <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
             mg/day
           </p>
           <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[897px] text-[#667380] text-[22px] top-[28px]">
-            0.021
+            {morMgH.toFixed(3)}
           </p>
           <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[966px] text-[#9ea8b2] text-[16px] top-[34px]">
             mg/h
@@ -266,13 +281,13 @@ export function BaseDose() {
             calculated · 0.417% of Baclofen
           </p>
           <p className="absolute font-['Inter:Bold',sans-serif] font-bold left-[605px] text-[#667380] text-[26px] top-[26px]">
-            1.50
+            {bupMgD.toFixed(2)}
           </p>
           <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
             mg/day
           </p>
           <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[894px] text-[#667380] text-[22px] top-[22px]">
-            0.063
+            {bupMgH.toFixed(3)}
           </p>
           <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[968px] text-[#9ea8b2] text-[16px] top-[28px]">
             mg/h

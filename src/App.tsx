@@ -8,6 +8,7 @@ import { Review } from './screens/Review';
 import { Activate } from './screens/Activate';
 import { HomeActive } from './screens/HomeActive';
 import { NavProvider, type ScreenId } from './navigation';
+import { TherapyProvider } from './therapy';
 
 const ORDER: ScreenId[] = [
   'home-no-therapy',
@@ -25,8 +26,9 @@ export function App() {
   const [screen, setScreen] = useState<ScreenId>('home-no-therapy');
 
   return (
-    <NavProvider value={setScreen}>
-      <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+    <TherapyProvider>
+      <NavProvider value={setScreen}>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
         <div className="device-shell">
           <div className="device-inner">
             <div className="screen">
@@ -65,7 +67,8 @@ export function App() {
             ))}
           </div>
         </div>
-      </div>
-    </NavProvider>
+        </div>
+      </NavProvider>
+    </TherapyProvider>
   );
 }

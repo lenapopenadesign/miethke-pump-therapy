@@ -1,10 +1,17 @@
 import { useNavigate } from '../navigation';
+import { useTherapy, fmtTime, parseTime, hourlyUg, morphineMgDay, bupivacaineMgDay } from '../therapy';
 
 const imgEbene1 = "/icons/0e3066d4-f803-4f37-8c9a-74477a140254.svg";
 
 // Step 1 — when
 export function AddIntervalSheetWhen() {
   const navigate = useNavigate();
+  const { draft, setDraft, intervals } = useTherapy();
+  const lengthMin = Math.max(0, draft.endMin - draft.startMin);
+  const lengthH = Math.floor(lengthMin / 60);
+  const lengthM = lengthMin % 60;
+  const pctDay = ((lengthMin / 1440) * 100).toFixed(1);
+  const cancelTarget = intervals.length > 0 ? 'intervals-populated' : 'intervals-empty';
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#0d0d1a] h-[1920px] left-0 top-0 w-[1200px]" />
@@ -26,17 +33,23 @@ export function AddIntervalSheetWhen() {
           Optional but recommended
         </p>
         <div className="absolute bg-white border border-[#d9dbde] border-solid h-[80px] left-[80px] rounded-[12px] top-[256px] w-[1040px]" />
-        <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[100px] not-italic text-[#063b66] text-[28px] top-[280px] whitespace-nowrap">
-          Morning peak
-        </p>
+        <input
+          type="text"
+          value={draft.label}
+          onChange={e => setDraft({ ...draft, label: e.target.value })}
+          className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[100px] not-italic text-[#063b66] text-[28px] top-[280px] whitespace-nowrap bg-transparent outline-none border-0 p-0 w-[1000px]"
+        />
         <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#9ea8b2] text-[16px] top-[350px] whitespace-nowrap">{`e.g. "Morning peak", "Physio", "Wind-down"`}</p>
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[400px] whitespace-nowrap">
           Time window
         </p>
         <div className="absolute bg-white border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[12px] top-[436px] w-[500px]" />
-        <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[100px] not-italic text-[#063b66] text-[32px] top-[460px] whitespace-nowrap">
-          08:00
-        </p>
+        <input
+          type="time"
+          value={fmtTime(draft.startMin)}
+          onChange={e => setDraft({ ...draft, startMin: parseTime(e.target.value) })}
+          className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[100px] not-italic text-[#063b66] text-[32px] top-[460px] whitespace-nowrap bg-transparent outline-none border-0 p-0 w-[300px]"
+        />
         <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[100px] not-italic text-[#667380] text-[16px] top-[498px] whitespace-nowrap">
           Start
         </p>
@@ -44,13 +57,16 @@ export function AddIntervalSheetWhen() {
           →
         </p>
         <div className="absolute bg-white border border-[#d9dbde] border-solid h-[90px] left-[640px] rounded-[12px] top-[436px] w-[480px]" />
-        <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[660px] not-italic text-[#063b66] text-[32px] top-[460px] whitespace-nowrap">
-          10:30
-        </p>
+        <input
+          type="time"
+          value={fmtTime(draft.endMin)}
+          onChange={e => setDraft({ ...draft, endMin: parseTime(e.target.value) })}
+          className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[660px] not-italic text-[#063b66] text-[32px] top-[460px] whitespace-nowrap bg-transparent outline-none border-0 p-0 w-[300px]"
+        />
         <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[660px] not-italic text-[#667380] text-[16px] top-[498px] whitespace-nowrap">
           End
         </p>
-        <p className="absolute font-['Inter:Medium',sans-serif] font-medium leading-[normal] left-[80px] not-italic text-[#667380] text-[18px] top-[540px] whitespace-pre">{`Length: 2h 30m  ·  10.4% of the day`}</p>
+        <p className="absolute font-['Inter:Medium',sans-serif] font-medium leading-[normal] left-[80px] not-italic text-[#667380] text-[18px] top-[540px] whitespace-pre">{`Length: ${lengthH}h ${lengthM}m  ·  ${pctDay}% of the day`}</p>
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[600px] whitespace-nowrap">
           Apply to
         </p>
@@ -96,7 +112,7 @@ export function AddIntervalSheetWhen() {
           </div>
         </div>
         <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[120px] not-italic text-[#667380] text-[22px] top-[960px] w-[1000px]">{`No overlap with existing intervals on Weekdays. You'll set the dose on the next step.`}</p>
-        <div onClick={() => navigate('intervals-empty')} className="absolute bg-white border-2 border-[#0b7fa8] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1210px] w-[500px] cursor-pointer">
+        <div onClick={() => navigate(cancelTarget)} className="absolute bg-white border-2 border-[#0b7fa8] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1210px] w-[500px] cursor-pointer">
           <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[200.5px] not-italic text-[#0b7fa8] text-[28px] top-[26px] whitespace-nowrap">
             Cancel
           </p>
@@ -114,6 +130,18 @@ export function AddIntervalSheetWhen() {
 // Step 2 — dose
 export function AddIntervalSheetDose() {
   const navigate = useNavigate();
+  const { draft, setDraft, baseDose, editingId, commitDraft } = useTherapy();
+  const stepDown = () => setDraft({ ...draft, dose: Math.max(0, draft.dose - 10) });
+  const stepUp = () => setDraft({ ...draft, dose: Math.min(2000, draft.dose + 10) });
+  const hourly = hourlyUg(draft.dose);
+  const delta = draft.dose - baseDose;
+  const pct = baseDose > 0 ? Math.round((delta / baseDose) * 100) : 0;
+  const deltaSign = delta >= 0 ? '↑' : '↓';
+  const morMgD = morphineMgDay(draft.dose);
+  const morMgH = morMgD / 24;
+  const bupMgD = bupivacaineMgDay(draft.dose);
+  const bupMgH = bupMgD / 24;
+  const save = () => { commitDraft(); navigate('intervals-populated'); };
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#0d0d1a] h-[1920px] left-0 top-0 w-[1200px]" />
@@ -129,8 +157,8 @@ export function AddIntervalSheetDose() {
         <div className="absolute bg-[#0b7fa8] h-[6px] left-[80px] rounded-[3px] top-[170px] w-[516px]" />
         <div className="absolute bg-[#0b7fa8] h-[6px] left-[604px] rounded-[3px] top-[170px] w-[516px]" />
         <div className="absolute bg-[#ddf1f6] font-['Inter:Semi_Bold',sans-serif] font-semibold h-[70px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[12px] top-[220px] w-[1040px]">
-          <p className="absolute left-[24px] text-[#063b66] text-[22px] top-[22px] whitespace-pre">{`"Morning peak"  ·  Mon–Fri  ·  08:00 → 10:30`}</p>
-          <p className="absolute left-[980px] text-[#0b7fa8] text-[20px] top-[24px] whitespace-nowrap">
+          <p className="absolute left-[24px] text-[#063b66] text-[22px] top-[22px] whitespace-pre">{`"${draft.label}"  ·  Mon–Fri  ·  ${fmtTime(draft.startMin)} → ${fmtTime(draft.endMin)}`}</p>
+          <p onClick={() => navigate('add-interval-when')} className="absolute left-[980px] text-[#0b7fa8] text-[20px] top-[24px] whitespace-nowrap cursor-pointer">
             Edit
           </p>
         </div>
@@ -142,9 +170,9 @@ export function AddIntervalSheetDose() {
             ← Back
           </p>
         </div>
-        <div onClick={() => navigate('intervals-populated')} className="absolute bg-[#0b7fa8] h-[90px] left-[600px] overflow-clip rounded-[45px] top-[1210px] w-[520px] cursor-pointer">
+        <div onClick={save} className="absolute bg-[#0b7fa8] h-[90px] left-[600px] overflow-clip rounded-[45px] top-[1210px] w-[520px] cursor-pointer">
           <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[177.5px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
-            Add interval
+            {editingId ? 'Save interval' : 'Add interval'}
           </p>
         </div>
         <div className="-translate-y-full absolute flex flex-col font-['Roboto:Regular',sans-serif] font-normal justify-end leading-[0] left-[692px] text-[#9ea8b2] text-[20px] top-[399px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -167,7 +195,7 @@ export function AddIntervalSheetDose() {
             </div>
             <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
               <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-                <div className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px]">
+                <div onClick={stepDown} className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px] cursor-pointer select-none">
                   <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[16px] not-italic text-[#063b66] text-[36px] top-[7px] whitespace-nowrap">
                     −
                   </p>
@@ -175,15 +203,21 @@ export function AddIntervalSheetDose() {
                 <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
                   <div className="bg-white border-2 border-[#0b7fa8] border-solid col-1 h-[60px] ml-0 mt-0 relative rounded-[12px] row-1 w-[200px]" />
                   <div className="col-1 content-stretch flex gap-[21px] items-center leading-[normal] ml-[26px] mt-[8px] not-italic relative row-1 whitespace-nowrap">
-                    <p className="font-['Inter:Bold',sans-serif] font-bold relative shrink-0 text-[#063b66] text-[36px]">
-                      480
-                    </p>
+                    <input
+                      type="number"
+                      value={draft.dose}
+                      min={0}
+                      max={2000}
+                      step={10}
+                      onChange={e => setDraft({ ...draft, dose: Math.max(0, Math.min(2000, Number(e.target.value) || 0)) })}
+                      className="font-['Inter:Bold',sans-serif] font-bold text-[#063b66] text-[36px] bg-transparent outline-none border-0 p-0 w-[120px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
                     <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#667380] text-[16px]">
                       µg/day
                     </p>
                   </div>
                 </div>
-                <div className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px]">
+                <div onClick={stepUp} className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px] cursor-pointer select-none">
                   <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[20px] not-italic text-[#063b66] text-[32px] top-[7px] whitespace-nowrap">
                     +
                   </p>
@@ -191,7 +225,7 @@ export function AddIntervalSheetDose() {
               </div>
               <div className="content-stretch flex gap-[20px] items-center leading-[normal] not-italic relative shrink-0 whitespace-nowrap">
                 <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold relative shrink-0 text-[#0b7fa8] text-[24px]">
-                  ≈ 20.0
+                  ≈ {hourly.toFixed(1)}
                 </p>
                 <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#9ea8b2] text-[16px]">
                   µg/h
@@ -199,7 +233,7 @@ export function AddIntervalSheetDose() {
               </div>
             </div>
             <div className="bg-[rgba(252,227,160,0.29)] flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px]">
-              <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[24px] not-italic text-[#b3850e] text-[22px] top-[16px] whitespace-pre">{`↑ +120 µg/day above base (360 → 480)  ·  +33%`}</p>
+              <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[24px] not-italic text-[#b3850e] text-[22px] top-[16px] whitespace-pre">{`${deltaSign} ${delta >= 0 ? '+' : ''}${delta} µg/day ${delta >= 0 ? 'above' : 'below'} base (${baseDose} → ${draft.dose})  ·  ${pct >= 0 ? '+' : ''}${pct}%`}</p>
             </div>
           </div>
           <div className="bg-white border border-[#d9dbde] border-solid h-[88px] leading-[normal] not-italic overflow-clip relative rounded-[16px] shrink-0 w-full whitespace-nowrap">
@@ -210,13 +244,13 @@ export function AddIntervalSheetDose() {
               calculated · 0.139% of Baclofen
             </p>
             <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[599px] text-[#667380] text-[26px] top-[26px]">
-              0.67
+              {morMgD.toFixed(2)}
             </p>
             <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
               mg/day
             </p>
             <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[897px] text-[#667380] text-[22px] top-[28px]">
-              0.028
+              {morMgH.toFixed(3)}
             </p>
             <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[966px] text-[#9ea8b2] text-[16px] top-[34px]">
               mg/h
@@ -230,13 +264,13 @@ export function AddIntervalSheetDose() {
               calculated · 0.417% of Baclofen
             </p>
             <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[605px] text-[#667380] text-[26px] top-[26px]">
-              2.00
+              {bupMgD.toFixed(2)}
             </p>
             <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
               mg/day
             </p>
             <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[894px] text-[#667380] text-[22px] top-[22px]">
-              0.083
+              {bupMgH.toFixed(3)}
             </p>
             <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[968px] text-[#9ea8b2] text-[16px] top-[28px]">
               mg/h
