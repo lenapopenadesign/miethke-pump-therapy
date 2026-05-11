@@ -48,8 +48,23 @@ export function AddIntervalSheetWhen() {
           type="time"
           value={fmtTime(draft.startMin)}
           onChange={e => setDraft({ ...draft, startMin: parseTime(e.target.value) })}
-          className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[100px] not-italic text-[#063b66] text-[32px] top-[460px] whitespace-nowrap bg-transparent outline-none border-0 p-0 w-[300px]"
+          className="absolute font-bold not-italic leading-[normal] left-[100px] text-[#063b66] text-[32px] top-[460px] whitespace-nowrap bg-transparent outline-none border-0 p-0 w-[200px]"
+          style={{ fontFamily: 'Inter, sans-serif' }}
         />
+        <div
+          onClick={() => setDraft({ ...draft, startMin: Math.max(0, draft.startMin - 15) })}
+          className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid rounded-[8px] cursor-pointer select-none flex items-center justify-center"
+          style={{ left: 410, top: 451, width: 36, height: 60 }}
+        >
+          <p className="font-bold text-[#063b66] text-[24px] not-italic">−</p>
+        </div>
+        <div
+          onClick={() => setDraft({ ...draft, startMin: Math.min(1440, draft.startMin + 15) })}
+          className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid rounded-[8px] cursor-pointer select-none flex items-center justify-center"
+          style={{ left: 454, top: 451, width: 36, height: 60 }}
+        >
+          <p className="font-bold text-[#063b66] text-[24px] not-italic">+</p>
+        </div>
         <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[100px] not-italic text-[#667380] text-[16px] top-[498px] whitespace-nowrap">
           Start
         </p>
@@ -61,8 +76,23 @@ export function AddIntervalSheetWhen() {
           type="time"
           value={fmtTime(draft.endMin)}
           onChange={e => setDraft({ ...draft, endMin: parseTime(e.target.value) })}
-          className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[660px] not-italic text-[#063b66] text-[32px] top-[460px] whitespace-nowrap bg-transparent outline-none border-0 p-0 w-[300px]"
+          className="absolute font-bold not-italic leading-[normal] left-[660px] text-[#063b66] text-[32px] top-[460px] whitespace-nowrap bg-transparent outline-none border-0 p-0 w-[200px]"
+          style={{ fontFamily: 'Inter, sans-serif' }}
         />
+        <div
+          onClick={() => setDraft({ ...draft, endMin: Math.max(0, draft.endMin - 15) })}
+          className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid rounded-[8px] cursor-pointer select-none flex items-center justify-center"
+          style={{ left: 950, top: 451, width: 36, height: 60 }}
+        >
+          <p className="font-bold text-[#063b66] text-[24px] not-italic">−</p>
+        </div>
+        <div
+          onClick={() => setDraft({ ...draft, endMin: Math.min(1440, draft.endMin + 15) })}
+          className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid rounded-[8px] cursor-pointer select-none flex items-center justify-center"
+          style={{ left: 994, top: 451, width: 36, height: 60 }}
+        >
+          <p className="font-bold text-[#063b66] text-[24px] not-italic">+</p>
+        </div>
         <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[660px] not-italic text-[#667380] text-[16px] top-[498px] whitespace-nowrap">
           End
         </p>
@@ -204,13 +234,16 @@ export function AddIntervalSheetDose() {
                   <div className="bg-white border-2 border-[#0b7fa8] border-solid col-1 h-[60px] ml-0 mt-0 relative rounded-[12px] row-1 w-[200px]" />
                   <div className="col-1 content-stretch flex gap-[21px] items-center leading-[normal] ml-[26px] mt-[8px] not-italic relative row-1 whitespace-nowrap">
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       value={draft.dose}
-                      min={0}
-                      max={2000}
-                      step={10}
-                      onChange={e => setDraft({ ...draft, dose: Math.max(0, Math.min(2000, Number(e.target.value) || 0)) })}
-                      className="font-['Inter:Bold',sans-serif] font-bold text-[#063b66] text-[36px] bg-transparent outline-none border-0 p-0 w-[120px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      onChange={e => {
+                        const n = parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0;
+                        setDraft({ ...draft, dose: Math.max(0, Math.min(2000, n)) });
+                      }}
+                      className="font-bold not-italic text-[#063b66] text-[36px] bg-transparent outline-none border-0 p-0 w-[80px] text-left"
+                      style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal' }}
                     />
                     <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#667380] text-[16px]">
                       µg/day

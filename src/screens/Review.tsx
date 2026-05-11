@@ -38,9 +38,56 @@ function IconsStepper({ className }: { className?: string }) {
 }
 
 import { useNavigate } from '../navigation';
+import {
+  useTherapy,
+  morphineMgDay,
+  bupivacaineMgDay,
+  hourlyUg,
+  doseColor,
+  estimatedDailyTotal,
+  STROKE_OPTIONS,
+} from '../therapy';
+
+// Mini chart layout
+const MINI_LEFT = 92;
+const MINI_WIDTH = 1016;
+const MINI_SCALE = 0.152; // px per µg
+const WEEKDAYS_BOTTOM = 985;
+const WEEKEND_BOTTOM = 1115;
+
+function MiniChartBars({ intervals, baseDose, bottom }: { intervals: ReturnType<typeof useTherapy>['intervals']; baseDose: number; bottom: number }) {
+  return (
+    <>
+      {intervals.map(iv => {
+        const left = MINI_LEFT + (iv.startMin / 1440) * MINI_WIDTH;
+        const width = ((iv.endMin - iv.startMin) / 1440) * MINI_WIDTH;
+        const height = iv.dose * MINI_SCALE;
+        const top = bottom - height;
+        return (
+          <div
+            key={iv.id}
+            className="absolute rounded-[3px]"
+            style={{ left, top, width, height, background: doseColor(iv.dose, baseDose) }}
+          />
+        );
+      })}
+    </>
+  );
+}
 
 export function Review() {
   const navigate = useNavigate();
+  const { baseDose, intervals, strokeStrategy } = useTherapy();
+  const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  const stroke = STROKE_OPTIONS.find(s => s.min === strokeStrategy) ?? STROKE_OPTIONS[2];
+  const baclofenH = hourlyUg(baseDose);
+  const morMgD = morphineMgDay(baseDose);
+  const morMgH = morMgD / 24;
+  const bupMgD = bupivacaineMgDay(baseDose);
+  const bupMgH = bupMgD / 24;
+  const estDaily = estimatedDailyTotal(baseDose, intervals);
+  const estMorMgD = morphineMgDay(estDaily);
+  const estBupMgD = bupivacaineMgDay(estDaily);
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
@@ -73,10 +120,10 @@ export function Review() {
           </div>
         </div>
         <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[458px] not-italic text-[#063b66] text-[18px] top-[15px] whitespace-nowrap">
-          360 µg/day
+          {baseDose} µg/day
         </p>
         <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[798px] not-italic text-[#063b66] text-[18px] top-[15px] whitespace-nowrap">
-          ≈ 15.0 µg/h
+          ≈ {baclofenH.toFixed(1)} µg/h
         </p>
       </div>
       <div className="absolute bg-[#d9ebf5] border-2 border-[#0b7fa8] border-solid h-[56px] left-[80px] overflow-clip rounded-[8px] top-[1347px] w-[1040px]">
@@ -91,7 +138,7 @@ export function Review() {
           </div>
         </div>
         <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[458px] not-italic text-[#063b66] text-[18px] top-[15px] whitespace-nowrap">
-          356 µg/day
+          {estDaily.toFixed(0)} µg/day
         </p>
       </div>
       <div className="absolute bg-white border border-[#d9dbde] border-solid h-[56px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[8px] top-[532px] w-[1040px] whitespace-nowrap">
@@ -99,10 +146,10 @@ export function Review() {
           Morphine
         </p>
         <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
-          0.50 mg/day
+          {morMgD.toFixed(2)} mg/day
         </p>
         <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[799px] text-[#667380] text-[18px] top-[15px]">
-          0.021 mg/h
+          {morMgH.toFixed(3)} mg/h
         </p>
       </div>
       <div className="absolute bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[8px] top-[1411px] w-[1040px] whitespace-nowrap">
@@ -110,7 +157,7 @@ export function Review() {
           Morphine
         </p>
         <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
-          0.49 µg/day
+          {estMorMgD.toFixed(2)} mg/day
         </p>
       </div>
       <div className="absolute bg-white border border-[#d9dbde] border-solid h-[56px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[8px] top-[596px] w-[1040px] whitespace-nowrap">
@@ -118,10 +165,10 @@ export function Review() {
           Bupivacaine
         </p>
         <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
-          1.50 mg/day
+          {bupMgD.toFixed(2)} mg/day
         </p>
         <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[799px] text-[#667380] text-[18px] top-[15px]">
-          0.063 mg/h
+          {bupMgH.toFixed(3)} mg/h
         </p>
       </div>
       <div className="absolute bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[8px] top-[1475px] w-[1040px] whitespace-nowrap">
@@ -129,14 +176,14 @@ export function Review() {
           Bupivacaine
         </p>
         <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
-          1.48 µg/day
+          {estBupMgD.toFixed(2)} mg/day
         </p>
       </div>
       <div className="absolute bg-[#f7fafc] h-[56px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[8px] top-[660px] w-[1040px]">
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[24px] text-[#063b66] text-[20px] top-[16px] whitespace-nowrap">
           Delivery stroke
         </p>
-        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[460px] text-[#667380] text-[18px] top-[18px] whitespace-pre">{`120 min  ·  Balanced  ·  6 strokes/day`}</p>
+        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[460px] text-[#667380] text-[18px] top-[18px] whitespace-pre">{`${stroke.min} min  ·  ${stroke.label}  ·  ${stroke.strokesPerDay} strokes/day`}</p>
       </div>
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[778px] w-[1040px]" />
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[1252px] w-[1040px]" />
@@ -150,18 +197,10 @@ export function Review() {
       <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#0b7fa8] text-[14px] top-[838px] whitespace-nowrap">{`↓ Tap a bar to see the interval's details`}</p>
       <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[16px] top-[878px] whitespace-pre">{`Weekdays  ·  Mon-Fri`}</p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[902px] w-[1040px]" />
-      <div className="absolute bg-[#8cc7e8] h-[30.4px] left-[92px] rounded-[3px] top-[954.6px] w-[336.243px]" />
-      <div className="absolute bg-[#055273] h-[72.96px] left-[430.66px] rounded-[3px] top-[912.04px] w-[103.41px]" />
-      <div className="absolute bg-[#0b7fa8] h-[54.72px] left-[536.5px] rounded-[3px] top-[930.28px] w-[251.577px]" />
-      <div className="absolute bg-[#0b7fa8] h-[68.4px] left-[790.5px] rounded-[3px] top-[916.6px] w-[188.077px]" />
-      <div className="absolute bg-[#4da6d6] h-[42.56px] left-[981px] rounded-[3px] top-[942.44px] w-[124.577px]" />
+      <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKDAYS_BOTTOM} />
       <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[16px] top-[1008px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[1032px] w-[1040px]" />
-      <div className="absolute bg-[#8cc7e8] h-[30.4px] left-[92px] rounded-[3px] top-[1084.6px] w-[357.41px]" />
-      <div className="absolute bg-[#055273] h-[72.96px] left-[451.84px] rounded-[3px] top-[1042.04px] w-[103.833px]" />
-      <div className="absolute bg-[#0b7fa8] h-[54.72px] left-[558.52px] rounded-[3px] top-[1060.28px] w-[229.563px]" />
-      <div className="absolute bg-[#0b7fa8] h-[68.4px] left-[790.5px] rounded-[3px] top-[1046.6px] w-[188.077px]" />
-      <div className="absolute bg-[#4da6d6] h-[42.56px] left-[981px] rounded-[3px] top-[1072.44px] w-[124.577px]" />
+      <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKEND_BOTTOM} />
       <div className="absolute content-stretch flex items-center left-0 top-[164px] w-[1200px]">
         <div className="content-stretch flex flex-[1_0_0] h-[64px] items-center min-w-px mr-[-10px] relative">
           <div className="bg-[#e6f4f9] content-stretch flex flex-[1_0_0] h-[64px] items-start min-w-px overflow-clip pl-[40px] pr-[16px] py-[8px] relative">

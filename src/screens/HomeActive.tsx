@@ -105,7 +105,24 @@ function Filling({ className }: FillingProps) {
   );
 }
 
+import { useTherapy, doseColor, morphineMgDay, bupivacaineMgDay, estimatedDailyTotal, fmtTime } from '../therapy';
+
+const HA_LEFT = 16;
+const HA_WIDTH = 950;
+const HA_SCALE = 0.2;
+const HA_BAR_BOTTOM = 122;
+const NOW_MIN = 716; // "11:56" (matches the design's now indicator)
+
 export function HomeActive() {
+  const { baseDose, intervals } = useTherapy();
+  const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  const current = ordered.find(iv => iv.startMin <= NOW_MIN && iv.endMin > NOW_MIN);
+  const currentDose = current?.dose ?? baseDose;
+  const currentLabel = current?.label ?? 'Base';
+  const estDaily = estimatedDailyTotal(baseDose, intervals);
+  const estMorMgD = morphineMgDay(estDaily);
+  const estBupMgD = bupivacaineMgDay(estDaily);
+  const nowLeft = HA_LEFT + (NOW_MIN / 1440) * HA_WIDTH;
   return (
     <div className="bg-white relative size-full">
       <div className="absolute content-stretch flex flex-col gap-[40px] h-[1789px] items-center left-0 p-[80px] top-[35px] w-[1200px]">
@@ -397,14 +414,14 @@ export function HomeActive() {
                   </div>
                   <div className="absolute bg-[#0b7fa8] h-[28px] left-[108px] rounded-[4px] top-[18px] w-[8px]" />
                   <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[757px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
-                    Daytime
+                    {currentLabel}
                   </p>
-                  <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[457px] not-italic text-[24px] text-white top-[17px] whitespace-nowrap">{` 360 µg/day`}</p>
+                  <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[457px] not-italic text-[24px] text-white top-[17px] whitespace-nowrap">{` ${currentDose} µg/day`}</p>
                   <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[112px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
                     Baclofen
                   </p>
                   <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[903px] not-italic text-[24px] text-white top-[22px] whitespace-nowrap">
-                    11:56
+                    {fmtTime(NOW_MIN)}
                   </p>
                   <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[911px] not-italic text-[#d9f2fa] text-[14px] top-[3px] whitespace-nowrap">
                     Monday
@@ -415,7 +432,7 @@ export function HomeActive() {
                     Morphine
                   </p>
                   <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
-                    0.49 µg/day
+                    {morphineMgDay(currentDose).toFixed(2)} mg/day
                   </p>
                 </div>
                 <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
@@ -423,7 +440,7 @@ export function HomeActive() {
                     Bupivacaine
                   </p>
                   <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
-                    1.48 µg/day
+                    {bupivacaineMgDay(currentDose).toFixed(2)} mg/day
                   </p>
                 </div>
               </div>
@@ -445,13 +462,21 @@ export function HomeActive() {
                   <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[932px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[12px] whitespace-nowrap">
                     24:00
                   </p>
-                  <div className="bg-[#8cc7e8] col-1 h-[40px] ml-[16px] mt-[82px] relative rounded-[3px] row-1 w-[314.937px]" />
-                  <div className="bg-[#055273] col-1 h-[96px] ml-[333.34px] mt-[26px] relative rounded-[3px] row-1 w-[96.77px]" />
-                  <div className="bg-[#0b7fa8] col-1 h-[72px] ml-[432.5px] mt-[50px] relative rounded-[3px] row-1 w-[235.603px]" />
-                  <div className="bg-[#0b7fa8] col-1 h-[90px] ml-[670.5px] mt-[32px] relative rounded-[3px] row-1 w-[176.103px]" />
-                  <div className="bg-[#4da6d6] col-1 h-[56px] ml-[849px] mt-[66px] relative rounded-[3px] row-1 w-[116.603px]" />
-                  <div className="bg-[#063b66] col-1 h-[98px] ml-[472px] mt-[23px] relative row-1 w-[2px]" />
-                  <div className="col-1 flex h-[14px] items-center justify-center ml-[465.23px] mt-0 relative row-1 w-[16px]">
+                  {ordered.map(iv => {
+                    const left = HA_LEFT + (iv.startMin / 1440) * HA_WIDTH;
+                    const width = ((iv.endMin - iv.startMin) / 1440) * HA_WIDTH;
+                    const height = iv.dose * HA_SCALE;
+                    const top = HA_BAR_BOTTOM - height;
+                    return (
+                      <div
+                        key={iv.id}
+                        className="col-1 relative rounded-[3px] row-1"
+                        style={{ marginLeft: left, marginTop: top, width, height, background: doseColor(iv.dose, baseDose) }}
+                      />
+                    );
+                  })}
+                  <div className="col-1 relative row-1 w-[2px] bg-[#063b66]" style={{ marginLeft: nowLeft, marginTop: 23, height: 98 }} />
+                  <div className="col-1 flex h-[14px] items-center justify-center mt-0 relative row-1 w-[16px]" style={{ marginLeft: nowLeft - 7 }}>
                     <div className="flex-none rotate-180">
                       <div className="h-[14px] relative w-[16px]">
                         <div className="absolute bottom-1/4 left-[6.7%] right-[6.7%] top-0">
@@ -492,7 +517,7 @@ export function HomeActive() {
                       </div>
                     </div>
                     <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[460px] not-italic text-[18px] text-white top-[17px] whitespace-nowrap">
-                      356 µg/day
+                      {estDaily.toFixed(0)} µg/day
                     </p>
                   </div>
                   <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-full whitespace-nowrap">
@@ -500,7 +525,7 @@ export function HomeActive() {
                       Morphine
                     </p>
                     <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
-                      0.49 µg/day
+                      {estMorMgD.toFixed(2)} mg/day
                     </p>
                   </div>
                   <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-full whitespace-nowrap">
@@ -508,7 +533,7 @@ export function HomeActive() {
                       Bupivacaine
                     </p>
                     <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
-                      1.48 µg/day
+                      {estBupMgD.toFixed(2)} mg/day
                     </p>
                   </div>
                 </div>

@@ -41,11 +41,11 @@ function BBraunMiethkeSignet({ className }: { className?: string }) {
 }
 
 import { useNavigate } from '../navigation';
-import { useTherapy, morphineMgDay, bupivacaineMgDay, hourlyUg } from '../therapy';
+import { useTherapy, morphineMgDay, bupivacaineMgDay, hourlyUg, STROKE_OPTIONS, type StrokeStrategy } from '../therapy';
 
 export function BaseDose() {
   const navigate = useNavigate();
-  const { baseDose, setBaseDose } = useTherapy();
+  const { baseDose, setBaseDose, strokeStrategy, setStrokeStrategy } = useTherapy();
   const stepDown = () => setBaseDose(Math.max(0, baseDose - 10));
   const stepUp = () => setBaseDose(Math.min(2000, baseDose + 10));
   const morMgD = morphineMgDay(baseDose);
@@ -224,13 +224,16 @@ export function BaseDose() {
                 <div className="bg-white border-2 border-[#0b7fa8] border-solid col-1 h-[60px] ml-0 mt-0 relative rounded-[12px] row-1 w-[200px]" />
                 <div className="col-1 content-stretch flex gap-[21px] items-center leading-[normal] ml-[26px] mt-[8px] not-italic relative row-1 whitespace-nowrap">
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={baseDose}
-                    min={0}
-                    max={2000}
-                    step={10}
-                    onChange={e => setBaseDose(Math.max(0, Math.min(2000, Number(e.target.value) || 0)))}
-                    className="font-['Inter:Bold',sans-serif] font-bold text-[#063b66] text-[36px] bg-transparent outline-none border-0 p-0 w-[120px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    onChange={e => {
+                      const n = parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0;
+                      setBaseDose(Math.max(0, Math.min(2000, n)));
+                    }}
+                    className="font-bold not-italic text-[#063b66] text-[36px] bg-transparent outline-none border-0 p-0 w-[80px] text-left"
+                    style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal' }}
                   />
                   <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#667380] text-[16px]">
                     µg/day
@@ -305,11 +308,26 @@ export function BaseDose() {
       <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[1048px] w-[1040px]">
         How the pump releases medication: many small strokes (more continuous) or fewer larger strokes (more spaced).
       </p>
-      <DeliveryStrokeCard left={80} title="30 min" subtitle="Most continuous" detail="24 strokes/day" perStroke="15.0 µg" barCount={24} barWidth={2.667} selected={false} />
-      <DeliveryStrokeCard left={288} title="60 min" subtitle="Continuous" detail="12 strokes/day" perStroke="30.0 µg" barCount={12} barWidth={5.333} selected={false} />
-      <DeliveryStrokeCard left={496} title="120 min" subtitle="Balanced" detail="6 strokes/day" perStroke="60 µg" barCount={6} barWidth={8} selected={true} />
-      <DeliveryStrokeCard left={704} title="240 min" subtitle="Spaced" detail="3 strokes/day" perStroke="120 µg" barCount={3} barWidth={8} selected={false} />
-      <DeliveryStrokeCard left={912} title="480 min" subtitle="Most spaced" detail="2 strokes/day" perStroke="180 µg" barCount={2} barWidth={8} selected={false} />
+      {STROKE_OPTIONS.map((opt, i) => {
+        const per = baseDose / opt.strokesPerDay;
+        const perStroke = `${per % 1 === 0 ? per.toFixed(0) : per.toFixed(1)} µg`;
+        // Bar widths from the original Figma: 30 → 2.667, 60 → 5.333, 120/240/480 → 8
+        const barWidth = i === 0 ? 2.667 : i === 1 ? 5.333 : 8;
+        return (
+          <DeliveryStrokeCard
+            key={opt.min}
+            left={80 + i * 208}
+            title={`${opt.min} min`}
+            subtitle={opt.label}
+            detail={`${opt.strokesPerDay} strokes/day`}
+            perStroke={perStroke}
+            barCount={opt.strokesPerDay}
+            barWidth={barWidth}
+            selected={strokeStrategy === opt.min}
+            onSelect={() => setStrokeStrategy(opt.min as StrokeStrategy)}
+          />
+        );
+      })}
       <div className="absolute content-stretch flex gap-[12px] items-center left-[80px] top-[1460px]">
         <div className="overflow-clip relative shrink-0 size-[28px]">
           <div className="-translate-x-1/2 absolute aspect-[159.24000549316406/159.24000549316406] bottom-0 left-[calc(50%+0.5px)] overflow-clip top-0">
@@ -339,9 +357,10 @@ type CardProps = {
   barCount: number;
   barWidth: number;
   selected: boolean;
+  onSelect?: () => void;
 };
 
-function DeliveryStrokeCard({ left, title, subtitle, detail, perStroke, barCount, barWidth, selected }: CardProps) {
+function DeliveryStrokeCard({ left, title, subtitle, detail, perStroke, barCount, barWidth, selected, onSelect }: CardProps) {
   // Bar layout: bars start at x=14px and step by 8px ( + cardSelected offset adjustments)
   // Total card width = 192px. Bars are centered top area, vertical line at top:27 (selected: 26)
   const barColor = selected ? '#0b7fa8' : '#9ea8b2';
@@ -358,7 +377,8 @@ function DeliveryStrokeCard({ left, title, subtitle, detail, perStroke, barCount
   const step = barCount > 1 ? (totalWidth - barWidth) / (barCount - 1) : 0;
   return (
     <div
-      className={`absolute ${borderClass} border-solid h-[255px] overflow-clip rounded-[16px] top-[1150px] w-[192px]`}
+      onClick={onSelect}
+      className={`absolute ${borderClass} border-solid h-[255px] overflow-clip rounded-[16px] top-[1150px] w-[192px] cursor-pointer select-none`}
       style={{ left, background: bgColor }}
     >
       {Array.from({ length: barCount }).map((_, i) => (

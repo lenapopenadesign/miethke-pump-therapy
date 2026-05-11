@@ -57,7 +57,13 @@ function EditIcon({ className }: { className?: string }) {
 }
 
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtTime, doseColor } from '../therapy';
+import { useTherapy, fmtTime, doseColor, type DayPattern } from '../therapy';
+
+const DAY_PATTERNS: { key: DayPattern; label: string; x: number; w: number }[] = [
+  { key: 'same',             label: 'Same daily',         x: 84,      w: 338.667 },
+  { key: 'weekday-weekend',  label: 'Weekday / weekend',  x: 430.67,  w: 338.667 },
+  { key: 'per-day',          label: 'Per day',            x: 777.33,  w: 338.667 },
+];
 
 // Chart layout in 1200x1920 frame
 const CHART_LEFT = 110;
@@ -72,7 +78,7 @@ function timeRangeLabel(startMin: number, endMin: number): string {
 
 export function IntervalsPopulated() {
   const navigate = useNavigate();
-  const { intervals, baseDose, startAddingInterval, startEditingInterval } = useTherapy();
+  const { intervals, baseDose, startAddingInterval, startEditingInterval, dayPattern, setDayPattern } = useTherapy();
   const onAdd = () => { startAddingInterval(); navigate('add-interval-when'); };
   const onEdit = (id: string) => { startEditingInterval(id); navigate('add-interval-when'); };
   // sort by startMin for chart and list order
@@ -90,16 +96,21 @@ export function IntervalsPopulated() {
         Day pattern
       </p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[70px] left-[80px] rounded-[12px] top-[466px] w-[1040px]" />
-      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[195.34px] not-italic text-[#063b66] text-[22px] top-[487px] whitespace-nowrap">
-        Same daily
-      </p>
-      <div className="absolute bg-[#0b7fa8] h-[62px] left-[430.67px] rounded-[10px] top-[470px] w-[338.667px]" />
-      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[493px] not-italic text-[22px] text-white top-[487px] whitespace-nowrap">
-        Weekday / weekend
-      </p>
-      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[906.66px] not-italic text-[#063b66] text-[22px] top-[487px] whitespace-nowrap">
-        Per day
-      </p>
+      {DAY_PATTERNS.map(p => {
+        const active = dayPattern === p.key;
+        return (
+          <div
+            key={p.key}
+            onClick={() => setDayPattern(p.key)}
+            className={`absolute h-[62px] rounded-[10px] top-[470px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#0b7fa8]' : ''}`}
+            style={{ left: p.x, width: p.w }}
+          >
+            <p className={`font-['Inter:Semi_Bold',sans-serif] font-semibold not-italic text-[22px] whitespace-nowrap ${active ? 'text-white' : 'text-[#063b66]'}`}>
+              {p.label}
+            </p>
+          </div>
+        );
+      })}
 
       <div className="absolute bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid h-[60px] left-[80px] overflow-clip rounded-[12px] top-[570px] w-[500px]">
         <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[136px] not-italic text-[#063b66] text-[22px] top-[14.5px] whitespace-pre">{`Weekdays  ·  Mon-Fri`}</p>

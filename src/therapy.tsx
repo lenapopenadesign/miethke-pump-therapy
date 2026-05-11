@@ -10,6 +10,17 @@ export type Interval = {
 
 export type Draft = Omit<Interval, 'id'>;
 
+export type StrokeStrategy = 30 | 60 | 120 | 240 | 480;
+export type DayPattern = 'same' | 'weekday-weekend' | 'per-day';
+
+export const STROKE_OPTIONS: { min: StrokeStrategy; strokesPerDay: number; label: string }[] = [
+  { min: 30,  strokesPerDay: 24, label: 'Most continuous' },
+  { min: 60,  strokesPerDay: 12, label: 'Continuous' },
+  { min: 120, strokesPerDay: 6,  label: 'Balanced' },
+  { min: 240, strokesPerDay: 3,  label: 'Spaced' },
+  { min: 480, strokesPerDay: 2,  label: 'Most spaced' },
+];
+
 type TherapyState = {
   baseDose: number;
   setBaseDose: (n: number) => void;
@@ -20,6 +31,10 @@ type TherapyState = {
   startAddingInterval: () => void;
   startEditingInterval: (id: string) => void;
   commitDraft: () => void;
+  strokeStrategy: StrokeStrategy;
+  setStrokeStrategy: (s: StrokeStrategy) => void;
+  dayPattern: DayPattern;
+  setDayPattern: (p: DayPattern) => void;
 };
 
 const TherapyContext = createContext<TherapyState | null>(null);
@@ -48,6 +63,8 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [intervals, setIntervals] = useState<Interval[]>(SEED_INTERVALS);
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(120);
+  const [dayPattern, setDayPattern] = useState<DayPattern>('same');
 
   function startAddingInterval() {
     setEditingId(null);
@@ -77,6 +94,8 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       draft, setDraft,
       editingId,
       startAddingInterval, startEditingInterval, commitDraft,
+      strokeStrategy, setStrokeStrategy,
+      dayPattern, setDayPattern,
     }}>
       {children}
     </TherapyContext.Provider>
