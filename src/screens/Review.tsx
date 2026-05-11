@@ -37,6 +37,7 @@ function IconsStepper({ className }: { className?: string }) {
   );
 }
 
+import { useEffect } from 'react';
 import { useNavigate } from '../navigation';
 import {
   useTherapy,
@@ -47,6 +48,7 @@ import {
   estimatedDailyTotal,
   STROKE_OPTIONS,
 } from '../therapy';
+import { IntervalPreview } from '../components/IntervalPreview';
 
 // Mini chart layout
 const MINI_LEFT = 92;
@@ -89,6 +91,10 @@ function MiniChartBars({
 export function Review() {
   const navigate = useNavigate();
   const { baseDose, intervals, strokeStrategy, setPreviewIntervalId } = useTherapy();
+  useEffect(() => {
+    setPreviewIntervalId(null);
+    return () => setPreviewIntervalId(null);
+  }, [setPreviewIntervalId]);
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
   const onBarClick = (id: string) => setPreviewIntervalId(id);
   const stroke = STROKE_OPTIONS.find(s => s.min === strokeStrategy) ?? STROKE_OPTIONS[2];
@@ -213,6 +219,8 @@ export function Review() {
       <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[20px] top-[1008px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[1032px] w-[1040px]" />
       <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKEND_BOTTOM} onBarClick={onBarClick} />
+      {/* Inline preview — sits over the intervals area */}
+      <IntervalPreview top={870} left={80} width={1040} />
       <div className="absolute content-stretch flex items-center left-0 top-[164px] w-[1200px]">
         <div className="content-stretch flex flex-[1_0_0] h-[64px] items-center min-w-px mr-[-10px] relative">
           <div className="bg-[#e6f4f9] content-stretch flex flex-[1_0_0] h-[64px] items-start min-w-px overflow-clip pl-[40px] pr-[16px] py-[8px] relative">

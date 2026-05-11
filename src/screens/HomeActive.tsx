@@ -105,7 +105,9 @@ function Filling({ className }: FillingProps) {
   );
 }
 
+import { useEffect, useState } from 'react';
 import { useTherapy, doseColor, morphineMgDay, bupivacaineMgDay, estimatedDailyTotal, fmtTime } from '../therapy';
+import { IntervalPreview } from '../components/IntervalPreview';
 
 const HA_LEFT = 16;
 const HA_WIDTH = 950;
@@ -115,6 +117,12 @@ const NOW_MIN = 716; // "11:56" (matches the design's now indicator)
 
 export function HomeActive() {
   const { baseDose, intervals, setPreviewIntervalId } = useTherapy();
+  const [activeTab, setActiveTab] = useState<'weekdays' | 'weekend'>('weekdays');
+  // Clear any preview state from a previous screen on mount/unmount
+  useEffect(() => {
+    setPreviewIntervalId(null);
+    return () => setPreviewIntervalId(null);
+  }, [setPreviewIntervalId]);
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
   const onBarClick = (id: string) => setPreviewIntervalId(id);
   const current = ordered.find(iv => iv.startMin <= NOW_MIN && iv.endMin > NOW_MIN);
@@ -489,11 +497,21 @@ export function HomeActive() {
                   </div>
                 </div>
                 <div className="content-stretch flex gap-[25px] items-start relative shrink-0 w-full">
-                  <div className="bg-white border border-[#d9dbde] border-solid flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px]">
-                    <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[143.5px] not-italic text-[#667380] text-[26px] top-[15.5px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
+                  <div
+                    onClick={() => setActiveTab('weekend')}
+                    className={`flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px] cursor-pointer flex items-center justify-center ${activeTab === 'weekend' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
+                  >
+                    <p className={`font-['Inter:Bold',sans-serif] not-italic text-[26px] whitespace-pre ${activeTab === 'weekend' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>
+                      {`Weekend  ·  Sat-Sun`}
+                    </p>
                   </div>
-                  <div className="bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px]">
-                    <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[136px] not-italic text-[#063b66] text-[26px] top-[14.5px] whitespace-pre">{`Weekdays  ·  Mon-Fri`}</p>
+                  <div
+                    onClick={() => setActiveTab('weekdays')}
+                    className={`flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px] cursor-pointer flex items-center justify-center ${activeTab === 'weekdays' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
+                  >
+                    <p className={`font-['Inter:Bold',sans-serif] not-italic text-[26px] whitespace-pre ${activeTab === 'weekdays' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>
+                      {`Weekdays  ·  Mon-Fri`}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -553,6 +571,8 @@ export function HomeActive() {
         </div>
       </div>
       <AndroidTopBar className="absolute h-[35px] left-0 top-0 w-[1200px]" />
+      {/* Inline preview — sits over the Therapy chart area */}
+      <IntervalPreview top={1360} left={100} width={1000} />
       <div className="absolute bg-[#e6f4f9] content-stretch flex h-[120px] items-center justify-center left-0 overflow-x-clip overflow-y-auto px-[16px] py-[8px] top-[1800px] w-[1200px]">
         <div className="content-stretch flex flex-[1_0_0] gap-[16px] items-start justify-center min-w-px relative">
           <a className="content-stretch cursor-pointer flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px]">

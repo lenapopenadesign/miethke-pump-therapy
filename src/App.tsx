@@ -9,7 +9,6 @@ import { Activate } from './screens/Activate';
 import { HomeActive } from './screens/HomeActive';
 import { NavProvider, type ScreenId } from './navigation';
 import { TherapyProvider } from './therapy';
-import { IntervalPreview } from './components/IntervalPreview';
 
 const ORDER: ScreenId[] = [
   'home-no-therapy',
@@ -42,7 +41,6 @@ export function App() {
               {screen === 'review' && <Review />}
               {screen === 'activate' && <Activate />}
               {screen === 'home-active' && <HomeActive />}
-              <IntervalPreview />
             </div>
           </div>
         </div>
