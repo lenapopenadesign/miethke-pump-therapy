@@ -298,43 +298,34 @@ export function HomeNoTherapy() {
             </div>
           </div>
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
-            <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
-              <div className="bg-white col-1 h-[56px] ml-0 mt-0 overflow-clip relative rounded-[8px] row-1 w-[1000px]">
-                <div className="absolute bg-[#0b7fa8] h-[22px] left-[131px] overflow-clip rounded-[11px] top-[17px] w-[72px]">
+            <div className="content-stretch flex gap-[25px] items-start relative shrink-0">
+              <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0">
+                <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px] whitespace-nowrap">
+                  Baclofen
+                </p>
+                <div className="bg-[#0b7fa8] h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px]">
                   <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[10.5px] not-italic text-[11px] text-white top-[4.5px] whitespace-nowrap">
                     PRIMARY
                   </p>
                 </div>
-                <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[23px] not-italic text-[#063b66] text-[20px] top-[14px] whitespace-nowrap">
-                  Baclofen
-                </p>
-                <p className="absolute font-['Roboto:Regular',sans-serif] font-normal leading-[32px] left-[461px] text-[#667380] text-[24px] top-[14px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                   1 mg/ml
                 </p>
-                <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[800px] not-italic text-[#063b66] text-[18px] top-[16px] whitespace-nowrap">
-                  —
-                </p>
               </div>
-              <div className="bg-white col-1 h-[56px] ml-0 mt-[64px] overflow-clip relative rounded-[8px] row-1 w-[1000px] whitespace-nowrap">
-                <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[24px] not-italic text-[#063b66] text-[20px] top-[14px]">
+              <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0 whitespace-nowrap">
+                <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px]">
                   Morphine
                 </p>
-                <p className="absolute font-['Roboto:Regular',sans-serif] font-normal leading-[32px] left-[459px] text-[#667380] text-[24px] top-[10px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   10 mg/ml
                 </p>
-                <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[800px] not-italic text-[#667380] text-[18px] top-[16px]">
-                  0.139% of B.
-                </p>
               </div>
-              <div className="bg-white col-1 h-[56px] ml-0 mt-[128px] overflow-clip relative rounded-[8px] row-1 w-[1000px] whitespace-nowrap">
-                <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[24px] not-italic text-[#063b66] text-[20px] top-[14px]">
+              <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0 whitespace-nowrap">
+                <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px]">
                   Bupivacaine
                 </p>
-                <p className="absolute font-['Roboto:Regular',sans-serif] font-normal leading-[32px] left-[463px] text-[#667380] text-[24px] top-[10px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   5 mg/ml
-                </p>
-                <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[800px] not-italic text-[#667380] text-[18px] top-[16px]">
-                  0.417% of B.
                 </p>
               </div>
             </div>

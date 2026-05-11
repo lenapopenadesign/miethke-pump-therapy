@@ -106,23 +106,23 @@ export function Review() {
       <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[36px] top-[270px] w-[1040px]">
         Review your therapy
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[20px] top-[322px] whitespace-nowrap">
+      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[24px] top-[322px] whitespace-nowrap">
         Frida K. · 42 yo · RRMS
       </p>
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[388px] w-[1040px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[408px] whitespace-nowrap">{`Base dose & delivery`}</p>
-      <p className="absolute font-['Roboto:Regular',sans-serif] font-normal leading-[24px] left-[540px] text-[#9ea8b2] text-[20px] top-[435px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[26px] top-[408px] whitespace-nowrap">{`Base dose & delivery`}</p>
+      <p className="absolute font-['Roboto:Regular',sans-serif] font-normal leading-[24px] left-[540px] text-[#9ea8b2] text-[24px] top-[435px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
         Daily dose
       </p>
-      <p className="absolute font-['Roboto:Regular',sans-serif] font-normal leading-[24px] left-[540px] text-[#9ea8b2] text-[20px] top-[1314px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+      <p className="absolute font-['Roboto:Regular',sans-serif] font-normal leading-[24px] left-[540px] text-[#9ea8b2] text-[24px] top-[1314px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
         Daily total
       </p>
-      <p className="absolute font-['Roboto:Regular',sans-serif] font-normal leading-[24px] left-[880px] text-[#9ea8b2] text-[20px] top-[435px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+      <p className="absolute font-['Roboto:Regular',sans-serif] font-normal leading-[24px] left-[880px] text-[#9ea8b2] text-[24px] top-[435px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
         Hourly dose
       </p>
       <div className="absolute bg-white border-2 border-[#0b7fa8] border-solid h-[56px] left-[80px] overflow-clip rounded-[8px] top-[468px] w-[1040px]">
         <div className="absolute content-stretch flex gap-[12px] items-center left-[14px] top-[14px]">
-          <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px] whitespace-nowrap">
+          <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px] whitespace-nowrap">
             Baclofen
           </p>
           <div className="bg-[#0b7fa8] h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px]">
@@ -131,16 +131,16 @@ export function Review() {
             </p>
           </div>
         </div>
-        <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[458px] not-italic text-[#063b66] text-[18px] top-[15px] whitespace-nowrap">
+        <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[458px] not-italic text-[#063b66] text-[22px] top-[15px] whitespace-nowrap">
           {baseDose} µg/day
         </p>
-        <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[798px] not-italic text-[#063b66] text-[18px] top-[15px] whitespace-nowrap">
+        <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[798px] not-italic text-[#063b66] text-[22px] top-[15px] whitespace-nowrap">
           ≈ {baclofenH.toFixed(1)} µg/h
         </p>
       </div>
       <div className="absolute bg-[#d9ebf5] border-2 border-[#0b7fa8] border-solid h-[56px] left-[80px] overflow-clip rounded-[8px] top-[1347px] w-[1040px]">
         <div className="absolute content-stretch flex gap-[12px] items-center left-[14px] top-[14px]">
-          <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px] whitespace-nowrap">
+          <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px] whitespace-nowrap">
             Baclofen
           </p>
           <div className="bg-[#0b7fa8] h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px]">
@@ -149,68 +149,68 @@ export function Review() {
             </p>
           </div>
         </div>
-        <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[458px] not-italic text-[#063b66] text-[18px] top-[15px] whitespace-nowrap">
+        <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[458px] not-italic text-[#063b66] text-[22px] top-[15px] whitespace-nowrap">
           {estDaily.toFixed(0)} µg/day
         </p>
       </div>
       <div className="absolute bg-white border border-[#d9dbde] border-solid h-[56px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[8px] top-[532px] w-[1040px] whitespace-nowrap">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[20px] top-[13px]">
+        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
           Morphine
         </p>
-        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
+        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
           {morMgD.toFixed(2)} mg/day
         </p>
-        <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[799px] text-[#667380] text-[18px] top-[15px]">
+        <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[799px] text-[#667380] text-[22px] top-[15px]">
           {morMgH.toFixed(3)} mg/h
         </p>
       </div>
       <div className="absolute bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[8px] top-[1411px] w-[1040px] whitespace-nowrap">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[20px] top-[13px]">
+        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
           Morphine
         </p>
-        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
+        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
           {estMorMgD.toFixed(2)} mg/day
         </p>
       </div>
       <div className="absolute bg-white border border-[#d9dbde] border-solid h-[56px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[8px] top-[596px] w-[1040px] whitespace-nowrap">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[20px] top-[13px]">
+        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
           Bupivacaine
         </p>
-        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
+        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
           {bupMgD.toFixed(2)} mg/day
         </p>
-        <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[799px] text-[#667380] text-[18px] top-[15px]">
+        <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[799px] text-[#667380] text-[22px] top-[15px]">
           {bupMgH.toFixed(3)} mg/h
         </p>
       </div>
       <div className="absolute bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[8px] top-[1475px] w-[1040px] whitespace-nowrap">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[20px] top-[13px]">
+        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
           Bupivacaine
         </p>
-        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
+        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
           {estBupMgD.toFixed(2)} mg/day
         </p>
       </div>
       <div className="absolute bg-[#f7fafc] h-[56px] leading-[normal] left-[80px] not-italic overflow-clip rounded-[8px] top-[660px] w-[1040px]">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[24px] text-[#063b66] text-[20px] top-[16px] whitespace-nowrap">
+        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[24px] text-[#063b66] text-[24px] top-[16px] whitespace-nowrap">
           Delivery stroke
         </p>
-        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[460px] text-[#667380] text-[18px] top-[18px] whitespace-pre">{`${stroke.min} min  ·  ${stroke.label}  ·  ${stroke.strokesPerDay} strokes/day`}</p>
+        <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[460px] text-[#667380] text-[22px] top-[18px] whitespace-pre">{`${stroke.min} min  ·  ${stroke.label}  ·  ${stroke.strokesPerDay} strokes/day`}</p>
       </div>
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[778px] w-[1040px]" />
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[1252px] w-[1040px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[798px] whitespace-nowrap">
+      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[26px] top-[798px] whitespace-nowrap">
         Intervals
       </p>
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[1282px] whitespace-nowrap">
+      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[26px] top-[1282px] whitespace-nowrap">
         Estimated daily total
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#667380] text-[18px] top-[804px] whitespace-pre">{`Weekday / weekend  ·  5 + 5`}</p>
-      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#0b7fa8] text-[14px] top-[838px] whitespace-nowrap">{`↓ Tap a bar to see the interval's details`}</p>
-      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[16px] top-[878px] whitespace-pre">{`Weekdays  ·  Mon-Fri`}</p>
+      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#667380] text-[22px] top-[804px] whitespace-pre">{`Weekday / weekend  ·  5 + 5`}</p>
+      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#0b7fa8] text-[18px] top-[838px] whitespace-nowrap">{`↓ Tap a bar to see the interval's details`}</p>
+      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[20px] top-[878px] whitespace-pre">{`Weekdays  ·  Mon-Fri`}</p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[902px] w-[1040px]" />
       <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKDAYS_BOTTOM} onBarClick={onBarClick} />
-      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[16px] top-[1008px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
+      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[20px] top-[1008px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[1032px] w-[1040px]" />
       <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKEND_BOTTOM} onBarClick={onBarClick} />
       <div className="absolute content-stretch flex items-center left-0 top-[164px] w-[1200px]">
@@ -224,7 +224,7 @@ export function Review() {
                   </div>
                   <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgIconsStepper} />
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Base Dose
                 </p>
               </div>
@@ -247,7 +247,7 @@ export function Review() {
                   </div>
                   <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgIconsStepper} />
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Intervals
                 </p>
               </div>
@@ -272,7 +272,7 @@ export function Review() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse73} />
                   </div>
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Review
                 </p>
               </div>
@@ -290,7 +290,7 @@ export function Review() {
             <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
               <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
                 <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Activate
                 </p>
               </div>

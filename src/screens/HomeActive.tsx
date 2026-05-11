@@ -166,7 +166,7 @@ export function HomeActive() {
                   </div>
                   <div className="content-stretch flex flex-[1_0_0] items-center justify-between min-w-px relative">
                     <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         Fill level
                       </p>
                       <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -180,7 +180,7 @@ export function HomeActive() {
                       </p>
                     </div>
                     <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         Catheter
                       </p>
                       <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -194,7 +194,7 @@ export function HomeActive() {
                     <div className="flex flex-row items-center self-stretch">
                       <div className="content-stretch flex gap-[40px] h-full items-center relative shrink-0">
                         <div className="content-stretch flex flex-col h-full items-start relative shrink-0 text-[#00769e] tracking-[0.1px] w-[167px] whitespace-nowrap">
-                          <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                             Next refill before
                           </p>
                           <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[48px] relative shrink-0 text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -314,7 +314,7 @@ export function HomeActive() {
             <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
               <div className="content-stretch flex gap-[25px] items-start relative shrink-0">
                 <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0">
-                  <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px] whitespace-nowrap">
+                  <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px] whitespace-nowrap">
                     Baclofen
                   </p>
                   <div className="bg-[#0b7fa8] h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px]">
@@ -327,7 +327,7 @@ export function HomeActive() {
                   </p>
                 </div>
                 <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0 whitespace-nowrap">
-                  <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px]">
+                  <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px]">
                     Morphine
                   </p>
                   <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -335,7 +335,7 @@ export function HomeActive() {
                   </p>
                 </div>
                 <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0 whitespace-nowrap">
-                  <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px]">
+                  <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px]">
                     Bupivacaine
                   </p>
                   <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -409,7 +409,7 @@ export function HomeActive() {
               <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0">
                 <div className="bg-[#0b7fa8] h-[61px] overflow-clip relative rounded-[12px] shrink-0 w-[984px]">
                   <div className="absolute bg-white h-[28px] left-[27px] overflow-clip rounded-[14px] top-[18px] w-[72px]">
-                    <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[18px] not-italic text-[#0b7fa8] text-[14px] top-[5.5px] whitespace-nowrap">
+                    <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[18px] not-italic text-[#0b7fa8] text-[18px] top-[5.5px] whitespace-nowrap">
                       NOW
                     </p>
                   </div>
@@ -424,23 +424,23 @@ export function HomeActive() {
                   <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[903px] not-italic text-[24px] text-white top-[22px] whitespace-nowrap">
                     {fmtTime(NOW_MIN)}
                   </p>
-                  <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[911px] not-italic text-[#d9f2fa] text-[14px] top-[3px] whitespace-nowrap">
+                  <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[911px] not-italic text-[#d9f2fa] text-[18px] top-[3px] whitespace-nowrap">
                     Monday
                   </p>
                 </div>
                 <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
-                  <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[20px] top-[13px]">
+                  <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
                     Morphine
                   </p>
-                  <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
+                  <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
                     {(morphineMgDay(currentDose) / 24).toFixed(3)} mg/h
                   </p>
                 </div>
                 <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
-                  <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[20px] top-[13px]">
+                  <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
                     Bupivacaine
                   </p>
-                  <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
+                  <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
                     {(bupivacaineMgDay(currentDose) / 24).toFixed(3)} mg/h
                   </p>
                 </div>
@@ -448,19 +448,19 @@ export function HomeActive() {
               <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-full">
                 <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
                   <div className="bg-white border border-[#d9dbde] border-solid col-1 h-[130px] ml-0 mt-[2px] relative rounded-[12px] row-1 w-[984px]" />
-                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[16px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[12px] whitespace-nowrap">
+                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[16px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
                     00:00
                   </p>
-                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[237px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[12px] whitespace-nowrap">
+                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[237px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
                     06:00
                   </p>
-                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[476px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[12px] whitespace-nowrap">
+                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[476px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
                     12:00
                   </p>
-                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[714px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[12px] whitespace-nowrap">
+                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[714px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
                     18:00
                   </p>
-                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[932px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[12px] whitespace-nowrap">
+                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[932px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
                     24:00
                   </p>
                   {ordered.map(iv => {
@@ -490,26 +490,26 @@ export function HomeActive() {
                 </div>
                 <div className="content-stretch flex gap-[25px] items-start relative shrink-0 w-full">
                   <div className="bg-white border border-[#d9dbde] border-solid flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px]">
-                    <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[143.5px] not-italic text-[#667380] text-[22px] top-[15.5px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
+                    <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[143.5px] not-italic text-[#667380] text-[26px] top-[15.5px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
                   </div>
                   <div className="bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px]">
-                    <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[136px] not-italic text-[#063b66] text-[22px] top-[14.5px] whitespace-pre">{`Weekdays  ·  Mon-Fri`}</p>
+                    <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[136px] not-italic text-[#063b66] text-[26px] top-[14.5px] whitespace-pre">{`Weekdays  ·  Mon-Fri`}</p>
                   </div>
                 </div>
               </div>
               <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0">
                 <div className="content-stretch flex gap-[14px] items-center leading-[normal] not-italic relative shrink-0 whitespace-nowrap">
-                  <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold relative shrink-0 text-[#063b66] text-[18px]">
+                  <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold relative shrink-0 text-[#063b66] text-[22px]">
                     Estimated daily total
                   </p>
-                  <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#9ea8b2] text-[14px]">
+                  <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#9ea8b2] text-[18px]">
                     weighted average
                   </p>
                 </div>
                 <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[984px]">
                   <div className="bg-[#0b7fa8] h-[56px] overflow-clip relative rounded-[8px] shrink-0 w-full">
                     <div className="absolute content-stretch flex gap-[12px] items-center left-[16px] top-[16px]">
-                      <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[20px] text-white whitespace-nowrap">
+                      <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[24px] text-white whitespace-nowrap">
                         Baclofen
                       </p>
                       <div className="bg-white h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px]">
@@ -518,23 +518,23 @@ export function HomeActive() {
                         </p>
                       </div>
                     </div>
-                    <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[460px] not-italic text-[18px] text-white top-[17px] whitespace-nowrap">
+                    <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[460px] not-italic text-[22px] text-white top-[17px] whitespace-nowrap">
                       {estDaily.toFixed(0)} µg/day
                     </p>
                   </div>
                   <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-full whitespace-nowrap">
-                    <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[20px] top-[13px]">
+                    <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
                       Morphine
                     </p>
-                    <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
+                    <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
                       {estMorMgD.toFixed(2)} mg/day
                     </p>
                   </div>
                   <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-full whitespace-nowrap">
-                    <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[20px] top-[13px]">
+                    <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
                       Bupivacaine
                     </p>
-                    <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
+                    <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
                       {estBupMgD.toFixed(2)} mg/day
                     </p>
                   </div>
@@ -546,7 +546,7 @@ export function HomeActive() {
             <div className="absolute left-[12px] size-[8px] top-[11px]">
               <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse} />
             </div>
-            <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[28px] not-italic text-[#2eab6b] text-[18px] top-[4px] whitespace-nowrap">
+            <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[28px] not-italic text-[#2eab6b] text-[22px] top-[4px] whitespace-nowrap">
               Active
             </p>
           </div>
@@ -565,7 +565,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[24px] overflow-hidden relative shrink-0 text-[#00769e] text-[20px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[24px] overflow-hidden relative shrink-0 text-[#00769e] text-[24px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Overview
             </p>
           </a>
@@ -584,7 +584,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Implant
             </p>
           </div>
@@ -600,7 +600,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Patient
             </p>
           </a>
@@ -616,7 +616,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Medication
             </p>
           </div>
@@ -663,7 +663,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Therapy
             </p>
           </a>
@@ -678,7 +678,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Help
             </p>
           </a>
@@ -691,7 +691,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Settings
             </p>
           </a>
@@ -705,7 +705,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Disconnect
             </p>
           </a>
