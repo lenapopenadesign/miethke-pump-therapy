@@ -88,9 +88,9 @@ function MiniChartBars({
 
 export function Review() {
   const navigate = useNavigate();
-  const { baseDose, intervals, strokeStrategy, startEditingInterval } = useTherapy();
+  const { baseDose, intervals, strokeStrategy, setPreviewIntervalId } = useTherapy();
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
-  const onBarClick = (id: string) => { startEditingInterval(id, 'review'); navigate('add-interval-when'); };
+  const onBarClick = (id: string) => setPreviewIntervalId(id);
   const stroke = STROKE_OPTIONS.find(s => s.min === strokeStrategy) ?? STROKE_OPTIONS[2];
   const baclofenH = hourlyUg(baseDose);
   const morMgD = morphineMgDay(baseDose);

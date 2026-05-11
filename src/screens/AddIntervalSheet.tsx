@@ -183,16 +183,17 @@ export function AddIntervalSheetWhen() {
 export function AddIntervalSheetDose() {
   const navigate = useNavigate();
   const { draft, setDraft, baseDose, editingId, commitDraft, sheetReturnTo } = useTherapy();
-  const stepDown = () => setDraft({ ...draft, dose: Math.max(0, draft.dose - 10) });
-  const stepUp = () => setDraft({ ...draft, dose: Math.min(2000, draft.dose + 10) });
+  // Interval dose is stored as µg/day equivalent. We display/input as µg/h.
+  // ± step: 0.5 µg/h = 12 µg/day.
+  const stepDown = () => setDraft({ ...draft, dose: Math.max(0, draft.dose - 12) });
+  const stepUp = () => setDraft({ ...draft, dose: Math.min(2000, draft.dose + 12) });
   const hourly = hourlyUg(draft.dose);
-  const delta = draft.dose - baseDose;
-  const pct = baseDose > 0 ? Math.round((delta / baseDose) * 100) : 0;
-  const deltaSign = delta >= 0 ? '↑' : '↓';
-  const morMgD = morphineMgDay(draft.dose);
-  const morMgH = morMgD / 24;
-  const bupMgD = bupivacaineMgDay(draft.dose);
-  const bupMgH = bupMgD / 24;
+  const baseHourly = hourlyUg(baseDose);
+  const deltaH = hourly - baseHourly;
+  const pct = baseHourly > 0 ? Math.round((deltaH / baseHourly) * 100) : 0;
+  const deltaSign = deltaH >= 0 ? '↑' : '↓';
+  const morMgH = morphineMgDay(draft.dose) / 24;
+  const bupMgH = bupivacaineMgDay(draft.dose) / 24;
   const save = () => { commitDraft(); navigate(sheetReturnTo); };
   return (
     <div className="bg-white relative size-full">
@@ -228,10 +229,10 @@ export function AddIntervalSheetDose() {
           </p>
         </div>
         <div className="-translate-y-full absolute flex flex-col font-['Roboto:Regular',sans-serif] font-normal justify-end leading-[0] left-[692px] text-[#9ea8b2] text-[20px] top-[399px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-          <p className="leading-[24px]">Daily dose</p>
+          <p className="leading-[24px]">Hourly dose</p>
         </div>
         <div className="-translate-y-full absolute flex flex-col font-['Roboto:Regular',sans-serif] font-normal justify-end leading-[0] left-[979px] text-[#9ea8b2] text-[20px] top-[399px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-          <p className="leading-[24px]">Hourly dose</p>
+          <p className="leading-[24px]">Daily total</p>
         </div>
         <div className="absolute content-stretch flex flex-col gap-[24px] items-start left-[84px] top-[407px] w-[1040px]">
           <div className="bg-white border-2 border-[#0b7fa8] border-solid content-start flex flex-wrap gap-[16px_366px] items-start overflow-clip px-[24px] py-[20px] relative rounded-[16px] shrink-0 w-full">
@@ -257,18 +258,19 @@ export function AddIntervalSheetDose() {
                   <div className="col-1 content-stretch flex gap-[21px] items-center leading-[normal] ml-[26px] mt-[8px] not-italic relative row-1 whitespace-nowrap">
                     <input
                       type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={draft.dose}
+                      inputMode="decimal"
+                      pattern="[0-9]*\.?[0-9]*"
+                      value={hourly.toFixed(1)}
                       onChange={e => {
-                        const n = parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0;
-                        setDraft({ ...draft, dose: Math.max(0, Math.min(2000, n)) });
+                        const v = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
+                        const ugH = isNaN(v) ? 0 : v;
+                        setDraft({ ...draft, dose: Math.max(0, Math.min(2000, Math.round(ugH * 24))) });
                       }}
                       className="font-bold not-italic text-[#063b66] text-[36px] bg-transparent outline-none border-0 p-0 w-[80px] text-left"
                       style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal' }}
                     />
                     <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#667380] text-[16px]">
-                      µg/day
+                      µg/h
                     </p>
                   </div>
                 </div>
@@ -280,15 +282,15 @@ export function AddIntervalSheetDose() {
               </div>
               <div className="content-stretch flex gap-[20px] items-center leading-[normal] not-italic relative shrink-0 whitespace-nowrap">
                 <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold relative shrink-0 text-[#0b7fa8] text-[24px]">
-                  ≈ {hourly.toFixed(1)}
+                  ≈ {draft.dose}
                 </p>
                 <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#9ea8b2] text-[16px]">
-                  µg/h
+                  µg/day
                 </p>
               </div>
             </div>
             <div className="bg-[rgba(252,227,160,0.29)] flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px]">
-              <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[24px] not-italic text-[#b3850e] text-[22px] top-[16px] whitespace-pre">{`${deltaSign} ${delta >= 0 ? '+' : ''}${delta} µg/day ${delta >= 0 ? 'above' : 'below'} base (${baseDose} → ${draft.dose})  ·  ${pct >= 0 ? '+' : ''}${pct}%`}</p>
+              <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[24px] not-italic text-[#b3850e] text-[22px] top-[16px] whitespace-pre">{`${deltaSign} ${deltaH >= 0 ? '+' : ''}${deltaH.toFixed(1)} µg/h ${deltaH >= 0 ? 'above' : 'below'} base (${baseHourly.toFixed(1)} → ${hourly.toFixed(1)})  ·  ${pct >= 0 ? '+' : ''}${pct}%`}</p>
             </div>
           </div>
           <div className="bg-white border border-[#d9dbde] border-solid h-[88px] leading-[normal] not-italic overflow-clip relative rounded-[16px] shrink-0 w-full whitespace-nowrap">
@@ -299,16 +301,16 @@ export function AddIntervalSheetDose() {
               calculated · 0.139% of Baclofen
             </p>
             <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[599px] text-[#667380] text-[26px] top-[26px]">
-              {morMgD.toFixed(2)}
-            </p>
-            <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
-              mg/day
-            </p>
-            <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[897px] text-[#667380] text-[22px] top-[28px]">
               {morMgH.toFixed(3)}
             </p>
-            <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[966px] text-[#9ea8b2] text-[16px] top-[34px]">
+            <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
               mg/h
+            </p>
+            <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[897px] text-[#667380] text-[22px] top-[28px]">
+              {(morMgH * 24).toFixed(2)}
+            </p>
+            <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[966px] text-[#9ea8b2] text-[16px] top-[34px]">
+              mg/day
             </p>
           </div>
           <div className="bg-white border border-[#d9dbde] border-solid h-[88px] leading-[normal] not-italic overflow-clip relative rounded-[16px] shrink-0 w-full whitespace-nowrap">
@@ -319,16 +321,16 @@ export function AddIntervalSheetDose() {
               calculated · 0.417% of Baclofen
             </p>
             <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[605px] text-[#667380] text-[26px] top-[26px]">
-              {bupMgD.toFixed(2)}
-            </p>
-            <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
-              mg/day
-            </p>
-            <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[894px] text-[#667380] text-[22px] top-[22px]">
               {bupMgH.toFixed(3)}
             </p>
-            <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[968px] text-[#9ea8b2] text-[16px] top-[28px]">
+            <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
               mg/h
+            </p>
+            <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[894px] text-[#667380] text-[22px] top-[22px]">
+              {(bupMgH * 24).toFixed(2)}
+            </p>
+            <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[968px] text-[#9ea8b2] text-[16px] top-[28px]">
+              mg/day
             </p>
           </div>
         </div>

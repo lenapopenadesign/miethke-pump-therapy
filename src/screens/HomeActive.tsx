@@ -106,7 +106,6 @@ function Filling({ className }: FillingProps) {
 }
 
 import { useTherapy, doseColor, morphineMgDay, bupivacaineMgDay, estimatedDailyTotal, fmtTime } from '../therapy';
-import { useNavigate } from '../navigation';
 
 const HA_LEFT = 16;
 const HA_WIDTH = 950;
@@ -115,10 +114,9 @@ const HA_BAR_BOTTOM = 122;
 const NOW_MIN = 716; // "11:56" (matches the design's now indicator)
 
 export function HomeActive() {
-  const navigate = useNavigate();
-  const { baseDose, intervals, startEditingInterval } = useTherapy();
+  const { baseDose, intervals, setPreviewIntervalId } = useTherapy();
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
-  const onBarClick = (id: string) => { startEditingInterval(id, 'home-active'); navigate('add-interval-when'); };
+  const onBarClick = (id: string) => setPreviewIntervalId(id);
   const current = ordered.find(iv => iv.startMin <= NOW_MIN && iv.endMin > NOW_MIN);
   const currentDose = current?.dose ?? baseDose;
   const currentLabel = current?.label ?? 'Base';
@@ -419,7 +417,7 @@ export function HomeActive() {
                   <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[757px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
                     {currentLabel}
                   </p>
-                  <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[457px] not-italic text-[24px] text-white top-[17px] whitespace-nowrap">{` ${currentDose} µg/day`}</p>
+                  <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[457px] not-italic text-[24px] text-white top-[17px] whitespace-nowrap">{` ${(currentDose / 24).toFixed(1)} µg/h`}</p>
                   <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[112px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
                     Baclofen
                   </p>
@@ -435,7 +433,7 @@ export function HomeActive() {
                     Morphine
                   </p>
                   <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
-                    {morphineMgDay(currentDose).toFixed(2)} mg/day
+                    {(morphineMgDay(currentDose) / 24).toFixed(3)} mg/h
                   </p>
                 </div>
                 <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
@@ -443,7 +441,7 @@ export function HomeActive() {
                     Bupivacaine
                   </p>
                   <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[18px] top-[15px]">
-                    {bupivacaineMgDay(currentDose).toFixed(2)} mg/day
+                    {(bupivacaineMgDay(currentDose) / 24).toFixed(3)} mg/h
                   </p>
                 </div>
               </div>

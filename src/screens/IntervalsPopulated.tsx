@@ -161,7 +161,7 @@ export function IntervalsPopulated() {
             style={{ left, top, width, height, background: doseColor(iv.dose, baseDose) }}
           >
             <p className="font-['Inter:Bold',sans-serif] font-bold text-[14px] text-white pt-[6px]">
-              {iv.dose}
+              {(iv.dose / 24).toFixed(1)}
             </p>
           </div>
         );
@@ -189,7 +189,7 @@ export function IntervalsPopulated() {
           <div className="absolute h-[48px] left-[15px] rounded-[4px] top-[15px] w-[8px]" style={{ background: doseColor(iv.dose, baseDose) }} />
           <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[39px] not-italic text-[#063b66] text-[22px] top-[11px] whitespace-nowrap">{iv.label}</p>
           <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[39px] not-italic text-[#667380] text-[18px] top-[43px] whitespace-nowrap">{timeRangeLabel(iv.startMin, iv.endMin)}</p>
-          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[799px] not-italic text-[#063b66] text-[22px] top-[24px] whitespace-nowrap">{iv.dose} µg/day</p>
+          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[799px] not-italic text-[#063b66] text-[22px] top-[24px] whitespace-nowrap">{(iv.dose / 24).toFixed(1)} µg/h</p>
           <EditIcon className="absolute left-[972px] overflow-clip size-[40px] top-[19px]" />
         </div>
       ))}

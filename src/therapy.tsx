@@ -34,6 +34,8 @@ type TherapyState = {
   commitDraft: () => void;
   removeInterval: (id: string) => void;
   sheetReturnTo: ScreenId;
+  previewIntervalId: string | null;
+  setPreviewIntervalId: (id: string | null) => void;
   strokeStrategy: StrokeStrategy;
   setStrokeStrategy: (s: StrokeStrategy) => void;
   dayPattern: DayPattern;
@@ -69,6 +71,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(120);
   const [dayPattern, setDayPattern] = useState<DayPattern>('same');
   const [sheetReturnTo, setSheetReturnTo] = useState<ScreenId>('intervals-populated');
+  const [previewIntervalId, setPreviewIntervalId] = useState<string | null>(null);
 
   function startAddingInterval(returnTo: ScreenId = 'intervals-populated') {
     setEditingId(null);
@@ -105,6 +108,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       draft, setDraft,
       editingId,
       startAddingInterval, startEditingInterval, commitDraft, removeInterval, sheetReturnTo,
+      previewIntervalId, setPreviewIntervalId,
       strokeStrategy, setStrokeStrategy,
       dayPattern, setDayPattern,
     }}>
