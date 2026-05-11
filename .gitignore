@@ -1,0 +1,12 @@
+node_modules
+dist
+.DS_Store
+*.log
+.vite
+
+# build artifacts
+*.tsbuildinfo
+
+# local dev scripts
+debug-*.mjs
+screenshot.mjs

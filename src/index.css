@@ -1,0 +1,45 @@
+@import 'tailwindcss';
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #e5e7eb;
+  font-family: 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* Device frame: viewport is 1200x1920 (tablet portrait), shown at 0.5 scale */
+.device-shell {
+  width: 600px;
+  height: 960px;
+  overflow: hidden;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.device-inner {
+  width: 1200px;
+  height: 1920px;
+  transform: scale(0.5);
+  transform-origin: top left;
+  position: relative;
+}
+
+.screen {
+  width: 1200px;
+  min-height: 1920px;
+  position: relative;
+  background: white;
+  overflow: hidden;
+}
