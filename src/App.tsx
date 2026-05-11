@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { HomeNoTherapy } from './screens/HomeNoTherapy';
 import { BaseDose } from './screens/BaseDose';
+import { IntervalsEmpty } from './screens/IntervalsEmpty';
+import { AddIntervalSheetWhen, AddIntervalSheetDose } from './screens/AddIntervalSheet';
+import { IntervalsPopulated } from './screens/IntervalsPopulated';
+import { Review } from './screens/Review';
+import { Activate } from './screens/Activate';
+import { HomeActive } from './screens/HomeActive';
 
 type ScreenId =
   | 'home-no-therapy'
   | 'base-dose'
   | 'intervals-empty'
+  | 'add-interval-when'
+  | 'add-interval-dose'
   | 'intervals-populated'
   | 'review'
   | 'activate'
@@ -15,6 +23,8 @@ const ORDER: ScreenId[] = [
   'home-no-therapy',
   'base-dose',
   'intervals-empty',
+  'add-interval-when',
+  'add-interval-dose',
   'intervals-populated',
   'review',
   'activate',
@@ -35,6 +45,13 @@ export function App() {
           <div className="screen">
             {screen === 'home-no-therapy' && <HomeNoTherapy />}
             {screen === 'base-dose' && <BaseDose />}
+            {screen === 'intervals-empty' && <IntervalsEmpty />}
+            {screen === 'add-interval-when' && <AddIntervalSheetWhen />}
+            {screen === 'add-interval-dose' && <AddIntervalSheetDose />}
+            {screen === 'intervals-populated' && <IntervalsPopulated />}
+            {screen === 'review' && <Review />}
+            {screen === 'activate' && <Activate />}
+            {screen === 'home-active' && <HomeActive />}
           </div>
         </div>
       </div>
