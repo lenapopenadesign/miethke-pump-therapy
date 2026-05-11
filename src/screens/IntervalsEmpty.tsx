@@ -39,7 +39,10 @@ function IconsStepper({ className }: IconsStepperProps) {
   );
 }
 
+import { useNavigate } from '../navigation';
+
 export function IntervalsEmpty() {
+  const navigate = useNavigate();
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
@@ -96,10 +99,10 @@ export function IntervalsEmpty() {
       <p className="-translate-x-1/2 absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[600px] not-italic text-[#667380] text-[22px] text-center top-[1004px] w-[1040px]">
         Therapy will run at the base dose around the clock. Add intervals to vary the dose at specific times of day (e.g. higher during physiotherapy, lower at night).
       </p>
-      <div className="absolute bg-[#0b7fa8] h-[100px] left-[80px] overflow-clip rounded-[50px] top-[1155px] w-[1040px]">
+      <div onClick={() => navigate('add-interval-when')} className="absolute bg-[#0b7fa8] h-[100px] left-[80px] overflow-clip rounded-[50px] top-[1155px] w-[1040px] cursor-pointer">
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[356.5px] not-italic text-[28px] text-white top-[33px] whitespace-pre">{`+  Add your first interval`}</p>
       </div>
-      <div className="absolute bg-white border border-[#d9dbde] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1275px] w-[1040px]">
+      <div onClick={() => navigate('review')} className="absolute bg-white border border-[#d9dbde] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1275px] w-[1040px] cursor-pointer">
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[364.5px] not-italic text-[#667380] text-[24px] top-[29.5px] whitespace-nowrap">
           Skip — use base dose only
         </p>
@@ -191,7 +194,7 @@ export function IntervalsEmpty() {
       </div>
       <div className="absolute bg-[#e6f4f9] content-stretch flex h-[120px] items-center justify-between left-0 overflow-x-clip overflow-y-auto px-[40px] py-[8px] top-[35px] w-[1200px]">
         <div className="content-stretch flex gap-[40px] items-center relative shrink-0 w-[669px]">
-          <div className="flex items-center justify-center relative shrink-0">
+          <div onClick={() => navigate('base-dose')} className="flex items-center justify-center relative shrink-0 cursor-pointer">
             <div className="flex-none rotate-180">
               <div className="overflow-clip relative size-[56px]">
                 <div className="absolute inset-[20%_0.03%_17.61%_0]">

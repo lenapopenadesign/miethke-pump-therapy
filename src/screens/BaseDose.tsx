@@ -40,13 +40,16 @@ function BBraunMiethkeSignet({ className }: { className?: string }) {
   );
 }
 
+import { useNavigate } from '../navigation';
+
 export function BaseDose() {
+  const navigate = useNavigate();
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
       <div className="absolute bg-[#e6f4f9] content-stretch flex h-[120px] items-center justify-between left-0 overflow-x-clip overflow-y-auto px-[40px] py-[8px] top-[35px] w-[1200px]">
         <div className="content-stretch flex gap-[40px] items-center relative shrink-0 w-[669px]">
-          <div className="flex items-center justify-center relative shrink-0">
+          <div onClick={() => navigate('home-no-therapy')} className="flex items-center justify-center relative shrink-0 cursor-pointer">
             <div className="flex-none rotate-180">
               <div className="overflow-clip relative size-[56px]">
                 <div className="absolute inset-[20%_0.03%_17.61%_0]">
@@ -303,7 +306,7 @@ export function BaseDose() {
           <p className="leading-[normal]">Larger = longer device life, more pulsatile dosing.</p>
         </div>
       </div>
-      <div className="absolute bg-[#0b7fa8] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1778px] w-[1040px]">
+      <div onClick={() => navigate('intervals-empty')} className="absolute bg-[#0b7fa8] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1778px] w-[1040px] cursor-pointer">
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[458px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
           Continue
         </p>

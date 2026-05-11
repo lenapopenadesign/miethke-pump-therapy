@@ -72,7 +72,10 @@ const INTERVALS: Interval[] = [
   { top: 1442, barColor: '#4da6d6', label: 'Wind-down',    time: '21:00 – 23:59', dose: '280 µg/day' },
 ];
 
+import { useNavigate } from '../navigation';
+
 export function IntervalsPopulated() {
+  const navigate = useNavigate();
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
@@ -135,7 +138,7 @@ export function IntervalsPopulated() {
       <div className="absolute bg-[#4da6d6] h-[106.4px] left-[967.5px] rounded-[4px] top-[863.6px] w-[120.092px]" />
       <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[1014.55px] not-italic text-[14px] text-white top-[869.6px] whitespace-nowrap">280</p>
 
-      <div className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1547px] w-[1040px]">
+      <div onClick={() => navigate('add-interval-when')} className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1547px] w-[1040px] cursor-pointer">
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[371px] not-italic text-[#0b7fa8] text-[22px] top-[16.5px] whitespace-pre">{`+  Add interval to Weekdays`}</p>
       </div>
 
@@ -242,7 +245,7 @@ export function IntervalsPopulated() {
       {/* Header */}
       <div className="absolute bg-[#e6f4f9] content-stretch flex h-[120px] items-center justify-between left-0 overflow-x-clip overflow-y-auto px-[40px] py-[8px] top-[35px] w-[1200px]">
         <div className="content-stretch flex gap-[40px] items-center relative shrink-0 w-[669px]">
-          <div className="flex items-center justify-center relative shrink-0">
+          <div onClick={() => navigate('base-dose')} className="flex items-center justify-center relative shrink-0 cursor-pointer">
             <div className="flex-none rotate-180">
               <div className="overflow-clip relative size-[56px]">
                 <div className="absolute inset-[20%_0.03%_17.61%_0]">
@@ -280,7 +283,7 @@ export function IntervalsPopulated() {
       </div>
 
       {/* Continue */}
-      <div className="absolute bg-[#0b7fa8] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1778px] w-[1040px]">
+      <div onClick={() => navigate('review')} className="absolute bg-[#0b7fa8] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1778px] w-[1040px] cursor-pointer">
         <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[458px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
           Continue
         </p>

@@ -42,7 +42,15 @@ function BBraunMiethkeSignet({ className }: { className?: string }) {
   );
 }
 
+import { useEffect } from 'react';
+import { useNavigate } from '../navigation';
+
 export function Activate() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const t = setTimeout(() => navigate('home-active'), 2500);
+    return () => clearTimeout(t);
+  }, [navigate]);
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />

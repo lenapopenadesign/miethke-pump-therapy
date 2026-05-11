@@ -104,7 +104,10 @@ function Filling({ className }: FillingProps) {
   );
 }
 
+import { useNavigate } from '../navigation';
+
 export function HomeNoTherapy() {
+  const navigate = useNavigate();
   return (
     <div className="bg-white relative size-full">
       <div className="absolute content-stretch flex flex-col gap-[40px] h-[1765px] items-center left-0 p-[80px] top-[35px] w-[1200px]">
@@ -337,7 +340,7 @@ export function HomeNoTherapy() {
             </div>
           </div>
         </div>
-        <div className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px]">
+        <div onClick={() => navigate('base-dose')} className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
           <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
             <div className="content-stretch flex flex-[1_0_0] items-center justify-center min-w-px relative">
               <div className="content-stretch flex flex-[1_0_0] gap-[16px] items-center min-w-px relative">

@@ -1,7 +1,10 @@
+import { useNavigate } from '../navigation';
+
 const imgEbene1 = "/icons/0e3066d4-f803-4f37-8c9a-74477a140254.svg";
 
 // Step 1 — when
 export function AddIntervalSheetWhen() {
+  const navigate = useNavigate();
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#0d0d1a] h-[1920px] left-0 top-0 w-[1200px]" />
@@ -93,12 +96,12 @@ export function AddIntervalSheetWhen() {
           </div>
         </div>
         <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[120px] not-italic text-[#667380] text-[22px] top-[960px] w-[1000px]">{`No overlap with existing intervals on Weekdays. You'll set the dose on the next step.`}</p>
-        <div className="absolute bg-white border-2 border-[#0b7fa8] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1210px] w-[500px]">
+        <div onClick={() => navigate('intervals-empty')} className="absolute bg-white border-2 border-[#0b7fa8] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1210px] w-[500px] cursor-pointer">
           <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[200.5px] not-italic text-[#0b7fa8] text-[28px] top-[26px] whitespace-nowrap">
             Cancel
           </p>
         </div>
-        <div className="absolute bg-[#0b7fa8] h-[90px] left-[600px] overflow-clip rounded-[45px] top-[1210px] w-[520px]">
+        <div onClick={() => navigate('add-interval-dose')} className="absolute bg-[#0b7fa8] h-[90px] left-[600px] overflow-clip rounded-[45px] top-[1210px] w-[520px] cursor-pointer">
           <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[145.5px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
             Next: set dose →
           </p>
@@ -110,6 +113,7 @@ export function AddIntervalSheetWhen() {
 
 // Step 2 — dose
 export function AddIntervalSheetDose() {
+  const navigate = useNavigate();
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#0d0d1a] h-[1920px] left-0 top-0 w-[1200px]" />
@@ -133,12 +137,12 @@ export function AddIntervalSheetDose() {
         <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[30px] top-[320px] whitespace-nowrap">
           Set the interval dose
         </p>
-        <div className="absolute bg-white border-2 border-[#0b7fa8] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1210px] w-[500px]">
+        <div onClick={() => navigate('add-interval-when')} className="absolute bg-white border-2 border-[#0b7fa8] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1210px] w-[500px] cursor-pointer">
           <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[197.5px] not-italic text-[#0b7fa8] text-[28px] top-[26px] whitespace-nowrap">
             ← Back
           </p>
         </div>
-        <div className="absolute bg-[#0b7fa8] h-[90px] left-[600px] overflow-clip rounded-[45px] top-[1210px] w-[520px]">
+        <div onClick={() => navigate('intervals-populated')} className="absolute bg-[#0b7fa8] h-[90px] left-[600px] overflow-clip rounded-[45px] top-[1210px] w-[520px] cursor-pointer">
           <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[177.5px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
             Add interval
           </p>
