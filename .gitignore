@@ -10,3 +10,4 @@ dist
 # local dev scripts
 debug-*.mjs
 screenshot.mjs
+*-test.mjs
