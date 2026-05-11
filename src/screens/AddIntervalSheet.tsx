@@ -6,16 +6,20 @@ const imgEbene1 = "/icons/0e3066d4-f803-4f37-8c9a-74477a140254.svg";
 // Step 1 — when
 export function AddIntervalSheetWhen() {
   const navigate = useNavigate();
-  const { draft, setDraft, intervals, editingId, removeInterval } = useTherapy();
+  const { draft, setDraft, intervals, editingId, removeInterval, sheetReturnTo } = useTherapy();
   const lengthMin = Math.max(0, draft.endMin - draft.startMin);
   const lengthH = Math.floor(lengthMin / 60);
   const lengthM = lengthMin % 60;
   const pctDay = ((lengthMin / 1440) * 100).toFixed(1);
-  const cancelTarget = intervals.length > 0 ? 'intervals-populated' : 'intervals-empty';
+  // If sheetReturnTo is a list screen but we just emptied the list, fall back to empty.
+  const cancelTarget = (sheetReturnTo === 'intervals-populated' && intervals.length === 0)
+    ? 'intervals-empty'
+    : sheetReturnTo;
   const onDelete = () => {
     if (!editingId) return;
     removeInterval(editingId);
-    navigate(intervals.length > 1 ? 'intervals-populated' : 'intervals-empty');
+    const willBeEmpty = intervals.length <= 1;
+    navigate(willBeEmpty && sheetReturnTo === 'intervals-populated' ? 'intervals-empty' : sheetReturnTo);
   };
   return (
     <div className="bg-white relative size-full">
@@ -150,7 +154,7 @@ export function AddIntervalSheetWhen() {
         {editingId && (
           <div
             onClick={onDelete}
-            className="absolute bg-white border-2 border-[#c44539] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1210px] w-[220px] cursor-pointer flex items-center justify-center"
+            className="absolute bg-white border-2 border-[#c44539] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1210px] w-[180px] cursor-pointer flex items-center justify-center"
           >
             <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold not-italic text-[#c44539] text-[24px] whitespace-nowrap">
               Delete
@@ -159,10 +163,9 @@ export function AddIntervalSheetWhen() {
         )}
         <div
           onClick={() => navigate(cancelTarget)}
-          className={`absolute bg-white border-2 border-[#0b7fa8] border-solid h-[90px] overflow-clip rounded-[45px] top-[1210px] cursor-pointer ${editingId ? 'left-[240px] w-[340px]' : 'left-[80px] w-[500px]'}`}
+          className={`absolute bg-white border-2 border-[#0b7fa8] border-solid h-[90px] overflow-clip rounded-[45px] top-[1210px] cursor-pointer flex items-center justify-center ${editingId ? 'left-[280px] w-[300px]' : 'left-[80px] w-[500px]'}`}
         >
-          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic text-[#0b7fa8] text-[28px] top-[26px] whitespace-nowrap"
-             style={{ left: editingId ? 120 : 200.5 }}>
+          <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold not-italic text-[#0b7fa8] text-[28px] whitespace-nowrap">
             Cancel
           </p>
         </div>
@@ -179,7 +182,7 @@ export function AddIntervalSheetWhen() {
 // Step 2 — dose
 export function AddIntervalSheetDose() {
   const navigate = useNavigate();
-  const { draft, setDraft, baseDose, editingId, commitDraft } = useTherapy();
+  const { draft, setDraft, baseDose, editingId, commitDraft, sheetReturnTo } = useTherapy();
   const stepDown = () => setDraft({ ...draft, dose: Math.max(0, draft.dose - 10) });
   const stepUp = () => setDraft({ ...draft, dose: Math.min(2000, draft.dose + 10) });
   const hourly = hourlyUg(draft.dose);
@@ -190,7 +193,7 @@ export function AddIntervalSheetDose() {
   const morMgH = morMgD / 24;
   const bupMgD = bupivacaineMgDay(draft.dose);
   const bupMgH = bupMgD / 24;
-  const save = () => { commitDraft(); navigate('intervals-populated'); };
+  const save = () => { commitDraft(); navigate(sheetReturnTo); };
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#0d0d1a] h-[1920px] left-0 top-0 w-[1200px]" />

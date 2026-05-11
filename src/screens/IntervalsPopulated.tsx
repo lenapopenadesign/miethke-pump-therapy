@@ -79,8 +79,8 @@ function timeRangeLabel(startMin: number, endMin: number): string {
 export function IntervalsPopulated() {
   const navigate = useNavigate();
   const { intervals, baseDose, startAddingInterval, startEditingInterval, dayPattern, setDayPattern } = useTherapy();
-  const onAdd = () => { startAddingInterval(); navigate('add-interval-when'); };
-  const onEdit = (id: string) => { startEditingInterval(id); navigate('add-interval-when'); };
+  const onAdd = () => { startAddingInterval('intervals-populated'); navigate('add-interval-when'); };
+  const onEdit = (id: string) => { startEditingInterval(id, 'intervals-populated'); navigate('add-interval-when'); };
   // sort by startMin for chart and list order
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
   return (

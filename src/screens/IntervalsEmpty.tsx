@@ -51,7 +51,7 @@ const DAY_PATTERNS: { key: DayPattern; label: string; x: number; w: number }[] =
 export function IntervalsEmpty() {
   const navigate = useNavigate();
   const { startAddingInterval, dayPattern, setDayPattern } = useTherapy();
-  const onAdd = () => { startAddingInterval(); navigate('add-interval-when'); };
+  const onAdd = () => { startAddingInterval('intervals-empty'); navigate('add-interval-when'); };
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />

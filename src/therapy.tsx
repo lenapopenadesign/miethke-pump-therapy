@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
+import type { ScreenId } from './navigation';
 
 export type Interval = {
   id: string;
@@ -28,10 +29,11 @@ type TherapyState = {
   draft: Draft;
   setDraft: (d: Draft) => void;
   editingId: string | null;
-  startAddingInterval: () => void;
-  startEditingInterval: (id: string) => void;
+  startAddingInterval: (returnTo?: ScreenId) => void;
+  startEditingInterval: (id: string, returnTo?: ScreenId) => void;
   commitDraft: () => void;
   removeInterval: (id: string) => void;
+  sheetReturnTo: ScreenId;
   strokeStrategy: StrokeStrategy;
   setStrokeStrategy: (s: StrokeStrategy) => void;
   dayPattern: DayPattern;
@@ -66,17 +68,20 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(120);
   const [dayPattern, setDayPattern] = useState<DayPattern>('same');
+  const [sheetReturnTo, setSheetReturnTo] = useState<ScreenId>('intervals-populated');
 
-  function startAddingInterval() {
+  function startAddingInterval(returnTo: ScreenId = 'intervals-populated') {
     setEditingId(null);
     setDraft(DEFAULT_DRAFT);
+    setSheetReturnTo(returnTo);
   }
 
-  function startEditingInterval(id: string) {
+  function startEditingInterval(id: string, returnTo: ScreenId = 'intervals-populated') {
     const iv = intervals.find(x => x.id === id);
     if (!iv) return;
     setEditingId(id);
     setDraft({ label: iv.label, startMin: iv.startMin, endMin: iv.endMin, dose: iv.dose });
+    setSheetReturnTo(returnTo);
   }
 
   function commitDraft() {
@@ -99,7 +104,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       intervals,
       draft, setDraft,
       editingId,
-      startAddingInterval, startEditingInterval, commitDraft, removeInterval,
+      startAddingInterval, startEditingInterval, commitDraft, removeInterval, sheetReturnTo,
       strokeStrategy, setStrokeStrategy,
       dayPattern, setDayPattern,
     }}>

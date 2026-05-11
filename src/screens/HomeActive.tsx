@@ -106,6 +106,7 @@ function Filling({ className }: FillingProps) {
 }
 
 import { useTherapy, doseColor, morphineMgDay, bupivacaineMgDay, estimatedDailyTotal, fmtTime } from '../therapy';
+import { useNavigate } from '../navigation';
 
 const HA_LEFT = 16;
 const HA_WIDTH = 950;
@@ -114,8 +115,10 @@ const HA_BAR_BOTTOM = 122;
 const NOW_MIN = 716; // "11:56" (matches the design's now indicator)
 
 export function HomeActive() {
-  const { baseDose, intervals } = useTherapy();
+  const navigate = useNavigate();
+  const { baseDose, intervals, startEditingInterval } = useTherapy();
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  const onBarClick = (id: string) => { startEditingInterval(id, 'home-active'); navigate('add-interval-when'); };
   const current = ordered.find(iv => iv.startMin <= NOW_MIN && iv.endMin > NOW_MIN);
   const currentDose = current?.dose ?? baseDose;
   const currentLabel = current?.label ?? 'Base';
@@ -470,7 +473,8 @@ export function HomeActive() {
                     return (
                       <div
                         key={iv.id}
-                        className="col-1 relative rounded-[3px] row-1"
+                        onClick={() => onBarClick(iv.id)}
+                        className="col-1 relative rounded-[3px] row-1 cursor-pointer"
                         style={{ marginLeft: left, marginTop: top, width, height, background: doseColor(iv.dose, baseDose) }}
                       />
                     );

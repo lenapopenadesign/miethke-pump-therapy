@@ -55,7 +55,17 @@ const MINI_SCALE = 0.152; // px per µg
 const WEEKDAYS_BOTTOM = 985;
 const WEEKEND_BOTTOM = 1115;
 
-function MiniChartBars({ intervals, baseDose, bottom }: { intervals: ReturnType<typeof useTherapy>['intervals']; baseDose: number; bottom: number }) {
+function MiniChartBars({
+  intervals,
+  baseDose,
+  bottom,
+  onBarClick,
+}: {
+  intervals: ReturnType<typeof useTherapy>['intervals'];
+  baseDose: number;
+  bottom: number;
+  onBarClick: (id: string) => void;
+}) {
   return (
     <>
       {intervals.map(iv => {
@@ -66,7 +76,8 @@ function MiniChartBars({ intervals, baseDose, bottom }: { intervals: ReturnType<
         return (
           <div
             key={iv.id}
-            className="absolute rounded-[3px]"
+            onClick={() => onBarClick(iv.id)}
+            className="absolute rounded-[3px] cursor-pointer"
             style={{ left, top, width, height, background: doseColor(iv.dose, baseDose) }}
           />
         );
@@ -77,8 +88,9 @@ function MiniChartBars({ intervals, baseDose, bottom }: { intervals: ReturnType<
 
 export function Review() {
   const navigate = useNavigate();
-  const { baseDose, intervals, strokeStrategy } = useTherapy();
+  const { baseDose, intervals, strokeStrategy, startEditingInterval } = useTherapy();
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  const onBarClick = (id: string) => { startEditingInterval(id, 'review'); navigate('add-interval-when'); };
   const stroke = STROKE_OPTIONS.find(s => s.min === strokeStrategy) ?? STROKE_OPTIONS[2];
   const baclofenH = hourlyUg(baseDose);
   const morMgD = morphineMgDay(baseDose);
@@ -197,10 +209,10 @@ export function Review() {
       <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#0b7fa8] text-[14px] top-[838px] whitespace-nowrap">{`↓ Tap a bar to see the interval's details`}</p>
       <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[16px] top-[878px] whitespace-pre">{`Weekdays  ·  Mon-Fri`}</p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[902px] w-[1040px]" />
-      <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKDAYS_BOTTOM} />
+      <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKDAYS_BOTTOM} onBarClick={onBarClick} />
       <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[16px] top-[1008px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[1032px] w-[1040px]" />
-      <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKEND_BOTTOM} />
+      <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKEND_BOTTOM} onBarClick={onBarClick} />
       <div className="absolute content-stretch flex items-center left-0 top-[164px] w-[1200px]">
         <div className="content-stretch flex flex-[1_0_0] h-[64px] items-center min-w-px mr-[-10px] relative">
           <div className="bg-[#e6f4f9] content-stretch flex flex-[1_0_0] h-[64px] items-start min-w-px overflow-clip pl-[40px] pr-[16px] py-[8px] relative">
