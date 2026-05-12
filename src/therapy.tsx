@@ -22,6 +22,8 @@ export const STROKE_OPTIONS: { min: StrokeStrategy; strokesPerDay: number; label
   { min: 480, strokesPerDay: 2,  label: 'Most spaced' },
 ];
 
+export type DayGroup = 'weekdays' | 'weekend';
+
 type TherapyState = {
   baseDose: number;
   setBaseDose: (n: number) => void;
@@ -32,8 +34,9 @@ type TherapyState = {
   draft: Draft;
   setDraft: (d: Draft) => void;
   editingId: string | null;
-  startAddingInterval: (returnTo?: ScreenId) => void;
-  startEditingInterval: (id: string, returnTo?: ScreenId) => void;
+  editingDayGroup: DayGroup;
+  startAddingInterval: (returnTo?: ScreenId, dayGroup?: DayGroup) => void;
+  startEditingInterval: (id: string, returnTo?: ScreenId, dayGroup?: DayGroup) => void;
   commitDraft: () => void;
   removeInterval: (id: string) => void;
   sheetReturnTo: ScreenId;
@@ -79,7 +82,8 @@ function uid() {
 export function TherapyProvider({ children }: { children: ReactNode }) {
   const [baseDose, setBaseDose] = useState(360);
   const [intervals, setIntervals] = useState<Interval[]>(SEED_INTERVALS);
-  const [weekendIntervals] = useState<Interval[]>(SEED_WEEKEND_INTERVALS);
+  const [weekendIntervals, setWeekendIntervals] = useState<Interval[]>(SEED_WEEKEND_INTERVALS);
+  const [editingDayGroup, setEditingDayGroup] = useState<DayGroup>('weekdays');
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(120);
@@ -87,31 +91,43 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [sheetReturnTo, setSheetReturnTo] = useState<ScreenId>('intervals-populated');
   const [previewIntervalId, setPreviewIntervalId] = useState<string | null>(null);
 
-  function startAddingInterval(returnTo: ScreenId = 'intervals-populated') {
+  function startAddingInterval(returnTo: ScreenId = 'intervals-populated', dayGroup: DayGroup = 'weekdays') {
     setEditingId(null);
     setDraft(DEFAULT_DRAFT);
     setSheetReturnTo(returnTo);
+    setEditingDayGroup(dayGroup);
   }
 
-  function startEditingInterval(id: string, returnTo: ScreenId = 'intervals-populated') {
-    const iv = intervals.find(x => x.id === id);
+  function startEditingInterval(id: string, returnTo: ScreenId = 'intervals-populated', dayGroup?: DayGroup) {
+    // Resolve dayGroup from where the interval lives if not provided
+    const inWeekday = intervals.find(x => x.id === id);
+    const inWeekend = weekendIntervals.find(x => x.id === id);
+    const iv = inWeekday ?? inWeekend;
     if (!iv) return;
+    const resolvedGroup: DayGroup = dayGroup ?? (inWeekday ? 'weekdays' : 'weekend');
     setEditingId(id);
     setDraft({ label: iv.label, startMin: iv.startMin, endMin: iv.endMin, dose: iv.dose });
     setSheetReturnTo(returnTo);
+    setEditingDayGroup(resolvedGroup);
   }
 
   function commitDraft() {
+    const setter = editingDayGroup === 'weekend' ? setWeekendIntervals : setIntervals;
     if (editingId) {
-      setIntervals(prev => prev.map(iv => iv.id === editingId ? { ...iv, ...draft } : iv));
+      setter(prev => prev.map(iv => iv.id === editingId ? { ...iv, ...draft } : iv));
     } else {
-      setIntervals(prev => [...prev, { id: uid(), ...draft }]);
+      setter(prev => [...prev, { id: uid(), ...draft }]);
     }
     setEditingId(null);
   }
 
   function removeInterval(id: string) {
-    setIntervals(prev => prev.filter(iv => iv.id !== id));
+    // Find in whichever set
+    if (intervals.some(iv => iv.id === id)) {
+      setIntervals(prev => prev.filter(iv => iv.id !== id));
+    } else if (weekendIntervals.some(iv => iv.id === id)) {
+      setWeekendIntervals(prev => prev.filter(iv => iv.id !== id));
+    }
     if (editingId === id) setEditingId(null);
   }
 
@@ -120,7 +136,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       baseDose, setBaseDose,
       intervals, weekendIntervals,
       draft, setDraft,
-      editingId,
+      editingId, editingDayGroup,
       startAddingInterval, startEditingInterval, commitDraft, removeInterval, sheetReturnTo,
       previewIntervalId, setPreviewIntervalId,
       strokeStrategy, setStrokeStrategy,

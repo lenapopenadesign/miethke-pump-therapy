@@ -56,8 +56,9 @@ function EditIcon({ className }: { className?: string }) {
   );
 }
 
+import { useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtTime, doseColor, estimatedDailyTotal, type DayPattern } from '../therapy';
+import { useTherapy, fmtTime, doseColor, estimatedDailyTotal, type DayPattern, type DayGroup } from '../therapy';
 
 const DAY_PATTERNS: { key: DayPattern; label: string; x: number; w: number }[] = [
   { key: 'same',             label: 'Same daily',         x: 84,      w: 338.667 },
@@ -78,12 +79,14 @@ function timeRangeLabel(startMin: number, endMin: number): string {
 
 export function IntervalsPopulated() {
   const navigate = useNavigate();
-  const { intervals, baseDose, startAddingInterval, startEditingInterval, dayPattern, setDayPattern } = useTherapy();
-  const onAdd = () => { startAddingInterval('intervals-populated'); navigate('add-interval-when'); };
-  const onEdit = (id: string) => { startEditingInterval(id, 'intervals-populated'); navigate('add-interval-when'); };
+  const { intervals, weekendIntervals, baseDose, startAddingInterval, startEditingInterval, dayPattern, setDayPattern } = useTherapy();
+  const [activeDayGroup, setActiveDayGroup] = useState<DayGroup>('weekdays');
+  const activeSet = activeDayGroup === 'weekend' ? weekendIntervals : intervals;
+  const onAdd = () => { startAddingInterval('intervals-populated', activeDayGroup); navigate('add-interval-when'); };
+  const onEdit = (id: string) => { startEditingInterval(id, 'intervals-populated', activeDayGroup); navigate('add-interval-when'); };
   // sort by startMin for chart and list order
-  const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
-  const estDaily = estimatedDailyTotal(baseDose, intervals);
+  const ordered = [...activeSet].sort((a, b) => a.startMin - b.startMin);
+  const estDaily = estimatedDailyTotal(baseDose, activeSet);
   const estHourly = estDaily / 24;
   return (
     <div className="bg-white relative size-full">
@@ -114,11 +117,17 @@ export function IntervalsPopulated() {
         );
       })}
 
-      <div className="absolute bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid h-[60px] left-[80px] overflow-clip rounded-[12px] top-[570px] w-[500px]">
-        <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[136px] not-italic text-[#063b66] text-[22px] top-[14.5px] whitespace-pre">{`Weekdays  ·  Mon-Fri`}</p>
+      <div
+        onClick={() => setActiveDayGroup('weekdays')}
+        className={`absolute h-[60px] left-[80px] overflow-clip rounded-[12px] top-[570px] w-[500px] cursor-pointer flex items-center justify-center select-none ${activeDayGroup === 'weekdays' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
+      >
+        <p className={`font-['Inter:Bold',sans-serif] not-italic text-[22px] whitespace-pre ${activeDayGroup === 'weekdays' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>{`Weekdays  ·  Mon-Fri`}</p>
       </div>
-      <div className="absolute bg-white border border-[#d9dbde] border-solid h-[60px] left-[600px] overflow-clip rounded-[12px] top-[570px] w-[500px]">
-        <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[143.5px] not-italic text-[#667380] text-[22px] top-[15.5px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
+      <div
+        onClick={() => setActiveDayGroup('weekend')}
+        className={`absolute h-[60px] left-[600px] overflow-clip rounded-[12px] top-[570px] w-[500px] cursor-pointer flex items-center justify-center select-none ${activeDayGroup === 'weekend' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
+      >
+        <p className={`font-['Inter:Bold',sans-serif] not-italic text-[22px] whitespace-pre ${activeDayGroup === 'weekend' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>{`Weekend  ·  Sat-Sun`}</p>
       </div>
 
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[670px] w-[1040px]" />
@@ -184,8 +193,8 @@ export function IntervalsPopulated() {
         </div>
       </div>
 
-      <div onClick={onAdd} className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1601px] w-[1040px] cursor-pointer">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[371px] not-italic text-[#0b7fa8] text-[22px] top-[16.5px] whitespace-pre">{`+  Add interval to Weekdays`}</p>
+      <div onClick={onAdd} className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1601px] w-[1040px] cursor-pointer flex items-center justify-center">
+        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold not-italic text-[#0b7fa8] text-[22px] whitespace-pre">{`+  Add interval to ${activeDayGroup === 'weekend' ? 'Weekend' : 'Weekdays'}`}</p>
       </div>
 
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[1100px] w-[1040px]" />
