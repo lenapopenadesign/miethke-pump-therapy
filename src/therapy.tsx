@@ -54,23 +54,22 @@ const DEFAULT_DRAFT: Draft = {
   dose: 480,
 };
 
-// Weekday schedule: morning peak starts at 06:30.
+// Weekday (Mon–Fri) schedule. endMin is exclusive — displays as (endMin-1).
 const SEED_INTERVALS: Interval[] = [
-  { id: 'iv-night',   label: 'Night',        startMin: 0,    endMin: 390,  dose: 200 }, // 00:00–06:30
-  { id: 'iv-morning', label: 'Morning peak', startMin: 390,  endMin: 630,  dose: 480 }, // 06:30–10:30
-  { id: 'iv-day',     label: 'Daytime',      startMin: 630,  endMin: 990,  dose: 360 }, // 10:30–16:30
-  { id: 'iv-evening', label: 'Evening',      startMin: 990,  endMin: 1260, dose: 450 }, // 16:30–21:00
-  { id: 'iv-wind',    label: 'Wind-down',    startMin: 1260, endMin: 1440, dose: 280 }, // 21:00–24:00
+  { id: 'iv-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 390,  dose: 200 }, // 00:00 – 06:29
+  { id: 'iv-morning', label: 'Morning peak',   startMin: 390,  endMin: 481,  dose: 480 }, // 06:30 – 08:00
+  { id: 'iv-day',     label: 'Daytime (base)', startMin: 481,  endMin: 1080, dose: 360 }, // 08:01 – 17:59
+  { id: 'iv-evening', label: 'Evening peak',   startMin: 1080, endMin: 1261, dose: 450 }, // 18:00 – 21:00
+  { id: 'iv-wind',    label: 'Wind-down',      startMin: 1261, endMin: 1440, dose: 280 }, // 21:01 – 23:59
 ];
 
-// Weekend schedule: morning peak starts ~2h later (08:30) — longer night,
-// shorter morning peak. Daytime / Evening / Wind-down match the weekday set.
+// Weekend (Sat–Sun) schedule.
 const SEED_WEEKEND_INTERVALS: Interval[] = [
-  { id: 'iv-we-night',   label: 'Night',        startMin: 0,    endMin: 510,  dose: 200 }, // 00:00–08:30
-  { id: 'iv-we-morning', label: 'Morning peak', startMin: 510,  endMin: 630,  dose: 480 }, // 08:30–10:30
-  { id: 'iv-we-day',     label: 'Daytime',      startMin: 630,  endMin: 990,  dose: 360 }, // 10:30–16:30
-  { id: 'iv-we-evening', label: 'Evening',      startMin: 990,  endMin: 1260, dose: 450 }, // 16:30–21:00
-  { id: 'iv-we-wind',    label: 'Wind-down',    startMin: 1260, endMin: 1440, dose: 280 }, // 21:00–24:00
+  { id: 'iv-we-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 510,  dose: 200 }, // 00:00 – 08:29
+  { id: 'iv-we-morning', label: 'Morning peak',   startMin: 510,  endMin: 661,  dose: 480 }, // 08:30 – 11:00
+  { id: 'iv-we-day',     label: 'Daytime (base)', startMin: 661,  endMin: 1080, dose: 360 }, // 11:01 – 17:59
+  { id: 'iv-we-evening', label: 'Evening peak',   startMin: 1080, endMin: 1291, dose: 450 }, // 18:00 – 21:30
+  { id: 'iv-we-wind',    label: 'Wind-down',      startMin: 1291, endMin: 1440, dose: 280 }, // 21:31 – 23:59
 ];
 
 function uid() {

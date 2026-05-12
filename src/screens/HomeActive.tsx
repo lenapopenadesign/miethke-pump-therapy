@@ -130,7 +130,8 @@ export function HomeActive() {
   const onBarClick = (id: string) => setPreviewIntervalId(id);
   const current = ordered.find(iv => iv.startMin <= NOW_MIN && iv.endMin > NOW_MIN);
   const currentDose = current?.dose ?? baseDose;
-  const currentLabel = current?.label ?? 'Base';
+  // Trim parenthesized suffix to keep the NOW row compact ("Daytime (base)" → "Daytime")
+  const currentLabel = (current?.label ?? 'Base').replace(/\s*\([^)]*\)\s*$/, '');
   const estDaily = estimatedDailyTotal(baseDose, sourceIntervals);
   const estMorMgD = morphineMgDay(estDaily);
   const estBupMgD = bupivacaineMgDay(estDaily);
