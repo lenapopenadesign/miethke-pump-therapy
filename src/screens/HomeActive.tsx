@@ -1,4 +1,3 @@
-const imgAndroidTopBar = "/icons/3194ba7c-c3d5-4d95-a54f-7a90b3ea4f3b.svg";
 const imgVector = "/icons/5a450a1e-632a-463c-a5ba-9694b9ed32de.svg";
 const imgVector1 = "/icons/95b74b44-4c2f-4b64-929d-a325b3b33506.svg";
 const imgVector2 = "/icons/3956a6b0-5fa3-4d08-b68a-17cd6461d290.svg";
@@ -51,16 +50,6 @@ const imgEbene2 = "/icons/e59f4121-a18a-4bb5-8695-f5d5253ea32e.svg";
 const imgGroup85 = "/icons/a1a2b269-8eb1-455c-be96-b619fab0c56d.svg";
 const imgGroup1794 = "/icons/b8d1fbbc-6628-4927-b486-71f87138c41f.svg";
 
-function AndroidTopBar({ className }: { className?: string }) {
-  return (
-    <div className={className || "h-[35px] relative w-[1200px]"}>
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <img alt="" className="absolute h-[5485.71%] left-0 max-w-none top-0 w-full" src={imgAndroidTopBar} />
-      </div>
-    </div>
-  );
-}
-
 type IconsProps = {
   className?: string;
   property1?: "implant" | "refill" | "arrow_forward";
@@ -106,7 +95,7 @@ function Filling({ className }: FillingProps) {
 }
 
 import { useEffect, useState } from 'react';
-import { useTherapy, doseColor, morphineMgDay, bupivacaineMgDay, estimatedDailyTotal, fmtTime } from '../therapy';
+import { useTherapy, doseColor, morphineMgDay, bupivacaineMgDay, estimatedDailyTotal, fmtTime, withBaseFillers } from '../therapy';
 import { IntervalPreview } from '../components/IntervalPreview';
 
 const HA_LEFT = 16;
@@ -127,6 +116,7 @@ export function HomeActive() {
   useEffect(() => { setPreviewIntervalId(null); }, [activeTab, setPreviewIntervalId]);
   const sourceIntervals = activeTab === 'weekend' ? weekendIntervals : intervals;
   const ordered = [...sourceIntervals].sort((a, b) => a.startMin - b.startMin);
+  const chartSlots = withBaseFillers(sourceIntervals, baseDose);
   const onBarClick = (id: string) => setPreviewIntervalId(id);
   const current = ordered.find(iv => iv.startMin <= NOW_MIN && iv.endMin > NOW_MIN);
   const currentDose = current?.dose ?? baseDose;
@@ -475,17 +465,21 @@ export function HomeActive() {
                   <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[932px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
                     24:00
                   </p>
-                  {ordered.map(iv => {
-                    const left = HA_LEFT + (iv.startMin / 1440) * HA_WIDTH;
-                    const width = ((iv.endMin - iv.startMin) / 1440) * HA_WIDTH;
-                    const height = iv.dose * HA_SCALE;
+                  {chartSlots.map(slot => {
+                    const left = HA_LEFT + (slot.startMin / 1440) * HA_WIDTH;
+                    const width = ((slot.endMin - slot.startMin) / 1440) * HA_WIDTH;
+                    const height = slot.dose * HA_SCALE;
                     const top = HA_BAR_BOTTOM - height;
                     return (
                       <div
-                        key={iv.id}
-                        onClick={() => onBarClick(iv.id)}
-                        className="col-1 relative rounded-[3px] row-1 cursor-pointer"
-                        style={{ marginLeft: left, marginTop: top, width, height, background: doseColor(iv.dose, baseDose) }}
+                        key={slot.id}
+                        onClick={slot.isBase ? undefined : () => onBarClick(slot.id)}
+                        className={`col-1 relative rounded-[3px] row-1 ${slot.isBase ? '' : 'cursor-pointer'}`}
+                        style={{
+                          marginLeft: left, marginTop: top, width, height,
+                          background: doseColor(slot.dose, baseDose),
+                          opacity: slot.isBase ? 0.55 : 1,
+                        }}
                       />
                     );
                   })}
@@ -574,7 +568,7 @@ export function HomeActive() {
           </div>
         </div>
       </div>
-      <AndroidTopBar className="absolute h-[35px] left-0 top-0 w-[1200px]" />
+      <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
       {/* Inline preview — sits over the Therapy chart area */}
       <IntervalPreview top={1360} left={100} width={1000} />
       <div className="absolute bg-[#e6f4f9] content-stretch flex h-[120px] items-center justify-center left-0 overflow-x-clip overflow-y-auto px-[16px] py-[8px] top-[1800px] w-[1200px]">

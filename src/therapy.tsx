@@ -80,7 +80,16 @@ function uid() {
 }
 
 export function TherapyProvider({ children }: { children: ReactNode }) {
-  const [baseDose, setBaseDose] = useState(360);
+  const [baseDose, setBaseDoseRaw] = useState(360);
+  // The "Daytime (base)" interval is the base dose by definition — keep them
+  // linked so changing the base dose on the BaseDose screen propagates to the
+  // chart's daytime period on both weekday and weekend sets.
+  const setBaseDose = (n: number) => {
+    setBaseDoseRaw(n);
+    const updateBase = (iv: Interval) => iv.label.startsWith('Daytime') ? { ...iv, dose: n } : iv;
+    setIntervals(prev => prev.map(updateBase));
+    setWeekendIntervals(prev => prev.map(updateBase));
+  };
   const [intervals, setIntervals] = useState<Interval[]>(SEED_INTERVALS);
   const [weekendIntervals, setWeekendIntervals] = useState<Interval[]>(SEED_WEEKEND_INTERVALS);
   const [editingDayGroup, setEditingDayGroup] = useState<DayGroup>('weekdays');
@@ -177,6 +186,36 @@ export function fmtTime(min: number): string {
 export function parseTime(s: string): number {
   const [h, m] = s.split(':').map(Number);
   return h * 60 + m;
+}
+
+// A "slot" returned by withBaseFillers: either a real user interval, or a synthetic
+// base-dose filler covering a gap between intervals. The chart treats both the same
+// (positioned/sized/coloured by dose), but only real intervals are clickable.
+export type Slot = {
+  id: string;
+  startMin: number;
+  endMin: number;
+  dose: number;
+  label: string;
+  isBase: boolean; // true → synthetic base-dose filler (no underlying user interval)
+};
+
+/** Fill any gap (and leading/trailing edges) with a synthetic base-dose slot. */
+export function withBaseFillers(intervals: Interval[], baseDose: number): Slot[] {
+  const sorted = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  const out: Slot[] = [];
+  let cursor = 0;
+  for (const iv of sorted) {
+    if (iv.startMin > cursor) {
+      out.push({ id: `__base-${cursor}`, startMin: cursor, endMin: iv.startMin, dose: baseDose, label: 'Base dose', isBase: true });
+    }
+    out.push({ id: iv.id, startMin: iv.startMin, endMin: iv.endMin, dose: iv.dose, label: iv.label, isBase: false });
+    cursor = Math.max(cursor, iv.endMin);
+  }
+  if (cursor < 1440) {
+    out.push({ id: `__base-${cursor}`, startMin: cursor, endMin: 1440, dose: baseDose, label: 'Base dose', isBase: true });
+  }
+  return out;
 }
 
 // Estimated daily total = weighted average across intervals + base for any uncovered minutes

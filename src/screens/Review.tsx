@@ -46,6 +46,7 @@ import {
   hourlyUg,
   doseColor,
   estimatedDailyTotal,
+  withBaseFillers,
   STROKE_OPTIONS,
 } from '../therapy';
 import { IntervalPreview } from '../components/IntervalPreview';
@@ -68,19 +69,24 @@ function MiniChartBars({
   bottom: number;
   onBarClick: (id: string) => void;
 }) {
+  const slots = withBaseFillers(intervals, baseDose);
   return (
     <>
-      {intervals.map(iv => {
-        const left = MINI_LEFT + (iv.startMin / 1440) * MINI_WIDTH;
-        const width = ((iv.endMin - iv.startMin) / 1440) * MINI_WIDTH;
-        const height = iv.dose * MINI_SCALE;
+      {slots.map(slot => {
+        const left = MINI_LEFT + (slot.startMin / 1440) * MINI_WIDTH;
+        const width = ((slot.endMin - slot.startMin) / 1440) * MINI_WIDTH;
+        const height = slot.dose * MINI_SCALE;
         const top = bottom - height;
         return (
           <div
-            key={iv.id}
-            onClick={() => onBarClick(iv.id)}
-            className="absolute rounded-[3px] cursor-pointer"
-            style={{ left, top, width, height, background: doseColor(iv.dose, baseDose) }}
+            key={slot.id}
+            onClick={slot.isBase ? undefined : () => onBarClick(slot.id)}
+            className={`absolute rounded-[3px] ${slot.isBase ? '' : 'cursor-pointer'}`}
+            style={{
+              left, top, width, height,
+              background: doseColor(slot.dose, baseDose),
+              opacity: slot.isBase ? 0.55 : 1,
+            }}
           />
         );
       })}

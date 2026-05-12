@@ -1,4 +1,3 @@
-const imgAndroidTopBar = "/icons/f4023c80-3d8b-42df-9948-8009c9d76bd9.svg";
 const imgVector = "/icons/ca626163-e7d7-4956-ad91-c6ccc9d75c1e.svg";
 const imgVector1 = "/icons/f7d990dd-760b-4c75-ad06-a9e25792163f.svg";
 const imgVector2 = "/icons/34c72d33-da0a-4524-baf8-8740816e1c94.svg";
@@ -49,16 +48,6 @@ const imgVector40 = "/icons/0421e3ea-ed82-4a7b-bfd5-b93e14598d36.svg";
 const imgEbene2 = "/icons/d27fa211-b646-4694-a8e2-740d137a7c84.svg";
 const imgGroup85 = "/icons/109674c9-3940-44e4-9672-28139cb9e304.svg";
 const imgGroup1794 = "/icons/cb04e1a6-33a3-484f-a9d2-9f0910fa9fc3.svg";
-
-function AndroidTopBar({ className }: { className?: string }) {
-  return (
-    <div className={className || "h-[35px] relative w-[1200px]"}>
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <img alt="" className="absolute h-[5485.71%] left-0 max-w-none top-0 w-full" src={imgAndroidTopBar} />
-      </div>
-    </div>
-  );
-}
 
 type IconsProps = {
   className?: string;
@@ -409,7 +398,7 @@ export function HomeNoTherapy() {
           </div>
         </div>
       </div>
-      <AndroidTopBar className="absolute h-[35px] left-0 top-0 w-[1200px]" />
+      <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
       <div className="absolute bg-[#e6f4f9] content-stretch flex h-[120px] items-center justify-center left-0 overflow-x-clip overflow-y-auto px-[16px] py-[8px] top-[1800px] w-[1200px]">
         <div className="content-stretch flex flex-[1_0_0] gap-[16px] items-start justify-center min-w-px relative">
           <a className="content-stretch cursor-pointer flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px]">

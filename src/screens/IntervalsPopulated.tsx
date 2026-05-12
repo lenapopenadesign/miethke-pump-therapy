@@ -58,7 +58,7 @@ function EditIcon({ className }: { className?: string }) {
 
 import { useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtTime, doseColor, estimatedDailyTotal, type DayPattern, type DayGroup } from '../therapy';
+import { useTherapy, fmtTime, doseColor, estimatedDailyTotal, withBaseFillers, type DayPattern, type DayGroup } from '../therapy';
 
 const DAY_PATTERNS: { key: DayPattern; label: string; x: number; w: number }[] = [
   { key: 'same',             label: 'Same daily',         x: 84,      w: 338.667 },
@@ -86,6 +86,7 @@ export function IntervalsPopulated() {
   const onEdit = (id: string) => { startEditingInterval(id, 'intervals-populated', activeDayGroup); navigate('add-interval-when'); };
   // sort by startMin for chart and list order
   const ordered = [...activeSet].sort((a, b) => a.startMin - b.startMin);
+  const chartSlots = withBaseFillers(activeSet, baseDose);
   const estDaily = estimatedDailyTotal(baseDose, activeSet);
   const estHourly = estDaily / 24;
   return (
@@ -158,21 +159,26 @@ export function IntervalsPopulated() {
         Base · {baseDose} µg/d
       </p>
 
-      {/* Interval bars */}
-      {ordered.map((iv) => {
-        const left = CHART_LEFT + (iv.startMin / 1440) * CHART_WIDTH;
-        const width = ((iv.endMin - iv.startMin) / 1440) * CHART_WIDTH;
-        const height = iv.dose * BAR_HEIGHT_SCALE;
+      {/* Interval bars + base-dose fillers for any uncovered time */}
+      {chartSlots.map((slot) => {
+        const left = CHART_LEFT + (slot.startMin / 1440) * CHART_WIDTH;
+        const width = ((slot.endMin - slot.startMin) / 1440) * CHART_WIDTH;
+        const height = slot.dose * BAR_HEIGHT_SCALE;
         const top = CHART_BOTTOM_Y - height;
         return (
           <div
-            key={iv.id}
-            onClick={() => onEdit(iv.id)}
-            className="absolute rounded-[4px] cursor-pointer flex items-start justify-center"
-            style={{ left, top, width, height, background: doseColor(iv.dose, baseDose) }}
+            key={slot.id}
+            onClick={slot.isBase ? undefined : () => onEdit(slot.id)}
+            className={`absolute rounded-[4px] flex items-start justify-center ${slot.isBase ? '' : 'cursor-pointer'}`}
+            style={{
+              left, top, width, height,
+              background: doseColor(slot.dose, baseDose),
+              opacity: slot.isBase ? 0.55 : 1,
+            }}
+            title={slot.isBase ? 'Base dose' : undefined}
           >
             <p className="font-['Inter:Bold',sans-serif] font-bold text-[14px] text-white pt-[6px]">
-              {(iv.dose / 24).toFixed(1)}
+              {(slot.dose / 24).toFixed(1)}
             </p>
           </div>
         );
