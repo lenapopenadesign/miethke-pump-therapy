@@ -11,3 +11,4 @@ dist
 debug-*.mjs
 screenshot.mjs
 *-test.mjs
+debug.mjs

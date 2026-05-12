@@ -56,7 +56,7 @@ function EditIcon({ className }: { className?: string }) {
   );
 }
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from '../navigation';
 import {
   useTherapy, fmtTime, doseColor, estimatedDailyTotal, withBaseFillers,
@@ -105,30 +105,30 @@ export function IntervalsPopulated() {
   const navigate = useNavigate();
   const { intervalsByDay, baseDose, startAddingInterval, startEditingInterval, dayPattern, setDayPattern } = useTherapy();
   const [activeChip, setActiveChip] = useState<ChipKey>('weekdays');
-  // When the user switches the day-pattern toggle, reset activeChip to a value
-  // valid for that pattern.
-  useEffect(() => {
-    if (dayPattern === 'per-day' && !PER_DAY_CHIPS.some(c => c.key === activeChip)) {
-      setActiveChip('monday');
-    } else if (dayPattern !== 'per-day' && !WEEKDAY_WEEKEND_CHIPS.some(c => c.key === activeChip)) {
-      setActiveChip('weekdays');
+  // Derive the effective chip in render (not state) so the chip is always valid
+  // for the current day-pattern, even on the render right after the user toggles
+  // the pattern. This avoids a "stale state" crash where activeChip lags one tick.
+  const effectiveChip: ChipKey = (() => {
+    if (dayPattern === 'per-day') {
+      return PER_DAY_CHIPS.some(c => c.key === activeChip) ? activeChip : 'monday';
     }
-  }, [dayPattern, activeChip]);
+    return WEEKDAY_WEEKEND_CHIPS.some(c => c.key === activeChip) ? activeChip : 'weekdays';
+  })();
   // Scope = which day arrays this view edits/displays.
   const scope: DayKey[] = (() => {
     if (dayPattern === 'same') return DAY_KEYS;
     if (dayPattern === 'weekday-weekend') {
-      return activeChip === 'weekend' ? WEEKEND_KEYS : WEEKDAY_KEYS;
+      return effectiveChip === 'weekend' ? WEEKEND_KEYS : WEEKDAY_KEYS;
     }
-    // per-day → activeChip is one of DAY_KEYS
-    return [activeChip as DayKey];
+    // per-day → effectiveChip is one of DAY_KEYS
+    return [effectiveChip as DayKey];
   })();
   // Representative day shown in the chart/list (first day in scope).
   const displayDay: DayKey = scope[0];
   const activeSet = intervalsByDay[displayDay];
   const addLabel = (() => {
     const allChips = [...WEEKDAY_WEEKEND_CHIPS, ...PER_DAY_CHIPS];
-    return allChips.find(c => c.key === activeChip)?.full ?? 'Weekdays';
+    return allChips.find(c => c.key === effectiveChip)?.full ?? 'Weekdays';
   })();
   const onAdd = () => { startAddingInterval('intervals-populated', scope); navigate('add-interval-when'); };
   const onEdit = (id: string) => { startEditingInterval(id, 'intervals-populated', scope); navigate('add-interval-when'); };
@@ -174,7 +174,7 @@ export function IntervalsPopulated() {
         const chipWidth = (1040 - totalGap) / chipDefs.length;
         const isPerDay = dayPattern === 'per-day';
         return chipDefs.map((chip, i) => {
-          const active = activeChip === chip.key;
+          const active = effectiveChip === chip.key;
           const left = 80 + i * (chipWidth + gap);
           return (
             <div
