@@ -56,9 +56,30 @@ function EditIcon({ className }: { className?: string }) {
   );
 }
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy, fmtTime, doseColor, estimatedDailyTotal, withBaseFillers, type DayPattern, type DayGroup } from '../therapy';
+
+// Sub-tab chip shown below the day-pattern toggle. Drives which interval set is
+// displayed/edited.
+type ChipKey =
+  | 'weekdays' | 'weekend'
+  | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+
+const WEEKEND_CHIPS: ChipKey[] = ['weekend', 'saturday', 'sunday'];
+const PER_DAY_CHIPS: { key: ChipKey; label: string; full: string }[] = [
+  { key: 'monday',    label: 'Mon', full: 'Monday' },
+  { key: 'tuesday',   label: 'Tue', full: 'Tuesday' },
+  { key: 'wednesday', label: 'Wed', full: 'Wednesday' },
+  { key: 'thursday',  label: 'Thu', full: 'Thursday' },
+  { key: 'friday',    label: 'Fri', full: 'Friday' },
+  { key: 'saturday',  label: 'Sat', full: 'Saturday' },
+  { key: 'sunday',    label: 'Sun', full: 'Sunday' },
+];
+const WEEKDAY_WEEKEND_CHIPS: { key: ChipKey; label: string; full: string }[] = [
+  { key: 'weekdays', label: 'Weekdays  ·  Mon-Fri', full: 'Weekdays' },
+  { key: 'weekend',  label: 'Weekend  ·  Sat-Sun',  full: 'Weekend' },
+];
 
 const DAY_PATTERNS: { key: DayPattern; label: string; x: number; w: number }[] = [
   { key: 'same',             label: 'Same daily',         x: 84,      w: 338.667 },
@@ -80,8 +101,22 @@ function timeRangeLabel(startMin: number, endMin: number): string {
 export function IntervalsPopulated() {
   const navigate = useNavigate();
   const { intervals, weekendIntervals, baseDose, startAddingInterval, startEditingInterval, dayPattern, setDayPattern } = useTherapy();
-  const [activeDayGroup, setActiveDayGroup] = useState<DayGroup>('weekdays');
+  const [activeChip, setActiveChip] = useState<ChipKey>('weekdays');
+  // When the user switches the day-pattern toggle, reset activeChip to a value
+  // valid for that pattern.
+  useEffect(() => {
+    if (dayPattern === 'per-day' && !PER_DAY_CHIPS.some(c => c.key === activeChip)) {
+      setActiveChip('monday');
+    } else if (dayPattern !== 'per-day' && !WEEKDAY_WEEKEND_CHIPS.some(c => c.key === activeChip)) {
+      setActiveChip('weekdays');
+    }
+  }, [dayPattern, activeChip]);
+  const activeDayGroup: DayGroup = WEEKEND_CHIPS.includes(activeChip) ? 'weekend' : 'weekdays';
   const activeSet = activeDayGroup === 'weekend' ? weekendIntervals : intervals;
+  const addLabel = (() => {
+    const allChips = [...WEEKDAY_WEEKEND_CHIPS, ...PER_DAY_CHIPS];
+    return allChips.find(c => c.key === activeChip)?.full ?? 'Weekdays';
+  })();
   const onAdd = () => { startAddingInterval('intervals-populated', activeDayGroup); navigate('add-interval-when'); };
   const onEdit = (id: string) => { startEditingInterval(id, 'intervals-populated', activeDayGroup); navigate('add-interval-when'); };
   // sort by startMin for chart and list order
@@ -118,18 +153,30 @@ export function IntervalsPopulated() {
         );
       })}
 
-      <div
-        onClick={() => setActiveDayGroup('weekdays')}
-        className={`absolute h-[60px] left-[80px] overflow-clip rounded-[12px] top-[570px] w-[500px] cursor-pointer flex items-center justify-center select-none ${activeDayGroup === 'weekdays' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
-      >
-        <p className={`font-['Inter:Bold',sans-serif] not-italic text-[22px] whitespace-pre ${activeDayGroup === 'weekdays' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>{`Weekdays  ·  Mon-Fri`}</p>
-      </div>
-      <div
-        onClick={() => setActiveDayGroup('weekend')}
-        className={`absolute h-[60px] left-[600px] overflow-clip rounded-[12px] top-[570px] w-[500px] cursor-pointer flex items-center justify-center select-none ${activeDayGroup === 'weekend' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
-      >
-        <p className={`font-['Inter:Bold',sans-serif] not-italic text-[22px] whitespace-pre ${activeDayGroup === 'weekend' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>{`Weekend  ·  Sat-Sun`}</p>
-      </div>
+      {/* Sub-tab chips: hidden on 'same'; 2 chips on 'weekday-weekend'; 7 chips on 'per-day' */}
+      {dayPattern !== 'same' && (() => {
+        const chipDefs = dayPattern === 'per-day' ? PER_DAY_CHIPS : WEEKDAY_WEEKEND_CHIPS;
+        const gap = 8;
+        const totalGap = (chipDefs.length - 1) * gap;
+        const chipWidth = (1040 - totalGap) / chipDefs.length;
+        const isPerDay = dayPattern === 'per-day';
+        return chipDefs.map((chip, i) => {
+          const active = activeChip === chip.key;
+          const left = 80 + i * (chipWidth + gap);
+          return (
+            <div
+              key={chip.key}
+              onClick={() => setActiveChip(chip.key)}
+              className={`absolute h-[60px] overflow-clip rounded-[12px] top-[570px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
+              style={{ left, width: chipWidth }}
+            >
+              <p className={`font-['Inter:Bold',sans-serif] not-italic whitespace-pre ${active ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'} ${isPerDay ? 'text-[24px]' : 'text-[22px]'}`}>
+                {chip.label}
+              </p>
+            </div>
+          );
+        });
+      })()}
 
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[670px] w-[1040px]" />
       <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[700px] whitespace-nowrap">
@@ -200,7 +247,7 @@ export function IntervalsPopulated() {
       </div>
 
       <div onClick={onAdd} className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1601px] w-[1040px] cursor-pointer flex items-center justify-center">
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold not-italic text-[#0b7fa8] text-[22px] whitespace-pre">{`+  Add interval to ${activeDayGroup === 'weekend' ? 'Weekend' : 'Weekdays'}`}</p>
+        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold not-italic text-[#0b7fa8] text-[22px] whitespace-pre">{`+  Add interval to ${addLabel}`}</p>
       </div>
 
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[1100px] w-[1040px]" />
