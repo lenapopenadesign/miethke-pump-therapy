@@ -25,7 +25,10 @@ export const STROKE_OPTIONS: { min: StrokeStrategy; strokesPerDay: number; label
 type TherapyState = {
   baseDose: number;
   setBaseDose: (n: number) => void;
+  // Weekday intervals (Mon–Fri). The primary set the user edits on intervals-populated.
   intervals: Interval[];
+  // Weekend intervals (Sat–Sun). Distinct schedule (e.g. later morning start).
+  weekendIntervals: Interval[];
   draft: Draft;
   setDraft: (d: Draft) => void;
   editingId: string | null;
@@ -51,12 +54,23 @@ const DEFAULT_DRAFT: Draft = {
   dose: 480,
 };
 
+// Weekday schedule: morning peak starts at 06:30.
 const SEED_INTERVALS: Interval[] = [
-  { id: 'iv-night',   label: 'Night',        startMin: 0,    endMin: 480,  dose: 200 },
-  { id: 'iv-morning', label: 'Morning peak', startMin: 480,  endMin: 630,  dose: 480 },
-  { id: 'iv-day',     label: 'Daytime',      startMin: 630,  endMin: 990,  dose: 360 },
-  { id: 'iv-evening', label: 'Evening',      startMin: 990,  endMin: 1260, dose: 450 },
-  { id: 'iv-wind',    label: 'Wind-down',    startMin: 1260, endMin: 1440, dose: 280 },
+  { id: 'iv-night',   label: 'Night',        startMin: 0,    endMin: 390,  dose: 200 }, // 00:00–06:30
+  { id: 'iv-morning', label: 'Morning peak', startMin: 390,  endMin: 630,  dose: 480 }, // 06:30–10:30
+  { id: 'iv-day',     label: 'Daytime',      startMin: 630,  endMin: 990,  dose: 360 }, // 10:30–16:30
+  { id: 'iv-evening', label: 'Evening',      startMin: 990,  endMin: 1260, dose: 450 }, // 16:30–21:00
+  { id: 'iv-wind',    label: 'Wind-down',    startMin: 1260, endMin: 1440, dose: 280 }, // 21:00–24:00
+];
+
+// Weekend schedule: morning peak starts ~2h later (08:30) — longer night,
+// shorter morning peak. Daytime / Evening / Wind-down match the weekday set.
+const SEED_WEEKEND_INTERVALS: Interval[] = [
+  { id: 'iv-we-night',   label: 'Night',        startMin: 0,    endMin: 510,  dose: 200 }, // 00:00–08:30
+  { id: 'iv-we-morning', label: 'Morning peak', startMin: 510,  endMin: 630,  dose: 480 }, // 08:30–10:30
+  { id: 'iv-we-day',     label: 'Daytime',      startMin: 630,  endMin: 990,  dose: 360 }, // 10:30–16:30
+  { id: 'iv-we-evening', label: 'Evening',      startMin: 990,  endMin: 1260, dose: 450 }, // 16:30–21:00
+  { id: 'iv-we-wind',    label: 'Wind-down',    startMin: 1260, endMin: 1440, dose: 280 }, // 21:00–24:00
 ];
 
 function uid() {
@@ -66,6 +80,7 @@ function uid() {
 export function TherapyProvider({ children }: { children: ReactNode }) {
   const [baseDose, setBaseDose] = useState(360);
   const [intervals, setIntervals] = useState<Interval[]>(SEED_INTERVALS);
+  const [weekendIntervals] = useState<Interval[]>(SEED_WEEKEND_INTERVALS);
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(120);
@@ -104,7 +119,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   return (
     <TherapyContext.Provider value={{
       baseDose, setBaseDose,
-      intervals,
+      intervals, weekendIntervals,
       draft, setDraft,
       editingId,
       startAddingInterval, startEditingInterval, commitDraft, removeInterval, sheetReturnTo,

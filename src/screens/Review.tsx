@@ -90,12 +90,13 @@ function MiniChartBars({
 
 export function Review() {
   const navigate = useNavigate();
-  const { baseDose, intervals, strokeStrategy, setPreviewIntervalId } = useTherapy();
+  const { baseDose, intervals, weekendIntervals, strokeStrategy, setPreviewIntervalId } = useTherapy();
   useEffect(() => {
     setPreviewIntervalId(null);
     return () => setPreviewIntervalId(null);
   }, [setPreviewIntervalId]);
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  const orderedWeekend = [...weekendIntervals].sort((a, b) => a.startMin - b.startMin);
   const onBarClick = (id: string) => setPreviewIntervalId(id);
   const stroke = STROKE_OPTIONS.find(s => s.min === strokeStrategy) ?? STROKE_OPTIONS[2];
   const baclofenH = hourlyUg(baseDose);
@@ -218,7 +219,7 @@ export function Review() {
       <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKDAYS_BOTTOM} onBarClick={onBarClick} />
       <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[20px] top-[1008px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[1032px] w-[1040px]" />
-      <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKEND_BOTTOM} onBarClick={onBarClick} />
+      <MiniChartBars intervals={orderedWeekend} baseDose={baseDose} bottom={WEEKEND_BOTTOM} onBarClick={onBarClick} />
       {/* Inline preview — sits over the intervals area */}
       <IntervalPreview top={870} left={80} width={1040} />
       <div className="absolute content-stretch flex items-center left-0 top-[164px] w-[1200px]">

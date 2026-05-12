@@ -116,19 +116,22 @@ const HA_BAR_BOTTOM = 122;
 const NOW_MIN = 716; // "11:56" (matches the design's now indicator)
 
 export function HomeActive() {
-  const { baseDose, intervals, setPreviewIntervalId } = useTherapy();
+  const { baseDose, intervals, weekendIntervals, setPreviewIntervalId } = useTherapy();
   const [activeTab, setActiveTab] = useState<'weekdays' | 'weekend'>('weekdays');
   // Clear any preview state from a previous screen on mount/unmount
   useEffect(() => {
     setPreviewIntervalId(null);
     return () => setPreviewIntervalId(null);
   }, [setPreviewIntervalId]);
-  const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  // Also close the preview when switching weekday/weekend (selected interval may not exist in the other set)
+  useEffect(() => { setPreviewIntervalId(null); }, [activeTab, setPreviewIntervalId]);
+  const sourceIntervals = activeTab === 'weekend' ? weekendIntervals : intervals;
+  const ordered = [...sourceIntervals].sort((a, b) => a.startMin - b.startMin);
   const onBarClick = (id: string) => setPreviewIntervalId(id);
   const current = ordered.find(iv => iv.startMin <= NOW_MIN && iv.endMin > NOW_MIN);
   const currentDose = current?.dose ?? baseDose;
   const currentLabel = current?.label ?? 'Base';
-  const estDaily = estimatedDailyTotal(baseDose, intervals);
+  const estDaily = estimatedDailyTotal(baseDose, sourceIntervals);
   const estMorMgD = morphineMgDay(estDaily);
   const estBupMgD = bupivacaineMgDay(estDaily);
   const nowLeft = HA_LEFT + (NOW_MIN / 1440) * HA_WIDTH;

@@ -13,8 +13,9 @@ type Props = {
  * fits best. Renders nothing when no interval is selected.
  */
 export function IntervalPreview({ top, left, width }: Props) {
-  const { intervals, baseDose, previewIntervalId, setPreviewIntervalId } = useTherapy();
-  const iv = intervals.find(x => x.id === previewIntervalId);
+  const { intervals, weekendIntervals, baseDose, previewIntervalId, setPreviewIntervalId } = useTherapy();
+  const iv = intervals.find(x => x.id === previewIntervalId)
+    ?? weekendIntervals.find(x => x.id === previewIntervalId);
   if (!iv) return null;
 
   const hourlyUgH = iv.dose / 24;
