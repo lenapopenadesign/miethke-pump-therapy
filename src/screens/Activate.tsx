@@ -26,7 +26,7 @@ function LoadingBar({ className }: { className?: string }) {
         <div className="relative shrink-0 size-[24px]">
           <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgMaterialSymbolsFitbitCheckSmallRounded} />
         </div>
-        <p className="font-['Poppins:Bold',sans-serif] leading-[normal] not-italic relative shrink-0 text-[16px] text-[rgba(255,255,255,0)] text-center whitespace-nowrap">
+        <p className="font-['Poppins',sans-serif] leading-[normal] not-italic relative shrink-0 text-[16px] text-[rgba(255,255,255,0)] text-center whitespace-nowrap">
           Done
         </p>
       </div>
@@ -64,7 +64,7 @@ export function Activate() {
                   <div className="absolute aspect-[34/34] left-0 right-0 top-0"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse72} /></div>
                   <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgIconsStepper} />
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Base Dose</p>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Base Dose</p>
               </div>
             </div>
           </div>
@@ -80,7 +80,7 @@ export function Activate() {
                   <div className="absolute aspect-[34/34] left-0 right-0 top-0"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse72} /></div>
                   <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgIconsStepper} />
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Intervals</p>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Intervals</p>
               </div>
             </div>
           </div>
@@ -96,7 +96,7 @@ export function Activate() {
                   <div className="absolute aspect-[34/34] left-0 right-0 top-0"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse72} /></div>
                   <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgIconsStepper} />
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Review</p>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Review</p>
               </div>
             </div>
           </div>
@@ -112,7 +112,7 @@ export function Activate() {
                   <div className="absolute aspect-[34/34] left-0 right-0 top-0"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse72} /></div>
                   <div className="absolute aspect-[34/34] left-[32.5%] right-[32.5%] top-[13px]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse73} /></div>
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Activate</p>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Activate</p>
               </div>
             </div>
           </div>
@@ -145,7 +145,7 @@ export function Activate() {
                 <div className="absolute inset-[28.93%_31.08%_71%_64.17%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector11} /></div>
               </div>
             </div>
-            <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Therapy
             </p>
           </div>
@@ -156,7 +156,7 @@ export function Activate() {
       </div>
       {/* Title */}
       <div className="absolute content-stretch flex flex-col items-start left-[80px] top-[298px] w-[1024px]">
-        <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[40px] relative shrink-0 text-[#00769e] text-[36px] tracking-[0.1px] w-full" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-bold leading-[40px] relative shrink-0 text-[#00769e] text-[36px] tracking-[0.1px] w-full" style={{ fontVariationSettings: "'wdth' 100" }}>
           Activate therapy on implant
         </p>
       </div>

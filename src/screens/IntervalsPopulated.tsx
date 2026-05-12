@@ -58,7 +58,11 @@ function EditIcon({ className }: { className?: string }) {
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtTime, doseColor, estimatedDailyTotal, withBaseFillers, type DayPattern, type DayGroup } from '../therapy';
+import {
+  useTherapy, fmtTime, doseColor, estimatedDailyTotal, withBaseFillers,
+  DAY_KEYS, WEEKDAY_KEYS, WEEKEND_KEYS,
+  type DayPattern, type DayKey,
+} from '../therapy';
 
 // Sub-tab chip shown below the day-pattern toggle. Drives which interval set is
 // displayed/edited.
@@ -66,7 +70,6 @@ type ChipKey =
   | 'weekdays' | 'weekend'
   | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 
-const WEEKEND_CHIPS: ChipKey[] = ['weekend', 'saturday', 'sunday'];
 const PER_DAY_CHIPS: { key: ChipKey; label: string; full: string }[] = [
   { key: 'monday',    label: 'Mon', full: 'Monday' },
   { key: 'tuesday',   label: 'Tue', full: 'Tuesday' },
@@ -100,7 +103,7 @@ function timeRangeLabel(startMin: number, endMin: number): string {
 
 export function IntervalsPopulated() {
   const navigate = useNavigate();
-  const { intervals, weekendIntervals, baseDose, startAddingInterval, startEditingInterval, dayPattern, setDayPattern } = useTherapy();
+  const { intervalsByDay, baseDose, startAddingInterval, startEditingInterval, dayPattern, setDayPattern } = useTherapy();
   const [activeChip, setActiveChip] = useState<ChipKey>('weekdays');
   // When the user switches the day-pattern toggle, reset activeChip to a value
   // valid for that pattern.
@@ -111,14 +114,24 @@ export function IntervalsPopulated() {
       setActiveChip('weekdays');
     }
   }, [dayPattern, activeChip]);
-  const activeDayGroup: DayGroup = WEEKEND_CHIPS.includes(activeChip) ? 'weekend' : 'weekdays';
-  const activeSet = activeDayGroup === 'weekend' ? weekendIntervals : intervals;
+  // Scope = which day arrays this view edits/displays.
+  const scope: DayKey[] = (() => {
+    if (dayPattern === 'same') return DAY_KEYS;
+    if (dayPattern === 'weekday-weekend') {
+      return activeChip === 'weekend' ? WEEKEND_KEYS : WEEKDAY_KEYS;
+    }
+    // per-day → activeChip is one of DAY_KEYS
+    return [activeChip as DayKey];
+  })();
+  // Representative day shown in the chart/list (first day in scope).
+  const displayDay: DayKey = scope[0];
+  const activeSet = intervalsByDay[displayDay];
   const addLabel = (() => {
     const allChips = [...WEEKDAY_WEEKEND_CHIPS, ...PER_DAY_CHIPS];
     return allChips.find(c => c.key === activeChip)?.full ?? 'Weekdays';
   })();
-  const onAdd = () => { startAddingInterval('intervals-populated', activeDayGroup); navigate('add-interval-when'); };
-  const onEdit = (id: string) => { startEditingInterval(id, 'intervals-populated', activeDayGroup); navigate('add-interval-when'); };
+  const onAdd = () => { startAddingInterval('intervals-populated', scope); navigate('add-interval-when'); };
+  const onEdit = (id: string) => { startEditingInterval(id, 'intervals-populated', scope); navigate('add-interval-when'); };
   // sort by startMin for chart and list order
   const ordered = [...activeSet].sort((a, b) => a.startMin - b.startMin);
   const chartSlots = withBaseFillers(activeSet, baseDose);
@@ -127,13 +140,13 @@ export function IntervalsPopulated() {
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[44px] top-[270px] w-[1040px]">
+      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[44px] top-[270px] w-[1040px]">
         Add intervals
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[340px] w-[1040px]">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[340px] w-[1040px]">
         Tap a bar to edit, or + to add a new interval to this day group.
       </p>
-      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[430px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[430px] whitespace-nowrap">
         Day pattern
       </p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[70px] left-[80px] rounded-[12px] top-[466px] w-[1040px]" />
@@ -146,7 +159,7 @@ export function IntervalsPopulated() {
             className={`absolute h-[62px] rounded-[10px] top-[470px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#0b7fa8]' : ''}`}
             style={{ left: p.x, width: p.w }}
           >
-            <p className={`font-['Inter:Semi_Bold',sans-serif] font-semibold not-italic text-[22px] whitespace-nowrap ${active ? 'text-white' : 'text-[#063b66]'}`}>
+            <p className={`font-['Inter',sans-serif] font-semibold not-italic text-[22px] whitespace-nowrap ${active ? 'text-white' : 'text-[#063b66]'}`}>
               {p.label}
             </p>
           </div>
@@ -170,7 +183,7 @@ export function IntervalsPopulated() {
               className={`absolute h-[60px] overflow-clip rounded-[12px] top-[570px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
               style={{ left, width: chipWidth }}
             >
-              <p className={`font-['Inter:Bold',sans-serif] not-italic whitespace-pre ${active ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'} ${isPerDay ? 'text-[24px]' : 'text-[22px]'}`}>
+              <p className={`font-['Inter',sans-serif] not-italic whitespace-pre ${active ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'} ${isPerDay ? 'text-[24px]' : 'text-[22px]'}`}>
                 {chip.label}
               </p>
             </div>
@@ -179,17 +192,17 @@ export function IntervalsPopulated() {
       })()}
 
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[670px] w-[1040px]" />
-      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[700px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[700px] whitespace-nowrap">
         24-hour view
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[360px] not-italic text-[#667380] text-[20px] top-[702px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[360px] not-italic text-[#667380] text-[20px] top-[702px] whitespace-nowrap">
         Base dose · {baseDose} µg/day
       </p>
 
       {/* Chart container */}
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[260px] left-[80px] rounded-[16px] top-[740px] w-[1040px]" />
       {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => (
-        <p key={t} className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] not-italic text-[#9ea8b2] text-[16px] top-[750px] whitespace-nowrap"
+        <p key={t} className="absolute font-['Inter',sans-serif] font-normal leading-[normal] not-italic text-[#9ea8b2] text-[16px] top-[750px] whitespace-nowrap"
            style={{ left: [87.5, 332.5, 579, 824, 1067.5][i] }}>
           {t}
         </p>
@@ -200,7 +213,7 @@ export function IntervalsPopulated() {
         style={{ left: CHART_LEFT, top: CHART_BOTTOM_Y - baseDose * BAR_HEIGHT_SCALE, width: CHART_WIDTH }}
       />
       <p
-        className="absolute font-['Inter:Medium',sans-serif] font-medium leading-[normal] not-italic text-[#667380] text-[14px] whitespace-nowrap"
+        className="absolute font-['Inter',sans-serif] font-medium leading-[normal] not-italic text-[#667380] text-[14px] whitespace-nowrap"
         style={{ left: CHART_LEFT, top: CHART_BOTTOM_Y - baseDose * BAR_HEIGHT_SCALE + 6 }}
       >
         Base · {baseDose} µg/d
@@ -224,7 +237,7 @@ export function IntervalsPopulated() {
             }}
             title={slot.isBase ? 'Base dose' : undefined}
           >
-            <p className="font-['Inter:Bold',sans-serif] font-bold text-[14px] text-white pt-[6px]">
+            <p className="font-['Inter',sans-serif] font-bold text-[14px] text-white pt-[6px]">
               {(slot.dose / 24).toFixed(1)}
             </p>
           </div>
@@ -232,29 +245,29 @@ export function IntervalsPopulated() {
       })}
 
       {/* Estimated 24h total */}
-      <div className="absolute bg-[#d9ebf5] border-2 border-[#0b7fa8] border-solid h-[60px] left-[80px] rounded-[12px] top-[1020px] w-[1040px] flex items-center justify-between" style={{ paddingLeft: 24, paddingRight: 24 }}>
-        <p className="font-['Inter:Bold',sans-serif] font-bold not-italic text-[#063b66] text-[22px] whitespace-nowrap">
+      <div className="absolute bg-[#d9ebf5] border-2 border-[#0b7fa8] border-solid h-[70px] left-[80px] rounded-[12px] top-[1015px] w-[1040px] flex items-center justify-between" style={{ paddingLeft: 24, paddingRight: 24 }}>
+        <p className="font-['Inter',sans-serif] font-bold not-italic text-[#063b66] text-[28px] whitespace-nowrap">
           Estimated 24h total
         </p>
         <div className="flex items-baseline gap-[18px] whitespace-nowrap">
-          <p className="font-['Inter:Bold',sans-serif] font-bold not-italic text-[#063b66] text-[24px]">
+          <p className="font-['Inter',sans-serif] font-bold not-italic text-[#063b66] text-[28px]">
             {estDaily.toFixed(0)} µg/day
           </p>
-          <p className="font-['Inter:Regular',sans-serif] font-normal not-italic text-[#667380] text-[20px]">
+          <p className="font-['Inter',sans-serif] font-normal not-italic text-[#667380] text-[22px]">
             ≈ {estHourly.toFixed(1)} µg/h
           </p>
         </div>
       </div>
 
       <div onClick={onAdd} className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1601px] w-[1040px] cursor-pointer flex items-center justify-center">
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold not-italic text-[#0b7fa8] text-[22px] whitespace-pre">{`+  Add interval to ${addLabel}`}</p>
+        <p className="font-['Inter',sans-serif] font-semibold not-italic text-[#0b7fa8] text-[22px] whitespace-pre">{`+  Add interval to ${addLabel}`}</p>
       </div>
 
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[1100px] w-[1040px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[1120px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[1120px] whitespace-nowrap">
         Intervals ({ordered.length})
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#9ea8b2] text-[18px] top-[1125px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#9ea8b2] text-[18px] top-[1125px] whitespace-nowrap">
         Tap to edit
       </p>
 
@@ -266,9 +279,9 @@ export function IntervalsPopulated() {
           style={{ top: 1170 + i * 84 }}
         >
           <div className="absolute h-[48px] left-[15px] rounded-[4px] top-[15px] w-[8px]" style={{ background: doseColor(iv.dose, baseDose) }} />
-          <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[39px] not-italic text-[#063b66] text-[22px] top-[11px] whitespace-nowrap">{iv.label}</p>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[39px] not-italic text-[#667380] text-[18px] top-[43px] whitespace-nowrap">{timeRangeLabel(iv.startMin, iv.endMin)}</p>
-          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[799px] not-italic text-[#063b66] text-[22px] top-[24px] whitespace-nowrap">{(iv.dose / 24).toFixed(1)} µg/h</p>
+          <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[39px] not-italic text-[#063b66] text-[22px] top-[11px] whitespace-nowrap">{iv.label}</p>
+          <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[39px] not-italic text-[#667380] text-[18px] top-[43px] whitespace-nowrap">{timeRangeLabel(iv.startMin, iv.endMin)}</p>
+          <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[799px] not-italic text-[#063b66] text-[22px] top-[24px] whitespace-nowrap">{(iv.dose / 24).toFixed(1)} µg/h</p>
           <EditIcon className="absolute left-[972px] overflow-clip size-[40px] top-[19px]" />
         </div>
       ))}
@@ -285,7 +298,7 @@ export function IntervalsPopulated() {
                   </div>
                   <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgIconsStepper} />
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Base Dose
                 </p>
               </div>
@@ -310,7 +323,7 @@ export function IntervalsPopulated() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse73} />
                   </div>
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Intervals
                 </p>
               </div>
@@ -328,7 +341,7 @@ export function IntervalsPopulated() {
             <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
               <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
                 <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Review
                 </p>
               </div>
@@ -346,7 +359,7 @@ export function IntervalsPopulated() {
             <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
               <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
                 <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Save on implant
                 </p>
               </div>
@@ -385,7 +398,7 @@ export function IntervalsPopulated() {
                 <div className="absolute inset-[28.93%_31.08%_71%_64.17%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector15} /></div>
               </div>
             </div>
-            <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Therapy
             </p>
           </div>
@@ -397,7 +410,7 @@ export function IntervalsPopulated() {
 
       {/* Continue */}
       <div onClick={() => navigate('review')} className="absolute bg-[#0b7fa8] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1778px] w-[1040px] cursor-pointer">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[458px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
+        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[458px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
           Continue
         </p>
       </div>

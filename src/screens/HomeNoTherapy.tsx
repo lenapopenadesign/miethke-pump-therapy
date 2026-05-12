@@ -105,13 +105,13 @@ export function HomeNoTherapy() {
             <div className="content-stretch flex flex-[1_0_0] items-center justify-center min-w-px relative">
               <div className="content-stretch flex flex-[1_0_0] gap-[16px] items-center min-w-px relative">
                 <Icons className="overflow-clip relative shrink-0 size-[64px]" property1="implant" />
-                <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Implant
                 </p>
               </div>
             </div>
             <div className="content-stretch flex gap-[16px] items-center relative shrink-0">
-              <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#24ab5e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#24ab5e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                 Connected
               </p>
               <div className="h-[32px] overflow-clip relative shrink-0 w-[33px]">
@@ -139,38 +139,38 @@ export function HomeNoTherapy() {
                   </div>
                   <div className="content-stretch flex flex-[1_0_0] items-center justify-between min-w-px relative">
                     <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         Fill level
                       </p>
-                      <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         <span className="leading-[48px] text-[32px]">40/</span>
-                        <span className="font-['Roboto:Regular',sans-serif] font-normal leading-[48px] text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        <span className="font-['Roboto',sans-serif] font-normal leading-[48px] text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                           40 ml
                         </span>
                       </p>
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         100 %
                       </p>
                     </div>
                     <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         Catheter
                       </p>
-                      <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         <span className="leading-[48px] text-[32px]">n/a</span>
-                        <span className="font-['Roboto:Regular',sans-serif] font-normal leading-[48px] text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>{` ml`}</span>
+                        <span className="font-['Roboto',sans-serif] font-normal leading-[48px] text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>{` ml`}</span>
                       </p>
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         n/a cm
                       </p>
                     </div>
                     <div className="flex flex-row items-center self-stretch">
                       <div className="content-stretch flex gap-[40px] h-full items-center relative shrink-0">
                         <div className="content-stretch flex flex-col h-full items-start relative shrink-0 text-[#00769e] tracking-[0.1px] w-[167px] whitespace-nowrap">
-                          <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                             Next refill before
                           </p>
-                          <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[48px] relative shrink-0 text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          <p className="font-['Roboto',sans-serif] font-bold leading-[48px] relative shrink-0 text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                             n/a
                           </p>
                         </div>
@@ -185,7 +185,7 @@ export function HomeNoTherapy() {
                                   <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector7} />
                                 </div>
                               </div>
-                              <div className="flex flex-col font-['Roboto:Bold',sans-serif] font-bold justify-center leading-[0] relative shrink-0 text-[0px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                              <div className="flex flex-col font-['Roboto',sans-serif] font-bold justify-center leading-[0] relative shrink-0 text-[0px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                                 <p className="leading-[32px] text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                                   Refill
                                 </p>
@@ -213,7 +213,7 @@ export function HomeNoTherapy() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector9} />
                   </div>
                 </div>
-                <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Frida Kenton
                 </p>
               </div>
@@ -230,7 +230,7 @@ export function HomeNoTherapy() {
           </div>
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
             <div className="content-stretch flex items-start px-[24px] relative shrink-0 w-full">
-              <div className="content-stretch flex flex-[1_0_0] flex-col font-['Roboto:Regular',sans-serif] font-normal gap-[24px] items-start min-w-px relative text-[#00769e] text-[24px] tracking-[0.1px]">
+              <div className="content-stretch flex flex-[1_0_0] flex-col font-['Roboto',sans-serif] font-normal gap-[24px] items-start min-w-px relative text-[#00769e] text-[24px] tracking-[0.1px]">
                 <div className="content-stretch flex gap-[40px] items-center relative shrink-0 whitespace-nowrap">
                   <p className="leading-[32px] relative shrink-0" style={{ fontVariationSettings: "'wdth' 100" }}>
                     *01.04.1984
@@ -246,7 +246,7 @@ export function HomeNoTherapy() {
                   </p>
                   <p className="leading-[0] relative shrink-0" style={{ fontVariationSettings: "'wdth' 100" }}>
                     <span className="leading-[32px]">{`Patient N°: `}</span>
-                    <span className="font-['Roboto:Light',sans-serif] font-light leading-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    <span className="font-['Roboto',sans-serif] font-light leading-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                       930230393
                     </span>
                   </p>
@@ -271,7 +271,7 @@ export function HomeNoTherapy() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector11} />
                   </div>
                 </div>
-                <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Medication
                 </p>
               </div>
@@ -289,31 +289,27 @@ export function HomeNoTherapy() {
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
             <div className="content-stretch flex gap-[25px] items-start relative shrink-0">
               <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0">
-                <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px] whitespace-nowrap">
+                <p className="font-['Inter',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px] whitespace-nowrap">
                   Baclofen
                 </p>
-                <div className="bg-[#0b7fa8] h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px]">
-                  <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[10.5px] not-italic text-[11px] text-white top-[4.5px] whitespace-nowrap">
-                    PRIMARY
-                  </p>
-                </div>
-                <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <div className="bg-[#0b7fa8] h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px] flex items-center justify-center"><p className=" font-['Inter',sans-serif] font-bold leading-[normal]  not-italic text-[11px] text-white  whitespace-nowrap">PRIMARY</p></div>
+                <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                   1 mg/ml
                 </p>
               </div>
               <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0 whitespace-nowrap">
-                <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px]">
+                <p className="font-['Inter',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px]">
                   Morphine
                 </p>
-                <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   10 mg/ml
                 </p>
               </div>
               <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0 whitespace-nowrap">
-                <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px]">
+                <p className="font-['Inter',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px]">
                   Bupivacaine
                 </p>
-                <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   5 mg/ml
                 </p>
               </div>
@@ -363,7 +359,7 @@ export function HomeNoTherapy() {
                     </div>
                   </div>
                 </div>
-                <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Therapy
                 </p>
               </div>
@@ -387,7 +383,7 @@ export function HomeNoTherapy() {
                       <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgIcons} />
                     </div>
                     <div className="content-stretch flex flex-[1_0_0] flex-col gap-[24px] items-start justify-center min-w-px relative">
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#45483c] text-[24px] tracking-[0.1px] w-full" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#45483c] text-[24px] tracking-[0.1px] w-full" style={{ fontVariationSettings: "'wdth' 100" }}>
                         Set up a therapy for your patient to start the medication delivery.
                       </p>
                     </div>
@@ -411,7 +407,7 @@ export function HomeNoTherapy() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[24px] overflow-hidden relative shrink-0 text-[#00769e] text-[20px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-bold leading-[24px] overflow-hidden relative shrink-0 text-[#00769e] text-[20px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Overview
             </p>
           </a>
@@ -430,7 +426,7 @@ export function HomeNoTherapy() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Implant
             </p>
           </div>
@@ -446,7 +442,7 @@ export function HomeNoTherapy() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Patient
             </p>
           </a>
@@ -462,7 +458,7 @@ export function HomeNoTherapy() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Medication
             </p>
           </div>
@@ -509,7 +505,7 @@ export function HomeNoTherapy() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Therapy
             </p>
           </a>
@@ -524,7 +520,7 @@ export function HomeNoTherapy() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Help
             </p>
           </a>
@@ -537,7 +533,7 @@ export function HomeNoTherapy() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Settings
             </p>
           </a>
@@ -551,7 +547,7 @@ export function HomeNoTherapy() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Disconnect
             </p>
           </a>

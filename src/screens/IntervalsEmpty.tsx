@@ -55,13 +55,13 @@ export function IntervalsEmpty() {
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[44px] top-[270px] w-[1040px]">
+      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[44px] top-[270px] w-[1040px]">
         Add intervals
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[340px] w-[1040px]">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[340px] w-[1040px]">
         Optional. Add windows where the dose differs from the base dose.
       </p>
-      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[430px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[430px] whitespace-nowrap">
         Day pattern
       </p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[70px] left-[80px] rounded-[12px] top-[466px] w-[1040px]" />
@@ -74,55 +74,55 @@ export function IntervalsEmpty() {
             className={`absolute h-[62px] rounded-[10px] top-[470px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#0b7fa8]' : ''}`}
             style={{ left: p.x, width: p.w }}
           >
-            <p className={`font-['Inter:Semi_Bold',sans-serif] font-semibold not-italic text-[22px] whitespace-nowrap ${active ? 'text-white' : 'text-[#063b66]'}`}>
+            <p className={`font-['Inter',sans-serif] font-semibold not-italic text-[22px] whitespace-nowrap ${active ? 'text-white' : 'text-[#063b66]'}`}>
               {p.label}
             </p>
           </div>
         );
       })}
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[580px] w-[1040px]" />
-      <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[610px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[610px] whitespace-nowrap">
         24-hour view
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[360px] not-italic text-[#667380] text-[20px] top-[612px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[360px] not-italic text-[#667380] text-[20px] top-[612px] whitespace-nowrap">
         Base dose only · 360 µg/day Baclofen
       </p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[200px] left-[80px] rounded-[16px] top-[650px] w-[1040px]" />
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[107px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[107px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
         00:00
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[332.5px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[332.5px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
         06:00
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[579px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[579px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
         12:00
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[824px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[824px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
         18:00
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[1045px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[1045px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
         24:00
       </p>
       <div className="absolute bg-[rgba(11,127,168,0.47)] h-[50px] left-[110px] rounded-[4px] top-[770px] w-[980px]" />
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[140px] not-italic text-[16px] text-white top-[790px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[140px] not-italic text-[16px] text-white top-[790px] whitespace-nowrap">
         360 µg/day · base dose all day
       </p>
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[455px] not-italic text-[#063b66] text-[30px] top-[960px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[455px] not-italic text-[#063b66] text-[30px] top-[960px] whitespace-nowrap">
         No intervals added yet
       </p>
-      <p className="-translate-x-1/2 absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[600px] not-italic text-[#667380] text-[22px] text-center top-[1004px] w-[1040px]">
+      <p className="-translate-x-1/2 absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[600px] not-italic text-[#667380] text-[22px] text-center top-[1004px] w-[1040px]">
         Therapy will run at the base dose around the clock. Add intervals to vary the dose at specific times of day (e.g. higher during physiotherapy, lower at night).
       </p>
       <div onClick={onAdd} className="absolute bg-[#0b7fa8] h-[100px] left-[80px] overflow-clip rounded-[50px] top-[1155px] w-[1040px] cursor-pointer">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[356.5px] not-italic text-[28px] text-white top-[33px] whitespace-pre">{`+  Add your first interval`}</p>
+        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[356.5px] not-italic text-[28px] text-white top-[33px] whitespace-pre">{`+  Add your first interval`}</p>
       </div>
       <div onClick={() => navigate('review')} className="absolute bg-white border border-[#d9dbde] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1275px] w-[1040px] cursor-pointer">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[364.5px] not-italic text-[#667380] text-[24px] top-[29.5px] whitespace-nowrap">
+        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[364.5px] not-italic text-[#667380] text-[24px] top-[29.5px] whitespace-nowrap">
           Skip — use base dose only
         </p>
       </div>
       <div className="absolute bg-[#c7c9cc] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1773px] w-[1040px]">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[385.5px] not-italic text-[24px] text-white top-[30.5px] whitespace-nowrap">
+        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[385.5px] not-italic text-[24px] text-white top-[30.5px] whitespace-nowrap">
           Add or skip to continue
         </p>
       </div>
@@ -137,7 +137,7 @@ export function IntervalsEmpty() {
                   </div>
                   <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgIconsStepper} />
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Base Dose
                 </p>
               </div>
@@ -162,7 +162,7 @@ export function IntervalsEmpty() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse73} />
                   </div>
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Intervals
                 </p>
               </div>
@@ -180,7 +180,7 @@ export function IntervalsEmpty() {
             <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
               <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
                 <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Review
                 </p>
               </div>
@@ -198,7 +198,7 @@ export function IntervalsEmpty() {
             <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
               <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
                 <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Activate
                 </p>
               </div>
@@ -257,7 +257,7 @@ export function IntervalsEmpty() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Therapy
             </p>
           </div>

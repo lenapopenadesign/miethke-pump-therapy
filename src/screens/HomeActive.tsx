@@ -95,7 +95,7 @@ function Filling({ className }: FillingProps) {
 }
 
 import { useEffect, useState } from 'react';
-import { useTherapy, doseColor, morphineMgDay, bupivacaineMgDay, estimatedDailyTotal, fmtTime, withBaseFillers } from '../therapy';
+import { useTherapy, doseColor, morphineMgDay, bupivacaineMgDay, estimatedDailyTotal, fmtTime, withBaseFillers, STROKE_OPTIONS } from '../therapy';
 import { IntervalPreview } from '../components/IntervalPreview';
 
 const HA_LEFT = 16;
@@ -105,7 +105,8 @@ const HA_BAR_BOTTOM = 122;
 const NOW_MIN = 716; // "11:56" (matches the design's now indicator)
 
 export function HomeActive() {
-  const { baseDose, intervals, weekendIntervals, setPreviewIntervalId } = useTherapy();
+  const { baseDose, intervals, weekendIntervals, strokeStrategy, setPreviewIntervalId } = useTherapy();
+  const currentStroke = STROKE_OPTIONS.find(s => s.min === strokeStrategy) ?? STROKE_OPTIONS[2];
   const [activeTab, setActiveTab] = useState<'weekdays' | 'weekend'>('weekdays');
   // Clear any preview state from a previous screen on mount/unmount
   useEffect(() => {
@@ -134,13 +135,13 @@ export function HomeActive() {
             <div className="content-stretch flex flex-[1_0_0] items-center justify-center min-w-px relative">
               <div className="content-stretch flex flex-[1_0_0] gap-[16px] items-center min-w-px relative">
                 <Icons className="overflow-clip relative shrink-0 size-[64px]" property1="implant" />
-                <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Implant
                 </p>
               </div>
             </div>
             <div className="content-stretch flex gap-[16px] items-center relative shrink-0">
-              <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#24ab5e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#24ab5e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                 Connected
               </p>
               <div className="h-[32px] overflow-clip relative shrink-0 w-[33px]">
@@ -168,38 +169,38 @@ export function HomeActive() {
                   </div>
                   <div className="content-stretch flex flex-[1_0_0] items-center justify-between min-w-px relative">
                     <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         Fill level
                       </p>
-                      <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         <span className="leading-[48px] text-[32px]">40/</span>
-                        <span className="font-['Roboto:Regular',sans-serif] font-normal leading-[48px] text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        <span className="font-['Roboto',sans-serif] font-normal leading-[48px] text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                           40 ml
                         </span>
                       </p>
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         100 %
                       </p>
                     </div>
                     <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         Catheter
                       </p>
-                      <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         <span className="leading-[48px] text-[32px]">n/a</span>
-                        <span className="font-['Roboto:Regular',sans-serif] font-normal leading-[48px] text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>{` ml`}</span>
+                        <span className="font-['Roboto',sans-serif] font-normal leading-[48px] text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>{` ml`}</span>
                       </p>
-                      <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                         n/a cm
                       </p>
                     </div>
                     <div className="flex flex-row items-center self-stretch">
                       <div className="content-stretch flex gap-[40px] h-full items-center relative shrink-0">
                         <div className="content-stretch flex flex-col h-full items-start relative shrink-0 text-[#00769e] tracking-[0.1px] w-[167px] whitespace-nowrap">
-                          <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                             Next refill before
                           </p>
-                          <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[48px] relative shrink-0 text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          <p className="font-['Roboto',sans-serif] font-bold leading-[48px] relative shrink-0 text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                             n/a
                           </p>
                         </div>
@@ -214,7 +215,7 @@ export function HomeActive() {
                                   <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector7} />
                                 </div>
                               </div>
-                              <div className="flex flex-col font-['Roboto:Bold',sans-serif] font-bold justify-center leading-[0] relative shrink-0 text-[0px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                              <div className="flex flex-col font-['Roboto',sans-serif] font-bold justify-center leading-[0] relative shrink-0 text-[0px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                                 <p className="leading-[32px] text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                                   Refill
                                 </p>
@@ -242,7 +243,7 @@ export function HomeActive() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector9} />
                   </div>
                 </div>
-                <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Frida Kenton
                 </p>
               </div>
@@ -260,7 +261,7 @@ export function HomeActive() {
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
             <div className="content-stretch flex items-start px-[24px] relative shrink-0 w-full">
               <div className="content-stretch flex flex-[1_0_0] flex-col gap-[24px] items-start min-w-px relative">
-                <div className="content-stretch flex font-['Roboto:Regular',sans-serif] font-normal gap-[40px] items-center relative shrink-0 text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap">
+                <div className="content-stretch flex font-['Roboto',sans-serif] font-normal gap-[40px] items-center relative shrink-0 text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap">
                   <p className="leading-[32px] relative shrink-0" style={{ fontVariationSettings: "'wdth' 100" }}>
                     *01.04.1984
                   </p>
@@ -275,7 +276,7 @@ export function HomeActive() {
                   </p>
                   <p className="leading-[0] relative shrink-0" style={{ fontVariationSettings: "'wdth' 100" }}>
                     <span className="leading-[32px]">{`Patient N°: `}</span>
-                    <span className="font-['Roboto:Light',sans-serif] font-light leading-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    <span className="font-['Roboto',sans-serif] font-light leading-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                       930230393
                     </span>
                   </p>
@@ -298,7 +299,7 @@ export function HomeActive() {
                       <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector11} />
                     </div>
                   </div>
-                  <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                     Medication
                   </p>
                 </div>
@@ -316,31 +317,27 @@ export function HomeActive() {
             <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
               <div className="content-stretch flex gap-[25px] items-start relative shrink-0">
                 <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0">
-                  <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px] whitespace-nowrap">
+                  <p className="font-['Inter',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px] whitespace-nowrap">
                     Baclofen
                   </p>
-                  <div className="bg-[#0b7fa8] h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px]">
-                    <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[10.5px] not-italic text-[11px] text-white top-[4.5px] whitespace-nowrap">
-                      PRIMARY
-                    </p>
-                  </div>
-                  <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  <div className="bg-[#0b7fa8] h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px] flex items-center justify-center"><p className=" font-['Inter',sans-serif] font-bold leading-[normal]  not-italic text-[11px] text-white  whitespace-nowrap">PRIMARY</p></div>
+                  <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                     1 mg/ml
                   </p>
                 </div>
                 <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0 whitespace-nowrap">
-                  <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px]">
+                  <p className="font-['Inter',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px]">
                     Morphine
                   </p>
-                  <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                     10 mg/ml
                   </p>
                 </div>
                 <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0 whitespace-nowrap">
-                  <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px]">
+                  <p className="font-['Inter',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px]">
                     Bupivacaine
                   </p>
-                  <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                     5 mg/ml
                   </p>
                 </div>
@@ -349,7 +346,7 @@ export function HomeActive() {
           </div>
         </div>
         <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
-          <div className="bg-[#e6f4f9] col-1 content-stretch flex flex-col h-[837px] items-start ml-0 mt-0 relative rounded-[24px] row-1 w-[1040px]">
+          <div className="bg-[#e6f4f9] col-1 content-stretch flex flex-col h-[890px] items-start ml-0 mt-0 relative rounded-[24px] row-1 w-[1040px]">
             <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
               <div className="content-stretch flex flex-[1_0_0] items-center justify-center min-w-px relative">
                 <div className="content-stretch flex flex-[1_0_0] gap-[16px] items-center min-w-px relative">
@@ -392,7 +389,7 @@ export function HomeActive() {
                       </div>
                     </div>
                   </div>
-                  <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                     Therapy
                   </p>
                 </div>
@@ -407,150 +404,133 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] h-[725px] items-start px-[24px] py-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
-              <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0">
-                <div className="bg-[#0b7fa8] h-[61px] overflow-clip relative rounded-[12px] shrink-0 w-[984px]">
-                  <div className="absolute bg-white h-[28px] left-[27px] overflow-clip rounded-[14px] top-[18px] w-[72px]">
-                    <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[18px] not-italic text-[#0b7fa8] text-[18px] top-[5.5px] whitespace-nowrap">
-                      NOW
-                    </p>
-                  </div>
-                  <div className="absolute bg-[#0b7fa8] h-[28px] left-[108px] rounded-[4px] top-[18px] w-[8px]" />
-                  <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[757px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
-                    {currentLabel}
-                  </p>
-                  <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[457px] not-italic text-[24px] text-white top-[17px] whitespace-nowrap">{` ${(currentDose / 24).toFixed(1)} µg/h`}</p>
-                  <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[112px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
-                    Baclofen
-                  </p>
-                  <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[903px] not-italic text-[24px] text-white top-[22px] whitespace-nowrap">
-                    {fmtTime(NOW_MIN)}
-                  </p>
-                  <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[911px] not-italic text-[#d9f2fa] text-[18px] top-[3px] whitespace-nowrap">
-                    Monday
+            <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[18px] h-[778px] items-start px-[24px] py-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
+              {/* 1. Weekday/Weekend toggle */}
+              <div className="content-stretch flex gap-[25px] items-start relative shrink-0 w-full">
+                <div
+                  onClick={() => setActiveTab('weekdays')}
+                  className={`flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px] cursor-pointer flex items-center justify-center ${activeTab === 'weekdays' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
+                >
+                  <p className={`font-['Inter',sans-serif] not-italic text-[26px] whitespace-pre ${activeTab === 'weekdays' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>
+                    {`Weekdays  ·  Mon-Fri`}
                   </p>
                 </div>
-                <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
-                  <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
-                    Morphine
-                  </p>
-                  <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
-                    {(morphineMgDay(currentDose) / 24).toFixed(3)} mg/h
-                  </p>
-                </div>
-                <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
-                  <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
-                    Bupivacaine
-                  </p>
-                  <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
-                    {(bupivacaineMgDay(currentDose) / 24).toFixed(3)} mg/h
+                <div
+                  onClick={() => setActiveTab('weekend')}
+                  className={`flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px] cursor-pointer flex items-center justify-center ${activeTab === 'weekend' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
+                >
+                  <p className={`font-['Inter',sans-serif] not-italic text-[26px] whitespace-pre ${activeTab === 'weekend' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>
+                    {`Weekend  ·  Sat-Sun`}
                   </p>
                 </div>
               </div>
-              <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-full">
-                <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
-                  <div className="bg-white border border-[#d9dbde] border-solid col-1 h-[130px] ml-0 mt-[2px] relative rounded-[12px] row-1 w-[984px]" />
-                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[16px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
-                    00:00
-                  </p>
-                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[237px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
-                    06:00
-                  </p>
-                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[476px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
-                    12:00
-                  </p>
-                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[714px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
-                    18:00
-                  </p>
-                  <p className="col-1 font-['Inter:Regular',sans-serif] font-normal leading-[normal] ml-[932px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">
-                    24:00
-                  </p>
-                  {chartSlots.map(slot => {
-                    const left = HA_LEFT + (slot.startMin / 1440) * HA_WIDTH;
-                    const width = ((slot.endMin - slot.startMin) / 1440) * HA_WIDTH;
-                    const height = slot.dose * HA_SCALE;
-                    const top = HA_BAR_BOTTOM - height;
-                    return (
-                      <div
-                        key={slot.id}
-                        onClick={slot.isBase ? undefined : () => onBarClick(slot.id)}
-                        className={`col-1 relative rounded-[3px] row-1 ${slot.isBase ? '' : 'cursor-pointer'}`}
-                        style={{
-                          marginLeft: left, marginTop: top, width, height,
-                          background: doseColor(slot.dose, baseDose),
-                          opacity: slot.isBase ? 0.55 : 1,
-                        }}
-                      />
-                    );
-                  })}
-                  <div className="col-1 relative row-1 w-[2px] bg-[#063b66]" style={{ marginLeft: nowLeft, marginTop: 23, height: 98 }} />
-                  <div className="col-1 flex h-[14px] items-center justify-center mt-0 relative row-1 w-[16px]" style={{ marginLeft: nowLeft - 7 }}>
-                    <div className="flex-none rotate-180">
-                      <div className="h-[14px] relative w-[16px]">
-                        <div className="absolute bottom-1/4 left-[6.7%] right-[6.7%] top-0">
-                          <img alt="" className="block max-w-none size-full" src={imgPolygon} />
-                        </div>
+
+              {/* 2. 24h chart */}
+              <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
+                <div className="bg-white border border-[#d9dbde] border-solid col-1 h-[130px] ml-0 mt-[2px] relative rounded-[12px] row-1 w-[984px]" />
+                <p className="col-1 font-['Inter',sans-serif] font-normal leading-[normal] ml-[16px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">00:00</p>
+                <p className="col-1 font-['Inter',sans-serif] font-normal leading-[normal] ml-[237px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">06:00</p>
+                <p className="col-1 font-['Inter',sans-serif] font-normal leading-[normal] ml-[476px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">12:00</p>
+                <p className="col-1 font-['Inter',sans-serif] font-normal leading-[normal] ml-[714px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">18:00</p>
+                <p className="col-1 font-['Inter',sans-serif] font-normal leading-[normal] ml-[932px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">24:00</p>
+                {chartSlots.map(slot => {
+                  const left = HA_LEFT + (slot.startMin / 1440) * HA_WIDTH;
+                  const width = ((slot.endMin - slot.startMin) / 1440) * HA_WIDTH;
+                  const height = slot.dose * HA_SCALE;
+                  const top = HA_BAR_BOTTOM - height;
+                  return (
+                    <div
+                      key={slot.id}
+                      onClick={slot.isBase ? undefined : () => onBarClick(slot.id)}
+                      className={`col-1 relative rounded-[3px] row-1 ${slot.isBase ? '' : 'cursor-pointer'}`}
+                      style={{
+                        marginLeft: left, marginTop: top, width, height,
+                        background: doseColor(slot.dose, baseDose),
+                        opacity: slot.isBase ? 0.55 : 1,
+                      }}
+                    />
+                  );
+                })}
+                <div className="col-1 relative row-1 w-[2px] bg-[#063b66]" style={{ marginLeft: nowLeft, marginTop: 23, height: 98 }} />
+                <div className="col-1 flex h-[14px] items-center justify-center mt-0 relative row-1 w-[16px]" style={{ marginLeft: nowLeft - 7 }}>
+                  <div className="flex-none rotate-180">
+                    <div className="h-[14px] relative w-[16px]">
+                      <div className="absolute bottom-1/4 left-[6.7%] right-[6.7%] top-0">
+                        <img alt="" className="block max-w-none size-full" src={imgPolygon} />
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="content-stretch flex gap-[25px] items-start relative shrink-0 w-full">
-                  <div
-                    onClick={() => setActiveTab('weekend')}
-                    className={`flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px] cursor-pointer flex items-center justify-center ${activeTab === 'weekend' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
-                  >
-                    <p className={`font-['Inter:Bold',sans-serif] not-italic text-[26px] whitespace-pre ${activeTab === 'weekend' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>
-                      {`Weekend  ·  Sat-Sun`}
-                    </p>
+              </div>
+
+              {/* 3. NOW row + Morphine + Bupivacaine */}
+              <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0">
+                <div className="bg-[#0b7fa8] h-[61px] overflow-clip relative rounded-[12px] shrink-0 w-[984px]">
+                  <div className="absolute bg-white h-[28px] left-[27px] overflow-clip rounded-[14px] top-[16px] w-[72px] flex items-center justify-center">
+                    <p className="font-['Inter',sans-serif] font-bold not-italic text-[#0b7fa8] text-[14px] whitespace-nowrap">NOW</p>
                   </div>
-                  <div
-                    onClick={() => setActiveTab('weekdays')}
-                    className={`flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px] cursor-pointer flex items-center justify-center ${activeTab === 'weekdays' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
-                  >
-                    <p className={`font-['Inter:Bold',sans-serif] not-italic text-[26px] whitespace-pre ${activeTab === 'weekdays' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>
-                      {`Weekdays  ·  Mon-Fri`}
-                    </p>
-                  </div>
+                  <div className="absolute bg-[#0b7fa8] h-[28px] left-[108px] rounded-[4px] top-[18px] w-[8px]" />
+                  <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[757px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
+                    {currentLabel}
+                  </p>
+                  <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[457px] not-italic text-[24px] text-white top-[17px] whitespace-nowrap">{`${(currentDose / 24).toFixed(1)} µg/h`}</p>
+                  <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[112px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
+                    Baclofen
+                  </p>
+                  <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[903px] not-italic text-[24px] text-white top-[22px] whitespace-nowrap">
+                    {fmtTime(NOW_MIN)}
+                  </p>
+                  <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[911px] not-italic text-[#d9f2fa] text-[18px] top-[3px] whitespace-nowrap">
+                    Monday
+                  </p>
+                </div>
+                <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
+                  <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">Morphine</p>
+                  <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px] not-italic">{(morphineMgDay(currentDose) / 24).toFixed(3)} mg/h</p>
+                </div>
+                <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
+                  <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">Bupivacaine</p>
+                  <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px] not-italic">{(bupivacaineMgDay(currentDose) / 24).toFixed(3)} mg/h</p>
                 </div>
               </div>
+
+              {/* 4. Subtle delivery-stroke caption */}
+              <p className="font-['Inter',sans-serif] font-normal not-italic text-[#9ea8b2] text-[18px] whitespace-nowrap shrink-0">
+                Delivery stroke · {currentStroke.min} min · {currentStroke.label} · {currentStroke.strokesPerDay} strokes/day
+              </p>
+
+              {/* 5. Estimated daily total */}
               <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0">
                 <div className="content-stretch flex gap-[14px] items-center leading-[normal] not-italic relative shrink-0 whitespace-nowrap">
-                  <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold relative shrink-0 text-[#063b66] text-[22px]">
+                  <p className="font-['Inter',sans-serif] font-semibold relative shrink-0 text-[#063b66] text-[28px]">
                     Estimated daily total
-                  </p>
-                  <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#9ea8b2] text-[18px]">
-                    weighted average
                   </p>
                 </div>
                 <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[984px]">
                   <div className="bg-[#0b7fa8] h-[56px] overflow-clip relative rounded-[8px] shrink-0 w-full">
                     <div className="absolute content-stretch flex gap-[12px] items-center left-[16px] top-[16px]">
-                      <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[24px] text-white whitespace-nowrap">
+                      <p className="font-['Inter',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[24px] text-white whitespace-nowrap">
                         Baclofen
                       </p>
-                      <div className="bg-white h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px]">
-                        <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[10.5px] not-italic text-[#0b7fa8] text-[11px] top-[4.5px] whitespace-nowrap">
-                          PRIMARY
-                        </p>
-                      </div>
+                      <div className="bg-white h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px] flex items-center justify-center"><p className=" font-['Inter',sans-serif] font-bold leading-[normal]  not-italic text-[#0b7fa8] text-[11px]  whitespace-nowrap">PRIMARY</p></div>
                     </div>
-                    <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[460px] not-italic text-[22px] text-white top-[17px] whitespace-nowrap">
+                    <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[460px] not-italic text-[22px] text-white top-[17px] whitespace-nowrap">
                       {estDaily.toFixed(0)} µg/day
                     </p>
                   </div>
                   <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-full whitespace-nowrap">
-                    <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
+                    <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
                       Morphine
                     </p>
-                    <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
+                    <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
                       {estMorMgD.toFixed(2)} mg/day
                     </p>
                   </div>
                   <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-full whitespace-nowrap">
-                    <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
+                    <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
                       Bupivacaine
                     </p>
-                    <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
+                    <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
                       {estBupMgD.toFixed(2)} mg/day
                     </p>
                   </div>
@@ -562,15 +542,15 @@ export function HomeActive() {
             <div className="absolute left-[12px] size-[8px] top-[11px]">
               <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse} />
             </div>
-            <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[28px] not-italic text-[#2eab6b] text-[22px] top-[4px] whitespace-nowrap">
+            <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[28px] not-italic text-[#2eab6b] text-[22px] top-[4px] whitespace-nowrap">
               Active
             </p>
           </div>
         </div>
       </div>
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
-      {/* Inline preview — sits over the Therapy chart area */}
-      <IntervalPreview top={1360} left={100} width={1000} />
+      {/* Inline preview — appears just below the 24h chart so the chart stays visible */}
+      <IntervalPreview top={1430} left={100} width={1000} />
       <div className="absolute bg-[#e6f4f9] content-stretch flex h-[120px] items-center justify-center left-0 overflow-x-clip overflow-y-auto px-[16px] py-[8px] top-[1800px] w-[1200px]">
         <div className="content-stretch flex flex-[1_0_0] gap-[16px] items-start justify-center min-w-px relative">
           <a className="content-stretch cursor-pointer flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px]">
@@ -583,7 +563,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Bold',sans-serif] font-bold leading-[24px] overflow-hidden relative shrink-0 text-[#00769e] text-[24px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-bold leading-[24px] overflow-hidden relative shrink-0 text-[#00769e] text-[24px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Overview
             </p>
           </a>
@@ -602,7 +582,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Implant
             </p>
           </div>
@@ -618,7 +598,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Patient
             </p>
           </a>
@@ -634,7 +614,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Medication
             </p>
           </div>
@@ -681,7 +661,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Therapy
             </p>
           </a>
@@ -696,7 +676,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Help
             </p>
           </a>
@@ -709,7 +689,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] min-w-full overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] w-[min-content] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Settings
             </p>
           </a>
@@ -723,7 +703,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:Regular',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[24px] text-center text-ellipsis tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Disconnect
             </p>
           </a>

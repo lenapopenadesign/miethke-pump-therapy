@@ -107,7 +107,7 @@ export function BaseDose() {
                 </div>
               </div>
             </div>
-            <p className="font-['Roboto:ExtraBold',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Therapy
             </p>
           </div>
@@ -129,7 +129,7 @@ export function BaseDose() {
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse73} />
                   </div>
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Base Dose
                 </p>
               </div>
@@ -147,7 +147,7 @@ export function BaseDose() {
             <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
               <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
                 <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Intervals
                 </p>
               </div>
@@ -165,7 +165,7 @@ export function BaseDose() {
             <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
               <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
                 <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Review
                 </p>
               </div>
@@ -183,7 +183,7 @@ export function BaseDose() {
             <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
               <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
                 <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto:Regular',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Activate
                 </p>
               </div>
@@ -191,24 +191,24 @@ export function BaseDose() {
           </div>
         </div>
       </div>
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[44px] top-[270px] w-[1040px]">
+      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[44px] top-[270px] w-[1040px]">
         Set the base dose
       </p>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[340px] w-[1040px]">{`Type the primary dose or use ± to adjust. `}</p>
-      <div className="-translate-y-full absolute flex flex-col font-['Roboto:Regular',sans-serif] font-normal justify-end leading-[0] left-[688px] text-[#9ea8b2] text-[20px] top-[433px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[340px] w-[1040px]">{`Type the primary dose or use ± to adjust. `}</p>
+      <div className="-translate-y-full absolute flex flex-col font-['Roboto',sans-serif] font-normal justify-end leading-[0] left-[688px] text-[#9ea8b2] text-[20px] top-[433px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
         <p className="leading-[24px]">Daily dose</p>
       </div>
-      <div className="-translate-y-full absolute flex flex-col font-['Roboto:Regular',sans-serif] font-normal justify-end leading-[0] left-[975px] text-[#9ea8b2] text-[20px] top-[433px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+      <div className="-translate-y-full absolute flex flex-col font-['Roboto',sans-serif] font-normal justify-end leading-[0] left-[975px] text-[#9ea8b2] text-[20px] top-[433px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
         <p className="leading-[24px]">Hourly dose</p>
       </div>
       <div className="absolute content-stretch flex flex-col gap-[24px] items-start left-[80px] top-[441px] w-[1040px]">
         <div className="bg-white border-2 border-[#0b7fa8] border-solid content-start flex flex-wrap gap-[0px_366px] items-start overflow-clip px-[24px] py-[20px] relative rounded-[16px] shrink-0 w-full">
           <div className="content-stretch flex flex-col gap-[8px] items-start opacity-80 relative shrink-0">
-            <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[28px] whitespace-nowrap">
+            <p className="font-['Inter',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[28px] whitespace-nowrap">
               Baclofen
             </p>
             <div className="bg-[#0b7fa8] h-[28px] overflow-clip relative rounded-[14px] shrink-0 w-[96px]">
-              <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[15.5px] not-italic text-[14px] text-white top-[5.5px] whitespace-nowrap">
+              <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[15.5px] not-italic text-[14px] text-white top-[5.5px] whitespace-nowrap">
                 PRIMARY
               </p>
             </div>
@@ -216,7 +216,7 @@ export function BaseDose() {
           <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
             <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
               <div onClick={stepDown} className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px] cursor-pointer select-none">
-                <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[16px] not-italic text-[#063b66] text-[36px] top-[7px] whitespace-nowrap">
+                <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[16px] not-italic text-[#063b66] text-[36px] top-[7px] whitespace-nowrap">
                   −
                 </p>
               </div>
@@ -235,77 +235,77 @@ export function BaseDose() {
                     className="font-bold not-italic text-[#063b66] text-[36px] bg-transparent outline-none border-0 p-0 w-[80px] text-left"
                     style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal' }}
                   />
-                  <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#667380] text-[16px]">
+                  <p className="font-['Inter',sans-serif] font-normal relative shrink-0 text-[#667380] text-[16px]">
                     µg/day
                   </p>
                 </div>
               </div>
               <div onClick={stepUp} className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px] cursor-pointer select-none">
-                <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[20px] not-italic text-[#063b66] text-[32px] top-[7px] whitespace-nowrap">
+                <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[20px] not-italic text-[#063b66] text-[32px] top-[7px] whitespace-nowrap">
                   +
                 </p>
               </div>
             </div>
             <div className="content-stretch flex gap-[20px] items-center leading-[normal] not-italic relative shrink-0 whitespace-nowrap">
-              <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold relative shrink-0 text-[#0b7fa8] text-[24px]">
+              <p className="font-['Inter',sans-serif] font-semibold relative shrink-0 text-[#0b7fa8] text-[24px]">
                 ≈ {hourly.toFixed(1)}
               </p>
-              <p className="font-['Inter:Regular',sans-serif] font-normal relative shrink-0 text-[#9ea8b2] text-[16px]">
+              <p className="font-['Inter',sans-serif] font-normal relative shrink-0 text-[#9ea8b2] text-[16px]">
                 µg/h
               </p>
             </div>
           </div>
         </div>
         <div className="bg-white border border-[#d9dbde] border-solid h-[88px] leading-[normal] not-italic overflow-clip relative rounded-[16px] shrink-0 w-full whitespace-nowrap">
-          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[15px]">
+          <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[15px]">
             Morphine
           </p>
-          <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[23px] text-[#9ea8b2] text-[16px] top-[49px]">
+          <p className="absolute font-['Inter',sans-serif] font-medium left-[23px] text-[#9ea8b2] text-[16px] top-[49px]">
             calculated · 0.139% of Baclofen
           </p>
-          <p className="absolute font-['Inter:Bold',sans-serif] font-bold left-[599px] text-[#667380] text-[26px] top-[26px]">
+          <p className="absolute font-['Inter',sans-serif] font-bold left-[599px] text-[#667380] text-[26px] top-[26px]">
             {morMgD.toFixed(2)}
           </p>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
+          <p className="absolute font-['Inter',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
             mg/day
           </p>
-          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[897px] text-[#667380] text-[22px] top-[28px]">
+          <p className="absolute font-['Inter',sans-serif] font-semibold left-[897px] text-[#667380] text-[22px] top-[28px]">
             {morMgH.toFixed(3)}
           </p>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[966px] text-[#9ea8b2] text-[16px] top-[34px]">
+          <p className="absolute font-['Inter',sans-serif] font-normal left-[966px] text-[#9ea8b2] text-[16px] top-[34px]">
             mg/h
           </p>
         </div>
         <div className="bg-white border border-[#d9dbde] border-solid h-[88px] leading-[normal] not-italic overflow-clip relative rounded-[16px] shrink-0 w-full whitespace-nowrap">
-          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[15px]">
+          <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[15px]">
             Bupivacaine
           </p>
-          <p className="absolute font-['Inter:Medium',sans-serif] font-medium left-[23px] text-[#9ea8b2] text-[16px] top-[49px]">
+          <p className="absolute font-['Inter',sans-serif] font-medium left-[23px] text-[#9ea8b2] text-[16px] top-[49px]">
             calculated · 0.417% of Baclofen
           </p>
-          <p className="absolute font-['Inter:Bold',sans-serif] font-bold left-[605px] text-[#667380] text-[26px] top-[26px]">
+          <p className="absolute font-['Inter',sans-serif] font-bold left-[605px] text-[#667380] text-[26px] top-[26px]">
             {bupMgD.toFixed(2)}
           </p>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
+          <p className="absolute font-['Inter',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
             mg/day
           </p>
-          <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold left-[894px] text-[#667380] text-[22px] top-[22px]">
+          <p className="absolute font-['Inter',sans-serif] font-semibold left-[894px] text-[#667380] text-[22px] top-[22px]">
             {bupMgH.toFixed(3)}
           </p>
-          <p className="absolute font-['Inter:Regular',sans-serif] font-normal left-[968px] text-[#9ea8b2] text-[16px] top-[28px]">
+          <p className="absolute font-['Inter',sans-serif] font-normal left-[968px] text-[#9ea8b2] text-[16px] top-[28px]">
             mg/h
           </p>
         </div>
       </div>
-      <p className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[30px] top-[1000px] whitespace-nowrap">
+      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[30px] top-[1000px] whitespace-nowrap">
         Delivery stroke
       </p>
       <div className="absolute bg-[#9ea8b2] content-stretch flex items-center justify-center left-[319px] overflow-clip px-[16px] py-[6px] rounded-[14px] top-[1004px]">
-        <p className="font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[14px] text-white whitespace-nowrap">
+        <p className="font-['Inter',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[14px] text-white whitespace-nowrap">
           optional
         </p>
       </div>
-      <p className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[1048px] w-[1040px]">
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[1048px] w-[1040px]">
         How the pump releases medication: many small strokes (more continuous) or fewer larger strokes (more spaced).
       </p>
       {STROKE_OPTIONS.map((opt, i) => {
@@ -334,13 +334,13 @@ export function BaseDose() {
             <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEbene1} />
           </div>
         </div>
-        <div className="font-['Inter:Regular',sans-serif] font-normal leading-[0] not-italic relative shrink-0 text-[#667380] text-[22px] w-[1000px] whitespace-pre-wrap">
+        <div className="font-['Inter',sans-serif] font-normal leading-[0] not-italic relative shrink-0 text-[#667380] text-[22px] w-[1000px] whitespace-pre-wrap">
           <p className="leading-[normal] mb-0">{`Smaller intervals = smoother delivery, more battery use. `}</p>
           <p className="leading-[normal]">Larger = longer device life, more pulsatile dosing.</p>
         </div>
       </div>
       <div onClick={() => navigate('intervals-empty')} className="absolute bg-[#0b7fa8] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1778px] w-[1040px] cursor-pointer">
-        <p className="absolute font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] left-[458px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
+        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[458px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
           Continue
         </p>
       </div>
@@ -394,19 +394,19 @@ function DeliveryStrokeCard({ left, title, subtitle, detail, perStroke, barCount
         />
       ))}
       <p
-        className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic text-[24px] whitespace-nowrap"
+        className="absolute font-['Inter',sans-serif] font-bold leading-[normal] not-italic text-[24px] whitespace-nowrap"
         style={{ color: titleColor, left: xStart, top: selected ? 88 : 89 }}
       >
         {title}
       </p>
       <p
-        className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] not-italic text-[#667380] text-[18px] whitespace-nowrap"
+        className="absolute font-['Inter',sans-serif] font-normal leading-[normal] not-italic text-[#667380] text-[18px] whitespace-nowrap"
         style={{ left: xStart, top: selected ? 120 : 121 }}
       >
         {subtitle}
       </p>
       <p
-        className="absolute font-['Inter:Regular',sans-serif] font-normal leading-[normal] not-italic text-[#9ea8b2] text-[18px] whitespace-nowrap"
+        className="absolute font-['Inter',sans-serif] font-normal leading-[normal] not-italic text-[#9ea8b2] text-[18px] whitespace-nowrap"
         style={{ left: xStart, top: selected ? 146 : 147 }}
       >
         {detail}
@@ -416,13 +416,13 @@ function DeliveryStrokeCard({ left, title, subtitle, detail, perStroke, barCount
         style={{ left: xStart, top: selected ? 182 : 183 }}
       />
       <p
-        className="absolute font-['Inter:Medium',sans-serif] font-medium leading-[normal] not-italic text-[#9ea8b2] text-[14px] whitespace-nowrap"
+        className="absolute font-['Inter',sans-serif] font-medium leading-[normal] not-italic text-[#9ea8b2] text-[14px] whitespace-nowrap"
         style={{ left: xStart, top: selected ? 193 : 194 }}
       >
         Per stroke
       </p>
       <p
-        className="absolute font-['Inter:Bold',sans-serif] font-bold leading-[normal] not-italic text-[18px] whitespace-nowrap"
+        className="absolute font-['Inter',sans-serif] font-bold leading-[normal] not-italic text-[18px] whitespace-nowrap"
         style={{ color: perStrokeColor, left: xStart, top: selected ? 211 : 212 }}
       >
         {perStroke}

@@ -1,4 +1,4 @@
-import { useTherapy, fmtTime, morphineMgDay, bupivacaineMgDay, doseColor } from '../therapy';
+import { useTherapy, fmtTime, morphineMgDay, bupivacaineMgDay, doseColor, DAY_KEYS } from '../therapy';
 
 type Props = {
   // Position within the screen (1200x1920 frame).
@@ -13,9 +13,12 @@ type Props = {
  * fits best. Renders nothing when no interval is selected.
  */
 export function IntervalPreview({ top, left, width }: Props) {
-  const { intervals, weekendIntervals, baseDose, previewIntervalId, setPreviewIntervalId } = useTherapy();
-  const iv = intervals.find(x => x.id === previewIntervalId)
-    ?? weekendIntervals.find(x => x.id === previewIntervalId);
+  const { intervalsByDay, baseDose, previewIntervalId, setPreviewIntervalId } = useTherapy();
+  let iv: ReturnType<typeof useTherapy>['intervals'][number] | undefined;
+  for (const day of DAY_KEYS) {
+    iv = intervalsByDay[day].find(x => x.id === previewIntervalId);
+    if (iv) break;
+  }
   if (!iv) return null;
 
   const hourlyUgH = iv.dose / 24;
@@ -29,7 +32,7 @@ export function IntervalPreview({ top, left, width }: Props) {
 
   return (
     <div
-      className="absolute bg-white rounded-[16px] border-2 border-[#0b7fa8]"
+      className="absolute bg-white rounded-[16px] border-2 border-[#0b7fa8] not-italic"
       style={{
         top,
         left,
@@ -37,6 +40,7 @@ export function IntervalPreview({ top, left, width }: Props) {
         padding: 24,
         boxShadow: '0 10px 30px rgba(6, 59, 102, 0.18)',
         zIndex: 20,
+        fontStyle: 'normal',
       }}
     >
       <div className="flex items-center" style={{ gap: 18 }}>

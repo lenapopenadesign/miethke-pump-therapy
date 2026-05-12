@@ -24,19 +24,29 @@ export const STROKE_OPTIONS: { min: StrokeStrategy; strokesPerDay: number; label
 
 export type DayGroup = 'weekdays' | 'weekend';
 
+export type DayKey = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+export const DAY_KEYS: DayKey[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+export const WEEKDAY_KEYS: DayKey[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+export const WEEKEND_KEYS: DayKey[] = ['saturday', 'sunday'];
+
+export type IntervalsByDay = Record<DayKey, Interval[]>;
+
 type TherapyState = {
   baseDose: number;
   setBaseDose: (n: number) => void;
-  // Weekday intervals (Mon–Fri). The primary set the user edits on intervals-populated.
+  // 7 independent per-day interval arrays. Edits propagate to the days listed
+  // in editingScope (which the caller sets based on the current day-pattern +
+  // active tab).
+  intervalsByDay: IntervalsByDay;
+  // Convenience getters: representative weekday (= monday) and weekend (= saturday).
   intervals: Interval[];
-  // Weekend intervals (Sat–Sun). Distinct schedule (e.g. later morning start).
   weekendIntervals: Interval[];
   draft: Draft;
   setDraft: (d: Draft) => void;
   editingId: string | null;
-  editingDayGroup: DayGroup;
-  startAddingInterval: (returnTo?: ScreenId, dayGroup?: DayGroup) => void;
-  startEditingInterval: (id: string, returnTo?: ScreenId, dayGroup?: DayGroup) => void;
+  editingScope: DayKey[];
+  startAddingInterval: (returnTo?: ScreenId, scope?: DayKey[]) => void;
+  startEditingInterval: (id: string, returnTo?: ScreenId, scope?: DayKey[]) => void;
   commitDraft: () => void;
   removeInterval: (id: string) => void;
   sheetReturnTo: ScreenId;
@@ -79,20 +89,20 @@ function uid() {
   return 'iv-' + Math.random().toString(36).slice(2, 9);
 }
 
+const SEED_BY_DAY: IntervalsByDay = {
+  monday:    SEED_INTERVALS.map(iv => ({ ...iv })),
+  tuesday:   SEED_INTERVALS.map(iv => ({ ...iv })),
+  wednesday: SEED_INTERVALS.map(iv => ({ ...iv })),
+  thursday:  SEED_INTERVALS.map(iv => ({ ...iv })),
+  friday:    SEED_INTERVALS.map(iv => ({ ...iv })),
+  saturday:  SEED_WEEKEND_INTERVALS.map(iv => ({ ...iv })),
+  sunday:    SEED_WEEKEND_INTERVALS.map(iv => ({ ...iv })),
+};
+
 export function TherapyProvider({ children }: { children: ReactNode }) {
   const [baseDose, setBaseDoseRaw] = useState(360);
-  // The "Daytime (base)" interval is the base dose by definition — keep them
-  // linked so changing the base dose on the BaseDose screen propagates to the
-  // chart's daytime period on both weekday and weekend sets.
-  const setBaseDose = (n: number) => {
-    setBaseDoseRaw(n);
-    const updateBase = (iv: Interval) => iv.label.startsWith('Daytime') ? { ...iv, dose: n } : iv;
-    setIntervals(prev => prev.map(updateBase));
-    setWeekendIntervals(prev => prev.map(updateBase));
-  };
-  const [intervals, setIntervals] = useState<Interval[]>(SEED_INTERVALS);
-  const [weekendIntervals, setWeekendIntervals] = useState<Interval[]>(SEED_WEEKEND_INTERVALS);
-  const [editingDayGroup, setEditingDayGroup] = useState<DayGroup>('weekdays');
+  const [intervalsByDay, setIntervalsByDay] = useState<IntervalsByDay>(SEED_BY_DAY);
+  const [editingScope, setEditingScope] = useState<DayKey[]>([...WEEKDAY_KEYS]);
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(120);
@@ -100,52 +110,84 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [sheetReturnTo, setSheetReturnTo] = useState<ScreenId>('intervals-populated');
   const [previewIntervalId, setPreviewIntervalId] = useState<string | null>(null);
 
-  function startAddingInterval(returnTo: ScreenId = 'intervals-populated', dayGroup: DayGroup = 'weekdays') {
+  // The "Daytime (base)" interval is the base dose by definition — propagate
+  // base-dose changes to every day's daytime interval.
+  const setBaseDose = (n: number) => {
+    setBaseDoseRaw(n);
+    const updateBase = (iv: Interval) => iv.label.startsWith('Daytime') ? { ...iv, dose: n } : iv;
+    setIntervalsByDay(prev => {
+      const next: IntervalsByDay = { ...prev };
+      for (const day of DAY_KEYS) next[day] = next[day].map(updateBase);
+      return next;
+    });
+  };
+
+  // Derived "representative" weekday + weekend views — used by Review and
+  // HomeActive which still toggle by group rather than per day.
+  const intervals = intervalsByDay.monday;
+  const weekendIntervals = intervalsByDay.saturday;
+
+  function startAddingInterval(returnTo: ScreenId = 'intervals-populated', scope: DayKey[] = [...WEEKDAY_KEYS]) {
     setEditingId(null);
     setDraft(DEFAULT_DRAFT);
     setSheetReturnTo(returnTo);
-    setEditingDayGroup(dayGroup);
+    setEditingScope(scope.length ? scope : [...WEEKDAY_KEYS]);
   }
 
-  function startEditingInterval(id: string, returnTo: ScreenId = 'intervals-populated', dayGroup?: DayGroup) {
-    // Resolve dayGroup from where the interval lives if not provided
-    const inWeekday = intervals.find(x => x.id === id);
-    const inWeekend = weekendIntervals.find(x => x.id === id);
-    const iv = inWeekday ?? inWeekend;
+  function startEditingInterval(id: string, returnTo: ScreenId = 'intervals-populated', scope?: DayKey[]) {
+    // Find the interval in any day's array.
+    let iv: Interval | undefined;
+    let foundIn: DayKey | undefined;
+    for (const day of DAY_KEYS) {
+      iv = intervalsByDay[day].find(x => x.id === id);
+      if (iv) { foundIn = day; break; }
+    }
     if (!iv) return;
-    const resolvedGroup: DayGroup = dayGroup ?? (inWeekday ? 'weekdays' : 'weekend');
     setEditingId(id);
     setDraft({ label: iv.label, startMin: iv.startMin, endMin: iv.endMin, dose: iv.dose });
     setSheetReturnTo(returnTo);
-    setEditingDayGroup(resolvedGroup);
+    setEditingScope(scope && scope.length > 0 ? scope : (foundIn ? [foundIn] : [...WEEKDAY_KEYS]));
   }
 
   function commitDraft() {
-    const setter = editingDayGroup === 'weekend' ? setWeekendIntervals : setIntervals;
-    if (editingId) {
-      setter(prev => prev.map(iv => iv.id === editingId ? { ...iv, ...draft } : iv));
-    } else {
-      setter(prev => [...prev, { id: uid(), ...draft }]);
-    }
+    setIntervalsByDay(prev => {
+      const next: IntervalsByDay = { ...prev };
+      if (editingId) {
+        for (const day of editingScope) {
+          next[day] = next[day].map(iv => iv.id === editingId ? { ...iv, ...draft } : iv);
+        }
+      } else {
+        const newId = uid();
+        for (const day of editingScope) {
+          next[day] = [...next[day], { id: newId, ...draft }];
+        }
+      }
+      return next;
+    });
     setEditingId(null);
   }
 
   function removeInterval(id: string) {
-    // Find in whichever set
-    if (intervals.some(iv => iv.id === id)) {
-      setIntervals(prev => prev.filter(iv => iv.id !== id));
-    } else if (weekendIntervals.some(iv => iv.id === id)) {
-      setWeekendIntervals(prev => prev.filter(iv => iv.id !== id));
-    }
+    setIntervalsByDay(prev => {
+      const next: IntervalsByDay = { ...prev };
+      // Delete the id from the days currently in scope. If editingScope is empty,
+      // fall back to deleting from any day that contains it.
+      const days = editingScope.length > 0 ? editingScope : DAY_KEYS;
+      for (const day of days) {
+        next[day] = next[day].filter(iv => iv.id !== id);
+      }
+      return next;
+    });
     if (editingId === id) setEditingId(null);
   }
 
   return (
     <TherapyContext.Provider value={{
       baseDose, setBaseDose,
+      intervalsByDay,
       intervals, weekendIntervals,
       draft, setDraft,
-      editingId, editingDayGroup,
+      editingId, editingScope,
       startAddingInterval, startEditingInterval, commitDraft, removeInterval, sheetReturnTo,
       previewIntervalId, setPreviewIntervalId,
       strokeStrategy, setStrokeStrategy,
