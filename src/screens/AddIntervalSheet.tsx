@@ -106,51 +106,32 @@ export function AddIntervalSheetWhen() {
           End
         </p>
         <p className="absolute font-['Inter',sans-serif] font-medium leading-[normal] left-[80px] not-italic text-[#667380] text-[18px] top-[540px] whitespace-pre">{`Length: ${lengthH}h ${lengthM}m  ·  ${pctDay}% of the day`}</p>
-        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[600px] whitespace-nowrap">
-          Apply to
-        </p>
-        <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#9ea8b2] text-[18px] top-[604px] whitespace-nowrap">
-          within the Weekdays group
-        </p>
-        {[
-          { left: 80, label: 'M', textLeft: 23 },
-          { left: 166, label: 'T', textLeft: 26 },
-          { left: 252, label: 'W', textLeft: 21.5 },
-          { left: 338, label: 'T', textLeft: 26 },
-          { left: 424, label: 'F', textLeft: 27 },
-        ].map(d => (
-          <div key={d.left} className="absolute bg-[#0b7fa8] overflow-clip rounded-[35px] size-[70px] top-[640px]" style={{ left: d.left }}>
-            <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] not-italic text-[26px] text-white top-[19.5px] whitespace-nowrap" style={{ left: d.textLeft }}>
-              {d.label}
-            </p>
-          </div>
-        ))}
-        <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[760px] w-[1040px]" />
-        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[790px] whitespace-nowrap">
+        <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[600px] w-[1040px]" />
+        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[630px] whitespace-nowrap">
           Schedule preview
         </p>
-        <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[830px] w-[1040px]" />
+        <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[670px] w-[1040px]" />
         {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => (
-          <p key={t} className="absolute font-['Inter',sans-serif] font-normal leading-[normal] not-italic text-[#9ea8b2] text-[12px] top-[836px] whitespace-nowrap"
+          <p key={t} className="absolute font-['Inter',sans-serif] font-normal leading-[normal] not-italic text-[#9ea8b2] text-[12px] top-[676px] whitespace-nowrap"
              style={{ left: [75, 329, 584, 838, 1091][i] }}>
             {t}
           </p>
         ))}
-        <div className="absolute bg-[#9ea8b2] h-[2px] left-[92px] top-[890px] w-[1016px]" />
-        <div className="absolute bg-[#8cc7e8] h-[26px] left-[92px] rounded-[3px] top-[884px] w-[336.243px]" />
-        <div className="absolute bg-[#0b7fa8] h-[26px] left-[536.5px] rounded-[3px] top-[884px] w-[251.577px]" />
-        <div className="absolute bg-[#0b7fa8] h-[26px] left-[790.5px] rounded-[3px] top-[884px] w-[188.077px]" />
-        <div className="absolute bg-[#4da6d6] h-[26px] left-[981px] rounded-[3px] top-[884px] w-[124.577px]" />
-        <div className="absolute bg-[#d9ebf5] border-2 border-[#0b7fa8] border-dashed h-[38px] left-[430.67px] rounded-[3px] top-[854px] w-[103.41px]" />
-        <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[434.67px] not-italic text-[#065879] text-[14px] top-[860px] whitespace-nowrap">
+        <div className="absolute bg-[#9ea8b2] h-[2px] left-[92px] top-[730px] w-[1016px]" />
+        <div className="absolute bg-[#8cc7e8] h-[26px] left-[92px] rounded-[3px] top-[724px] w-[336.243px]" />
+        <div className="absolute bg-[#0b7fa8] h-[26px] left-[536.5px] rounded-[3px] top-[724px] w-[251.577px]" />
+        <div className="absolute bg-[#0b7fa8] h-[26px] left-[790.5px] rounded-[3px] top-[724px] w-[188.077px]" />
+        <div className="absolute bg-[#4da6d6] h-[26px] left-[981px] rounded-[3px] top-[724px] w-[124.577px]" />
+        <div className="absolute bg-[#d9ebf5] border-2 border-[#0b7fa8] border-dashed h-[38px] left-[430.67px] rounded-[3px] top-[694px] w-[103.41px]" />
+        <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[434.67px] not-italic text-[#065879] text-[14px] top-[700px] whitespace-nowrap">
           NEW
         </p>
-        <div className="absolute left-[80px] overflow-clip size-[28px] top-[962px]">
+        <div className="absolute left-[80px] overflow-clip size-[28px] top-[802px]">
           <div className="-translate-x-1/2 absolute aspect-[159.24000549316406/159.24000549316406] bottom-0 left-[calc(50%+0.5px)] overflow-clip top-0">
             <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEbene1} />
           </div>
         </div>
-        <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[120px] not-italic text-[#667380] text-[22px] top-[960px] w-[1000px]">{`No overlap with existing intervals on Weekdays. You'll set the dose on the next step.`}</p>
+        <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[120px] not-italic text-[#667380] text-[22px] top-[800px] w-[1000px]">{`No overlap with existing intervals on Weekdays. You'll set the dose on the next step.`}</p>
         {editingId && (
           <div
             onClick={onDelete}
