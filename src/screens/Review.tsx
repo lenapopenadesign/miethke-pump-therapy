@@ -96,13 +96,15 @@ function MiniChartBars({
 
 export function Review() {
   const navigate = useNavigate();
-  const { baseDose, intervals, weekendIntervals, strokeStrategy, setPreviewIntervalId } = useTherapy();
+  const { baseDose, intervals, weekendIntervals, strokeStrategy, setPreviewIntervalId, useBaseOnly } = useTherapy();
   useEffect(() => {
     setPreviewIntervalId(null);
     return () => setPreviewIntervalId(null);
   }, [setPreviewIntervalId]);
-  const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
-  const orderedWeekend = [...weekendIntervals].sort((a, b) => a.startMin - b.startMin);
+  const effectiveIntervals = useBaseOnly ? [] : intervals;
+  const effectiveWeekendIntervals = useBaseOnly ? [] : weekendIntervals;
+  const ordered = [...effectiveIntervals].sort((a, b) => a.startMin - b.startMin);
+  const orderedWeekend = [...effectiveWeekendIntervals].sort((a, b) => a.startMin - b.startMin);
   const onBarClick = (id: string) => setPreviewIntervalId(id);
   const stroke = STROKE_OPTIONS.find(s => s.min === strokeStrategy) ?? STROKE_OPTIONS[2];
   const baclofenH = hourlyUg(baseDose);
@@ -110,7 +112,7 @@ export function Review() {
   const morMgH = morMgD / 24;
   const bupMgD = bupivacaineMgDay(baseDose);
   const bupMgH = bupMgD / 24;
-  const estDaily = estimatedDailyTotal(baseDose, intervals);
+  const estDaily = estimatedDailyTotal(baseDose, effectiveIntervals);
   const estMorMgD = morphineMgDay(estDaily);
   const estBupMgD = bupivacaineMgDay(estDaily);
   return (
@@ -205,21 +207,36 @@ export function Review() {
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[778px] w-[1040px]" />
       <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[1252px] w-[1040px]" />
       <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[26px] top-[798px] whitespace-nowrap">
-        Intervals
+        {useBaseOnly ? 'Schedule' : 'Intervals'}
       </p>
       <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[30px] top-[1278px] whitespace-nowrap">
         Estimated daily total
       </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#667380] text-[22px] top-[804px] whitespace-pre">{`Weekday / weekend  ·  5 + 5`}</p>
-      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#0b7fa8] text-[18px] top-[838px] whitespace-nowrap">{`↓ Tap a bar to see the interval's details`}</p>
-      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[20px] top-[878px] whitespace-pre">{`Weekdays  ·  Mon-Fri`}</p>
+      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#667380] text-[22px] top-[804px] whitespace-pre">
+        {useBaseOnly ? `Base dose only  ·  24 h` : `Weekday / weekend  ·  5 + 5`}
+      </p>
+      {!useBaseOnly && (
+        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#0b7fa8] text-[18px] top-[838px] whitespace-nowrap">{`↓ Tap a bar to see the interval's details`}</p>
+      )}
+      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[20px] top-[878px] whitespace-pre">
+        {useBaseOnly ? `24-hour view` : `Weekdays  ·  Mon-Fri`}
+      </p>
       <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[902px] w-[1040px]" />
       <MiniChartBars intervals={ordered} baseDose={baseDose} bottom={WEEKDAYS_BOTTOM} onBarClick={onBarClick} />
-      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[20px] top-[1008px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
-      <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[1032px] w-[1040px]" />
-      <MiniChartBars intervals={orderedWeekend} baseDose={baseDose} bottom={WEEKEND_BOTTOM} onBarClick={onBarClick} />
-      {/* Inline preview — appears just below the two mini charts */}
-      <IntervalPreview top={1140} left={80} width={1040} />
+      {!useBaseOnly && (
+        <>
+          <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[20px] top-[1008px] whitespace-pre">{`Weekend  ·  Sat-Sun`}</p>
+          <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[90px] left-[80px] rounded-[8px] top-[1032px] w-[1040px]" />
+          <MiniChartBars intervals={orderedWeekend} baseDose={baseDose} bottom={WEEKEND_BOTTOM} onBarClick={onBarClick} />
+          {/* Inline preview — appears just below the two mini charts */}
+          <IntervalPreview top={1140} left={80} width={1040} />
+        </>
+      )}
+      {useBaseOnly && (
+        <p className="absolute font-['Inter',sans-serif] font-medium leading-[normal] left-[80px] not-italic text-[#667380] text-[20px] top-[1014px] w-[1040px]">
+          Therapy will run at the base dose around the clock, delivered in {stroke.strokesPerDay} strokes per day ({stroke.min} min · {stroke.label}).
+        </p>
+      )}
       <div className="absolute content-stretch flex items-center left-0 top-[164px] w-[1200px]">
         <div className="content-stretch flex flex-[1_0_0] h-[64px] items-center min-w-px mr-[-10px] relative">
           <div className="bg-[#e6f4f9] content-stretch flex flex-[1_0_0] h-[64px] items-start min-w-px overflow-clip pl-[40px] pr-[16px] py-[8px] relative">

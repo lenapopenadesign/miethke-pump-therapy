@@ -50,8 +50,9 @@ const DAY_PATTERNS: { key: DayPattern; label: string; x: number; w: number }[] =
 
 export function IntervalsEmpty() {
   const navigate = useNavigate();
-  const { startAddingInterval, dayPattern, setDayPattern } = useTherapy();
+  const { startAddingInterval, dayPattern, setDayPattern, setUseBaseOnly } = useTherapy();
   const onAdd = () => { startAddingInterval('intervals-empty'); navigate('add-interval-when'); };
+  const onSkip = () => { setUseBaseOnly(true); navigate('review'); };
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
@@ -116,7 +117,7 @@ export function IntervalsEmpty() {
       <div onClick={onAdd} className="absolute bg-[#0b7fa8] h-[100px] left-[80px] overflow-clip rounded-[50px] top-[1155px] w-[1040px] cursor-pointer">
         <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[356.5px] not-italic text-[28px] text-white top-[33px] whitespace-pre">{`+  Add your first interval`}</p>
       </div>
-      <div onClick={() => navigate('review')} className="absolute bg-white border border-[#d9dbde] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1275px] w-[1040px] cursor-pointer">
+      <div onClick={onSkip} className="absolute bg-white border border-[#d9dbde] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1275px] w-[1040px] cursor-pointer">
         <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[364.5px] not-italic text-[#667380] text-[24px] top-[29.5px] whitespace-nowrap">
           Skip — use base dose only
         </p>

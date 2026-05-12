@@ -105,7 +105,7 @@ const HA_BAR_BOTTOM = 122;
 const NOW_MIN = 716; // "11:56" (matches the design's now indicator)
 
 export function HomeActive() {
-  const { baseDose, intervals, weekendIntervals, strokeStrategy, setPreviewIntervalId } = useTherapy();
+  const { baseDose, intervals, weekendIntervals, strokeStrategy, setPreviewIntervalId, useBaseOnly } = useTherapy();
   const currentStroke = STROKE_OPTIONS.find(s => s.min === strokeStrategy) ?? STROKE_OPTIONS[2];
   const [activeTab, setActiveTab] = useState<'weekdays' | 'weekend'>('weekdays');
   // Clear any preview state from a previous screen on mount/unmount
@@ -115,7 +115,8 @@ export function HomeActive() {
   }, [setPreviewIntervalId]);
   // Also close the preview when switching weekday/weekend (selected interval may not exist in the other set)
   useEffect(() => { setPreviewIntervalId(null); }, [activeTab, setPreviewIntervalId]);
-  const sourceIntervals = activeTab === 'weekend' ? weekendIntervals : intervals;
+  const rawSource = activeTab === 'weekend' ? weekendIntervals : intervals;
+  const sourceIntervals = useBaseOnly ? [] : rawSource;
   const ordered = [...sourceIntervals].sort((a, b) => a.startMin - b.startMin);
   const chartSlots = withBaseFillers(sourceIntervals, baseDose);
   const onBarClick = (id: string) => setPreviewIntervalId(id);
@@ -346,7 +347,7 @@ export function HomeActive() {
           </div>
         </div>
         <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
-          <div className="bg-[#e6f4f9] col-1 content-stretch flex flex-col h-[890px] items-start ml-0 mt-0 relative rounded-[24px] row-1 w-[1040px]">
+          <div className={`bg-[#e6f4f9] col-1 content-stretch flex flex-col ${useBaseOnly ? 'h-[600px]' : 'h-[890px]'} items-start ml-0 mt-0 relative rounded-[24px] row-1 w-[1040px]`}>
             <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
               <div className="content-stretch flex flex-[1_0_0] items-center justify-center min-w-px relative">
                 <div className="content-stretch flex flex-[1_0_0] gap-[16px] items-center min-w-px relative">
@@ -404,26 +405,28 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[18px] h-[778px] items-start px-[24px] py-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
-              {/* 1. Weekday/Weekend toggle */}
-              <div className="content-stretch flex gap-[25px] items-start relative shrink-0 w-full">
-                <div
-                  onClick={() => setActiveTab('weekdays')}
-                  className={`flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px] cursor-pointer flex items-center justify-center ${activeTab === 'weekdays' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
-                >
-                  <p className={`font-['Inter',sans-serif] not-italic text-[26px] whitespace-pre ${activeTab === 'weekdays' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>
-                    {`Weekdays  ·  Mon-Fri`}
-                  </p>
+            <div className={`bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[18px] ${useBaseOnly ? 'h-[488px]' : 'h-[778px]'} items-start px-[24px] py-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full`}>
+              {/* 1. Weekday/Weekend toggle — hidden in base-only mode (chart + total is enough) */}
+              {!useBaseOnly && (
+                <div className="content-stretch flex gap-[25px] items-start relative shrink-0 w-full">
+                  <div
+                    onClick={() => setActiveTab('weekdays')}
+                    className={`flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px] cursor-pointer flex items-center justify-center ${activeTab === 'weekdays' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
+                  >
+                    <p className={`font-['Inter',sans-serif] not-italic text-[26px] whitespace-pre ${activeTab === 'weekdays' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>
+                      {`Weekdays  ·  Mon-Fri`}
+                    </p>
+                  </div>
+                  <div
+                    onClick={() => setActiveTab('weekend')}
+                    className={`flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px] cursor-pointer flex items-center justify-center ${activeTab === 'weekend' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
+                  >
+                    <p className={`font-['Inter',sans-serif] not-italic text-[26px] whitespace-pre ${activeTab === 'weekend' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>
+                      {`Weekend  ·  Sat-Sun`}
+                    </p>
+                  </div>
                 </div>
-                <div
-                  onClick={() => setActiveTab('weekend')}
-                  className={`flex-[1_0_0] h-[60px] min-w-px overflow-clip relative rounded-[12px] cursor-pointer flex items-center justify-center ${activeTab === 'weekend' ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
-                >
-                  <p className={`font-['Inter',sans-serif] not-italic text-[26px] whitespace-pre ${activeTab === 'weekend' ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'}`}>
-                    {`Weekend  ·  Sat-Sun`}
-                  </p>
-                </div>
-              </div>
+              )}
 
               {/* 2. 24h chart */}
               <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
@@ -463,41 +466,45 @@ export function HomeActive() {
                 </div>
               </div>
 
-              {/* 3. NOW row + Morphine + Bupivacaine */}
-              <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0">
-                <div className="bg-[#0b7fa8] h-[61px] overflow-clip relative rounded-[12px] shrink-0 w-[984px]">
-                  <div className="absolute bg-white h-[28px] left-[27px] overflow-clip rounded-[14px] top-[16px] w-[72px] flex items-center justify-center">
-                    <p className="font-['Inter',sans-serif] font-bold not-italic text-[#0b7fa8] text-[14px] whitespace-nowrap">NOW</p>
+              {/* 3. NOW row + Morphine + Bupivacaine — hidden in base-only mode */}
+              {!useBaseOnly && (
+                <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0">
+                  <div className="bg-[#0b7fa8] h-[61px] overflow-clip relative rounded-[12px] shrink-0 w-[984px]">
+                    <div className="absolute bg-white h-[28px] left-[27px] overflow-clip rounded-[14px] top-[16px] w-[72px] flex items-center justify-center">
+                      <p className="font-['Inter',sans-serif] font-bold not-italic text-[#0b7fa8] text-[14px] whitespace-nowrap">NOW</p>
+                    </div>
+                    <div className="absolute bg-[#0b7fa8] h-[28px] left-[108px] rounded-[4px] top-[18px] w-[8px]" />
+                    <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[757px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
+                      {currentLabel}
+                    </p>
+                    <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[457px] not-italic text-[24px] text-white top-[17px] whitespace-nowrap">{`${(currentDose / 24).toFixed(1)} µg/h`}</p>
+                    <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[112px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
+                      Baclofen
+                    </p>
+                    <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[903px] not-italic text-[24px] text-white top-[22px] whitespace-nowrap">
+                      {fmtTime(NOW_MIN)}
+                    </p>
+                    <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[911px] not-italic text-[#d9f2fa] text-[18px] top-[3px] whitespace-nowrap">
+                      Monday
+                    </p>
                   </div>
-                  <div className="absolute bg-[#0b7fa8] h-[28px] left-[108px] rounded-[4px] top-[18px] w-[8px]" />
-                  <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[757px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
-                    {currentLabel}
-                  </p>
-                  <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[457px] not-italic text-[24px] text-white top-[17px] whitespace-nowrap">{`${(currentDose / 24).toFixed(1)} µg/h`}</p>
-                  <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[112px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
-                    Baclofen
-                  </p>
-                  <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[903px] not-italic text-[24px] text-white top-[22px] whitespace-nowrap">
-                    {fmtTime(NOW_MIN)}
-                  </p>
-                  <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[911px] not-italic text-[#d9f2fa] text-[18px] top-[3px] whitespace-nowrap">
-                    Monday
-                  </p>
+                  <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
+                    <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">Morphine</p>
+                    <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px] not-italic">{(morphineMgDay(currentDose) / 24).toFixed(3)} mg/h</p>
+                  </div>
+                  <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
+                    <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">Bupivacaine</p>
+                    <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px] not-italic">{(bupivacaineMgDay(currentDose) / 24).toFixed(3)} mg/h</p>
+                  </div>
                 </div>
-                <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
-                  <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">Morphine</p>
-                  <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px] not-italic">{(morphineMgDay(currentDose) / 24).toFixed(3)} mg/h</p>
-                </div>
-                <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
-                  <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">Bupivacaine</p>
-                  <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px] not-italic">{(bupivacaineMgDay(currentDose) / 24).toFixed(3)} mg/h</p>
-                </div>
-              </div>
+              )}
 
-              {/* 4. Subtle delivery-stroke caption */}
-              <p className="font-['Inter',sans-serif] font-normal not-italic text-[#9ea8b2] text-[18px] whitespace-nowrap shrink-0">
-                Delivery stroke · {currentStroke.min} min · {currentStroke.label} · {currentStroke.strokesPerDay} strokes/day
-              </p>
+              {/* 4. Subtle delivery-stroke caption — hidden in base-only mode */}
+              {!useBaseOnly && (
+                <p className="font-['Inter',sans-serif] font-normal not-italic text-[#9ea8b2] text-[18px] whitespace-nowrap shrink-0">
+                  Delivery stroke · {currentStroke.min} min · {currentStroke.label} · {currentStroke.strokesPerDay} strokes/day
+                </p>
+              )}
 
               {/* 5. Estimated daily total */}
               <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0">

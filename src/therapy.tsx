@@ -56,6 +56,11 @@ type TherapyState = {
   setStrokeStrategy: (s: StrokeStrategy) => void;
   dayPattern: DayPattern;
   setDayPattern: (p: DayPattern) => void;
+  // When true, Review and HomeActive ignore stored intervals and render a
+  // base-dose-only schedule. Set by the "Skip — use base dose only" CTA;
+  // cleared automatically when the user starts adding an interval.
+  useBaseOnly: boolean;
+  setUseBaseOnly: (b: boolean) => void;
 };
 
 const TherapyContext = createContext<TherapyState | null>(null);
@@ -109,6 +114,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [dayPattern, setDayPattern] = useState<DayPattern>('same');
   const [sheetReturnTo, setSheetReturnTo] = useState<ScreenId>('intervals-populated');
   const [previewIntervalId, setPreviewIntervalId] = useState<string | null>(null);
+  const [useBaseOnly, setUseBaseOnly] = useState(false);
 
   // The "Daytime (base)" interval is the base dose by definition — propagate
   // base-dose changes to every day's daytime interval.
@@ -132,6 +138,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
     setDraft(DEFAULT_DRAFT);
     setSheetReturnTo(returnTo);
     setEditingScope(scope.length ? scope : [...WEEKDAY_KEYS]);
+    setUseBaseOnly(false);
   }
 
   function startEditingInterval(id: string, returnTo: ScreenId = 'intervals-populated', scope?: DayKey[]) {
@@ -192,6 +199,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       previewIntervalId, setPreviewIntervalId,
       strokeStrategy, setStrokeStrategy,
       dayPattern, setDayPattern,
+      useBaseOnly, setUseBaseOnly,
     }}>
       {children}
     </TherapyContext.Provider>
