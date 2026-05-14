@@ -1,432 +1,332 @@
-const imgStatePrevious = "/icons/7c235bc5-7127-424c-9618-232d0f9906e7.svg";
+import { useNavigate } from '../navigation';
+import { useTherapy, morphineMgDay, bupivacaineMgDay, hourlyUg } from '../therapy';
+
 const imgBBraunMiethkeSignet = "/icons/9f250784-cad4-4195-99ce-4b9dc94364a5.svg";
-const imgVector = "/icons/01195f3c-ce0c-4269-a4cc-2742bc124f77.svg";
-const imgVector1 = "/icons/889ea9b6-c9de-4f9c-bf91-3c37bf141ad0.svg";
-const imgVector2 = "/icons/276995c3-95e7-4f89-aaac-132fc8d43cfe.svg";
-const imgVector3 = "/icons/8a2869d6-387c-43ba-be53-477de865f0e6.svg";
-const imgVector4 = "/icons/7c7b5b07-d4a6-4c25-a285-b5ae561ae337.svg";
-const imgVector5 = "/icons/a29a0a50-cce1-4dd6-a110-cfbbd664ae38.svg";
-const imgVector6 = "/icons/e72c4c73-98ad-4a8b-acf6-a5ffea6349ac.svg";
-const imgVector7 = "/icons/1168ccbe-efdb-4ea7-abe5-bf07b47af2b9.svg";
-const imgVector8 = "/icons/07dfd97a-21eb-447c-b439-a9ca61e3faa6.svg";
-const imgVector9 = "/icons/81a225f9-9876-43c1-9aaf-5b1d51426454.svg";
-const imgVector10 = "/icons/7ff92c71-c015-413d-ad24-dec25e6e350b.svg";
-const imgVector11 = "/icons/00f7418e-34cd-4431-ae37-ec0eb64b05e6.svg";
+const imgBack = "/icons/01195f3c-ce0c-4269-a4cc-2742bc124f77.svg";
+// Therapy logo composite (11 vectors)
+const imgT1 = "/icons/276995c3-95e7-4f89-aaac-132fc8d43cfe.svg";
+const imgT2 = "/icons/8a2869d6-387c-43ba-be53-477de865f0e6.svg";
+const imgT3 = "/icons/7c7b5b07-d4a6-4c25-a285-b5ae561ae337.svg";
+const imgT4 = "/icons/a29a0a50-cce1-4dd6-a110-cfbbd664ae38.svg";
+const imgT5 = "/icons/e72c4c73-98ad-4a8b-acf6-a5ffea6349ac.svg";
+const imgT6 = "/icons/1168ccbe-efdb-4ea7-abe5-bf07b47af2b9.svg";
+const imgT7 = "/icons/07dfd97a-21eb-447c-b439-a9ca61e3faa6.svg";
+const imgT8 = "/icons/81a225f9-9876-43c1-9aaf-5b1d51426454.svg";
+const imgT9 = "/icons/7ff92c71-c015-413d-ad24-dec25e6e350b.svg";
+const imgT10 = "/icons/00f7418e-34cd-4431-ae37-ec0eb64b05e6.svg";
+const imgT11 = "/icons/889ea9b6-c9de-4f9c-bf91-3c37bf141ad0.svg";
+// Stepper assets
 const imgEllipse72 = "/icons/815f2ff8-cf86-4d26-a856-f4dd1c28b94d.svg";
 const imgEllipse73 = "/icons/8f4c5654-4dce-4ae1-96fb-6192337f71e1.svg";
-const imgVector38 = "/icons/bb340433-66d7-4d99-8d2c-4b4aad876d8f.svg";
-const imgVector37 = "/icons/1d72df2a-e2fa-44b5-b500-8101e9ef3cec.svg";
-const imgVector39 = "/icons/f251b7a9-1365-427b-a36c-890bb6984572.svg";
-const imgEbene1 = "/icons/13e8ee59-64ce-4c00-b8ac-c632e18518f1.svg";
+const imgChevronOn = "/icons/bb340433-66d7-4d99-8d2c-4b4aad876d8f.svg";
+const imgChevronOff = "/icons/1d72df2a-e2fa-44b5-b500-8101e9ef3cec.svg";
+const imgChevronEnd = "/icons/f251b7a9-1365-427b-a36c-890bb6984572.svg";
+const imgStepperEmpty = "/icons/7c235bc5-7127-424c-9618-232d0f9906e7.svg";
+// New Figma icons (saved from MCP assets)
+const imgMedication = "/icons/medication.svg";
+const imgEditPencil = "/icons/edit-pencil.svg";
 
-type IconsStepperProps = {
-  className?: string;
-  state?: "previous";
-};
-
-function IconsStepper({ className }: IconsStepperProps) {
+function TherapyLogo() {
   return (
-    <div className={className || "relative size-[40px]"}>
-      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStatePrevious} />
+    <div className="overflow-clip relative shrink-0 size-[64px]">
+      <div className="-translate-x-1/2 absolute aspect-[400/400] bottom-0 left-1/2 overflow-clip top-0">
+        <div className="absolute contents inset-[18.92%_30.29%_32.95%_15.2%]">
+          <div className="absolute inset-[18.92%_30.29%_71%_15.2%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT1} /></div>
+          <div className="absolute inset-[27.82%_50.03%_32.95%_15.2%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT2} /></div>
+        </div>
+        <div className="absolute inset-[12.67%_35.51%_78.7%_20.41%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT3} /></div>
+        <div className="absolute inset-[47.67%_52.31%_41.86%_37.22%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT4} /></div>
+        <div className="absolute inset-[26.63%_30.29%_70.99%_15.2%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT5} /></div>
+        <div className="absolute inset-[47.67%_66.88%_41.86%_22.65%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT6} /></div>
+        <div className="absolute inset-[33.1%_66.88%_56.43%_22.65%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT7} /></div>
+        <div className="absolute inset-[33.1%_52.31%_56.43%_37.22%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT8} /></div>
+        <div className="absolute inset-[32.13%_22.02%_58.18%_61.41%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT9} /></div>
+        <div className="absolute inset-[39.42%_15.2%_12.67%_54.61%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT10} /></div>
+        <div className="absolute inset-[28.93%_31.08%_71%_64.17%]"><img alt="" className="absolute block inset-0 max-w-none size-full" src={imgT11} /></div>
+      </div>
     </div>
   );
 }
-
-function BBraunMiethkeSignet({ className }: { className?: string }) {
-  return (
-    <div className={className || "h-[105.45px] overflow-clip relative w-[89.17px]"}>
-      <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgBBraunMiethkeSignet} />
-    </div>
-  );
-}
-
-import { useNavigate } from '../navigation';
-import { useTherapy, morphineMgDay, bupivacaineMgDay, hourlyUg, STROKE_OPTIONS, type StrokeStrategy } from '../therapy';
 
 export function BaseDose() {
   const navigate = useNavigate();
-  const { baseDose, setBaseDose, strokeStrategy, setStrokeStrategy } = useTherapy();
+  const { baseDose, setBaseDose } = useTherapy();
   const stepDown = () => setBaseDose(Math.max(0, baseDose - 10));
   const stepUp = () => setBaseDose(Math.min(2000, baseDose + 10));
+  const hourly = hourlyUg(baseDose);
   const morMgD = morphineMgDay(baseDose);
   const morMgH = morMgD / 24;
   const bupMgD = bupivacaineMgDay(baseDose);
   const bupMgH = bupMgD / 24;
-  const hourly = hourlyUg(baseDose);
+  const ctaEnabled = baseDose > 0;
   return (
     <div className="bg-white relative size-full">
+      {/* Top status bar */}
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
-      <div className="absolute bg-[#e6f4f9] content-stretch flex h-[120px] items-center justify-between left-0 overflow-x-clip overflow-y-auto px-[40px] py-[8px] top-[35px] w-[1200px]">
-        <div className="content-stretch flex gap-[40px] items-center relative shrink-0 w-[669px]">
+
+      {/* Nav bar */}
+      <div className="absolute bg-[#e6f4f9] content-stretch flex h-[120px] items-center justify-between left-0 px-[40px] py-[8px] top-[35px] w-[1200px]">
+        <div className="content-stretch flex gap-[40px] items-center relative shrink-0">
           <div onClick={() => navigate('home-no-therapy')} className="flex items-center justify-center relative shrink-0 cursor-pointer">
             <div className="flex-none rotate-180">
               <div className="overflow-clip relative size-[56px]">
                 <div className="absolute inset-[20%_0.03%_17.61%_0]">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector} />
+                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgBack} />
                 </div>
               </div>
             </div>
           </div>
           <div className="content-stretch flex gap-[16px] items-center relative shrink-0">
-            <div className="overflow-clip relative shrink-0 size-[64px]">
-              <div className="-translate-x-1/2 absolute aspect-[400/400] bottom-0 left-1/2 overflow-clip top-0">
-                <div className="absolute contents inset-[18.92%_30.29%_32.95%_15.2%]">
-                  <div className="absolute inset-[18.92%_30.29%_71%_15.2%]">
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector1} />
-                  </div>
-                  <div className="absolute inset-[27.82%_50.03%_32.95%_15.2%]">
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector2} />
-                  </div>
-                </div>
-                <div className="absolute inset-[12.67%_35.51%_78.7%_20.41%]">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector3} />
-                </div>
-                <div className="absolute inset-[47.67%_52.31%_41.86%_37.22%]">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector4} />
-                </div>
-                <div className="absolute inset-[26.63%_30.29%_70.99%_15.2%]">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector5} />
-                </div>
-                <div className="absolute inset-[47.67%_66.88%_41.86%_22.65%]">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector6} />
-                </div>
-                <div className="absolute inset-[33.1%_66.88%_56.43%_22.65%]">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector7} />
-                </div>
-                <div className="absolute inset-[33.1%_52.31%_56.43%_37.22%]">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector8} />
-                </div>
-                <div className="absolute inset-[32.13%_22.02%_58.18%_61.41%]">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector9} />
-                </div>
-                <div className="absolute inset-[39.42%_15.2%_12.67%_54.61%]">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector10} />
-                </div>
-                <div className="absolute inset-[28.93%_31.08%_71%_64.17%]">
-                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector11} />
-                </div>
-              </div>
-            </div>
+            <TherapyLogo />
             <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Therapy
             </p>
           </div>
         </div>
-        <div className="content-stretch flex gap-[100px] items-center relative shrink-0">
-          <BBraunMiethkeSignet className="h-[62px] overflow-clip relative shrink-0 w-[53px]" />
+        <div className="content-stretch flex items-center relative shrink-0">
+          <div className="h-[62px] overflow-clip relative shrink-0 w-[53px]">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgBBraunMiethkeSignet} />
+          </div>
         </div>
       </div>
+
+      {/* 3-step stepper: Dosage (active), Review, Activate */}
       <div className="absolute content-stretch flex items-center left-0 top-[164px] w-[1200px]">
         <div className="content-stretch flex flex-[1_0_0] h-[64px] items-center min-w-px mr-[-10px] relative">
           <div className="bg-[#d1eaf8] content-stretch flex flex-[1_0_0] h-[64px] items-start min-w-px overflow-clip pl-[40px] pr-[16px] py-[8px] relative">
-            <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
-              <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
-                <div className="relative shrink-0 size-[40px]">
-                  <div className="absolute aspect-[34/34] left-0 right-0 top-0">
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse72} />
-                  </div>
-                  <div className="absolute aspect-[34/34] left-[32.5%] right-[32.5%] top-[13px]">
-                    <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse73} />
-                  </div>
+            <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
+              <div className="relative shrink-0 size-[40px]">
+                <div className="absolute aspect-[34/34] left-0 right-0 top-0">
+                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse72} />
                 </div>
-                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  Base Dose
-                </p>
+                <div className="absolute aspect-[34/34] left-[32.5%] right-[32.5%] top-[13px]">
+                  <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEllipse73} />
+                </div>
               </div>
+              <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                Dosage
+              </p>
             </div>
           </div>
           <div className="h-[64px] relative shrink-0 w-[28px]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector38} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgChevronOn} />
           </div>
         </div>
         <div className="content-stretch flex flex-[1_0_0] h-[64px] items-center min-w-px mr-[-10px] relative">
           <div className="h-[64px] relative shrink-0 w-[30px]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector37} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgChevronOff} />
           </div>
           <div className="bg-[#f0f0f0] content-stretch flex flex-[1_0_0] h-[64px] items-start min-w-px overflow-clip px-[16px] py-[8px] relative">
-            <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
-              <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
-                <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  Intervals
-                </p>
+            <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
+              <div className="relative shrink-0 size-[40px]">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStepperEmpty} />
               </div>
+              <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                Review
+              </p>
             </div>
           </div>
           <div className="h-[64px] relative shrink-0 w-[28px]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector39} />
-          </div>
-        </div>
-        <div className="content-stretch flex flex-[1_0_0] h-[64px] items-center min-w-px mr-[-10px] relative">
-          <div className="h-[64px] relative shrink-0 w-[30px]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector37} />
-          </div>
-          <div className="bg-[#f0f0f0] content-stretch flex flex-[1_0_0] h-[64px] items-start min-w-px overflow-clip px-[16px] py-[8px] relative">
-            <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
-              <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
-                <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  Review
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="h-[64px] relative shrink-0 w-[28px]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector39} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgChevronEnd} />
           </div>
         </div>
         <div className="content-stretch flex flex-[1_0_0] h-[64px] items-center min-w-px relative">
           <div className="h-[64px] relative shrink-0 w-[30px]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgVector37} />
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgChevronOff} />
           </div>
           <div className="bg-[#f0f0f0] content-stretch flex flex-[1_0_0] h-[64px] items-start min-w-px overflow-clip px-[16px] py-[8px] relative">
-            <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
-              <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
-                <IconsStepper className="relative shrink-0 size-[40px]" />
-                <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[24px] min-w-px relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  Activate
-                </p>
+            <div className="content-stretch flex gap-[16px] h-[48px] items-center relative shrink-0 w-[184px]">
+              <div className="relative shrink-0 size-[40px]">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgStepperEmpty} />
               </div>
+              <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative text-[#a5a5a5] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                Activate
+              </p>
             </div>
           </div>
         </div>
       </div>
-      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[44px] top-[270px] w-[1040px]">
-        Set the base dose
-      </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[340px] w-[1040px]">{`Type the primary dose or use ± to adjust. `}</p>
-      <div className="-translate-y-full absolute flex flex-col font-['Roboto',sans-serif] font-normal justify-end leading-[0] left-[688px] text-[#9ea8b2] text-[20px] top-[433px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-        <p className="leading-[24px]">Daily dose</p>
-      </div>
-      <div className="-translate-y-full absolute flex flex-col font-['Roboto',sans-serif] font-normal justify-end leading-[0] left-[975px] text-[#9ea8b2] text-[20px] top-[433px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-        <p className="leading-[24px]">Hourly dose</p>
-      </div>
-      <div className="absolute content-stretch flex flex-col gap-[24px] items-start left-[80px] top-[441px] w-[1040px]">
-        <div className="bg-white border-2 border-[#0b7fa8] border-solid content-start flex flex-wrap gap-[0px_366px] items-start overflow-clip px-[24px] py-[20px] relative rounded-[16px] shrink-0 w-full">
-          <div className="content-stretch flex flex-col gap-[8px] items-start opacity-80 relative shrink-0">
-            <p className="font-['Inter',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[28px] whitespace-nowrap">
-              Baclofen
-            </p>
-            <div className="bg-[#0b7fa8] h-[28px] overflow-clip relative rounded-[14px] shrink-0 w-[96px]">
-              <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[15.5px] not-italic text-[14px] text-white top-[5.5px] whitespace-nowrap">
-                PRIMARY
-              </p>
-            </div>
-          </div>
-          <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
-            <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-              <div onClick={stepDown} className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px] cursor-pointer select-none">
-                <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[16px] not-italic text-[#063b66] text-[36px] top-[7px] whitespace-nowrap">
-                  −
+
+      {/* Body — flex column matching the Figma frame, with content top + button bottom */}
+      <div className="absolute left-0 top-[235px] h-[1685px] w-[1200px] flex flex-col items-start justify-between px-[80px] py-[80px]">
+        {/* Content group */}
+        <div className="flex flex-col gap-[40px] items-start w-full">
+          {/* Title + helper */}
+          <div className="flex flex-col gap-[24px] items-start w-full">
+            <div className="flex gap-[16px] items-start w-full">
+              <img alt="" src={imgMedication} className="size-[56px] shrink-0 block" />
+              <div className="flex flex-col items-start justify-center pt-[8px]">
+                <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  Base Dose
                 </p>
               </div>
-              <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
-                <div className="bg-white border-2 border-[#0b7fa8] border-solid col-1 h-[60px] ml-0 mt-0 relative rounded-[12px] row-1 w-[200px]" />
-                <div className="col-1 content-stretch flex gap-[21px] items-center leading-[normal] ml-[26px] mt-[8px] not-italic relative row-1 whitespace-nowrap">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={baseDose}
-                    onChange={e => {
-                      const n = parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0;
-                      setBaseDose(Math.max(0, Math.min(2000, n)));
-                    }}
-                    className="font-bold not-italic text-[#063b66] text-[36px] bg-transparent outline-none border-0 p-0 w-[80px] text-left"
-                    style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal' }}
-                  />
-                  <p className="font-['Inter',sans-serif] font-normal relative shrink-0 text-[#667380] text-[16px]">
-                    µg/day
+            </div>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[32px] text-[#45483c] text-[24px] tracking-[0.1px] w-[1040px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              Type the primary dose or use ± to adjust.
+            </p>
+          </div>
+
+          {/* Chart + medications */}
+          <div className="flex flex-col gap-[80px] items-start w-full">
+            {/* 24-hour view */}
+            <div className="flex flex-col gap-[24px] items-start">
+              <p className="font-['Roboto',sans-serif] font-bold leading-[32px] text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                24-hour view
+              </p>
+              <div className="bg-[#f7fafc] border border-[#d9dbde] border-solid h-[200px] relative rounded-[16px] w-[1040px]">
+                {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => (
+                  <p key={t} className="absolute font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[16px] top-[10px] whitespace-nowrap"
+                     style={{ left: [27, 252.5, 499, 744, 965][i], fontVariationSettings: "'wdth' 100" }}>
+                    {t}
                   </p>
+                ))}
+                {baseDose > 0 && (
+                  <div
+                    className="absolute bg-[#8cc7e8] rounded-[4px] flex items-center px-[24px]"
+                    style={{ left: 20, right: 20, bottom: 24, height: 60 }}
+                  >
+                    <p className="font-['Roboto',sans-serif] font-semibold text-white text-[20px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Base dose {baseDose} µg/d ≈ {hourly.toFixed(1)} µg/h
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Medication rows */}
+            <div className="flex flex-col gap-[24px] items-start w-[1040px]">
+              {/* Baclofen — primary, editable */}
+              <div className="flex gap-[24px] items-center w-full">
+                <p className="font-['Roboto',sans-serif] text-[#00769e] tracking-[0.1px] w-[262px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  <span className="font-bold leading-[32px] text-[28px]">Baclofen</span>
+                  <span className="leading-[32px] text-[24px]"> 1 mg/ml</span>
+                </p>
+                <div className="flex gap-[24px] items-center">
+                  <div className="flex h-full items-start pt-[23px]">
+                    <div
+                      onClick={stepDown}
+                      className="bg-[#e6f4f9] border border-[#00769e] border-solid flex flex-col items-center justify-center overflow-clip px-[12px] py-[8px] rounded-[12px] size-[72px] cursor-pointer select-none"
+                    >
+                      <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] text-[#00769e] text-[48px] text-center tracking-[0.1px] w-full" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        −
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col h-[124px] items-start justify-center w-[205px]">
+                    <div className="flex items-center px-[16px] w-full">
+                      <p className="font-['Roboto',sans-serif] font-bold h-[33px] leading-[24px] text-[#00769e] text-[24px] text-left tracking-[0.1px] w-full" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        Dose/day
+                      </p>
+                    </div>
+                    <div className="bg-white border border-[#a5a5a5] border-solid flex gap-[8px] h-[72px] items-center pb-[16px] pl-[16px] pr-[8px] pt-[12px] rounded-[8px] w-full">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={baseDose}
+                        onChange={e => {
+                          const n = parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0;
+                          setBaseDose(Math.max(0, Math.min(2000, n)));
+                        }}
+                        className="flex-[1_0_0] min-w-px font-bold text-[#45483c] text-[36px] leading-[48px] tracking-[0.1px] bg-transparent outline-none border-0 p-0 text-left"
+                        style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
+                      />
+                      <div className="flex items-center justify-center pr-[8px]">
+                        <p className="font-['Roboto',sans-serif] font-normal leading-[32px] text-[#a5a5a5] text-[24px] text-right tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                          µg/d
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex h-full items-start pt-[23px]">
+                    <div
+                      onClick={stepUp}
+                      className="bg-[#e6f4f9] border border-[#00769e] border-solid flex flex-col items-center justify-center overflow-clip px-[12px] py-[8px] rounded-[12px] size-[72px] cursor-pointer select-none"
+                    >
+                      <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] text-[#00769e] text-[48px] text-center tracking-[0.1px] w-full" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        +
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-[1_0_0] flex flex-col gap-[4px] items-start min-w-px self-stretch justify-end">
+                  <div className="flex items-center px-[16px]">
+                    <p className="font-['Roboto',sans-serif] font-bold h-[24px] leading-[24px] text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      Dose/hour
+                    </p>
+                  </div>
+                  <div className="flex gap-[24px] h-[72px] items-center w-full">
+                    <div className="flex flex-[1_0_0] h-[72px] items-center min-w-px pb-[16px] pl-[16px] pr-[8px] pt-[12px]">
+                      <p className="flex-[1_0_0] font-['Roboto',sans-serif] text-[#a5a5a5] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        <span className="font-semibold leading-[48px] text-[32px]">≈ </span>
+                        <span className="leading-[48px] text-[32px]">{hourly.toFixed(1)}</span>
+                      </p>
+                      <p className="font-['Roboto',sans-serif] font-normal leading-[32px] text-[#a5a5a5] text-[24px] text-right tracking-[0.1px] pr-[8px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        µg/h
+                      </p>
+                    </div>
+                    <img alt="" src={imgEditPencil} className="size-[40px] shrink-0 block" />
+                  </div>
                 </div>
               </div>
-              <div onClick={stepUp} className="bg-[#f7fafc] border border-[#d9dbde] border-solid overflow-clip relative rounded-[12px] shrink-0 size-[60px] cursor-pointer select-none">
-                <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[20px] not-italic text-[#063b66] text-[32px] top-[7px] whitespace-nowrap">
-                  +
-                </p>
-              </div>
-            </div>
-            <div className="content-stretch flex gap-[20px] items-center leading-[normal] not-italic relative shrink-0 whitespace-nowrap">
-              <p className="font-['Inter',sans-serif] font-semibold relative shrink-0 text-[#0b7fa8] text-[24px]">
-                ≈ {hourly.toFixed(1)}
-              </p>
-              <p className="font-['Inter',sans-serif] font-normal relative shrink-0 text-[#9ea8b2] text-[16px]">
-                µg/h
-              </p>
+
+              <DerivedMedicationRow label="Morphine" concentration="10 mg/ml" daily={morMgD} hourly={morMgH} />
+              <DerivedMedicationRow label="Bupivacaine" concentration="5 mg/ml" daily={bupMgD} hourly={bupMgH} />
             </div>
           </div>
         </div>
-        <div className="bg-white border border-[#d9dbde] border-solid h-[88px] leading-[normal] not-italic overflow-clip relative rounded-[16px] shrink-0 w-full whitespace-nowrap">
-          <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[15px]">
-            Morphine
-          </p>
-          <p className="absolute font-['Inter',sans-serif] font-medium left-[23px] text-[#9ea8b2] text-[16px] top-[49px]">
-            calculated · 0.139% of Baclofen
-          </p>
-          <p className="absolute font-['Inter',sans-serif] font-bold left-[599px] text-[#667380] text-[26px] top-[26px]">
-            {morMgD.toFixed(2)}
-          </p>
-          <p className="absolute font-['Inter',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
-            mg/day
-          </p>
-          <p className="absolute font-['Inter',sans-serif] font-semibold left-[897px] text-[#667380] text-[22px] top-[28px]">
-            {morMgH.toFixed(3)}
-          </p>
-          <p className="absolute font-['Inter',sans-serif] font-normal left-[966px] text-[#9ea8b2] text-[16px] top-[34px]">
-            mg/h
+
+        {/* Continue CTA */}
+        <div
+          onClick={() => { if (ctaEnabled) navigate('intervals-empty'); }}
+          className={`flex gap-[16px] h-[88px] items-center justify-center min-w-[240px] px-[40px] rounded-[80px] w-full ${ctaEnabled ? 'bg-[#0094c5] cursor-pointer' : 'bg-[#cbcbcb] cursor-not-allowed'}`}
+        >
+          <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[24px] tracking-[0.1px] whitespace-nowrap ${ctaEnabled ? 'text-white' : 'text-[#a5a5a5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+            Continue to intervals
           </p>
         </div>
-        <div className="bg-white border border-[#d9dbde] border-solid h-[88px] leading-[normal] not-italic overflow-clip relative rounded-[16px] shrink-0 w-full whitespace-nowrap">
-          <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[15px]">
-            Bupivacaine
-          </p>
-          <p className="absolute font-['Inter',sans-serif] font-medium left-[23px] text-[#9ea8b2] text-[16px] top-[49px]">
-            calculated · 0.417% of Baclofen
-          </p>
-          <p className="absolute font-['Inter',sans-serif] font-bold left-[605px] text-[#667380] text-[26px] top-[26px]">
-            {bupMgD.toFixed(2)}
-          </p>
-          <p className="absolute font-['Inter',sans-serif] font-normal left-[669px] text-[#9ea8b2] text-[18px] top-[34px]">
-            mg/day
-          </p>
-          <p className="absolute font-['Inter',sans-serif] font-semibold left-[894px] text-[#667380] text-[22px] top-[22px]">
-            {bupMgH.toFixed(3)}
-          </p>
-          <p className="absolute font-['Inter',sans-serif] font-normal left-[968px] text-[#9ea8b2] text-[16px] top-[28px]">
-            mg/h
-          </p>
-        </div>
-      </div>
-      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[30px] top-[1000px] whitespace-nowrap">
-        Delivery stroke
-      </p>
-      <div className="absolute bg-[#9ea8b2] content-stretch flex items-center justify-center left-[319px] overflow-clip px-[16px] py-[6px] rounded-[14px] top-[1004px]">
-        <p className="font-['Inter',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[14px] text-white whitespace-nowrap">
-          optional
-        </p>
-      </div>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[1048px] w-[1040px]">
-        How the pump releases medication: many small strokes (more continuous) or fewer larger strokes (more spaced).
-      </p>
-      {STROKE_OPTIONS.map((opt, i) => {
-        const per = baseDose / opt.strokesPerDay;
-        const perStroke = `${per % 1 === 0 ? per.toFixed(0) : per.toFixed(1)} µg`;
-        // Bar widths from the original Figma: 30 → 2.667, 60 → 5.333, 120/240/480 → 8
-        const barWidth = i === 0 ? 2.667 : i === 1 ? 5.333 : 8;
-        return (
-          <DeliveryStrokeCard
-            key={opt.min}
-            left={80 + i * 208}
-            title={`${opt.min} min`}
-            subtitle={opt.label}
-            detail={`${opt.strokesPerDay} strokes/day`}
-            perStroke={perStroke}
-            barCount={opt.strokesPerDay}
-            barWidth={barWidth}
-            selected={strokeStrategy === opt.min}
-            onSelect={() => setStrokeStrategy(opt.min as StrokeStrategy)}
-          />
-        );
-      })}
-      <div className="absolute content-stretch flex gap-[12px] items-center left-[80px] top-[1460px]">
-        <div className="overflow-clip relative shrink-0 size-[28px]">
-          <div className="-translate-x-1/2 absolute aspect-[159.24000549316406/159.24000549316406] bottom-0 left-[calc(50%+0.5px)] overflow-clip top-0">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgEbene1} />
-          </div>
-        </div>
-        <div className="font-['Inter',sans-serif] font-normal leading-[0] not-italic relative shrink-0 text-[#667380] text-[22px] w-[1000px] whitespace-pre-wrap">
-          <p className="leading-[normal] mb-0">{`Smaller intervals = smoother delivery, more battery use. `}</p>
-          <p className="leading-[normal]">Larger = longer device life, more pulsatile dosing.</p>
-        </div>
-      </div>
-      <div onClick={() => navigate('intervals-empty')} className="absolute bg-[#0b7fa8] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1778px] w-[1040px] cursor-pointer">
-        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[458px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
-          Continue
-        </p>
       </div>
     </div>
   );
 }
 
-type CardProps = {
-  left: number;
-  title: string;
-  subtitle: string;
-  detail: string;
-  perStroke: string;
-  barCount: number;
-  barWidth: number;
-  selected: boolean;
-  onSelect?: () => void;
-};
-
-function DeliveryStrokeCard({ left, title, subtitle, detail, perStroke, barCount, barWidth, selected, onSelect }: CardProps) {
-  // Bar layout: bars start at x=14px and step by 8px ( + cardSelected offset adjustments)
-  // Total card width = 192px. Bars are centered top area, vertical line at top:27 (selected: 26)
-  const barColor = selected ? '#0b7fa8' : '#9ea8b2';
-  const titleColor = selected ? '#065879' : '#063b66';
-  const perStrokeColor = selected ? '#065879' : '#063b66';
-  const bgColor = selected ? '#d9ebf5' : 'white';
-  const borderClass = selected
-    ? 'border-2 border-[#0b7fa8]'
-    : 'border border-[#d9dbde]';
-  const yOffset = selected ? 26 : 27;
-  const xStart = selected ? 14 : 15;
-  // Bars span the full 160px area; choose gap so they fill it evenly
-  const totalWidth = 160;
-  const step = barCount > 1 ? (totalWidth - barWidth) / (barCount - 1) : 0;
+function DerivedMedicationRow({ label, concentration, daily, hourly }: { label: string; concentration: string; daily: number; hourly: number }) {
+  const dailyStr = daily === 0 ? '0' : daily.toFixed(2);
+  const hourlyStr = hourly === 0 ? '0.0' : hourly.toFixed(3);
   return (
-    <div
-      onClick={onSelect}
-      className={`absolute ${borderClass} border-solid h-[255px] overflow-clip rounded-[16px] top-[1150px] w-[192px] cursor-pointer select-none`}
-      style={{ left, background: bgColor }}
-    >
-      {Array.from({ length: barCount }).map((_, i) => (
-        <div
-          key={i}
-          className="absolute h-[36px] rounded-[2px]"
-          style={{
-            left: xStart + i * step,
-            top: yOffset,
-            width: barWidth,
-            background: barColor,
-          }}
-        />
-      ))}
-      <p
-        className="absolute font-['Inter',sans-serif] font-bold leading-[normal] not-italic text-[24px] whitespace-nowrap"
-        style={{ color: titleColor, left: xStart, top: selected ? 88 : 89 }}
-      >
-        {title}
+    <div className="flex gap-[24px] items-center w-full">
+      <p className="font-['Roboto',sans-serif] text-[#00769e] tracking-[0.1px] w-[262px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <span className="font-bold leading-[32px] text-[28px]">{label}</span>
+        <span className="leading-[32px] text-[24px]"> {concentration}</span>
       </p>
-      <p
-        className="absolute font-['Inter',sans-serif] font-normal leading-[normal] not-italic text-[#667380] text-[18px] whitespace-nowrap"
-        style={{ left: xStart, top: selected ? 120 : 121 }}
-      >
-        {subtitle}
-      </p>
-      <p
-        className="absolute font-['Inter',sans-serif] font-normal leading-[normal] not-italic text-[#9ea8b2] text-[18px] whitespace-nowrap"
-        style={{ left: xStart, top: selected ? 146 : 147 }}
-      >
-        {detail}
-      </p>
-      <div
-        className="absolute bg-[#d9dbde] h-px w-[160px]"
-        style={{ left: xStart, top: selected ? 182 : 183 }}
-      />
-      <p
-        className="absolute font-['Inter',sans-serif] font-medium leading-[normal] not-italic text-[#9ea8b2] text-[14px] whitespace-nowrap"
-        style={{ left: xStart, top: selected ? 193 : 194 }}
-      >
-        Per stroke
-      </p>
-      <p
-        className="absolute font-['Inter',sans-serif] font-bold leading-[normal] not-italic text-[18px] whitespace-nowrap"
-        style={{ color: perStrokeColor, left: xStart, top: selected ? 211 : 212 }}
-      >
-        {perStroke}
-      </p>
+      <div className="flex gap-[24px] items-center">
+        <div className="w-[72px]" />
+        <div className="flex flex-col h-[124px] items-start justify-center w-[205px]">
+          <div className="bg-white flex gap-[8px] h-[72px] items-center pb-[16px] pl-[16px] pr-[8px] pt-[12px] rounded-[8px] w-full">
+            <p className="flex-[1_0_0] font-['Roboto',sans-serif] font-normal leading-[40px] text-[#45483c] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              {dailyStr}
+            </p>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[32px] text-[#a5a5a5] text-[24px] text-right tracking-[0.1px] pr-[8px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              mg/d
+            </p>
+          </div>
+        </div>
+        <div className="w-[72px]" />
+      </div>
+      <div className="flex-[1_0_0] flex flex-col gap-[4px] items-start min-w-px self-stretch justify-end">
+        <div className="flex gap-[24px] h-[72px] items-center w-full">
+          <div className="flex flex-[1_0_0] h-[72px] items-center min-w-px pb-[16px] pl-[16px] pr-[8px] pt-[12px]">
+            <p className="flex-[1_0_0] font-['Roboto',sans-serif] text-[#a5a5a5] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <span className="font-semibold leading-[48px] text-[32px]">≈</span>
+              <span className="leading-[48px] text-[32px]">{hourlyStr}</span>
+            </p>
+            <p className="font-['Roboto',sans-serif] font-normal leading-[32px] text-[#a5a5a5] text-[24px] text-right tracking-[0.1px] pr-[8px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              mg/h
+            </p>
+          </div>
+          <img alt="" src={imgEditPencil} className="size-[40px] shrink-0 block" />
+        </div>
+      </div>
     </div>
   );
 }
