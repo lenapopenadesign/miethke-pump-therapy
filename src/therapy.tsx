@@ -66,7 +66,7 @@ type TherapyState = {
 const TherapyContext = createContext<TherapyState | null>(null);
 
 const DEFAULT_DRAFT: Draft = {
-  label: 'Morning peak',
+  label: '',
   startMin: 8 * 60,
   endMin: 10 * 60 + 30,
   dose: 480,
@@ -110,7 +110,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [editingScope, setEditingScope] = useState<DayKey[]>([...WEEKDAY_KEYS]);
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(120);
+  const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(30);
   const [dayPattern, setDayPattern] = useState<DayPattern>('same');
   const [sheetReturnTo, setSheetReturnTo] = useState<ScreenId>('intervals-populated');
   const [previewIntervalId, setPreviewIntervalId] = useState<string | null>(null);

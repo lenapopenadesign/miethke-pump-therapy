@@ -95,38 +95,30 @@ function Filling({ className }: FillingProps) {
 }
 
 import { useEffect, useState } from 'react';
-import { useTherapy, doseColor, morphineMgDay, bupivacaineMgDay, estimatedDailyTotal, fmtTime, withBaseFillers, STROKE_OPTIONS } from '../therapy';
+import { useTherapy, doseColor, estimatedDailyTotal, withBaseFillers } from '../therapy';
 import { IntervalPreview } from '../components/IntervalPreview';
+import { DailyTotalsCard } from '../components/DailyTotalsCard';
 
 const HA_LEFT = 16;
 const HA_WIDTH = 950;
-const HA_SCALE = 0.2;
-const HA_BAR_BOTTOM = 122;
+const HA_SCALE = 0.32;
+const HA_BAR_BOTTOM = 232;
+const HA_CHART_HEIGHT = 240;
 const NOW_MIN = 716; // "11:56" (matches the design's now indicator)
 
 export function HomeActive() {
-  const { baseDose, intervals, weekendIntervals, strokeStrategy, setPreviewIntervalId, useBaseOnly } = useTherapy();
-  const currentStroke = STROKE_OPTIONS.find(s => s.min === strokeStrategy) ?? STROKE_OPTIONS[2];
+  const { baseDose, intervals, weekendIntervals, setPreviewIntervalId, useBaseOnly } = useTherapy();
   const [activeTab, setActiveTab] = useState<'weekdays' | 'weekend'>('weekdays');
-  // Clear any preview state from a previous screen on mount/unmount
   useEffect(() => {
     setPreviewIntervalId(null);
     return () => setPreviewIntervalId(null);
   }, [setPreviewIntervalId]);
-  // Also close the preview when switching weekday/weekend (selected interval may not exist in the other set)
   useEffect(() => { setPreviewIntervalId(null); }, [activeTab, setPreviewIntervalId]);
   const rawSource = activeTab === 'weekend' ? weekendIntervals : intervals;
   const sourceIntervals = useBaseOnly ? [] : rawSource;
-  const ordered = [...sourceIntervals].sort((a, b) => a.startMin - b.startMin);
   const chartSlots = withBaseFillers(sourceIntervals, baseDose);
   const onBarClick = (id: string) => setPreviewIntervalId(id);
-  const current = ordered.find(iv => iv.startMin <= NOW_MIN && iv.endMin > NOW_MIN);
-  const currentDose = current?.dose ?? baseDose;
-  // Trim parenthesized suffix to keep the NOW row compact ("Daytime (base)" → "Daytime")
-  const currentLabel = (current?.label ?? 'Base').replace(/\s*\([^)]*\)\s*$/, '');
   const estDaily = estimatedDailyTotal(baseDose, sourceIntervals);
-  const estMorMgD = morphineMgDay(estDaily);
-  const estBupMgD = bupivacaineMgDay(estDaily);
   const nowLeft = HA_LEFT + (NOW_MIN / 1440) * HA_WIDTH;
   return (
     <div className="bg-white relative size-full">
@@ -318,10 +310,9 @@ export function HomeActive() {
             <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
               <div className="content-stretch flex gap-[25px] items-start relative shrink-0">
                 <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0">
-                  <p className="font-['Inter',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px] whitespace-nowrap">
+                  <p className="font-['Inter',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[24px] whitespace-nowrap">
                     Baclofen
                   </p>
-                  <div className="bg-[#0b7fa8] h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px] flex items-center justify-center"><p className=" font-['Inter',sans-serif] font-bold leading-[normal]  not-italic text-[11px] text-white  whitespace-nowrap">PRIMARY</p></div>
                   <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                     1 mg/ml
                   </p>
@@ -347,7 +338,7 @@ export function HomeActive() {
           </div>
         </div>
         <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
-          <div className={`bg-[#e6f4f9] col-1 content-stretch flex flex-col ${useBaseOnly ? 'h-[600px]' : 'h-[890px]'} items-start ml-0 mt-0 relative rounded-[24px] row-1 w-[1040px]`}>
+          <div className="bg-[#e6f4f9] col-1 content-stretch flex flex-col items-start ml-0 mt-0 relative rounded-[24px] row-1 w-[1040px]">
             <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
               <div className="content-stretch flex flex-[1_0_0] items-center justify-center min-w-px relative">
                 <div className="content-stretch flex flex-[1_0_0] gap-[16px] items-center min-w-px relative">
@@ -405,7 +396,7 @@ export function HomeActive() {
                 </div>
               </div>
             </div>
-            <div className={`bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[18px] ${useBaseOnly ? 'h-[488px]' : 'h-[778px]'} items-start px-[24px] py-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full`}>
+            <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[24px] items-start px-[24px] py-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
               {/* 1. Weekday/Weekend toggle — hidden in base-only mode (chart + total is enough) */}
               {!useBaseOnly && (
                 <div className="content-stretch flex gap-[25px] items-start relative shrink-0 w-full">
@@ -430,7 +421,7 @@ export function HomeActive() {
 
               {/* 2. 24h chart */}
               <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
-                <div className="bg-white border border-[#d9dbde] border-solid col-1 h-[130px] ml-0 mt-[2px] relative rounded-[12px] row-1 w-[984px]" />
+                <div className="bg-white border border-[#d9dbde] border-solid col-1 h-[240px] ml-0 mt-[2px] relative rounded-[12px] row-1 w-[984px]" />
                 <p className="col-1 font-['Inter',sans-serif] font-normal leading-[normal] ml-[16px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">00:00</p>
                 <p className="col-1 font-['Inter',sans-serif] font-normal leading-[normal] ml-[237px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">06:00</p>
                 <p className="col-1 font-['Inter',sans-serif] font-normal leading-[normal] ml-[476px] mt-[8px] not-italic relative row-1 text-[#9ea8b2] text-[16px] whitespace-nowrap">12:00</p>
@@ -454,7 +445,7 @@ export function HomeActive() {
                     />
                   );
                 })}
-                <div className="col-1 relative row-1 w-[2px] bg-[#063b66]" style={{ marginLeft: nowLeft, marginTop: 23, height: 98 }} />
+                <div className="col-1 relative row-1 w-[2px] bg-[#063b66]" style={{ marginLeft: nowLeft, marginTop: 23, height: HA_CHART_HEIGHT - 30 }} />
                 <div className="col-1 flex h-[14px] items-center justify-center mt-0 relative row-1 w-[16px]" style={{ marginLeft: nowLeft - 7 }}>
                   <div className="flex-none rotate-180">
                     <div className="h-[14px] relative w-[16px]">
@@ -466,83 +457,8 @@ export function HomeActive() {
                 </div>
               </div>
 
-              {/* 3. NOW row + Morphine + Bupivacaine — hidden in base-only mode */}
-              {!useBaseOnly && (
-                <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0">
-                  <div className="bg-[#0b7fa8] h-[61px] overflow-clip relative rounded-[12px] shrink-0 w-[984px]">
-                    <div className="absolute bg-white h-[28px] left-[27px] overflow-clip rounded-[14px] top-[16px] w-[72px] flex items-center justify-center">
-                      <p className="font-['Inter',sans-serif] font-bold not-italic text-[#0b7fa8] text-[14px] whitespace-nowrap">NOW</p>
-                    </div>
-                    <div className="absolute bg-[#0b7fa8] h-[28px] left-[108px] rounded-[4px] top-[18px] w-[8px]" />
-                    <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[757px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
-                      {currentLabel}
-                    </p>
-                    <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[457px] not-italic text-[24px] text-white top-[17px] whitespace-nowrap">{`${(currentDose / 24).toFixed(1)} µg/h`}</p>
-                    <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[112px] not-italic text-[24px] text-white top-[16px] whitespace-nowrap">
-                      Baclofen
-                    </p>
-                    <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[903px] not-italic text-[24px] text-white top-[22px] whitespace-nowrap">
-                      {fmtTime(NOW_MIN)}
-                    </p>
-                    <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[911px] not-italic text-[#d9f2fa] text-[18px] top-[3px] whitespace-nowrap">
-                      Monday
-                    </p>
-                  </div>
-                  <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
-                    <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">Morphine</p>
-                    <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px] not-italic">{(morphineMgDay(currentDose) / 24).toFixed(3)} mg/h</p>
-                  </div>
-                  <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-[984px] whitespace-nowrap">
-                    <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">Bupivacaine</p>
-                    <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px] not-italic">{(bupivacaineMgDay(currentDose) / 24).toFixed(3)} mg/h</p>
-                  </div>
-                </div>
-              )}
-
-              {/* 4. Subtle delivery-stroke caption — hidden in base-only mode */}
-              {!useBaseOnly && (
-                <p className="font-['Inter',sans-serif] font-normal not-italic text-[#9ea8b2] text-[18px] whitespace-nowrap shrink-0">
-                  Delivery stroke · {currentStroke.min} min · {currentStroke.label} · {currentStroke.strokesPerDay} strokes/day
-                </p>
-              )}
-
-              {/* 5. Estimated daily total */}
-              <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0">
-                <div className="content-stretch flex gap-[14px] items-center leading-[normal] not-italic relative shrink-0 whitespace-nowrap">
-                  <p className="font-['Inter',sans-serif] font-semibold relative shrink-0 text-[#063b66] text-[28px]">
-                    Estimated daily total
-                  </p>
-                </div>
-                <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-[984px]">
-                  <div className="bg-[#0b7fa8] h-[56px] overflow-clip relative rounded-[8px] shrink-0 w-full">
-                    <div className="absolute content-stretch flex gap-[12px] items-center left-[16px] top-[16px]">
-                      <p className="font-['Inter',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[24px] text-white whitespace-nowrap">
-                        Baclofen
-                      </p>
-                      <div className="bg-white h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px] flex items-center justify-center"><p className=" font-['Inter',sans-serif] font-bold leading-[normal]  not-italic text-[#0b7fa8] text-[11px]  whitespace-nowrap">PRIMARY</p></div>
-                    </div>
-                    <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[460px] not-italic text-[22px] text-white top-[17px] whitespace-nowrap">
-                      {estDaily.toFixed(0)} µg/day
-                    </p>
-                  </div>
-                  <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-full whitespace-nowrap">
-                    <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
-                      Morphine
-                    </p>
-                    <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
-                      {estMorMgD.toFixed(2)} mg/day
-                    </p>
-                  </div>
-                  <div className="bg-[#d9ebf5] border border-[#d9dbde] border-solid h-[56px] leading-[normal] not-italic overflow-clip relative rounded-[8px] shrink-0 w-full whitespace-nowrap">
-                    <p className="absolute font-['Inter',sans-serif] font-semibold left-[23px] text-[#063b66] text-[24px] top-[13px]">
-                      Bupivacaine
-                    </p>
-                    <p className="absolute font-['Inter',sans-serif] font-medium left-[459px] text-[#667380] text-[22px] top-[15px]">
-                      {estBupMgD.toFixed(2)} mg/day
-                    </p>
-                  </div>
-                </div>
-              </div>
+              {/* DailyTotalsCard — the only summary; chart above tells the story */}
+              <DailyTotalsCard estDailyUg={useBaseOnly ? baseDose : estDaily} className="w-full" />
             </div>
           </div>
           <div className="bg-[#d9f0e0] col-1 h-[34.827px] ml-[802px] mt-[49.92px] overflow-clip relative rounded-[15px] row-1 w-[110px]">

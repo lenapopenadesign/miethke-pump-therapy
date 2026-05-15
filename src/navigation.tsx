@@ -7,6 +7,7 @@ export type ScreenId =
   | 'add-interval-when'
   | 'add-interval-dose'
   | 'intervals-populated'
+  | 'regular-therapy'
   | 'review'
   | 'activate'
   | 'home-active';

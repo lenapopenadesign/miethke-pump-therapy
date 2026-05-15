@@ -4,6 +4,7 @@ import { BaseDose } from './screens/BaseDose';
 import { IntervalsEmpty } from './screens/IntervalsEmpty';
 import { AddIntervalSheetWhen, AddIntervalSheetDose } from './screens/AddIntervalSheet';
 import { IntervalsPopulated } from './screens/IntervalsPopulated';
+import { RegularTherapy } from './screens/RegularTherapy';
 import { Review } from './screens/Review';
 import { Activate } from './screens/Activate';
 import { HomeActive } from './screens/HomeActive';
@@ -17,6 +18,7 @@ const ORDER: ScreenId[] = [
   'add-interval-when',
   'add-interval-dose',
   'intervals-populated',
+  'regular-therapy',
   'review',
   'activate',
   'home-active',
@@ -38,6 +40,7 @@ export function App() {
               {screen === 'add-interval-when' && <AddIntervalSheetWhen />}
               {screen === 'add-interval-dose' && <AddIntervalSheetDose />}
               {screen === 'intervals-populated' && <IntervalsPopulated />}
+              {screen === 'regular-therapy' && <RegularTherapy />}
               {screen === 'review' && <Review />}
               {screen === 'activate' && <Activate />}
               {screen === 'home-active' && <HomeActive />}

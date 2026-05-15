@@ -50,81 +50,84 @@ const DAY_PATTERNS: { key: DayPattern; label: string; x: number; w: number }[] =
 
 export function IntervalsEmpty() {
   const navigate = useNavigate();
-  const { startAddingInterval, dayPattern, setDayPattern, setUseBaseOnly } = useTherapy();
+  const { startAddingInterval, dayPattern, setDayPattern, setUseBaseOnly, baseDose } = useTherapy();
   const onAdd = () => { startAddingInterval('intervals-empty'); navigate('add-interval-when'); };
-  const onSkip = () => { setUseBaseOnly(true); navigate('review'); };
+  const onSkip = () => { setUseBaseOnly(true); navigate('regular-therapy'); };
+  const hourly = (baseDose / 24).toFixed(1);
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
-      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[44px] top-[270px] w-[1040px]">
-        Add intervals
+      <div className="absolute left-[80px] top-[270px] flex items-center gap-[16px]">
+        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          Intervals
+        </p>
+        <div className="bg-[#0094c5] h-[36px] px-[16px] rounded-[18px] flex items-center">
+          <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            optional
+          </p>
+        </div>
+      </div>
+      <p className="absolute font-['Roboto',sans-serif] font-normal leading-[32px] left-[80px] text-[#45483c] text-[22px] tracking-[0.1px] top-[340px] w-[1040px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+        Therapy will run at the base dose around the clock. Add intervals to vary the dose at specific times of day (e.g. higher during physiotherapy, lower at night).
       </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[340px] w-[1040px]">
-        Optional. Add windows where the dose differs from the base dose.
+
+      {/* 24-hour view heading */}
+      <p className="absolute font-['Roboto',sans-serif] font-bold leading-[normal] left-[80px] text-[#00769e] text-[24px] top-[440px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+        24-hour view
       </p>
-      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[430px] whitespace-nowrap">
-        Day pattern
-      </p>
-      <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[70px] left-[80px] rounded-[12px] top-[466px] w-[1040px]" />
+
+      {/* Chart — base-dose-only strip */}
+      <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[200px] left-[80px] rounded-[16px] top-[490px] w-[1040px]" />
+      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => (
+        <p key={t} className="absolute font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[16px] top-[504px] tracking-[0.1px] whitespace-nowrap"
+           style={{ left: [107, 332.5, 579, 824, 1045][i], fontVariationSettings: "'wdth' 100" }}>
+          {t}
+        </p>
+      ))}
+      <div className="absolute bg-[#8cc7e8] h-[50px] left-[110px] rounded-[4px] top-[610px] w-[980px] flex items-center px-[24px]">
+        <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          Base dose {baseDose} µg/d ≈ {hourly} µg/h
+        </p>
+      </div>
+
+      {/* Day pattern tabs — BELOW the chart */}
+      <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[70px] left-[80px] rounded-[12px] top-[750px] w-[1040px]" />
       {DAY_PATTERNS.map(p => {
         const active = dayPattern === p.key;
         return (
           <div
             key={p.key}
             onClick={() => setDayPattern(p.key)}
-            className={`absolute h-[62px] rounded-[10px] top-[470px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#0b7fa8]' : ''}`}
+            className={`absolute h-[62px] rounded-[10px] top-[754px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#0094c5]' : ''}`}
             style={{ left: p.x, width: p.w }}
           >
-            <p className={`font-['Inter',sans-serif] font-semibold not-italic text-[22px] whitespace-nowrap ${active ? 'text-white' : 'text-[#063b66]'}`}>
+            <p className={`font-['Roboto',sans-serif] font-bold text-[22px] tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#667380]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
               {p.label}
             </p>
           </div>
         );
       })}
-      <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[580px] w-[1040px]" />
-      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[610px] whitespace-nowrap">
-        24-hour view
-      </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[360px] not-italic text-[#667380] text-[20px] top-[612px] whitespace-nowrap">
-        Base dose only · 360 µg/day Baclofen
-      </p>
-      <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[200px] left-[80px] rounded-[16px] top-[650px] w-[1040px]" />
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[107px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
-        00:00
-      </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[332.5px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
-        06:00
-      </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[579px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
-        12:00
-      </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[824px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
-        18:00
-      </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[1045px] not-italic text-[#9ea8b2] text-[16px] top-[660px] whitespace-nowrap">
-        24:00
-      </p>
-      <div className="absolute bg-[rgba(11,127,168,0.47)] h-[50px] left-[110px] rounded-[4px] top-[770px] w-[980px]" />
-      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[140px] not-italic text-[16px] text-white top-[790px] whitespace-nowrap">
-        360 µg/day · base dose all day
-      </p>
-      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[455px] not-italic text-[#063b66] text-[30px] top-[960px] whitespace-nowrap">
+
+      {/* "No intervals added yet" centered in the empty space */}
+      <p className="absolute font-['Roboto',sans-serif] font-bold leading-[normal] left-0 right-0 text-center text-[#9ea8b2] text-[36px] top-[1240px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
         No intervals added yet
       </p>
-      <p className="-translate-x-1/2 absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[600px] not-italic text-[#667380] text-[22px] text-center top-[1004px] w-[1040px]">
-        Therapy will run at the base dose around the clock. Add intervals to vary the dose at specific times of day (e.g. higher during physiotherapy, lower at night).
-      </p>
-      <div onClick={onAdd} className="absolute bg-[#0b7fa8] h-[100px] left-[80px] overflow-clip rounded-[50px] top-[1155px] w-[1040px] cursor-pointer">
-        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[356.5px] not-italic text-[28px] text-white top-[33px] whitespace-pre">{`+  Add your first interval`}</p>
+
+      {/* "+ Add your first interval" — primary filled CTA */}
+      <div
+        onClick={onAdd}
+        className="absolute bg-[#0094c5] h-[100px] left-[80px] overflow-clip rounded-[50px] top-[1360px] w-[1040px] cursor-pointer flex items-center justify-center"
+      >
+        <p className="font-['Roboto',sans-serif] font-bold text-[28px] text-white tracking-[0.1px] whitespace-pre" style={{ fontVariationSettings: "'wdth' 100" }}>{`+  Add your first interval`}</p>
       </div>
-      <div onClick={onSkip} className="absolute bg-white border border-[#d9dbde] border-solid h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1275px] w-[1040px] cursor-pointer">
-        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[364.5px] not-italic text-[#667380] text-[24px] top-[29.5px] whitespace-nowrap">
-          Skip — use base dose only
-        </p>
-      </div>
-      <div className="absolute bg-[#c7c9cc] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1773px] w-[1040px]">
-        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[385.5px] not-italic text-[24px] text-white top-[30.5px] whitespace-nowrap">
-          Add or skip to continue
+
+      {/* "Skip - use base dose only" — outlined CTA at the bottom */}
+      <div
+        onClick={onSkip}
+        className="absolute bg-white border-2 border-[#0094c5] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1780px] w-[1040px] cursor-pointer flex items-center justify-center"
+      >
+        <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          Skip - use base dose only
         </p>
       </div>
       <div className="absolute content-stretch flex items-center left-0 top-[164px] w-[1200px]">

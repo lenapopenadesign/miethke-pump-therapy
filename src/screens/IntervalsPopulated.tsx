@@ -63,6 +63,7 @@ import {
   DAY_KEYS, WEEKDAY_KEYS, WEEKEND_KEYS,
   type DayPattern, type DayKey,
 } from '../therapy';
+import { DailyTotalsCard } from '../components/DailyTotalsCard';
 
 // Sub-tab chip shown below the day-pattern toggle. Drives which interval set is
 // displayed/edited.
@@ -90,11 +91,11 @@ const DAY_PATTERNS: { key: DayPattern; label: string; x: number; w: number }[] =
   { key: 'per-day',          label: 'Per day',            x: 777.33,  w: 338.667 },
 ];
 
-// Chart layout in 1200x1920 frame
-const CHART_LEFT = 110;
-const CHART_WIDTH = 980;
-const CHART_BOTTOM_Y = 970;
-const BAR_HEIGHT_SCALE = 0.38; // px per µg/day
+// Chart layout in 1200x1920 frame. Chart container = top 460, height 200.
+const CHART_LEFT = 92;
+const CHART_WIDTH = 1016;
+const CHART_BOTTOM_Y = 654;
+const BAR_HEIGHT_SCALE = 0.32; // px per µg/day — fits 720µg ≈ 180px in 188px budget
 
 function timeRangeLabel(startMin: number, endMin: number): string {
   const endDisplay = endMin >= 1440 ? '23:59' : fmtTime(Math.max(0, endMin - 1));
@@ -136,90 +137,36 @@ export function IntervalsPopulated() {
   const ordered = [...activeSet].sort((a, b) => a.startMin - b.startMin);
   const chartSlots = withBaseFillers(activeSet, baseDose);
   const estDaily = estimatedDailyTotal(baseDose, activeSet);
-  const estHourly = estDaily / 24;
   return (
     <div className="bg-white relative size-full">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
-      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[44px] top-[270px] w-[1040px]">
-        Add intervals
-      </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[80px] not-italic text-[#667380] text-[22px] top-[340px] w-[1040px]">
+      <div className="absolute left-[80px] top-[270px] flex items-center gap-[16px]">
+        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          Intervals
+        </p>
+        <div className="bg-[#0094c5] h-[36px] px-[16px] rounded-[18px] flex items-center">
+          <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            optional
+          </p>
+        </div>
+      </div>
+      <p className="absolute font-['Roboto',sans-serif] font-normal leading-[32px] left-[80px] text-[#45483c] text-[22px] tracking-[0.1px] top-[340px] w-[1040px]" style={{ fontVariationSettings: "'wdth' 100" }}>
         Tap a bar to edit, or + to add a new interval to this day group.
       </p>
-      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[430px] whitespace-nowrap">
-        Day pattern
-      </p>
-      <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[70px] left-[80px] rounded-[12px] top-[466px] w-[1040px]" />
-      {DAY_PATTERNS.map(p => {
-        const active = dayPattern === p.key;
-        return (
-          <div
-            key={p.key}
-            onClick={() => setDayPattern(p.key)}
-            className={`absolute h-[62px] rounded-[10px] top-[470px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#0b7fa8]' : ''}`}
-            style={{ left: p.x, width: p.w }}
-          >
-            <p className={`font-['Inter',sans-serif] font-semibold not-italic text-[22px] whitespace-nowrap ${active ? 'text-white' : 'text-[#063b66]'}`}>
-              {p.label}
-            </p>
-          </div>
-        );
-      })}
-
-      {/* Sub-tab chips: hidden on 'same'; 2 chips on 'weekday-weekend'; 7 chips on 'per-day' */}
-      {dayPattern !== 'same' && (() => {
-        const chipDefs = dayPattern === 'per-day' ? PER_DAY_CHIPS : WEEKDAY_WEEKEND_CHIPS;
-        const gap = 8;
-        const totalGap = (chipDefs.length - 1) * gap;
-        const chipWidth = (1040 - totalGap) / chipDefs.length;
-        const isPerDay = dayPattern === 'per-day';
-        return chipDefs.map((chip, i) => {
-          const active = effectiveChip === chip.key;
-          const left = 80 + i * (chipWidth + gap);
-          return (
-            <div
-              key={chip.key}
-              onClick={() => setActiveChip(chip.key)}
-              className={`absolute h-[60px] overflow-clip rounded-[12px] top-[570px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#ddf1f6] border-2 border-[#0b7fa8] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
-              style={{ left, width: chipWidth }}
-            >
-              <p className={`font-['Inter',sans-serif] not-italic whitespace-pre ${active ? 'font-bold text-[#063b66]' : 'font-normal text-[#667380]'} ${isPerDay ? 'text-[24px]' : 'text-[22px]'}`}>
-                {chip.label}
-              </p>
-            </div>
-          );
-        });
-      })()}
-
-      <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[670px] w-[1040px]" />
-      <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[700px] whitespace-nowrap">
+      {/* "24-hour view" heading */}
+      <p className="absolute font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] left-[80px] top-[430px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
         24-hour view
       </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[360px] not-italic text-[#667380] text-[20px] top-[702px] whitespace-nowrap">
-        Base dose · {baseDose} µg/day
-      </p>
 
-      {/* Chart container */}
-      <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[260px] left-[80px] rounded-[16px] top-[740px] w-[1040px]" />
+      {/* Chart container — top 460, height 200 */}
+      <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[200px] left-[80px] rounded-[16px] top-[460px] w-[1040px]" />
       {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => (
-        <p key={t} className="absolute font-['Inter',sans-serif] font-normal leading-[normal] not-italic text-[#9ea8b2] text-[16px] top-[750px] whitespace-nowrap"
-           style={{ left: [87.5, 332.5, 579, 824, 1067.5][i] }}>
+        <p key={t} className="absolute font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[16px] top-[474px] tracking-[0.1px] whitespace-nowrap"
+           style={{ left: [95, 332.5, 579, 824, 1056][i], fontVariationSettings: "'wdth' 100" }}>
           {t}
         </p>
       ))}
-      {/* Base-dose reference line */}
-      <div
-        className="absolute bg-[#9ea8b2] h-[2px] rounded-[4px]"
-        style={{ left: CHART_LEFT, top: CHART_BOTTOM_Y - baseDose * BAR_HEIGHT_SCALE, width: CHART_WIDTH }}
-      />
-      <p
-        className="absolute font-['Inter',sans-serif] font-medium leading-[normal] not-italic text-[#667380] text-[14px] whitespace-nowrap"
-        style={{ left: CHART_LEFT, top: CHART_BOTTOM_Y - baseDose * BAR_HEIGHT_SCALE + 6 }}
-      >
-        Base · {baseDose} µg/d
-      </p>
-
-      {/* Interval bars + base-dose fillers for any uncovered time */}
+      {/* Interval bars + base-dose fillers — bars sit on the chart floor at CHART_BOTTOM_Y */}
       {chartSlots.map((slot) => {
         const left = CHART_LEFT + (slot.startMin / 1440) * CHART_WIDTH;
         const width = ((slot.endMin - slot.startMin) / 1440) * CHART_WIDTH;
@@ -233,58 +180,100 @@ export function IntervalsPopulated() {
             style={{
               left, top, width, height,
               background: doseColor(slot.dose, baseDose),
-              opacity: slot.isBase ? 0.55 : 1,
+              opacity: slot.isBase ? 0.7 : 1,
             }}
             title={slot.isBase ? 'Base dose' : undefined}
           >
-            <p className="font-['Inter',sans-serif] font-bold text-[14px] text-white pt-[6px]">
-              {(slot.dose / 24).toFixed(1)}
+            {width > 80 && (
+              <p className="font-['Roboto',sans-serif] font-bold text-[13px] text-white pt-[6px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                {slot.isBase ? `Base dose ${(slot.dose / 24).toFixed(1)} µg/h` : `${(slot.dose / 24).toFixed(1)} µg/h`}
+              </p>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Day pattern tabs — BELOW the chart */}
+      <div className="absolute bg-[#f7fafc] border border-[#d9dbde] border-solid h-[70px] left-[80px] rounded-[12px] top-[700px] w-[1040px]" />
+      {DAY_PATTERNS.map(p => {
+        const active = dayPattern === p.key;
+        return (
+          <div
+            key={p.key}
+            onClick={() => setDayPattern(p.key)}
+            className={`absolute h-[62px] rounded-[10px] top-[704px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#0094c5]' : ''}`}
+            style={{ left: p.x, width: p.w }}
+          >
+            <p className={`font-['Roboto',sans-serif] font-bold text-[22px] tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#667380]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+              {p.label}
             </p>
           </div>
         );
       })}
 
-      {/* Estimated 24h total */}
-      <div className="absolute bg-[#d9ebf5] border-2 border-[#0b7fa8] border-solid h-[70px] left-[80px] rounded-[12px] top-[1015px] w-[1040px] flex items-center justify-between" style={{ paddingLeft: 24, paddingRight: 24 }}>
-        <p className="font-['Inter',sans-serif] font-bold not-italic text-[#063b66] text-[28px] whitespace-nowrap">
-          Estimated 24h total
-        </p>
-        <div className="flex items-baseline gap-[18px] whitespace-nowrap">
-          <p className="font-['Inter',sans-serif] font-bold not-italic text-[#063b66] text-[28px]">
-            {estDaily.toFixed(0)} µg/day
-          </p>
-          <p className="font-['Inter',sans-serif] font-normal not-italic text-[#667380] text-[22px]">
-            ≈ {estHourly.toFixed(1)} µg/h
-          </p>
-        </div>
-      </div>
+      {/* Sub-tab chips — visible when weekday/weekend or per-day */}
+      {dayPattern !== 'same' && (() => {
+        const chipDefs = dayPattern === 'per-day' ? PER_DAY_CHIPS : WEEKDAY_WEEKEND_CHIPS;
+        const gap = 8;
+        const totalGap = (chipDefs.length - 1) * gap;
+        const chipWidth = (1040 - totalGap) / chipDefs.length;
+        const isPerDay = dayPattern === 'per-day';
+        return chipDefs.map((chip, i) => {
+          const active = effectiveChip === chip.key;
+          const left = 80 + i * (chipWidth + gap);
+          return (
+            <div
+              key={chip.key}
+              onClick={() => setActiveChip(chip.key)}
+              className={`absolute h-[60px] overflow-clip rounded-[12px] top-[790px] cursor-pointer flex items-center justify-center select-none ${active ? 'bg-[#ddf1f6] border-2 border-[#0094c5] border-solid' : 'bg-white border border-[#d9dbde] border-solid'}`}
+              style={{ left, width: chipWidth }}
+            >
+              <p className={`font-['Roboto',sans-serif] tracking-[0.1px] whitespace-pre ${active ? 'font-bold text-[#00769e]' : 'font-normal text-[#667380]'} ${isPerDay ? 'text-[22px]' : 'text-[22px]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+                {chip.label}
+              </p>
+            </div>
+          );
+        });
+      })()}
 
-      <div onClick={onAdd} className="absolute bg-[#ddf1f6] h-[60px] left-[80px] overflow-clip rounded-[12px] top-[1601px] w-[1040px] cursor-pointer flex items-center justify-center">
-        <p className="font-['Inter',sans-serif] font-semibold not-italic text-[#0b7fa8] text-[22px] whitespace-pre">{`+  Add interval to ${addLabel}`}</p>
-      </div>
+      {/* Interval list — starts after tabs (and sub-tabs if shown) */}
+      {(() => {
+        const rowsStart = dayPattern === 'same' ? 800 : 880;
+        return (
+          <>
+            {ordered.map((iv, i) => (
+              <div
+                key={iv.id}
+                onClick={() => onEdit(iv.id)}
+                className="absolute bg-white border border-[#d9dbde] border-solid h-[72px] left-[80px] overflow-clip rounded-[12px] w-[1040px] cursor-pointer"
+                style={{ top: rowsStart + i * 78 }}
+              >
+                <div className="absolute h-[44px] left-[15px] rounded-[4px] top-[14px] w-[8px]" style={{ background: doseColor(iv.dose, baseDose) }} />
+                <p className="absolute font-['Roboto',sans-serif] font-bold left-[39px] text-[#00769e] text-[22px] top-[10px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{iv.label}</p>
+                <p className="absolute font-['Roboto',sans-serif] font-normal left-[39px] text-[#667380] text-[18px] top-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{timeRangeLabel(iv.startMin, iv.endMin)}</p>
+                <p className="absolute font-['Roboto',sans-serif] font-bold left-[760px] text-[#00769e] text-[24px] top-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{(iv.dose / 24).toFixed(0)} µg/h</p>
+                <EditIcon className="absolute left-[972px] overflow-clip size-[40px] top-[17px]" />
+              </div>
+            ))}
 
-      <div className="absolute bg-[#d9dbde] h-px left-[80px] top-[1100px] w-[1040px]" />
-      <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[80px] not-italic text-[#063b66] text-[22px] top-[1120px] whitespace-nowrap">
-        Intervals ({ordered.length})
-      </p>
-      <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[220px] not-italic text-[#9ea8b2] text-[18px] top-[1125px] whitespace-nowrap">
-        Tap to edit
-      </p>
+            {/* +Add interval — outlined CTA */}
+            <div
+              onClick={onAdd}
+              className="absolute bg-white border-2 border-[#0094c5] h-[80px] left-[80px] overflow-clip rounded-[40px] w-[1040px] cursor-pointer flex items-center justify-center"
+              style={{ top: rowsStart + ordered.length * 78 + 16 }}
+            >
+              <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[24px] tracking-[0.1px] whitespace-pre" style={{ fontVariationSettings: "'wdth' 100" }}>{`+  Add interval to ${addLabel}`}</p>
+            </div>
 
-      {ordered.map((iv, i) => (
-        <div
-          key={iv.id}
-          onClick={() => onEdit(iv.id)}
-          className="absolute bg-white border border-[#d9dbde] border-solid h-[80px] left-[80px] overflow-clip rounded-[12px] w-[1040px] cursor-pointer"
-          style={{ top: 1170 + i * 84 }}
-        >
-          <div className="absolute h-[48px] left-[15px] rounded-[4px] top-[15px] w-[8px]" style={{ background: doseColor(iv.dose, baseDose) }} />
-          <p className="absolute font-['Inter',sans-serif] font-bold leading-[normal] left-[39px] not-italic text-[#063b66] text-[22px] top-[11px] whitespace-nowrap">{iv.label}</p>
-          <p className="absolute font-['Inter',sans-serif] font-normal leading-[normal] left-[39px] not-italic text-[#667380] text-[18px] top-[43px] whitespace-nowrap">{timeRangeLabel(iv.startMin, iv.endMin)}</p>
-          <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[799px] not-italic text-[#063b66] text-[22px] top-[24px] whitespace-nowrap">{(iv.dose / 24).toFixed(1)} µg/h</p>
-          <EditIcon className="absolute left-[972px] overflow-clip size-[40px] top-[19px]" />
-        </div>
-      ))}
+            {/* DailyTotalsCard — sits below +Add */}
+            <DailyTotalsCard
+              estDailyUg={estDaily}
+              className="absolute left-[80px] w-[1040px]"
+              style={{ top: rowsStart + ordered.length * 78 + 16 + 80 + 32 }}
+            />
+          </>
+        );
+      })()}
 
       {/* Stepper */}
       <div className="absolute content-stretch flex items-center left-0 top-[164px] w-[1200px]">
@@ -408,10 +397,13 @@ export function IntervalsPopulated() {
         </div>
       </div>
 
-      {/* Continue */}
-      <div onClick={() => navigate('review')} className="absolute bg-[#0b7fa8] h-[90px] left-[80px] overflow-clip rounded-[45px] top-[1778px] w-[1040px] cursor-pointer">
-        <p className="absolute font-['Inter',sans-serif] font-semibold leading-[normal] left-[458px] not-italic text-[28px] text-white top-[28px] whitespace-nowrap">
-          Continue
+      {/* Continue — pinned near the bottom */}
+      <div
+        onClick={() => navigate('review')}
+        className="absolute bg-[#0094c5] h-[88px] left-[80px] overflow-clip rounded-[80px] top-[1780px] w-[1040px] cursor-pointer flex items-center justify-center"
+      >
+        <p className="font-['Roboto',sans-serif] font-bold text-[24px] text-white tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+          Continue to review
         </p>
       </div>
 

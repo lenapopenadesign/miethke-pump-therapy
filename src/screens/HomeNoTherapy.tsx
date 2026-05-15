@@ -289,10 +289,9 @@ export function HomeNoTherapy() {
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
             <div className="content-stretch flex gap-[25px] items-start relative shrink-0">
               <div className="bg-white content-stretch flex gap-[24px] items-center overflow-clip px-[23px] py-[10px] relative rounded-[8px] shrink-0">
-                <p className="font-['Inter',sans-serif] font-bold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px] whitespace-nowrap">
+                <p className="font-['Inter',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[#063b66] text-[20px] whitespace-nowrap">
                   Baclofen
                 </p>
-                <div className="bg-[#0b7fa8] h-[22px] overflow-clip relative rounded-[11px] shrink-0 w-[72px] flex items-center justify-center"><p className=" font-['Inter',sans-serif] font-bold leading-[normal]  not-italic text-[11px] text-white  whitespace-nowrap">PRIMARY</p></div>
                 <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#667380] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                   1 mg/ml
                 </p>
