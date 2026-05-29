@@ -17,6 +17,27 @@ body {
   overflow-y: auto;
 }
 
+/* Device mode: viewport < 1300px (tablets, phones). Body fills the screen, no padding. */
+@media (max-width: 1299px) {
+  body {
+    padding: 0;
+    overflow: hidden;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+}
+
+.device-mode-shell {
+  background: white;
+  overflow: hidden;
+  position: relative;
+}
+
+.device-mode-inner {
+  transform-origin: top left;
+  position: relative;
+}
+
 /* Device frame: viewport is 1200x1920 (tablet portrait), shown at 0.4 scale */
 .device-shell {
   width: 480px;

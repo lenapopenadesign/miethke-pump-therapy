@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react';
 
 export type ScreenId =
   | 'home-no-therapy'
+  | 'add-medication'
   | 'base-dose'
   | 'intervals-empty'
   | 'add-interval-when'

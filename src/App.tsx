@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HomeNoTherapy } from './screens/HomeNoTherapy';
+import { AddMedication } from './screens/AddMedication';
 import { BaseDose } from './screens/BaseDose';
 import { IntervalsEmpty } from './screens/IntervalsEmpty';
 import { AddIntervalSheetWhen, AddIntervalSheetDose } from './screens/AddIntervalSheet';
@@ -13,6 +14,7 @@ import { TherapyProvider } from './therapy';
 
 const ORDER: ScreenId[] = [
   'home-no-therapy',
+  'add-medication',
   'base-dose',
   'intervals-empty',
   'add-interval-when',
@@ -24,8 +26,75 @@ const ORDER: ScreenId[] = [
   'home-active',
 ];
 
+// Design canvas dimensions — every screen is authored against this exact size.
+const DESIGN_W = 1200;
+const DESIGN_H = 1920;
+// At/above this viewport width, we render the desktop preview (scaled device frame + debug panel).
+// Below it, we switch to "device mode": the design fills the viewport, scaled to fit.
+const DEVICE_BREAKPOINT = 1300;
+
+function useDeviceLayout() {
+  const get = () => {
+    if (typeof window === 'undefined') {
+      return { isDevice: false, scale: 1, w: DESIGN_W, h: DESIGN_H };
+    }
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const isDevice = vw < DEVICE_BREAKPOINT;
+    if (!isDevice) return { isDevice, scale: 1, w: vw, h: vh };
+    const scale = Math.min(vw / DESIGN_W, vh / DESIGN_H);
+    return { isDevice, scale, w: vw, h: vh };
+  };
+  const [layout, setLayout] = useState(get);
+  useEffect(() => {
+    const onResize = () => setLayout(get());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return layout;
+}
+
 export function App() {
   const [screen, setScreen] = useState<ScreenId>('home-no-therapy');
+  const { isDevice, scale, w, h } = useDeviceLayout();
+
+  const screens = (
+    <>
+      {screen === 'home-no-therapy' && <HomeNoTherapy />}
+      {screen === 'add-medication' && <AddMedication />}
+      {screen === 'base-dose' && <BaseDose />}
+      {screen === 'intervals-empty' && <IntervalsEmpty />}
+      {screen === 'add-interval-when' && <AddIntervalSheetWhen />}
+      {screen === 'add-interval-dose' && <AddIntervalSheetDose />}
+      {screen === 'intervals-populated' && <IntervalsPopulated />}
+      {screen === 'regular-therapy' && <RegularTherapy />}
+      {screen === 'review' && <Review />}
+      {screen === 'activate' && <Activate />}
+      {screen === 'home-active' && <HomeActive />}
+    </>
+  );
+
+  if (isDevice) {
+    const scaledW = DESIGN_W * scale;
+    const scaledH = DESIGN_H * scale;
+    return (
+      <TherapyProvider>
+        <NavProvider value={setScreen}>
+          <div
+            className="device-mode-shell"
+            style={{ width: scaledW, height: scaledH, marginLeft: (w - scaledW) / 2, marginTop: (h - scaledH) / 2 }}
+          >
+            <div
+              className="device-mode-inner"
+              style={{ width: DESIGN_W, height: DESIGN_H, transform: `scale(${scale})` }}
+            >
+              <div className="screen">{screens}</div>
+            </div>
+          </div>
+        </NavProvider>
+      </TherapyProvider>
+    );
+  }
 
   return (
     <TherapyProvider>
@@ -33,18 +102,7 @@ export function App() {
         <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
         <div className="device-shell">
           <div className="device-inner">
-            <div className="screen">
-              {screen === 'home-no-therapy' && <HomeNoTherapy />}
-              {screen === 'base-dose' && <BaseDose />}
-              {screen === 'intervals-empty' && <IntervalsEmpty />}
-              {screen === 'add-interval-when' && <AddIntervalSheetWhen />}
-              {screen === 'add-interval-dose' && <AddIntervalSheetDose />}
-              {screen === 'intervals-populated' && <IntervalsPopulated />}
-              {screen === 'regular-therapy' && <RegularTherapy />}
-              {screen === 'review' && <Review />}
-              {screen === 'activate' && <Activate />}
-              {screen === 'home-active' && <HomeActive />}
-            </div>
+            <div className="screen">{screens}</div>
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontFamily: 'system-ui', fontSize: 13 }}>

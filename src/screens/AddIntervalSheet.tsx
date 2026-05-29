@@ -1,12 +1,35 @@
 import { useNavigate } from '../navigation';
 import {
-  useTherapy, fmtTime, parseTime, hourlyUg, morphineMgDay, bupivacaineMgDay,
+  useTherapy, fmtTime, hourlyUg, morphineMgDay, bupivacaineMgDay,
   doseColor,
   type Interval,
 } from '../therapy';
 import type { ReactNode } from 'react';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
+
+/* Plain 24-hour HH:MM field (no native clock icon / AM-PM). */
+function TimeField({ value, onChange }: { value: number; onChange: (min: number) => void }) {
+  return (
+    <div className="bg-white border border-[#d9dbde] rounded-[12px] h-[80px] flex items-center px-[20px]">
+      <input
+        type="text"
+        inputMode="numeric"
+        value={fmtTime(value)}
+        onChange={e => {
+          const m = e.target.value.match(/^(\d{1,2}):(\d{2})$/);
+          if (m) {
+            const h = Math.min(23, parseInt(m[1], 10));
+            const min = Math.min(59, parseInt(m[2], 10));
+            onChange(h * 60 + min);
+          }
+        }}
+        className="flex-1 font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] tracking-[0.1px] bg-transparent outline-none border-0 p-0"
+        style={{ fontVariationSettings: "'wdth' 100" }}
+      />
+    </div>
+  );
+}
 
 /* ------------------------------------------------------------- */
 /* Shared sheet chrome — dark backdrop + white rounded-top sheet */
@@ -232,30 +255,14 @@ export function AddIntervalSheetWhen() {
           <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             Start
           </p>
-          <div className="bg-white border border-[#d9dbde] rounded-[12px] h-[80px] flex items-center px-[20px]">
-            <input
-              type="time"
-              value={fmtTime(draft.startMin)}
-              onChange={e => setDraft({ ...draft, startMin: parseTime(e.target.value) })}
-              className="flex-1 font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] tracking-[0.1px] bg-transparent outline-none border-0 p-0"
-              style={{ fontVariationSettings: "'wdth' 100" }}
-            />
-          </div>
+          <TimeField value={draft.startMin} onChange={min => setDraft({ ...draft, startMin: min })} />
         </div>
         <p className="font-['Roboto',sans-serif] font-bold text-[#667380] text-[32px] pb-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>→</p>
         <div className="flex-1 flex flex-col gap-[8px]">
           <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             End
           </p>
-          <div className="bg-white border border-[#d9dbde] rounded-[12px] h-[80px] flex items-center px-[20px]">
-            <input
-              type="time"
-              value={fmtTime(draft.endMin)}
-              onChange={e => setDraft({ ...draft, endMin: parseTime(e.target.value) })}
-              className="flex-1 font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] tracking-[0.1px] bg-transparent outline-none border-0 p-0"
-              style={{ fontVariationSettings: "'wdth' 100" }}
-            />
-          </div>
+          <TimeField value={draft.endMin} onChange={min => setDraft({ ...draft, endMin: min })} />
         </div>
       </div>
 
@@ -285,9 +292,11 @@ export function AddIntervalSheetWhen() {
 
 export function AddIntervalSheetDose() {
   const navigate = useNavigate();
-  const { baseDose, draft, setDraft, intervals, editingId, commitDraft, removeInterval, sheetReturnTo } = useTherapy();
+  const { baseDose, draft, setDraft, intervals, editingId, commitDraft, removeInterval, sheetReturnTo, medications } = useTherapy();
+  const conc = (i: number) => (medications[i] ? `${medications[i].concentration} ${medications[i].unit}` : '');
   // Interval dose stored as µg/day; UI works in µg/h. Step = 1 µg/h ≈ 24 µg/day.
   const hourly = hourlyUg(draft.dose);
+  const pctDelta = baseDose > 0 ? Math.round(((draft.dose - baseDose) / baseDose) * 100) : 0;
   const stepDown = () => setDraft({ ...draft, dose: Math.max(0, draft.dose - 24) });
   const stepUp = () => setDraft({ ...draft, dose: Math.min(2000, draft.dose + 24) });
   const morMgD = morphineMgDay(draft.dose);
@@ -332,7 +341,7 @@ export function AddIntervalSheetDose() {
         className="absolute bg-white border border-[#d9dbde] rounded-[12px] h-[80px] left-[80px] right-[80px] top-[280px] flex items-center px-[24px] gap-[24px] cursor-pointer"
       >
         <div className="w-[8px] h-[48px] rounded-[4px]" style={{ background: doseColor(draft.dose || baseDose, baseDose) }} />
-        <div className="flex-1 flex flex-col gap-[2px] min-w-px">
+        <div className="flex flex-col gap-[2px] w-[240px] shrink-0">
           <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             {draft.label || '(no label)'}
           </p>
@@ -340,15 +349,28 @@ export function AddIntervalSheetDose() {
             {fmtTime(draft.startMin)} – {endDisplay}
           </p>
         </div>
+        <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[22px] tracking-[0.1px] w-[120px] shrink-0" style={{ fontVariationSettings: "'wdth' 100" }}>
+          {pctDelta >= 0 ? '+' : '−'} {Math.abs(pctDelta)} %
+        </p>
+        <p className="flex-1 font-['Roboto',sans-serif] text-[#00769e] text-[24px] tracking-[0.1px] min-w-px" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <span className="font-bold">{hourly.toFixed(0)}</span> µg/h
+        </p>
         <img alt="" src={imgEditPencil} className="size-[32px] shrink-0 block" />
       </div>
 
+      {/* Column headers */}
+      <div className="absolute left-[80px] right-[80px] top-[392px] flex items-center gap-[24px]">
+        <div className="w-[260px]" />
+        <p className="w-[316px] pl-[76px] font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/h</p>
+        <p className="flex-1 text-right font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/interval</p>
+      </div>
+
       {/* Baclofen ± row */}
-      <div className="absolute left-[80px] right-[80px] top-[400px] flex items-center gap-[24px]">
+      <div className="absolute left-[80px] right-[80px] top-[440px] flex items-center gap-[24px]">
         <div className="w-[260px]">
           <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-            <span className="font-bold text-[#00769e] text-[26px]">Baclofen</span>
-            <span className="text-[#9ea8b2] text-[20px]"> 1 mg/ml</span>
+            <span className="font-bold text-[#00769e] text-[26px]">{medications[0]?.name || 'Baclofen'}</span>
+            <span className="text-[#9ea8b2] text-[20px]"> {conc(0)}</span>
           </p>
         </div>
         <div className="flex items-center gap-[16px]">
@@ -375,8 +397,7 @@ export function AddIntervalSheetDose() {
             <p className="font-['Roboto',sans-serif] font-extrabold text-[#0094c5] text-[40px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>+</p>
           </div>
         </div>
-        <div className="flex-1 flex flex-col items-end">
-          <p className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[16px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/interval</p>
+        <div className="flex-1 flex flex-col items-end justify-center">
           <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             ≈ {ugInterval.toFixed(0)} µg
           </p>
@@ -384,9 +405,9 @@ export function AddIntervalSheetDose() {
       </div>
 
       {/* Morphine derived row */}
-      <DerivedRow label="Morphine" concentration="10 mg/ml" hourlyVal={morMgD / 24} unit="mg/h" intervalVal={morMgInterval} intervalUnit="mg" top={500} />
+      <DerivedRow label={medications[1]?.name || 'Morphine'} concentration={conc(1)} hourlyVal={morMgD / 24} unit="mg/h" intervalVal={morMgInterval} intervalUnit="mg" top={540} />
       {/* Bupivacaine derived row */}
-      <DerivedRow label="Bupivacaine" concentration="5 mg/ml" hourlyVal={bupMgD / 24} unit="mg/h" intervalVal={bupMgInterval} intervalUnit="mg" top={580} />
+      <DerivedRow label={medications[2]?.name || 'Bupivacaine'} concentration={conc(2)} hourlyVal={bupMgD / 24} unit="mg/h" intervalVal={bupMgInterval} intervalUnit="mg" top={620} />
 
       <SheetFooter
         showDelete={!!editingId}
@@ -429,8 +450,7 @@ function DerivedRow({
         </div>
         <div className="size-[60px]" />
       </div>
-      <div className="flex-1 flex flex-col items-end">
-        <p className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[16px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/interval</p>
+      <div className="flex-1 flex flex-col items-end justify-center">
         <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           ≈ {intervalVal.toFixed(3)} {intervalUnit}
         </p>

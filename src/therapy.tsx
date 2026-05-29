@@ -11,16 +11,53 @@ export type Interval = {
 
 export type Draft = Omit<Interval, 'id'>;
 
-export type StrokeStrategy = 30 | 60 | 120 | 240 | 480;
+// A "stroke strategy" is a bundle multiplier: how many 10µl strokes are grouped
+// into a single delivery. bundle=1 is the most continuous (minimum interval);
+// larger bundles mean fewer, larger deliveries spaced further apart.
+export type StrokeStrategy = 1 | 2 | 4 | 8 | 16;
 export type DayPattern = 'same' | 'weekday-weekend' | 'per-day';
 
-export const STROKE_OPTIONS: { min: StrokeStrategy; strokesPerDay: number; label: string }[] = [
-  { min: 30,  strokesPerDay: 24, label: 'Most continuous' },
-  { min: 60,  strokesPerDay: 12, label: 'Continuous' },
-  { min: 120, strokesPerDay: 6,  label: 'Balanced' },
-  { min: 240, strokesPerDay: 3,  label: 'Spaced' },
-  { min: 480, strokesPerDay: 2,  label: 'Most spaced' },
+export const STROKE_OPTIONS: { bundle: StrokeStrategy; label: string }[] = [
+  { bundle: 1,  label: 'Most continuous' },
+  { bundle: 2,  label: 'Continuous' },
+  { bundle: 4,  label: 'Balanced' },
+  { bundle: 8,  label: 'Spaced' },
+  { bundle: 16, label: 'Most spaced' },
 ];
+
+// Pump physics: each stroke delivers a fixed micro-volume, and the hardware can
+// push at most a fixed number of times per minute.
+export const STROKE_VOLUME_UL = 10;
+export const MAX_PUSHES_PER_MIN = 15; // → minimum interval 1/15 min = 4 s
+
+export type DeliveryPlan = {
+  ugPerStroke: number;
+  strokesPerDay: number;
+  intervalMin: number;     // minutes between deliveries
+  dosePerDelivery: number; // µg per delivery (bundle × per-stroke)
+  deliveriesPerDay: number;
+};
+
+/**
+ * Compute the medication delivery schedule for a given base dose and (primary)
+ * medication concentration. Concentration in mg/ml equals µg/µl numerically.
+ * `bundle` groups that many strokes into one delivery (default 1 = most
+ * continuous = minimum possible interval). The interval is clamped so we never
+ * exceed MAX_PUSHES_PER_MIN.
+ */
+export function deliveryPlan(baseDoseUgDay: number, concMgPerMl: number, bundle = 1): DeliveryPlan {
+  const ugPerStroke = STROKE_VOLUME_UL * concMgPerMl;            // 10 µg @ conc 1 mg/ml
+  const strokesPerDay = ugPerStroke > 0 ? baseDoseUgDay / ugPerStroke : 0; // 360/10 = 36
+  const baseInterval = strokesPerDay > 0 ? 1440 / strokesPerDay : Infinity; // 40 min
+  const intervalMin = Math.max(baseInterval * bundle, 1 / MAX_PUSHES_PER_MIN);
+  return {
+    ugPerStroke,
+    strokesPerDay,
+    intervalMin,
+    dosePerDelivery: ugPerStroke * bundle,
+    deliveriesPerDay: bundle > 0 ? strokesPerDay / bundle : 0,
+  };
+}
 
 export type DayGroup = 'weekdays' | 'weekend';
 
@@ -31,7 +68,20 @@ export const WEEKEND_KEYS: DayKey[] = ['saturday', 'sunday'];
 
 export type IntervalsByDay = Record<DayKey, Interval[]>;
 
+export type Medication = {
+  id: string;
+  name: string;
+  concentration: number; // mg/ml (== µg/µl numerically)
+  unit: string;
+};
+
 type TherapyState = {
+  // Editable medication list. medications[0] is the primary drug (Baclofen) and
+  // drives the base dose + delivery-interval calculation.
+  medications: Medication[];
+  addMedication: () => void;
+  updateMedication: (id: string, patch: Partial<Omit<Medication, 'id'>>) => void;
+  removeMedication: (id: string) => void;
   baseDose: number;
   setBaseDose: (n: number) => void;
   // 7 independent per-day interval arrays. Edits propagate to the days listed
@@ -104,13 +154,27 @@ const SEED_BY_DAY: IntervalsByDay = {
   sunday:    SEED_WEEKEND_INTERVALS.map(iv => ({ ...iv })),
 };
 
+const SEED_MEDICATIONS: Medication[] = [
+  { id: 'med-baclofen',    name: 'Baclofen',    concentration: 1,  unit: 'mg/ml' },
+  { id: 'med-morphine',    name: 'Morphine',    concentration: 10, unit: 'mg/ml' },
+  { id: 'med-bupivacaine', name: 'Bupivacaine', concentration: 5,  unit: 'mg/ml' },
+];
+
 export function TherapyProvider({ children }: { children: ReactNode }) {
+  const [medications, setMedications] = useState<Medication[]>(SEED_MEDICATIONS);
   const [baseDose, setBaseDoseRaw] = useState(360);
   const [intervalsByDay, setIntervalsByDay] = useState<IntervalsByDay>(SEED_BY_DAY);
   const [editingScope, setEditingScope] = useState<DayKey[]>([...WEEKDAY_KEYS]);
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(30);
+  const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(1);
+
+  const addMedication = () =>
+    setMedications(prev => [...prev, { id: uid(), name: '', concentration: 0, unit: 'mg/ml' }]);
+  const updateMedication = (id: string, patch: Partial<Omit<Medication, 'id'>>) =>
+    setMedications(prev => prev.map(m => (m.id === id ? { ...m, ...patch } : m)));
+  const removeMedication = (id: string) =>
+    setMedications(prev => prev.filter(m => m.id !== id));
   const [dayPattern, setDayPattern] = useState<DayPattern>('same');
   const [sheetReturnTo, setSheetReturnTo] = useState<ScreenId>('intervals-populated');
   const [previewIntervalId, setPreviewIntervalId] = useState<string | null>(null);
@@ -190,6 +254,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
 
   return (
     <TherapyContext.Provider value={{
+      medications, addMedication, updateMedication, removeMedication,
       baseDose, setBaseDose,
       intervalsByDay,
       intervals, weekendIntervals,
@@ -225,6 +290,13 @@ export function doseColor(dose: number, base: number): string {
   if (r < 0.9) return '#4da6d6';   // medium-light
   if (r < 1.3) return '#0b7fa8';   // normal teal
   return '#055273';                // dark navy
+}
+
+/** Human-readable delivery interval, e.g. "40 minutes", "1.6 minutes", "4 seconds". */
+export function fmtInterval(min: number): string {
+  if (min < 1) return `${Math.round(min * 60)} seconds`;
+  const rounded = min >= 10 ? Math.round(min) : Math.round(min * 10) / 10;
+  return `${rounded} minutes`;
 }
 
 export function fmtTime(min: number): string {
