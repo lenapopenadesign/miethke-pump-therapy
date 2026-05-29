@@ -273,8 +273,6 @@ export function AddIntervalSheetDose() {
   // Interval dose stored as µg/day; UI works in µg/h. Step = 1 µg/h ≈ 24 µg/day.
   const hourly = hourlyUg(draft.dose);
   const pctDelta = baseDose > 0 ? Math.round(((draft.dose - baseDose) / baseDose) * 100) : 0;
-  const stepDown = () => setDraft({ ...draft, dose: Math.max(0, draft.dose - 24) });
-  const stepUp = () => setDraft({ ...draft, dose: Math.min(2000, draft.dose + 24) });
   const primaryConc = medications[0]?.concentration ?? 1;
   const coMeds = medications.slice(1);
   const lengthFraction = Math.max(0, draft.endMin - draft.startMin) / 1440;
@@ -324,7 +322,7 @@ export function AddIntervalSheetDose() {
       {/* Column headers */}
       <div className="absolute left-[80px] right-[80px] top-[392px] flex items-center gap-[24px]">
         <div className="w-[260px]" />
-        <p className="w-[316px] pl-[76px] font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/h</p>
+        <p className="w-[300px] font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/h</p>
         <p className="flex-1 text-right font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/interval</p>
       </div>
 
@@ -336,29 +334,21 @@ export function AddIntervalSheetDose() {
             <span className="text-[#9ea8b2] text-[20px]"> {conc(0)}</span>
           </p>
         </div>
-        <div className="flex items-center gap-[16px]">
-          <div onClick={stepDown} className="size-[60px] rounded-[12px] bg-[#e6f4f9] border border-[#0094c5] flex items-center justify-center cursor-pointer select-none">
-            <p className="font-['Roboto',sans-serif] font-extrabold text-[#0094c5] text-[40px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>−</p>
-          </div>
-          <div className="bg-white border border-[#9ea8b2] rounded-[8px] h-[60px] w-[180px] flex items-center px-[16px] gap-[8px]">
-            <input
-              type="text"
-              inputMode="decimal"
-              pattern="[0-9]*\.?[0-9]*"
-              value={hourly.toFixed(1)}
-              onChange={e => {
-                const v = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
-                const ugH = isNaN(v) ? 0 : v;
-                setDraft({ ...draft, dose: Math.max(0, Math.min(2000, Math.round(ugH * 24))) });
-              }}
-              className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] tracking-[0.1px] bg-transparent outline-none border-0 p-0 text-left"
-              style={{ fontVariationSettings: "'wdth' 100" }}
-            />
-            <p className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[18px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>µg/h</p>
-          </div>
-          <div onClick={stepUp} className="size-[60px] rounded-[12px] bg-[#e6f4f9] border border-[#0094c5] flex items-center justify-center cursor-pointer select-none">
-            <p className="font-['Roboto',sans-serif] font-extrabold text-[#0094c5] text-[40px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>+</p>
-          </div>
+        <div className="bg-white border border-[#c4ccd4] rounded-[8px] h-[76px] w-[300px] flex items-center px-[20px] gap-[8px] focus-within:border-[#0094c5]">
+          <input
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]*\.?[0-9]*"
+            value={hourly.toFixed(1)}
+            onChange={e => {
+              const v = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
+              const ugH = isNaN(v) ? 0 : v;
+              setDraft({ ...draft, dose: Math.max(0, Math.min(2000, Math.round(ugH * 24))) });
+            }}
+            className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#1a1a1a] text-[32px] tracking-[0.1px] bg-transparent outline-none border-0 p-0 text-left"
+            style={{ fontVariationSettings: "'wdth' 100" }}
+          />
+          <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>µg/h</span>
         </div>
         <div className="flex-1 flex flex-col items-end justify-center">
           <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -411,15 +401,9 @@ function DerivedRow({
           <span className="text-[#9ea8b2] text-[20px]"> {concentration}</span>
         </p>
       </div>
-      <div className="flex items-center gap-[16px] w-[316px]">
-        <div className="size-[60px]" />
-        <div className="bg-white rounded-[8px] h-[60px] w-[180px] flex items-center px-[16px] gap-[8px]">
-          <p className="flex-1 min-w-px font-['Roboto',sans-serif] font-normal text-[#45483c] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-            {d.perHour}
-          </p>
-          <p className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[18px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/h</p>
-        </div>
-        <div className="size-[60px]" />
+      <div className="w-[300px] flex items-baseline gap-[8px] px-[20px]">
+        <span className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.perHour}</span>
+        <span className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/h</span>
       </div>
       <div className="flex-1 flex flex-col items-end justify-center">
         <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
