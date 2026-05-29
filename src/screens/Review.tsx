@@ -5,16 +5,14 @@ import {
   doseColor,
   estimatedDailyTotal,
   withBaseFillers,
-  coDoseUgDay,
-  doseStrings,
   deliveryPlan,
   fmtInterval,
   fmtTime,
   STROKE_OPTIONS,
   type Interval,
-  type Medication,
 } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
+import { MedSummary } from '../components/MedSummary';
 
 function ReviewIcon() {
   return (
@@ -57,38 +55,6 @@ function Chart({ intervals, baseDose }: { intervals: Interval[]; baseDose: numbe
           </div>
         );
       })}
-    </div>
-  );
-}
-
-function fmtDay(ug: number): string {
-  const s = doseStrings(ug);
-  return `${s.perDay} ${s.unit}/d`;
-}
-
-function MedSummary({ baseDose, estDaily, medications }: { baseDose: number; estDaily: number; medications: Medication[] }) {
-  const c0 = medications[0]?.concentration ?? 1;
-  const rows = medications.map((m, i) => {
-    const baseUg = i === 0 ? baseDose : coDoseUgDay(baseDose, c0, m.concentration);
-    const totalUg = i === 0 ? estDaily : coDoseUgDay(estDaily, c0, m.concentration);
-    return { name: m.name, conc: m, base: fmtDay(baseUg), total: fmtDay(totalUg) };
-  });
-  return (
-    <div className="w-full">
-      <div className="grid items-center [grid-template-columns:1fr_1fr_1fr_1fr] px-[8px] pb-[12px]">
-        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">MEDICATION</p>
-        <p className="font-['Roboto',sans-serif] font-normal text-[#00769e] text-[18px] tracking-[1px]">Concentration</p>
-        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">Base dose</p>
-        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">Total 24 h</p>
-      </div>
-      {rows.map(r => (
-        <div key={r.name} className="grid items-center [grid-template-columns:1fr_1fr_1fr_1fr] px-[8px] py-[10px]">
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.name}</p>
-          <p className="font-['Roboto',sans-serif] font-normal text-[#00769e] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.conc ? `${r.conc.concentration} ${r.conc.unit}` : ''}</p>
-          <p className="font-['Roboto',sans-serif] text-[#00769e] text-[22px] bg-[#eef6fb] rounded-[6px] px-[12px] py-[6px] mr-[12px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.base}</p>
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] bg-[#dceaf3] rounded-[6px] px-[12px] py-[6px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.total}</p>
-        </div>
-      ))}
     </div>
   );
 }
