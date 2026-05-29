@@ -6,6 +6,11 @@ function fmtDay(ug: number): { value: string; unit: string } {
   return { value: s.perDay, unit: `${s.unit}/d` };
 }
 
+function fmtHour(ug: number): { value: string; unit: string } {
+  const s = doseStrings(ug);
+  return { value: s.perHour, unit: `${s.unit}/h` };
+}
+
 function Chip({ value, unit, bg }: { value: string; unit: string; bg: string }) {
   return (
     <div className={`${bg} rounded-[10px] px-[18px] py-[12px] flex items-baseline gap-[6px]`}>
@@ -38,7 +43,7 @@ export function MedSummary({
     med: m,
     base: fmtDay(co(baseDose, m, i)),
     total: fmtDay(co(estDaily, m, i)),
-    current: showCurrent ? fmtDay(co(currentUg as number, m, i)) : null,
+    current: showCurrent ? fmtHour(co(currentUg as number, m, i)) : null,
   }));
   const cols = showCurrent
     ? '[grid-template-columns:1.2fr_0.9fr_1fr_1fr_1fr]'
