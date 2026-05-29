@@ -15,7 +15,7 @@ function TrashIcon() {
 }
 
 const fieldLabel = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px] mb-[8px]";
-const fieldBox = "h-[64px] bg-white border border-[#c4ccd4] rounded-[8px] px-[20px] flex items-center font-['Roboto',sans-serif] text-[#1a1a1a] text-[28px] tracking-[0.1px] w-full outline-none focus:border-[#0094c5]";
+const fieldBox = "h-[76px] bg-white border border-[#c4ccd4] rounded-[8px] px-[20px] flex items-center font-['Roboto',sans-serif] text-[#1a1a1a] text-[32px] tracking-[0.1px] w-full outline-none focus:border-[#0094c5]";
 
 export function AddMedication() {
   const navigate = useNavigate();

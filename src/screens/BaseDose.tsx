@@ -65,15 +65,15 @@ export function BaseDose() {
 
               {/* Dose/day — editable input for the selected med, read-only otherwise */}
               {editing ? (
-                <div className="bg-white border border-[#c4ccd4] rounded-[8px] h-[64px] w-[300px] flex items-center px-[20px] gap-[8px] focus-within:border-[#0094c5]">
+                <div className="bg-white border border-[#c4ccd4] rounded-[8px] h-[76px] w-[340px] flex items-center px-[20px] gap-[8px] focus-within:border-[#0094c5]">
                   <input
                     type="text" inputMode="numeric" pattern="[0-9]*"
                     value={Math.round(ug)}
                     onChange={e => applyEdit(m, i, parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0)}
-                    className="flex-1 min-w-px font-bold text-[#1a1a1a] text-[28px] bg-transparent outline-none border-0 p-0"
+                    className="flex-1 min-w-px font-bold text-[#1a1a1a] text-[32px] bg-transparent outline-none border-0 p-0"
                     style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
                   />
-                  <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>µg/d</span>
+                  <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>µg/d</span>
                 </div>
               ) : (
                 <div className="flex items-baseline gap-[8px]">
