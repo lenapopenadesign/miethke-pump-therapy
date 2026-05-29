@@ -2,7 +2,6 @@ import { useNavigate } from '../navigation';
 import {
   useTherapy, fmtTime, hourlyUg, morphineMgDay, bupivacaineMgDay,
   doseColor,
-  type Interval,
 } from '../therapy';
 import type { ReactNode } from 'react';
 
@@ -61,17 +60,13 @@ function PreviewChart({
   baseDose,
   newStart,
   newEnd,
-  newDose,
-  intervals,
 }: {
   baseDose: number;
   newStart: number;
   newEnd: number;
-  newDose?: number;
-  intervals: Interval[];
 }) {
   const containerW = 1040;
-  const containerH = 120;
+  const containerH = 130;
   const left = 80;
   const top = 130;
   const innerLeft = 12;
@@ -80,6 +75,9 @@ function PreviewChart({
   const newLeft = innerLeft + (newStart / 1440) * innerW;
   const newWidth = Math.max(0, ((newEnd - newStart) / 1440) * innerW);
   const hasNew = newEnd > newStart;
+  // Base bar and NEW box share the same vertical band (NEW sits inline, same height).
+  const BAR_TOP = 60;
+  const BAR_H = 44;
   return (
     <div className="absolute bg-[#f7fafc] border border-[#d9dbde] rounded-[12px]" style={{ left, top, width: containerW, height: containerH }}>
       {/* Time ticks */}
@@ -88,7 +86,7 @@ function PreviewChart({
           key={t}
           className="absolute font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[14px] tracking-[0.1px]"
           style={{
-            top: 8,
+            top: 12,
             left: innerLeft + (innerW * i) / 4 - (i === 0 ? 0 : i === 4 ? 36 : 18),
             fontVariationSettings: "'wdth' 100",
           }}
@@ -96,44 +94,25 @@ function PreviewChart({
           {t}
         </p>
       ))}
-      {/* Base dose bar */}
+      {/* Base dose bar — full width */}
       <div
         className="absolute rounded-[3px] bg-[#8cc7e8] flex items-center px-[12px]"
-        style={{ left: innerLeft, right: innerLeft, bottom: 14, height: 36 }}
+        style={{ left: innerLeft, right: innerLeft, top: BAR_TOP, height: BAR_H }}
       >
         <p className="font-['Roboto',sans-serif] font-bold text-[14px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
           Base dose {baseHourly.toFixed(1)} µg/h
         </p>
       </div>
-      {/* Existing intervals (faint overlay) */}
-      {intervals.map(iv => {
-        const ivLeft = innerLeft + (iv.startMin / 1440) * innerW;
-        const ivWidth = ((iv.endMin - iv.startMin) / 1440) * innerW;
-        return (
-          <div
-            key={iv.id}
-            className="absolute rounded-[3px]"
-            style={{
-              left: ivLeft,
-              width: ivWidth,
-              bottom: 14,
-              height: 36,
-              background: doseColor(iv.dose, baseDose),
-              opacity: 0.4,
-            }}
-          />
-        );
-      })}
-      {/* New interval (dashed or solid depending on whether dose is set) */}
+      {/* NEW placeholder — dashed box, same band as base bar */}
       {hasNew && (
         <div
           className="absolute rounded-[3px] flex items-center justify-center"
           style={{
             left: newLeft,
             width: newWidth,
-            bottom: 8,
-            height: 48,
-            background: newDose != null && newDose > 0 ? doseColor(newDose, baseDose) : 'rgba(217,235,245,0.6)',
+            top: BAR_TOP,
+            height: BAR_H,
+            background: 'rgba(255,255,255,0.55)',
             border: '2px dashed #0094c5',
           }}
         >
@@ -221,15 +200,12 @@ export function AddIntervalSheetWhen() {
     navigate(willBeEmpty && sheetReturnTo === 'intervals-populated' ? 'intervals-empty' : sheetReturnTo);
   };
   const validTime = draft.endMin > draft.startMin && draft.label.trim().length > 0;
-  // Other intervals on the same scope, for the chart's faint overlay.
-  const otherIntervals = intervals.filter(iv => iv.id !== editingId);
   return (
     <SheetShell>
       <PreviewChart
         baseDose={baseDose}
         newStart={draft.startMin}
         newEnd={draft.endMin}
-        intervals={otherIntervals}
       />
       {/* Label */}
       <div className="absolute left-[80px] right-[80px] top-[300px] flex flex-col gap-[8px]">
@@ -324,7 +300,6 @@ export function AddIntervalSheetDose() {
     const target = sheetReturnTo === 'intervals-empty' ? 'intervals-populated' : sheetReturnTo;
     navigate(target);
   };
-  const otherIntervals = intervals.filter(iv => iv.id !== editingId);
   const endDisplay = draft.endMin >= 1440 ? '23:59' : fmtTime(Math.max(0, draft.endMin - 1));
   return (
     <SheetShell>
@@ -332,8 +307,6 @@ export function AddIntervalSheetDose() {
         baseDose={baseDose}
         newStart={draft.startMin}
         newEnd={draft.endMin}
-        newDose={draft.dose}
-        intervals={otherIntervals}
       />
       {/* Summary row */}
       <div

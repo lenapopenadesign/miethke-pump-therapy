@@ -32,11 +32,16 @@ const imgNavDisconnect = "/icons/cb04e1a6-33a3-484f-a9d2-9f0910fa9fc3.svg";
 const imgCathInline = "/icons/f1df5fc9-3123-4343-bf12-b6bacbd170ab.svg";
 const imgActiveCheck = "/icons/b3500d59-7e08-4cd9-a69d-8fff2c2f40b7.gif";
 const imgActionsHand = "/icons/5d577001-d49c-4bb9-9a48-3948e35d4261.svg";
-const imgActionRefillBody = "/icons/e07055ff-8586-4681-b1ee-917d1e55169c.svg";
-const imgActionRefillTube = "/icons/efdaa85b-5c7d-421f-a22b-545890fd0100.svg";
-const imgActionCath = "/icons/afd7c2b0-1f09-486b-aa8a-e99cf19af085.svg";
-const imgActionPrime = "/icons/2d8dc669-1590-45d4-ad19-0bfb0fa6d6e7.svg";
-const imgActionClinician = "/icons/68e31852-ceb6-458a-b11f-e1f1f304e643.svg";
+// Action-card tile icons (from the redesigned home Figma)
+const imgActOnboarding = "/icons/act-onboarding.svg";
+const imgActPrefillSyringe = "/icons/act-prefill-syringe.svg";
+const imgActPrefillPump = "/icons/act-prefill-pump.svg";
+const imgActAccess = "/icons/act-access.svg";
+const imgActPrime1 = "/icons/act-prime-1.svg";
+const imgActPrime2 = "/icons/act-prime-2.svg";
+const imgActPrime3 = "/icons/act-prime-3.svg";
+const imgActClinician1 = "/icons/act-clinician-1.svg";
+const imgActClinician2 = "/icons/act-clinician-2.svg";
 
 function ArrowForward({ size = 40 }: { size?: number }) {
   return (
@@ -220,9 +225,9 @@ function ImplantCard() {
   );
 }
 
-type TherapyHeaderProps = { status: 'not-active' | 'active' };
+type TherapyStatus = 'not-active' | 'active' | 'none';
 
-function TherapyHeader({ status }: TherapyHeaderProps) {
+function TherapyHeader({ status }: { status: TherapyStatus }) {
   return (
     <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
       <div className="content-stretch flex flex-1 gap-[16px] items-center min-w-px relative">
@@ -231,13 +236,14 @@ function TherapyHeader({ status }: TherapyHeaderProps) {
           Therapy
         </p>
       </div>
-      {status === 'not-active' ? (
+      {status === 'not-active' && (
         <div className="content-stretch flex items-center relative shrink-0">
           <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#b3850e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             not active
           </p>
         </div>
-      ) : (
+      )}
+      {status === 'active' && (
         <div className="content-stretch flex gap-[16px] items-center relative shrink-0">
           <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#24ab5e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             active
@@ -252,20 +258,19 @@ function TherapyHeader({ status }: TherapyHeaderProps) {
   );
 }
 
-function ActionTile({ filled, icon, label }: { filled?: boolean; icon: ReactNode; label: string }) {
+function ActionTile({ filled, label, children, onClick }: { filled?: boolean; label: string; children: ReactNode; onClick?: () => void }) {
   return (
-    <div className={`content-stretch flex flex-1 flex-col items-center justify-center min-w-px p-[24px] relative rounded-[24px] self-stretch gap-[12px] ${filled ? 'bg-[#0094c5]' : 'border-[3px] border-[#0094c5] border-solid'}`}>
-      <div className="relative size-[80px] shrink-0">{icon}</div>
-      <div className={`font-['Roboto',sans-serif] font-bold text-[36px] text-center tracking-[0.1px] ${filled ? 'text-white' : 'text-[#0094c5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
-        {label.split('\n').map((line, i) => (
-          <p key={i} className="leading-[40px] m-0">{line}</p>
-        ))}
-      </div>
+    <div onClick={onClick} className={`content-stretch flex flex-col gap-[18px] h-[237px] items-center justify-center overflow-clip px-[20px] py-[26px] relative rounded-[16px] shrink-0 w-[229px] ${onClick ? 'cursor-pointer' : ''} ${filled ? 'bg-[#0094c5]' : 'border-2 border-[#0094c5] border-solid'}`}>
+      <div className="overflow-clip relative shrink-0 size-[140px]">{children}</div>
+      <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[28px] text-center tracking-[0.1px] ${filled ? 'text-white' : 'text-[#0094c5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+        {label}
+      </p>
     </div>
   );
 }
 
 function ActionsCard() {
+  const navigate = useNavigate();
   return (
     <div className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px]">
       <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
@@ -281,31 +286,43 @@ function ActionsCard() {
         </div>
         <ArrowForward />
       </div>
-      <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start overflow-clip p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
-        <div className="content-stretch flex flex-1 gap-[40px] items-stretch w-full">
-          <ActionTile
-            filled
-            label={'Refill\nPump'}
-            icon={
-              <>
-                <img alt="" src={imgActionRefillTube} className="absolute left-[6%] top-[-14%] w-[60%] h-[60%]" />
-                <img alt="" src={imgActionRefillBody} className="absolute left-[6%] top-[33%] w-[46%] h-[54%]" />
-              </>
-            }
-          />
-          <ActionTile
-            label={'Catheter\nAccess'}
-            icon={<img alt="" src={imgActionCath} className="absolute inset-[6%] block size-[88%]" />}
-          />
-          <ActionTile
-            label={'Prime\nBolus'}
-            icon={<img alt="" src={imgActionPrime} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 block w-[48%] h-[70%]" />}
-          />
-          <ActionTile
-            label={'Clinician\nBolus'}
-            icon={<img alt="" src={imgActionClinician} className="absolute inset-[10%] block size-[80%]" />}
-          />
-        </div>
+      <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex gap-[25px] items-start overflow-clip p-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
+        {/* Onboarding */}
+        <ActionTile filled label="Onboarding" onClick={() => navigate('add-medication')}>
+          <div className="absolute inset-[5.51%_0_4.49%_0]">
+            <img alt="" src={imgActOnboarding} className="block max-w-none size-full" />
+          </div>
+        </ActionTile>
+        {/* Prefill */}
+        <ActionTile filled label="Prefill">
+          <div className="absolute flex inset-[-8.75%_-3.93%_29.79%_23.01%] items-center justify-center" style={{ containerType: "size" }}>
+            <div className="flex-none h-[hypot(36.3553cqw,-67.1953cqh)] rotate-[-153.3deg] skew-x-[-2.31deg] w-[hypot(-63.6447cqw,-32.8047cqh)]">
+              <div className="relative size-full">
+                <img alt="" src={imgActPrefillSyringe} className="absolute block inset-0 max-w-none size-full" />
+              </div>
+            </div>
+          </div>
+          <div className="absolute inset-[37.62%_52.29%_9.03%_0]">
+            <img alt="" src={imgActPrefillPump} className="absolute block inset-0 max-w-none size-full" />
+          </div>
+        </ActionTile>
+        {/* Access */}
+        <ActionTile label="Access">
+          <div className="absolute inset-[0_-1.25%_-1.25%_0.39%]">
+            <img alt="" src={imgActAccess} className="absolute block inset-0 max-w-none size-full" />
+          </div>
+        </ActionTile>
+        {/* Prime Bolus */}
+        <ActionTile label="Prime Bolus">
+          <div className="absolute inset-[52.65%_20%_10.53%_56.61%]"><div className="absolute inset-[-1.94%_-3.06%_-1.94%_-3.05%]"><img alt="" src={imgActPrime1} className="block max-w-none size-full" /></div></div>
+          <div className="absolute inset-[10%_35.58%_53.18%_41.06%]"><div className="absolute inset-[-1.94%_-3.05%_-1.94%_-3.07%]"><img alt="" src={imgActPrime2} className="block max-w-none size-full" /></div></div>
+          <div className="absolute inset-[42.84%_56.65%_20.35%_20%]"><div className="absolute inset-[-1.94%_-3.06%_-1.93%_-3.06%]"><img alt="" src={imgActPrime3} className="block max-w-none size-full" /></div></div>
+        </ActionTile>
+        {/* Clinician Bolus */}
+        <ActionTile filled label="Clinician Bolus">
+          <div className="absolute inset-[6.25%_33.75%_21.25%_11.25%]"><img alt="" src={imgActClinician1} className="absolute block inset-0 max-w-none size-full" /></div>
+          <div className="absolute inset-[20%_11.25%_5%_66.25%]"><img alt="" src={imgActClinician2} className="absolute block inset-0 max-w-none size-full" /></div>
+        </ActionTile>
       </div>
     </div>
   );
@@ -377,7 +394,7 @@ function BottomNav() {
 }
 
 type Props = {
-  therapyStatus: 'not-active' | 'active';
+  therapyStatus: TherapyStatus;
   therapyBody: ReactNode;
   onTherapyClick?: () => void;
 };
@@ -403,5 +420,3 @@ export function HomeShell({ therapyStatus, therapyBody, onTherapyClick }: Props)
     </div>
   );
 }
-
-export { ActionTile };
