@@ -3,6 +3,7 @@ import { useNavigate } from '../navigation';
 import {
   useTherapy,
   doseColor,
+  doseStrings,
   estimatedDailyTotal,
   withBaseFillers,
   deliveryPlan,
@@ -49,7 +50,7 @@ function Chart({ intervals, baseDose }: { intervals: Interval[]; baseDose: numbe
             style={{ left: `${left}%`, width: `${width}%`, top: FLOOR - height, height, background: doseColor(slot.dose, baseDose), opacity: slot.isBase ? 0.7 : 1 }}>
             {width > 7 && (
               <p className="font-['Roboto',sans-serif] font-bold text-[13px] text-white pt-[6px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                {(slot.dose / 24).toFixed(1)} µg/h
+                {doseStrings(slot.dose).perHour} {doseStrings(slot.dose).unit}/h
               </p>
             )}
           </div>
@@ -134,7 +135,7 @@ export function Review() {
                     <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{iv.label}</p>
                     <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{timeRangeLabel(iv.startMin, iv.endMin)}</p>
                     <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{pct >= 0 ? '+' : '−'} {Math.abs(pct)} %</p>
-                    <p className="font-['Roboto',sans-serif] text-[#00769e] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{(iv.dose / 24).toFixed(0)}</span> µg/h</p>
+                    <p className="font-['Roboto',sans-serif] text-[#00769e] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{doseStrings(iv.dose).perHour}</span> {doseStrings(iv.dose).unit}/h</p>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="justify-self-end">
                       <path d="M9 6l6 6-6 6" stroke="#0094c5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>

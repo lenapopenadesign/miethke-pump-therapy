@@ -314,7 +314,7 @@ export function AddIntervalSheetDose() {
           {pctDelta >= 0 ? '+' : '−'} {Math.abs(pctDelta)} %
         </p>
         <p className="flex-1 font-['Roboto',sans-serif] text-[#00769e] text-[24px] tracking-[0.1px] min-w-px" style={{ fontVariationSettings: "'wdth' 100" }}>
-          <span className="font-bold">{hourly.toFixed(0)}</span> µg/h
+          <span className="font-bold">{doseStrings(draft.dose).perHour}</span> {doseStrings(draft.dose).unit}/h
         </p>
         <img alt="" src={imgEditPencil} className="size-[32px] shrink-0 block" />
       </div>
