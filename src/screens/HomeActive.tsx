@@ -93,18 +93,18 @@ function ActiveBody() {
   return (
     <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-[984px]">
       {hasIntervals && <WeekTabs active={activeTab} onChange={setActiveTab} />}
-      <MedSummary
-        baseDose={baseDose}
-        estDaily={estDaily}
-        medications={medications}
-        currentUg={hasIntervals ? currentPrimaryUg : undefined}
-      />
       {hasIntervals && (
         <>
           <p className="font-['Roboto',sans-serif] font-bold leading-[24px] text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>INTERVALS</p>
           <IntervalsChart baseDose={baseDose} intervals={sourceIntervals} onBarClick={setPreviewIntervalId} />
         </>
       )}
+      <MedSummary
+        baseDose={baseDose}
+        estDaily={estDaily}
+        medications={medications}
+        currentUg={hasIntervals ? currentPrimaryUg : undefined}
+      />
     </div>
   );
 }
