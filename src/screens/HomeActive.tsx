@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import { HomeShell } from '../components/HomeShell';
+import { MedSummary } from '../components/MedSummary';
 import {
   useTherapy,
   doseColor,
   withBaseFillers,
   estimatedDailyTotal,
-  coDoseUgDay,
-  doseStrings,
   type Interval,
-  type Medication,
 } from '../therapy';
 
 const imgPolygon = "/icons/84159d24-9892-4249-b82a-c5e588444106.svg";
@@ -20,55 +18,6 @@ const HA_CHART_H = 130;
 const HA_BAR_BOTTOM = 122;
 const HA_SCALE = 0.2; // px-per-µg, scaled so a ~480µg bar reaches ~96px
 const NOW_MIN = 716;  // "11:56"
-
-type RowData = {
-  name: string;
-  concentration: string;
-  daily: string; // e.g. "373 µg/d"
-  unit: string;
-};
-
-function dailyForActive(baseDose: number, intervals: Interval[], hasIntervals: boolean, medications: Medication[]): RowData[] {
-  const baclofenDay = hasIntervals ? estimatedDailyTotal(baseDose, intervals) : baseDose;
-  const c0 = medications[0]?.concentration ?? 1;
-  return medications.map((m, i) => {
-    const ug = i === 0 ? baclofenDay : coDoseUgDay(baclofenDay, c0, m.concentration);
-    const d = doseStrings(ug);
-    return { name: m.name, concentration: `${m.concentration} ${m.unit}`, daily: d.perDay, unit: `${d.unit}/d` };
-  });
-}
-
-function ActiveSubstanceTable({ rows }: { rows: RowData[] }) {
-  return (
-    <div className="content-stretch flex flex-col items-start overflow-clip relative rounded-[12px] shrink-0 w-full">
-      <div className="flex items-stretch w-full">
-        <div className="bg-white flex-1 flex items-center px-[20px] py-[12px]">
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[1px]" style={{ fontVariationSettings: "'wdth' 100" }}>MEDICATION</p>
-        </div>
-        <div className="bg-white w-[220px] flex items-center px-[20px] py-[12px]">
-          <p className="font-['Roboto',sans-serif] font-normal text-[#00769e] text-[20px] tracking-[1px]" style={{ fontVariationSettings: "'wdth' 100" }}>CONCENTRATION</p>
-        </div>
-        <div className="bg-white w-[180px] flex items-center px-[20px] py-[12px]">
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[1px]" style={{ fontVariationSettings: "'wdth' 100" }}>24H DOSE</p>
-        </div>
-      </div>
-      {rows.map(row => (
-        <div key={row.name} className="flex items-stretch w-full border-b border-white">
-          <div className="bg-[#f3f9fc] flex-1 flex items-center px-[20px] py-[14px]">
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] leading-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{row.name}</p>
-          </div>
-          <div className="bg-[#e6f4f9] w-[220px] flex items-center justify-end px-[20px] py-[14px]">
-            <p className="font-['Roboto',sans-serif] font-normal text-[#00769e] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>{row.concentration}</p>
-          </div>
-          <div className="bg-[#dceaf3] w-[180px] flex items-center justify-end gap-[6px] px-[20px] py-[14px]">
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>{row.daily}</p>
-            <p className="font-['Roboto',sans-serif] font-normal text-[#00769e] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>{row.unit}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 function WeekTabs({ active, onChange }: { active: 'weekdays' | 'weekend'; onChange: (t: 'weekdays' | 'weekend') => void }) {
   return (
@@ -129,28 +78,6 @@ function IntervalsChart({ baseDose, intervals, onBarClick }: { baseDose: number;
   );
 }
 
-function CurrentReadout({ baseDose, intervals, medications }: { baseDose: number; intervals: Interval[]; medications: Medication[] }) {
-  // Find the interval covering NOW_MIN, falling back to base dose.
-  const slots = withBaseFillers(intervals, baseDose);
-  const current = slots.find(s => NOW_MIN >= s.startMin && NOW_MIN < s.endMin);
-  const primaryDay = current ? current.dose : baseDose;
-  const c0 = medications[0]?.concentration ?? 1;
-  return (
-    <div className="flex gap-[28px] items-start w-[766px]">
-      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[16px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>Current:</p>
-      {medications.map((m, i) => {
-        const ug = i === 0 ? primaryDay : coDoseUgDay(primaryDay, c0, m.concentration);
-        const d = doseStrings(ug);
-        return (
-          <p key={m.id} className="font-['Roboto',sans-serif] text-[#00769e] text-[16px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-            {m.name} <span className="font-bold">{d.perHour} {d.unit}/h</span>
-          </p>
-        );
-      })}
-    </div>
-  );
-}
-
 function ActiveBody() {
   const { baseDose, intervals, weekendIntervals, useBaseOnly, setPreviewIntervalId, medications } = useTherapy();
   const [activeTab, setActiveTab] = useState<'weekdays' | 'weekend'>('weekdays');
@@ -158,17 +85,24 @@ function ActiveBody() {
   const source = activeTab === 'weekend' ? weekendIntervals : intervals;
   const sourceIntervals = useBaseOnly ? [] : source;
   const hasIntervals = sourceIntervals.length > 0;
-  const rows = dailyForActive(baseDose, sourceIntervals, hasIntervals, medications);
+  const estDaily = hasIntervals ? estimatedDailyTotal(baseDose, sourceIntervals) : baseDose;
+  // Dose of the interval running right now (NOW_MIN), falling back to base dose.
+  const cur = withBaseFillers(sourceIntervals, baseDose).find(s => NOW_MIN >= s.startMin && NOW_MIN < s.endMin);
+  const currentPrimaryUg = cur ? cur.dose : baseDose;
 
   return (
     <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-[984px]">
       {hasIntervals && <WeekTabs active={activeTab} onChange={setActiveTab} />}
-      <ActiveSubstanceTable rows={rows} />
+      <MedSummary
+        baseDose={baseDose}
+        estDaily={estDaily}
+        medications={medications}
+        currentUg={hasIntervals ? currentPrimaryUg : undefined}
+      />
       {hasIntervals && (
         <>
           <p className="font-['Roboto',sans-serif] font-bold leading-[24px] text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>INTERVALS</p>
           <IntervalsChart baseDose={baseDose} intervals={sourceIntervals} onBarClick={setPreviewIntervalId} />
-          <CurrentReadout baseDose={baseDose} intervals={sourceIntervals} medications={medications} />
         </>
       )}
     </div>
