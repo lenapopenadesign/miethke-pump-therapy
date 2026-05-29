@@ -26,8 +26,10 @@ export const STROKE_OPTIONS: { bundle: StrokeStrategy; label: string }[] = [
 ];
 
 // Pump physics: each stroke delivers a fixed micro-volume, and the hardware can
-// push at most a fixed number of times per minute.
-export const STROKE_VOLUME_UL = 10;
+// push at most a fixed number of times per minute. Stroke volume is 4 nl
+// (0.004 µl) — at the default 360 µg/d Baclofen @ 100 mg/ml this yields a
+// most-continuous interval of ~1.6 min (matching the Figma reference).
+export const STROKE_VOLUME_UL = 0.004;
 export const MAX_PUSHES_PER_MIN = 15; // → minimum interval 1/15 min = 4 s
 
 export type DeliveryPlan = {
@@ -155,9 +157,9 @@ const SEED_BY_DAY: IntervalsByDay = {
 };
 
 const SEED_MEDICATIONS: Medication[] = [
-  { id: 'med-baclofen',    name: 'Baclofen',    concentration: 1,  unit: 'mg/ml' },
-  { id: 'med-morphine',    name: 'Morphine',    concentration: 10, unit: 'mg/ml' },
-  { id: 'med-bupivacaine', name: 'Bupivacaine', concentration: 5,  unit: 'mg/ml' },
+  { id: 'med-baclofen',    name: 'Baclofen',    concentration: 100, unit: 'mg/ml' },
+  { id: 'med-morphine',    name: 'Morphine',    concentration: 10,  unit: 'mg/ml' },
+  { id: 'med-bupivacaine', name: 'Bupivacaine', concentration: 5,   unit: 'mg/ml' },
 ];
 
 export function TherapyProvider({ children }: { children: ReactNode }) {
