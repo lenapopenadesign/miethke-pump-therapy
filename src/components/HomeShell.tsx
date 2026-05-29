@@ -403,7 +403,7 @@ export function HomeShell({ therapyStatus, therapyBody, onTherapyClick }: Props)
   const navigate = useNavigate();
   void navigate; // available for future header buttons
   return (
-    <div className="bg-white relative size-full">
+    <div className="bg-white relative w-[1200px] h-[1920px] overflow-hidden">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
       <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[56px] px-[80px] top-[35px] w-[1200px]">
         <PatientCard />
