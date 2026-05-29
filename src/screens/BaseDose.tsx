@@ -1,8 +1,8 @@
 import { useNavigate } from '../navigation';
-import { useTherapy, morphineMgDay, bupivacaineMgDay, hourlyUg } from '../therapy';
+import { useTherapy, hourlyUg, coDoseUgDay, doseStrings } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
+import { MedicationIcon } from '../components/MedicationIcon';
 
-const imgMedication = "/icons/medication.svg";
 const imgEditPencil = "/icons/edit-pencil.svg";
 
 // Shared 4-column grid: MEDICATION | Concentration | Dose/day | Dose/hour
@@ -18,19 +18,20 @@ function NameCell({ name, concentration }: { name: string; concentration: string
   );
 }
 
-function DerivedRow({ name, concentration, daily, hourly, unit }: { name: string; concentration: string; daily: number; hourly: number; unit: string }) {
+function DerivedRow({ name, concentration, ugDay }: { name: string; concentration: string; ugDay: number }) {
+  const d = doseStrings(ugDay);
   return (
     <div className={GRID}>
       <NameCell name={name} concentration={concentration} />
       <div className="flex items-baseline gap-[8px]">
-        <span className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[36px] leading-[40px]" style={{ fontVariationSettings: "'wdth' 100" }}>{daily === 0 ? '0' : daily.toFixed(2)}</span>
-        <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>{unit}/d</span>
+        <span className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[36px] leading-[40px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.perDay}</span>
+        <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/d</span>
       </div>
       <div className="flex items-center justify-between">
         <p className="font-['Roboto',sans-serif] text-[#a5a5a5] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           <span className="font-semibold text-[32px] leading-[48px]">≈ </span>
-          <span className="text-[32px] leading-[48px]">{hourly === 0 ? '0.0' : hourly.toFixed(3)}</span>
-          <span className="text-[24px] text-[#a5a5a5]"> {unit}/h</span>
+          <span className="text-[32px] leading-[48px]">{d.perHour}</span>
+          <span className="text-[24px] text-[#a5a5a5]"> {d.unit}/h</span>
         </p>
         <img alt="" src={imgEditPencil} className="size-[40px] shrink-0 block" />
       </div>
@@ -41,12 +42,12 @@ function DerivedRow({ name, concentration, daily, hourly, unit }: { name: string
 export function BaseDose() {
   const navigate = useNavigate();
   const { baseDose, setBaseDose, medications } = useTherapy();
-  const [baclofen, morphine, bupivacaine] = medications;
+  const baclofen = medications[0];
+  const primaryConc = baclofen?.concentration ?? 1;
+  const coMeds = medications.slice(1);
   const stepDown = () => setBaseDose(Math.max(0, baseDose - 10));
   const stepUp = () => setBaseDose(Math.min(2000, baseDose + 10));
   const hourly = hourlyUg(baseDose);
-  const morMgD = morphineMgDay(baseDose);
-  const bupMgD = bupivacaineMgDay(baseDose);
   const ctaEnabled = baseDose > 0;
   const conc = (m?: { concentration: number; unit: string }) => (m ? `${m.concentration} ${m.unit}` : '');
 
@@ -55,7 +56,7 @@ export function BaseDose() {
       <div className="flex-1 flex flex-col gap-[40px]">
         {/* Title */}
         <div className="flex gap-[16px] items-center">
-          <img alt="" src={imgMedication} className="size-[48px] block" />
+          <MedicationIcon size={48} />
           <p className="font-['Roboto',sans-serif] font-extrabold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             Base Dose
           </p>
@@ -98,8 +99,9 @@ export function BaseDose() {
           </p>
         </div>
 
-        <DerivedRow name={morphine?.name || 'Morphine'} concentration={conc(morphine)} daily={morMgD} hourly={morMgD / 24} unit="mg" />
-        <DerivedRow name={bupivacaine?.name || 'Bupivacaine'} concentration={conc(bupivacaine)} daily={bupMgD} hourly={bupMgD / 24} unit="mg" />
+        {coMeds.map(m => (
+          <DerivedRow key={m.id} name={m.name} concentration={conc(m)} ugDay={coDoseUgDay(baseDose, primaryConc, m.concentration)} />
+        ))}
 
         {/* Save CTA */}
         <div

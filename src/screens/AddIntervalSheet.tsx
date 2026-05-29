@@ -1,6 +1,6 @@
 import { useNavigate } from '../navigation';
 import {
-  useTherapy, fmtTime, hourlyUg, morphineMgDay, bupivacaineMgDay,
+  useTherapy, fmtTime, hourlyUg, coDoseUgDay, doseStrings,
   doseColor,
 } from '../therapy';
 import type { ReactNode } from 'react';
@@ -275,20 +275,10 @@ export function AddIntervalSheetDose() {
   const pctDelta = baseDose > 0 ? Math.round(((draft.dose - baseDose) / baseDose) * 100) : 0;
   const stepDown = () => setDraft({ ...draft, dose: Math.max(0, draft.dose - 24) });
   const stepUp = () => setDraft({ ...draft, dose: Math.min(2000, draft.dose + 24) });
-  const morMgD = morphineMgDay(draft.dose);
-  const bupMgD = bupivacaineMgDay(draft.dose);
-  const morMgInterval = (() => {
-    const lengthMin = Math.max(0, draft.endMin - draft.startMin);
-    return (morMgD * lengthMin) / 1440;
-  })();
-  const bupMgInterval = (() => {
-    const lengthMin = Math.max(0, draft.endMin - draft.startMin);
-    return (bupMgD * lengthMin) / 1440;
-  })();
-  const ugInterval = (() => {
-    const lengthMin = Math.max(0, draft.endMin - draft.startMin);
-    return (draft.dose * lengthMin) / 1440;
-  })();
+  const primaryConc = medications[0]?.concentration ?? 1;
+  const coMeds = medications.slice(1);
+  const lengthFraction = Math.max(0, draft.endMin - draft.startMin) / 1440;
+  const ugInterval = draft.dose * lengthFraction; // primary (Baclofen) µg over the interval
   const onDelete = () => {
     if (!editingId) return;
     removeInterval(editingId);
@@ -377,10 +367,17 @@ export function AddIntervalSheetDose() {
         </div>
       </div>
 
-      {/* Morphine derived row */}
-      <DerivedRow label={medications[1]?.name || 'Morphine'} concentration={conc(1)} hourlyVal={morMgD / 24} unit="mg/h" intervalVal={morMgInterval} intervalUnit="mg" top={540} />
-      {/* Bupivacaine derived row */}
-      <DerivedRow label={medications[2]?.name || 'Bupivacaine'} concentration={conc(2)} hourlyVal={bupMgD / 24} unit="mg/h" intervalVal={bupMgInterval} intervalUnit="mg" top={620} />
+      {/* Co-delivered medications — derived from the primary dose + concentration */}
+      {coMeds.map((m, i) => (
+        <DerivedRow
+          key={m.id}
+          label={m.name}
+          concentration={conc(i + 1)}
+          ugDay={coDoseUgDay(draft.dose, primaryConc, m.concentration)}
+          lengthFraction={lengthFraction}
+          top={540 + i * 80}
+        />
+      ))}
 
       <SheetFooter
         showDelete={!!editingId}
@@ -395,16 +392,17 @@ export function AddIntervalSheetDose() {
 }
 
 function DerivedRow({
-  label, concentration, hourlyVal, unit, intervalVal, intervalUnit, top,
+  label, concentration, ugDay, lengthFraction, top,
 }: {
   label: string;
   concentration: string;
-  hourlyVal: number;
-  unit: string;
-  intervalVal: number;
-  intervalUnit: string;
+  ugDay: number;        // co-med dose at the primary's interval rate (µg/day)
+  lengthFraction: number; // interval length as a fraction of the day
   top: number;
 }) {
+  const d = doseStrings(ugDay);
+  const intervalUg = ugDay * lengthFraction;
+  const intervalStr = d.unit === 'mg' ? (intervalUg / 1000).toFixed(3) : intervalUg.toFixed(1);
   return (
     <div className="absolute left-[80px] right-[80px] flex items-center gap-[24px]" style={{ top }}>
       <div className="w-[260px]">
@@ -417,15 +415,15 @@ function DerivedRow({
         <div className="size-[60px]" />
         <div className="bg-white rounded-[8px] h-[60px] w-[180px] flex items-center px-[16px] gap-[8px]">
           <p className="flex-1 min-w-px font-['Roboto',sans-serif] font-normal text-[#45483c] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-            {hourlyVal.toFixed(3)}
+            {d.perHour}
           </p>
-          <p className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[18px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{unit}</p>
+          <p className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[18px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/h</p>
         </div>
         <div className="size-[60px]" />
       </div>
       <div className="flex-1 flex flex-col items-end justify-center">
         <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-          ≈ {intervalVal.toFixed(3)} {intervalUnit}
+          ≈ {intervalStr} {d.unit}
         </p>
       </div>
     </div>

@@ -5,13 +5,14 @@ import {
   doseColor,
   estimatedDailyTotal,
   withBaseFillers,
-  morphineMgDay,
-  bupivacaineMgDay,
+  coDoseUgDay,
+  doseStrings,
   deliveryPlan,
   fmtInterval,
   fmtTime,
   STROKE_OPTIONS,
   type Interval,
+  type Medication,
 } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 
@@ -60,12 +61,18 @@ function Chart({ intervals, baseDose }: { intervals: Interval[]; baseDose: numbe
   );
 }
 
-function MedSummary({ baseDose, estDaily, medications }: { baseDose: number; estDaily: number; medications: { name: string; concentration: number; unit: string }[] }) {
-  const rows = [
-    { name: medications[0]?.name || 'Baclofen',    conc: medications[0], base: `${baseDose} µg/d`,                       total: `${Math.round(estDaily)} µg/d` },
-    { name: medications[1]?.name || 'Morphine',    conc: medications[1], base: `${morphineMgDay(baseDose).toFixed(2)} mg/d`,    total: `${morphineMgDay(estDaily).toFixed(2)} mg/d` },
-    { name: medications[2]?.name || 'Bupivacaine', conc: medications[2], base: `${bupivacaineMgDay(baseDose).toFixed(2)} mg/d`, total: `${bupivacaineMgDay(estDaily).toFixed(2)} mg/d` },
-  ];
+function fmtDay(ug: number): string {
+  const s = doseStrings(ug);
+  return `${s.perDay} ${s.unit}/d`;
+}
+
+function MedSummary({ baseDose, estDaily, medications }: { baseDose: number; estDaily: number; medications: Medication[] }) {
+  const c0 = medications[0]?.concentration ?? 1;
+  const rows = medications.map((m, i) => {
+    const baseUg = i === 0 ? baseDose : coDoseUgDay(baseDose, c0, m.concentration);
+    const totalUg = i === 0 ? estDaily : coDoseUgDay(estDaily, c0, m.concentration);
+    return { name: m.name, conc: m, base: fmtDay(baseUg), total: fmtDay(totalUg) };
+  });
   return (
     <div className="w-full">
       <div className="grid items-center [grid-template-columns:1fr_1fr_1fr_1fr] px-[8px] pb-[12px]">

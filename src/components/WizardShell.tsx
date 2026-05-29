@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
+import { MedicationIcon } from './MedicationIcon';
 
 const imgBack = "/icons/01195f3c-ce0c-4269-a4cc-2742bc124f77.svg";
 const imgSignet = "/icons/9f250784-cad4-4195-99ce-4b9dc94364a5.svg";
-const imgMedication = "/icons/medication.svg";
 
 export type WizardStep = 'therapy' | 'review' | 'transfer';
 
@@ -93,7 +93,7 @@ export function WizardShell({ step, onBack, children }: Props) {
             </div>
           </div>
           <div className="flex gap-[16px] items-center">
-            <img alt="" src={imgMedication} className="size-[48px] block" />
+            <MedicationIcon size={48} />
             <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] text-[#00769e] text-[44px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
               Edit Therapy
             </p>

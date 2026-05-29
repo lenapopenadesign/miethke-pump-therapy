@@ -3,12 +3,12 @@ import { HomeShell } from '../components/HomeShell';
 import {
   useTherapy,
   doseColor,
-  hourlyUg,
-  morphineMgDay,
-  bupivacaineMgDay,
   withBaseFillers,
   estimatedDailyTotal,
+  coDoseUgDay,
+  doseStrings,
   type Interval,
+  type Medication,
 } from '../therapy';
 
 const imgPolygon = "/icons/84159d24-9892-4249-b82a-c5e588444106.svg";
@@ -28,19 +28,14 @@ type RowData = {
   unit: string;
 };
 
-function dailyForActive(baseDose: number, intervals: Interval[], hasIntervals: boolean, concentrations: string[]) {
-  const baclofenDay = hasIntervals
-    ? estimatedDailyTotal(baseDose, intervals)
-    : baseDose;
-  const fmtBaclofen = baclofenDay >= 1000
-    ? (baclofenDay / 1000).toFixed(2)
-    : Math.round(baclofenDay).toString();
-  const baclofenUnit = baclofenDay >= 1000 ? 'mg/d' : 'µg/d';
-  return [
-    { name: 'Baclofen',    concentration: concentrations[0] ?? '', daily: fmtBaclofen, unit: baclofenUnit },
-    { name: 'Morphine',    concentration: concentrations[1] ?? '', daily: morphineMgDay(baclofenDay).toFixed(2), unit: 'mg/d' },
-    { name: 'Bupivacaine', concentration: concentrations[2] ?? '', daily: bupivacaineMgDay(baclofenDay).toFixed(2), unit: 'mg/d' },
-  ] as RowData[];
+function dailyForActive(baseDose: number, intervals: Interval[], hasIntervals: boolean, medications: Medication[]): RowData[] {
+  const baclofenDay = hasIntervals ? estimatedDailyTotal(baseDose, intervals) : baseDose;
+  const c0 = medications[0]?.concentration ?? 1;
+  return medications.map((m, i) => {
+    const ug = i === 0 ? baclofenDay : coDoseUgDay(baclofenDay, c0, m.concentration);
+    const d = doseStrings(ug);
+    return { name: m.name, concentration: `${m.concentration} ${m.unit}`, daily: d.perDay, unit: `${d.unit}/d` };
+  });
 }
 
 function ActiveSubstanceTable({ rows }: { rows: RowData[] }) {
@@ -134,26 +129,24 @@ function IntervalsChart({ baseDose, intervals, onBarClick }: { baseDose: number;
   );
 }
 
-function CurrentReadout({ baseDose, intervals }: { baseDose: number; intervals: Interval[] }) {
+function CurrentReadout({ baseDose, intervals, medications }: { baseDose: number; intervals: Interval[]; medications: Medication[] }) {
   // Find the interval covering NOW_MIN, falling back to base dose.
   const slots = withBaseFillers(intervals, baseDose);
   const current = slots.find(s => NOW_MIN >= s.startMin && NOW_MIN < s.endMin);
-  const baclofenUgH = hourlyUg(current ? current.dose : baseDose);
-  const baclofenDay = current ? current.dose : baseDose;
-  const morMgH = morphineMgDay(baclofenDay) / 24;
-  const bupMgH = bupivacaineMgDay(baclofenDay) / 24;
+  const primaryDay = current ? current.dose : baseDose;
+  const c0 = medications[0]?.concentration ?? 1;
   return (
     <div className="flex gap-[28px] items-start w-[766px]">
       <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[16px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>Current:</p>
-      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[16px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-        Baclofen <span className="font-bold">{baclofenUgH.toFixed(1)} µg/h</span>
-      </p>
-      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[16px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-        Morphine <span className="font-bold">{morMgH.toFixed(3)}</span> mg/h
-      </p>
-      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[16px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-        Bupivacaine <span className="font-bold">{bupMgH.toFixed(3)}</span> mg/h
-      </p>
+      {medications.map((m, i) => {
+        const ug = i === 0 ? primaryDay : coDoseUgDay(primaryDay, c0, m.concentration);
+        const d = doseStrings(ug);
+        return (
+          <p key={m.id} className="font-['Roboto',sans-serif] text-[#00769e] text-[16px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            {m.name} <span className="font-bold">{d.perHour} {d.unit}/h</span>
+          </p>
+        );
+      })}
     </div>
   );
 }
@@ -165,8 +158,7 @@ function ActiveBody() {
   const source = activeTab === 'weekend' ? weekendIntervals : intervals;
   const sourceIntervals = useBaseOnly ? [] : source;
   const hasIntervals = sourceIntervals.length > 0;
-  const concentrations = medications.map(m => `${m.concentration} ${m.unit}`);
-  const rows = dailyForActive(baseDose, sourceIntervals, hasIntervals, concentrations);
+  const rows = dailyForActive(baseDose, sourceIntervals, hasIntervals, medications);
 
   return (
     <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-[984px]">
@@ -176,7 +168,7 @@ function ActiveBody() {
         <>
           <p className="font-['Roboto',sans-serif] font-bold leading-[24px] text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>INTERVALS</p>
           <IntervalsChart baseDose={baseDose} intervals={sourceIntervals} onBarClick={setPreviewIntervalId} />
-          <CurrentReadout baseDose={baseDose} intervals={sourceIntervals} />
+          <CurrentReadout baseDose={baseDose} intervals={sourceIntervals} medications={medications} />
         </>
       )}
     </div>

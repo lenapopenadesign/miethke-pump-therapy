@@ -279,9 +279,29 @@ export function useTherapy() {
 
 // -------- Derivations --------
 
-export const morphineMgDay = (baclofenUgDay: number) => baclofenUgDay * 0.00139;
-export const bupivacaineMgDay = (baclofenUgDay: number) => baclofenUgDay * 0.00417;
 export const hourlyUg = (dailyUg: number) => dailyUg / 24;
+
+/**
+ * Daily mass (µg/day) of a co-delivered medication. The primary drug's dose
+ * fixes the delivered volume (primaryUgDay / primaryConc); every other drug in
+ * the mixture is co-delivered in that same volume, so its mass scales by the
+ * concentration ratio. Concentration is mg/ml, which equals µg/µl numerically.
+ */
+export function coDoseUgDay(primaryUgDay: number, primaryConc: number, medConc: number): number {
+  if (primaryConc <= 0) return 0;
+  return primaryUgDay * (medConc / primaryConc);
+}
+
+/**
+ * Format a µg/day mass for display, auto-switching to mg above 1000 µg. Returns
+ * the per-day and per-hour values in a shared unit so a row reads consistently.
+ */
+export function doseStrings(ugDay: number): { unit: string; perDay: string; perHour: string } {
+  const useMg = ugDay >= 1000;
+  const div = useMg ? 1000 : 1;
+  const fmt = (v: number) => (useMg ? v.toFixed(2) : v >= 100 ? Math.round(v).toString() : v.toFixed(1));
+  return { unit: useMg ? 'mg' : 'µg', perDay: fmt(ugDay / div), perHour: fmt(ugDay / 24 / div) };
+}
 
 // Color tier for a dose relative to base dose.
 export function doseColor(dose: number, base: number): string {

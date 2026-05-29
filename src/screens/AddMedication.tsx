@@ -1,8 +1,7 @@
 import { useNavigate } from '../navigation';
 import { useTherapy } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
-
-const imgMedication = "/icons/medication.svg";
+import { MedicationIcon } from '../components/MedicationIcon';
 
 const UNITS = ['mg/ml', 'µg/ml'];
 
@@ -27,7 +26,7 @@ export function AddMedication() {
       <div className="flex-1 flex flex-col gap-[24px]">
         {/* Title */}
         <div className="flex gap-[16px] items-center">
-          <img alt="" src={imgMedication} className="size-[48px] block" />
+          <MedicationIcon size={48} />
           <p className="font-['Roboto',sans-serif] font-extrabold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             Medication
           </p>
