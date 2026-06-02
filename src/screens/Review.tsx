@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from '../navigation';
 import {
   useTherapy,
+  coDoseUgDay,
   doseColor,
   doseStrings,
   estimatedDailyTotal,
@@ -65,6 +66,13 @@ export function Review() {
   const { baseDose, intervals, weekendIntervals, strokeStrategy, dayPattern, useBaseOnly, medications } = useTherapy();
   const [confirmed, setConfirmed] = useState(false);
   const [tab, setTab] = useState<'weekdays' | 'weekend'>('weekdays');
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggleExpanded = (id: string) =>
+    setExpanded(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
   const orderedWeekend = [...weekendIntervals].sort((a, b) => a.startMin - b.startMin);
@@ -130,15 +138,38 @@ export function Review() {
             <div className="flex flex-col gap-[12px]">
               {selected.map(iv => {
                 const pct = baseDose > 0 ? Math.round(((iv.dose - baseDose) / baseDose) * 100) : 0;
+                const isOpen = expanded.has(iv.id);
+                const c0 = medications[0]?.concentration ?? 1;
                 return (
-                  <div key={iv.id} className="grid items-center [grid-template-columns:1fr_220px_160px_180px_40px] bg-white border border-[#d9dbde] rounded-[12px] h-[72px] px-[16px]">
-                    <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{iv.label}</p>
-                    <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{timeRangeLabel(iv.startMin, iv.endMin)}</p>
-                    <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{pct >= 0 ? '+' : '−'} {Math.abs(pct)} %</p>
-                    <p className="font-['Roboto',sans-serif] text-[#00769e] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{doseStrings(iv.dose).perHour}</span> {doseStrings(iv.dose).unit}/h</p>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="justify-self-end">
-                      <path d="M9 6l6 6-6 6" stroke="#0094c5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                  <div key={iv.id} className="bg-white border border-[#d9dbde] rounded-[12px] overflow-hidden">
+                    <div
+                      onClick={() => toggleExpanded(iv.id)}
+                      className="grid items-center [grid-template-columns:1fr_220px_160px_180px_40px] h-[72px] px-[16px] cursor-pointer select-none">
+                      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{iv.label}</p>
+                      <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{timeRangeLabel(iv.startMin, iv.endMin)}</p>
+                      <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{pct >= 0 ? '+' : '−'} {Math.abs(pct)} %</p>
+                      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{doseStrings(iv.dose).perHour}</span> {doseStrings(iv.dose).unit}/h</p>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="justify-self-end transition-transform duration-200" style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                        <path d="M9 6l6 6-6 6" stroke="#0094c5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    {isOpen && (
+                      <div className="border-t border-[#e3e6e9] bg-[#f7fafc] px-[16px] py-[16px] flex flex-col gap-[10px]">
+                        {medications.map((m, i) => {
+                          const ug = i === 0 ? iv.dose : coDoseUgDay(iv.dose, c0, m.concentration);
+                          const ds = doseStrings(ug);
+                          return (
+                            <div key={m.id} className="grid [grid-template-columns:1fr_220px_160px_180px_40px] items-center">
+                              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{m.name}</p>
+                              <span />
+                              <span />
+                              <p className="font-['Roboto',sans-serif] text-[#00769e] text-[20px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{ds.perHour}</span> {ds.unit}/h</p>
+                              <span />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               })}
