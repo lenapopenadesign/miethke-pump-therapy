@@ -1,13 +1,13 @@
 import { Fragment } from 'react';
-import { coDoseUgDay, doseStrings, type Medication } from '../therapy';
+import { coDoseUgDay, doseStringsFor, type Medication } from '../therapy';
 
-function fmtDay(ug: number): { value: string; unit: string } {
-  const s = doseStrings(ug);
+function fmtDay(ug: number, concUnit: string): { value: string; unit: string } {
+  const s = doseStringsFor(ug, concUnit);
   return { value: s.perDay, unit: `${s.unit}/d` };
 }
 
-function fmtHour(ug: number): { value: string; unit: string } {
-  const s = doseStrings(ug);
+function fmtHour(ug: number, concUnit: string): { value: string; unit: string } {
+  const s = doseStringsFor(ug, concUnit);
   return { value: s.perHour, unit: `${s.unit}/h` };
 }
 
@@ -41,9 +41,9 @@ export function MedSummary({
   const co = (ug: number, m: Medication, i: number) => (i === 0 ? ug : coDoseUgDay(ug, c0, m.concentration));
   const rows = medications.map((m, i) => ({
     med: m,
-    base: fmtDay(co(baseDose, m, i)),
-    total: fmtDay(co(estDaily, m, i)),
-    current: showCurrent ? fmtHour(co(currentUg as number, m, i)) : null,
+    base: fmtDay(co(baseDose, m, i), m.unit),
+    total: fmtDay(co(estDaily, m, i), m.unit),
+    current: showCurrent ? fmtHour(co(currentUg as number, m, i), m.unit) : null,
   }));
   const cols = showCurrent
     ? '[grid-template-columns:1.2fr_0.9fr_1fr_1fr_1fr]'

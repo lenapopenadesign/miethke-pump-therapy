@@ -4,7 +4,7 @@ import {
   useTherapy,
   coDoseUgDay,
   doseColor,
-  doseStrings,
+  doseStringsFor,
   estimatedDailyTotal,
   withBaseFillers,
   deliveryPlan,
@@ -31,7 +31,7 @@ function timeRangeLabel(startMin: number, endMin: number): string {
   return `${fmtTime(startMin)} - ${endDisplay}`;
 }
 
-function Chart({ intervals, baseDose }: { intervals: Interval[]; baseDose: number }) {
+function Chart({ intervals, baseDose, unit }: { intervals: Interval[]; baseDose: number; unit: string }) {
   const slots = withBaseFillers(intervals, baseDose);
   const maxDose = Math.max(baseDose, ...slots.map(s => s.dose), 1);
   const FLOOR = 150;
@@ -51,7 +51,7 @@ function Chart({ intervals, baseDose }: { intervals: Interval[]; baseDose: numbe
             style={{ left: `${left}%`, width: `${width}%`, top: FLOOR - height, height, background: doseColor(slot.dose, baseDose), opacity: slot.isBase ? 0.7 : 1 }}>
             {width > 7 && (
               <p className="font-['Roboto',sans-serif] font-bold text-[13px] text-white pt-[6px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                {doseStrings(slot.dose).perHour} {doseStrings(slot.dose).unit}/h
+                {doseStringsFor(slot.dose, unit).perHour} {doseStringsFor(slot.dose, unit).unit}/h
               </p>
             )}
           </div>
@@ -74,6 +74,7 @@ export function Review() {
       return next;
     });
 
+  const primaryUnit = medications[0]?.unit ?? 'µg/ml';
   const ordered = [...intervals].sort((a, b) => a.startMin - b.startMin);
   const orderedWeekend = [...weekendIntervals].sort((a, b) => a.startMin - b.startMin);
   const showToggle = !useBaseOnly && dayPattern !== 'same';
@@ -125,7 +126,7 @@ export function Review() {
               </div>
             )}
 
-            <Chart intervals={selected} baseDose={baseDose} />
+            <Chart intervals={selected} baseDose={baseDose} unit={primaryUnit} />
 
             {/* Interval detail list */}
             <div className="grid items-center [grid-template-columns:1fr_220px_160px_180px_40px] px-[16px]">
@@ -148,7 +149,7 @@ export function Review() {
                       <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{iv.label}</p>
                       <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{timeRangeLabel(iv.startMin, iv.endMin)}</p>
                       <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{pct >= 0 ? '+' : '−'} {Math.abs(pct)} %</p>
-                      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{doseStrings(iv.dose).perHour}</span> {doseStrings(iv.dose).unit}/h</p>
+                      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{doseStringsFor(iv.dose, primaryUnit).perHour}</span> {doseStringsFor(iv.dose, primaryUnit).unit}/h</p>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="justify-self-end transition-transform duration-200" style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
                         <path d="M9 6l6 6-6 6" stroke="#0094c5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
@@ -157,7 +158,7 @@ export function Review() {
                       <div className="border-t border-[#e3e6e9] bg-[#f7fafc] px-[16px] py-[16px] flex flex-col gap-[10px]">
                         {medications.map((m, i) => {
                           const ug = i === 0 ? iv.dose : coDoseUgDay(iv.dose, c0, m.concentration);
-                          const ds = doseStrings(ug);
+                          const ds = doseStringsFor(ug, m.unit);
                           return (
                             <div key={m.id} className="grid [grid-template-columns:1fr_220px_160px_180px_40px] items-center">
                               <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{m.name}</p>

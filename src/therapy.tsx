@@ -157,7 +157,7 @@ const SEED_BY_DAY: IntervalsByDay = {
 };
 
 const SEED_MEDICATIONS: Medication[] = [
-  { id: 'med-baclofen',    name: 'Baclofen',    concentration: 100, unit: 'mg/ml' },
+  { id: 'med-baclofen',    name: 'Baclofen',    concentration: 100, unit: 'µg/ml' },
   { id: 'med-morphine',    name: 'Morphine',    concentration: 10,  unit: 'mg/ml' },
   { id: 'med-bupivacaine', name: 'Bupivacaine', concentration: 5,   unit: 'mg/ml' },
 ];
@@ -295,8 +295,40 @@ export function coDoseUgDay(primaryUgDay: number, primaryConc: number, medConc: 
 }
 
 /**
- * Format a µg/day mass for display, auto-switching to mg above 1000 µg. Returns
- * the per-day and per-hour values in a shared unit so a row reads consistently.
+ * The mass-unit family ('mg' or 'µg') implied by a medication's concentration
+ * unit. A drug dosed at mg/ml is reported in mg; one at µg/ml is reported in µg.
+ * `div` converts an internal µg amount into that unit.
+ */
+export function doseUnitFor(concUnit: string): { unit: 'mg' | 'µg'; div: number } {
+  return concUnit.includes('µg') ? { unit: 'µg', div: 1 } : { unit: 'mg', div: 1000 };
+}
+
+// Adaptive formatter: integer-ish above 100, more decimals as the value shrinks
+// (mg doses are numerically tiny). Keeps ~3 significant figures.
+function fmtDose(v: number): string {
+  if (!isFinite(v) || v === 0) return '0';
+  const a = Math.abs(v);
+  if (a >= 100) return Math.round(v).toString();
+  if (a >= 1) return v.toFixed(1);
+  if (a >= 0.1) return v.toFixed(2);
+  if (a >= 0.01) return v.toFixed(3);
+  return v.toFixed(4);
+}
+
+/**
+ * Format a µg/day mass in the unit family the medication's concentration unit
+ * implies. perDay and perHour are derived from the SAME value (perHour =
+ * perDay / 24) so the two readings are always linked and consistent.
+ */
+export function doseStringsFor(ugDay: number, concUnit: string): { unit: string; perDay: string; perHour: string } {
+  const { unit, div } = doseUnitFor(concUnit);
+  const perDayVal = ugDay / div;
+  return { unit, perDay: fmtDose(perDayVal), perHour: fmtDose(perDayVal / 24) };
+}
+
+/**
+ * Legacy magnitude-based formatter (auto-switches to mg above 1000 µg). Retained
+ * for hardware-level pump readouts that aren't tied to a medication's unit.
  */
 export function doseStrings(ugDay: number): { unit: string; perDay: string; perHour: string } {
   const useMg = ugDay >= 1000;

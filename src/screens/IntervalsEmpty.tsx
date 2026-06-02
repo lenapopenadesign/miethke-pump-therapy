@@ -1,5 +1,5 @@
 import { useNavigate } from '../navigation';
-import { useTherapy, type DayPattern } from '../therapy';
+import { useTherapy, doseStringsFor, type DayPattern } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 
 function IntervalsIcon() {
@@ -18,7 +18,7 @@ const DAY_PATTERNS: { key: DayPattern; label: string }[] = [
   { key: 'per-day',         label: 'Different every day' },
 ];
 
-function BaseDoseChart({ hourly }: { hourly: string }) {
+function BaseDoseChart({ hourly, unit }: { hourly: string; unit: string }) {
   return (
     <div className="relative w-full h-[200px] bg-[#f7fafc] border border-[#d9dbde] rounded-[16px]">
       {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => (
@@ -27,7 +27,7 @@ function BaseDoseChart({ hourly }: { hourly: string }) {
       ))}
       <div className="absolute left-[24px] right-[24px] bottom-[24px] h-[50px] bg-[#8cc7e8] rounded-[4px] flex items-center px-[24px]">
         <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-          Base dose {hourly} µg/h
+          Base dose {hourly} {unit}/h
         </p>
       </div>
     </div>
@@ -36,10 +36,10 @@ function BaseDoseChart({ hourly }: { hourly: string }) {
 
 export function IntervalsEmpty() {
   const navigate = useNavigate();
-  const { startAddingInterval, dayPattern, setDayPattern, setUseBaseOnly, baseDose } = useTherapy();
+  const { startAddingInterval, dayPattern, setDayPattern, setUseBaseOnly, baseDose, medications } = useTherapy();
+  const base = doseStringsFor(baseDose, medications[0]?.unit ?? 'µg/ml');
   const onAdd = () => { startAddingInterval('intervals-empty'); navigate('add-interval-when'); };
   const onSkip = () => { setUseBaseOnly(true); navigate('regular-therapy'); };
-  const hourly = (baseDose / 24).toFixed(1);
 
   return (
     <WizardShell step="therapy" onBack={() => navigate('base-dose')}>
@@ -73,7 +73,7 @@ export function IntervalsEmpty() {
           })}
         </div>
 
-        <BaseDoseChart hourly={hourly} />
+        <BaseDoseChart hourly={base.perHour} unit={base.unit} />
 
         {/* Empty state */}
         <p className="font-['Roboto',sans-serif] font-bold text-center text-[#9ea8b2] text-[36px] tracking-[0.1px] my-[80px]" style={{ fontVariationSettings: "'wdth' 100" }}>

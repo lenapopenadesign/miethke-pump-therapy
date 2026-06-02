@@ -1,6 +1,6 @@
 import { useNavigate } from '../navigation';
 import {
-  useTherapy, fmtTime, hourlyUg, coDoseUgDay, doseStrings,
+  useTherapy, fmtTime, coDoseUgDay, doseStringsFor, doseUnitFor,
   doseColor,
 } from '../therapy';
 import type { ReactNode } from 'react';
@@ -60,10 +60,12 @@ function PreviewChart({
   baseDose,
   newStart,
   newEnd,
+  unit = 'µg/ml',
 }: {
   baseDose: number;
   newStart: number;
   newEnd: number;
+  unit?: string;
 }) {
   const containerW = 1040;
   const containerH = 130;
@@ -71,7 +73,7 @@ function PreviewChart({
   const top = 130;
   const innerLeft = 12;
   const innerW = containerW - 24;
-  const baseHourly = hourlyUg(baseDose);
+  const baseStr = doseStringsFor(baseDose, unit);
   const newLeft = innerLeft + (newStart / 1440) * innerW;
   const newWidth = Math.max(0, ((newEnd - newStart) / 1440) * innerW);
   const hasNew = newEnd > newStart;
@@ -100,7 +102,7 @@ function PreviewChart({
         style={{ left: innerLeft, right: innerLeft, top: BAR_TOP, height: BAR_H }}
       >
         <p className="font-['Roboto',sans-serif] font-bold text-[14px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-          Base dose {baseHourly.toFixed(1)} µg/h
+          Base dose {baseStr.perHour} {baseStr.unit}/h
         </p>
       </div>
       {/* NEW placeholder — dashed box, same band as base bar */}
@@ -185,7 +187,8 @@ function SheetFooter({
 
 export function AddIntervalSheetWhen() {
   const navigate = useNavigate();
-  const { baseDose, draft, setDraft, intervals, editingId, removeInterval, sheetReturnTo } = useTherapy();
+  const { baseDose, draft, setDraft, intervals, editingId, removeInterval, sheetReturnTo, medications } = useTherapy();
+  const primaryUnit = medications[0]?.unit ?? 'µg/ml';
   const lengthMin = Math.max(0, draft.endMin - draft.startMin);
   const lengthH = Math.floor(lengthMin / 60);
   const lengthM = lengthMin % 60;
@@ -206,6 +209,7 @@ export function AddIntervalSheetWhen() {
         baseDose={baseDose}
         newStart={draft.startMin}
         newEnd={draft.endMin}
+        unit={primaryUnit}
       />
       {/* Label */}
       <div className="absolute left-[80px] right-[80px] top-[300px] flex flex-col gap-[8px]">
@@ -271,12 +275,16 @@ export function AddIntervalSheetDose() {
   const { baseDose, draft, setDraft, intervals, editingId, commitDraft, removeInterval, sheetReturnTo, medications } = useTherapy();
   const conc = (i: number) => (medications[i] ? `${medications[i].concentration} ${medications[i].unit}` : '');
   // Interval dose stored as µg/day; UI works in µg/h. Step = 1 µg/h ≈ 24 µg/day.
-  const hourly = hourlyUg(draft.dose);
   const pctDelta = baseDose > 0 ? Math.round(((draft.dose - baseDose) / baseDose) * 100) : 0;
   const primaryConc = medications[0]?.concentration ?? 1;
+  const primaryUnit = medications[0]?.unit ?? 'µg/ml';
+  const primaryDiv = doseUnitFor(primaryUnit).div; // µg per displayed unit
+  const primaryDose = doseStringsFor(draft.dose, primaryUnit);
   const coMeds = medications.slice(1);
   const lengthFraction = Math.max(0, draft.endMin - draft.startMin) / 1440;
-  const ugInterval = draft.dose * lengthFraction; // primary (Baclofen) µg over the interval
+  const ugInterval = draft.dose * lengthFraction; // primary µg over the interval
+  // .perDay just reformats a raw µg amount into the primary unit (value/div).
+  const intervalPrimary = doseStringsFor(ugInterval, primaryUnit);
   const onDelete = () => {
     if (!editingId) return;
     removeInterval(editingId);
@@ -295,6 +303,7 @@ export function AddIntervalSheetDose() {
         baseDose={baseDose}
         newStart={draft.startMin}
         newEnd={draft.endMin}
+        unit={primaryUnit}
       />
       {/* Summary row */}
       <div
@@ -314,7 +323,7 @@ export function AddIntervalSheetDose() {
           {pctDelta >= 0 ? '+' : '−'} {Math.abs(pctDelta)} %
         </p>
         <p className="flex-1 font-['Roboto',sans-serif] text-[#00769e] text-[24px] tracking-[0.1px] min-w-px" style={{ fontVariationSettings: "'wdth' 100" }}>
-          <span className="font-bold">{doseStrings(draft.dose).perHour}</span> {doseStrings(draft.dose).unit}/h
+          <span className="font-bold">{primaryDose.perHour}</span> {primaryDose.unit}/h
         </p>
         <img alt="" src={imgEditPencil} className="size-[32px] shrink-0 block" />
       </div>
@@ -339,20 +348,20 @@ export function AddIntervalSheetDose() {
             type="text"
             inputMode="decimal"
             pattern="[0-9]*\.?[0-9]*"
-            value={hourly.toFixed(1)}
+            value={primaryDose.perHour}
             onChange={e => {
               const v = parseFloat(e.target.value.replace(/[^0-9.]/g, ''));
-              const ugH = isNaN(v) ? 0 : v;
+              const ugH = (isNaN(v) ? 0 : v) * primaryDiv; // displayed unit/h → µg/h
               setDraft({ ...draft, dose: Math.max(0, Math.min(2000, Math.round(ugH * 24))) });
             }}
             className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#1a1a1a] text-[32px] tracking-[0.1px] bg-transparent outline-none border-0 p-0 text-left"
             style={{ fontVariationSettings: "'wdth' 100" }}
           />
-          <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>µg/h</span>
+          <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{primaryDose.unit}/h</span>
         </div>
         <div className="flex-1 flex flex-col items-end justify-center">
           <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-            ≈ {ugInterval.toFixed(0)} µg
+            ≈ {intervalPrimary.perDay} {intervalPrimary.unit}
           </p>
         </div>
       </div>
@@ -363,6 +372,7 @@ export function AddIntervalSheetDose() {
           key={m.id}
           label={m.name}
           concentration={conc(i + 1)}
+          unit={m.unit}
           ugDay={coDoseUgDay(draft.dose, primaryConc, m.concentration)}
           lengthFraction={lengthFraction}
           top={540 + i * 80}
@@ -382,17 +392,18 @@ export function AddIntervalSheetDose() {
 }
 
 function DerivedRow({
-  label, concentration, ugDay, lengthFraction, top,
+  label, concentration, unit, ugDay, lengthFraction, top,
 }: {
   label: string;
   concentration: string;
+  unit: string;         // co-med concentration unit (drives mg vs µg display)
   ugDay: number;        // co-med dose at the primary's interval rate (µg/day)
   lengthFraction: number; // interval length as a fraction of the day
   top: number;
 }) {
-  const d = doseStrings(ugDay);
-  const intervalUg = ugDay * lengthFraction;
-  const intervalStr = d.unit === 'mg' ? (intervalUg / 1000).toFixed(3) : intervalUg.toFixed(1);
+  const d = doseStringsFor(ugDay, unit);
+  // .perDay reformats a raw µg amount into `unit` (value/div).
+  const intervalStr = doseStringsFor(ugDay * lengthFraction, unit).perDay;
   return (
     <div className="absolute left-[80px] right-[80px] flex items-center gap-[24px]" style={{ top }}>
       <div className="w-[260px]">

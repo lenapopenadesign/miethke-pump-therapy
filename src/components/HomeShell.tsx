@@ -55,7 +55,7 @@ function ArrowForward({ size = 40 }: { size?: number }) {
   );
 }
 
-function PatientIcon({ size = 64 }: { size?: number }) {
+export function PatientIcon({ size = 64 }: { size?: number }) {
   return (
     <div className="overflow-clip relative shrink-0" style={{ width: size, height: size }}>
       <div className="absolute inset-[6.8%_18.28%_5.93%_16.48%]">
@@ -68,7 +68,7 @@ function PatientIcon({ size = 64 }: { size?: number }) {
   );
 }
 
-function ImplantIcon({ size = 64 }: { size?: number }) {
+export function ImplantIcon({ size = 64 }: { size?: number }) {
   return (
     <div className="overflow-clip relative shrink-0" style={{ width: size, height: size }}>
       <div className="absolute inset-[9.91%_15.71%]">
@@ -106,7 +106,7 @@ function TherapyIcon({ size = 64 }: { size?: number }) {
   );
 }
 
-function Filling() {
+export function Filling() {
   return (
     <div className="h-[170px] overflow-clip relative w-[165px] shrink-0">
       <div className="absolute inset-[11.67%_16.38%]">
@@ -117,8 +117,9 @@ function Filling() {
 }
 
 function PatientCard() {
+  const navigate = useNavigate();
   return (
-    <div className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px]">
+    <div onClick={() => navigate('patient-detail')} className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
       <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
         <div className="content-stretch flex flex-1 gap-[16px] items-center min-w-px relative">
           <PatientIcon />
@@ -151,8 +152,9 @@ function PatientCard() {
 }
 
 function ImplantCard() {
+  const navigate = useNavigate();
   return (
-    <div className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px]">
+    <div onClick={() => navigate('implant-detail')} className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
       <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
         <div className="content-stretch flex flex-1 gap-[16px] items-center min-w-px relative">
           <ImplantIcon />
@@ -328,7 +330,7 @@ function ActionsCard() {
   );
 }
 
-function BottomNav() {
+export function BottomNav() {
   return (
     <div className="absolute bg-[#e6f4f9] bottom-0 content-stretch flex h-[120px] items-center justify-center left-0 overflow-x-clip overflow-y-auto px-[16px] py-[8px] w-[1200px]">
       <div className="content-stretch flex flex-1 gap-[16px] items-start justify-center min-w-px relative">
