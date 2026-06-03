@@ -11,6 +11,7 @@ import { Activate } from './screens/Activate';
 import { HomeActive } from './screens/HomeActive';
 import { PatientDetail } from './screens/PatientDetail';
 import { ImplantDetail } from './screens/ImplantDetail';
+import { ActionsScreen } from './screens/ActionsScreen';
 import { NavProvider, type ScreenId } from './navigation';
 import { TherapyProvider } from './therapy';
 
@@ -28,6 +29,7 @@ const ORDER: ScreenId[] = [
   'home-active',
   'patient-detail',
   'implant-detail',
+  'actions',
 ];
 
 // Design canvas dimensions — every screen is authored against this exact size.
@@ -77,6 +79,7 @@ export function App() {
       {screen === 'home-active' && <HomeActive />}
       {screen === 'patient-detail' && <PatientDetail />}
       {screen === 'implant-detail' && <ImplantDetail />}
+      {screen === 'actions' && <ActionsScreen />}
     </>
   );
 
@@ -102,12 +105,16 @@ export function App() {
     );
   }
 
+  // Desktop preview: scale the 1200×1920 canvas so its full height (incl. the
+  // bottom nav) always fits the browser window. Capped so it isn't huge on tall
+  // monitors and stays usable next to the dev jump-list.
+  const deskScale = Math.max(0.25, Math.min(0.5, (h - 48) / DESIGN_H));
   return (
     <TherapyProvider>
       <NavProvider value={setScreen}>
         <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-        <div className="device-shell">
-          <div className="device-inner">
+        <div className="device-shell" style={{ width: DESIGN_W * deskScale, height: DESIGN_H * deskScale }}>
+          <div className="device-inner" style={{ transform: `scale(${deskScale})` }}>
             <div className="screen">{screens}</div>
           </div>
         </div>

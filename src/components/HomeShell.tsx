@@ -84,7 +84,7 @@ export function ImplantIcon({ size = 64 }: { size?: number }) {
   );
 }
 
-function TherapyIcon({ size = 64 }: { size?: number }) {
+export function TherapyIcon({ size = 64 }: { size?: number }) {
   return (
     <div className="overflow-clip relative shrink-0" style={{ width: size, height: size }}>
       <div className="-translate-x-1/2 absolute aspect-[400/400] bottom-0 left-1/2 overflow-clip top-0">
@@ -275,7 +275,7 @@ function ActionsCard() {
   const navigate = useNavigate();
   return (
     <div className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px]">
-      <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
+      <div onClick={() => navigate('actions')} className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px] cursor-pointer">
         <div className="content-stretch flex flex-1 gap-[16px] items-center min-w-px relative">
           <div className="content-stretch flex items-center justify-center relative shrink-0 size-[64px]">
             <div className="h-[60px] relative shrink-0 w-[36px]">

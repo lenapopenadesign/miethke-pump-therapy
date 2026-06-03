@@ -13,7 +13,8 @@ export type ScreenId =
   | 'activate'
   | 'home-active'
   | 'patient-detail'
-  | 'implant-detail';
+  | 'implant-detail'
+  | 'actions';
 
 const NavContext = createContext<(to: ScreenId) => void>(() => {});
 
