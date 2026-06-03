@@ -15,16 +15,16 @@ const NEXT: Partial<Record<Phase, { to: Phase; delay: number }>> = {
   init:      { to: 'ready',     delay: 1700 },
   ready:     { to: 'inserting', delay: 5200 }, // one full slow needle search, then settle
   inserting: { to: 'draining',  delay: 1600 },
-  draining:  { to: 'filling',   delay: 5700 }, // vibrating drain (see DRAIN_SEQ)
-  filling:   { to: 'filled',    delay: 6800 }, // vibrating refill (see FILL_SEQ)
+  draining:  { to: 'filling',   delay: 5600 }, // stepped drain (see DRAIN_SEQ)
+  filling:   { to: 'filled',    delay: 6900 }, // stepped refill (see FILL_SEQ)
 };
 
-// Fluid levels — the pump empties / fills while "vibrating": each main pulse
-// trends toward the target but bounces slightly back, like a pump actuating.
-// Each entry is reached `STEP_MS` after the previous.
-const STEP_MS = 320;
-const DRAIN_SEQ = [0.3, 0.34, 0.26, 0.30, 0.22, 0.26, 0.18, 0.22, 0.14, 0.18, 0.10, 0.14, 0.06, 0.10, 0.03, 0.06, 0];
-const FILL_SEQ = [0, 0.05, 0.02, 0.13, 0.09, 0.22, 0.18, 0.32, 0.28, 0.44, 0.40, 0.56, 0.52, 0.68, 0.64, 0.80, 0.76, 0.90, 0.86, 1];
+// Fluid levels — the pump empties / fills monotonically in discrete pulses,
+// each level held briefly (a "stop") before the next move. Reached `STEP_MS`
+// apart, with a quick 450ms move then a short hold.
+const STEP_MS = 650;
+const DRAIN_SEQ = [0.3, 0.235, 0.235, 0.155, 0.155, 0.08, 0.08, 0];
+const FILL_SEQ = [0, 0.12, 0.12, 0.32, 0.32, 0.55, 0.55, 0.78, 0.78, 1];
 
 const GREEN = '#24ab5e';
 const BLUE = '#0094c5';
@@ -70,7 +70,7 @@ function GraphicBox({ fill, color, needle }: { fill: number; color: string; need
       </div>
       <svg className="absolute" style={{ left: 0, top: PUMP_TOP, width: BOX_W, height: 451.005 }} viewBox="0 0 385 451.005" fill="none">
         <defs><clipPath id="resClip"><circle cx={cx} cy={cy} r={innerR} /></clipPath></defs>
-        <rect x="50" width="287" y={bottom - fillH} height={fillH} fill={color} clipPath="url(#resClip)" style={{ transition: 'y 280ms ease-in-out, height 280ms ease-in-out, fill 600ms ease-in-out' }} />
+        <rect x="50" width="287" y={bottom - fillH} height={fillH} fill={color} clipPath="url(#resClip)" style={{ transition: 'y 450ms ease-in-out, height 450ms ease-in-out, fill 600ms ease-in-out' }} />
         <circle cx={cx} cy={cy} r="148.66" fill="none" stroke={color} strokeWidth="14.46" style={{ transition: colorTx }} />
         <path d={PUMP_BODY} fill={color} style={{ transition: colorTx }} />
         <path d={PUMP_PORT} fill={color} style={{ transition: colorTx }} />
