@@ -151,8 +151,9 @@ function PatientCard() {
   );
 }
 
-function ImplantCard() {
+function ImplantCard({ refillDate }: { refillDate: string }) {
   const navigate = useNavigate();
+  const noDate = refillDate === 'N/A';
   return (
     <div onClick={() => navigate('implant-detail')} className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
       <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
@@ -212,9 +213,9 @@ function ImplantCard() {
                       Next refill before
                     </p>
                   </div>
-                  <div className="bg-[#fdf3d1] content-stretch flex items-center justify-center px-[24px] relative rounded-[24px] shrink-0">
-                    <p className="font-['Roboto',sans-serif] font-bold leading-[48px] relative shrink-0 text-[#b3850e] text-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                      19.08.2026
+                  <div className={`content-stretch flex items-center justify-center px-[24px] relative rounded-[24px] shrink-0 ${noDate ? '' : 'bg-[#fdf3d1]'}`}>
+                    <p className={`font-['Roboto',sans-serif] font-bold leading-[48px] relative shrink-0 text-[32px] tracking-[0.1px] whitespace-nowrap ${noDate ? 'text-[#9ea8b2]' : 'text-[#b3850e]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+                      {refillDate}
                     </p>
                   </div>
                 </div>
@@ -295,8 +296,8 @@ function ActionsCard() {
             <img alt="" src={imgActOnboarding} className="block max-w-none size-full" />
           </div>
         </ActionTile>
-        {/* Prefill */}
-        <ActionTile filled label="Prefill">
+        {/* Refill */}
+        <ActionTile filled label="Refill">
           <div className="absolute flex inset-[-8.75%_-3.93%_29.79%_23.01%] items-center justify-center" style={{ containerType: "size" }}>
             <div className="flex-none h-[hypot(36.3553cqw,-67.1953cqh)] rotate-[-153.3deg] skew-x-[-2.31deg] w-[hypot(-63.6447cqw,-32.8047cqh)]">
               <div className="relative size-full">
@@ -409,7 +410,7 @@ export function HomeShell({ therapyStatus, therapyBody, onTherapyClick }: Props)
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
       <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[56px] px-[80px] top-[35px] w-[1200px]">
         <PatientCard />
-        <ImplantCard />
+        <ImplantCard refillDate={therapyStatus === 'none' ? 'N/A' : '19.08.2026'} />
         <div onClick={onTherapyClick} className={`bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] ${onTherapyClick ? 'cursor-pointer' : ''}`}>
           <TherapyHeader status={therapyStatus} />
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start pb-[16px] pt-[8px] px-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
