@@ -14,7 +14,8 @@ export type ScreenId =
   | 'home-active'
   | 'patient-detail'
   | 'implant-detail'
-  | 'actions';
+  | 'actions'
+  | 'refill-filling';
 
 const NavContext = createContext<(to: ScreenId) => void>(() => {});
 

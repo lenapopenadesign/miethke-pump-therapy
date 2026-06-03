@@ -19,10 +19,11 @@ const fieldBox = "h-[76px] bg-white border border-[#c4ccd4] rounded-[8px] px-[20
 
 export function AddMedication() {
   const navigate = useNavigate();
-  const { medications, addMedication, updateMedication, removeMedication } = useTherapy();
+  const { medications, addMedication, updateMedication, removeMedication, flowMode } = useTherapy();
+  const isRefill = flowMode === 'refill';
 
   return (
-    <WizardShell step="therapy" onBack={() => navigate('home-no-therapy')}>
+    <WizardShell step={isRefill ? 'medication' : 'therapy'} onBack={() => navigate(isRefill ? 'refill-filling' : 'home-no-therapy')}>
       <div className="flex-1 flex flex-col gap-[24px]">
         {/* Title */}
         <div className="flex gap-[16px] items-center">

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from '../navigation';
+import { useTherapy } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 
 const imgCheck = "/icons/9f696640-976b-4195-a9c5-662c75d84b76.svg";
@@ -19,10 +20,14 @@ function LoadingBar() {
 
 export function Activate() {
   const navigate = useNavigate();
+  const { flowMode, setFlowMode, completeRefill } = useTherapy();
   useEffect(() => {
-    const t = setTimeout(() => navigate('home-active'), 2500);
+    const t = setTimeout(() => {
+      if (flowMode === 'refill') { completeRefill(); setFlowMode('setup'); }
+      navigate('home-active');
+    }, 2500);
     return () => clearTimeout(t);
-  }, [navigate]);
+  }, [navigate, flowMode, setFlowMode, completeRefill]);
   return (
     <WizardShell step="transfer" onBack={() => navigate('review')}>
       <div className="flex flex-col gap-[24px]">

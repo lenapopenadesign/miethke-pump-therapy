@@ -1,4 +1,5 @@
 import { useNavigate } from '../navigation';
+import { useTherapy } from '../therapy';
 import { HomeShell } from '../components/HomeShell';
 
 const imgWarning = "/icons/c667ceb3-ed53-4c5b-b4f8-9b7620e8b97b.svg";
@@ -20,11 +21,13 @@ function NoTherapyBody({ onCta }: { onCta: () => void }) {
 
 export function HomeNoTherapy() {
   const navigate = useNavigate();
+  const { setFlowMode } = useTherapy();
+  const startSetup = () => { setFlowMode('setup'); navigate('add-medication'); };
   return (
     <HomeShell
       therapyStatus="none"
-      onTherapyClick={() => navigate('add-medication')}
-      therapyBody={<NoTherapyBody onCta={() => navigate('add-medication')} />}
+      onTherapyClick={startSetup}
+      therapyBody={<NoTherapyBody onCta={startSetup} />}
     />
   );
 }

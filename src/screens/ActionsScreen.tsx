@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { useNavigate } from '../navigation';
+import { useTherapy } from '../therapy';
 import { DetailShell } from '../components/DetailShell';
 import { PatientIcon, ImplantIcon, TherapyIcon } from '../components/HomeShell';
 
@@ -77,9 +79,9 @@ function StopIcon() {
 }
 
 /* ----- tile + section ----- */
-function Tile({ filled = false, label, children }: { filled?: boolean; label: string; children: ReactNode }) {
+function Tile({ filled = false, label, children, onClick }: { filled?: boolean; label: string; children: ReactNode; onClick?: () => void }) {
   return (
-    <div className={`flex flex-col gap-[18px] items-center justify-center overflow-clip px-[20px] py-[26px] rounded-[16px] size-[230px] shrink-0 cursor-pointer ${filled ? 'bg-[#0094c5]' : 'bg-white border-2 border-[#0094c5]'}`}>
+    <div onClick={onClick} className={`flex flex-col gap-[18px] items-center justify-center overflow-clip px-[20px] py-[26px] rounded-[16px] size-[230px] shrink-0 cursor-pointer ${filled ? 'bg-[#0094c5]' : 'bg-white border-2 border-[#0094c5]'}`}>
       <div className="overflow-clip relative shrink-0 size-[140px] flex items-center justify-center">{children}</div>
       <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[28px] text-center tracking-[0.1px] ${filled ? 'text-white' : 'text-[#0094c5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
     </div>
@@ -107,11 +109,14 @@ function HandIcon() {
 }
 
 export function ActionsScreen() {
+  const navigate = useNavigate();
+  const { setFlowMode } = useTherapy();
+  const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   return (
     <DetailShell icon={<HandIcon />} title="Actions">
       <div className="flex flex-col gap-[32px]">
         <SectionCard label="Recommended">
-          <Tile filled label="Refill"><RefillIcon white /></Tile>
+          <Tile filled label="Refill" onClick={startRefill}><RefillIcon white /></Tile>
           <Tile filled label="Clinician Bolus"><ClinicianIcon white /></Tile>
         </SectionCard>
 
@@ -120,7 +125,7 @@ export function ActionsScreen() {
         </SectionCard>
 
         <SectionCard icon={<ImplantIcon size={56} />} label="Implant">
-          <Tile label="Refill"><RefillIcon /></Tile>
+          <Tile label="Refill" onClick={startRefill}><RefillIcon /></Tile>
           <Tile label="Prime Bolus"><PrimeIcon /></Tile>
           <Tile label="Access"><AccessIcon /></Tile>
           <Tile label="Revision"><RevisionIcon /></Tile>

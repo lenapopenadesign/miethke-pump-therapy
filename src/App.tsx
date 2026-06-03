@@ -12,6 +12,7 @@ import { HomeActive } from './screens/HomeActive';
 import { PatientDetail } from './screens/PatientDetail';
 import { ImplantDetail } from './screens/ImplantDetail';
 import { ActionsScreen } from './screens/ActionsScreen';
+import { RefillFilling } from './screens/RefillFilling';
 import { NavProvider, type ScreenId } from './navigation';
 import { TherapyProvider } from './therapy';
 
@@ -30,6 +31,7 @@ const ORDER: ScreenId[] = [
   'patient-detail',
   'implant-detail',
   'actions',
+  'refill-filling',
 ];
 
 // Design canvas dimensions — every screen is authored against this exact size.
@@ -80,6 +82,7 @@ export function App() {
       {screen === 'patient-detail' && <PatientDetail />}
       {screen === 'implant-detail' && <ImplantDetail />}
       {screen === 'actions' && <ActionsScreen />}
+      {screen === 'refill-filling' && <RefillFilling />}
     </>
   );
 

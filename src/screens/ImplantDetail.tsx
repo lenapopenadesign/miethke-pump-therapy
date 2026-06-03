@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { useNavigate } from '../navigation';
+import { useTherapy } from '../therapy';
 import { DetailShell, ConnectedStatus } from '../components/DetailShell';
 import { ImplantIcon, Filling } from '../components/HomeShell';
 
@@ -27,9 +29,9 @@ function StatPair({ label, value, unit }: { label: string; value: string; unit?:
   );
 }
 
-function Tile({ label, children }: { label: string; children: ReactNode }) {
+function Tile({ label, children, onClick }: { label: string; children: ReactNode; onClick?: () => void }) {
   return (
-    <div className="bg-[#0094c5] rounded-[16px] flex-1 h-[237px] flex flex-col items-center justify-center gap-[18px] overflow-clip px-[20px] py-[26px] cursor-pointer">
+    <div onClick={onClick} className="bg-[#0094c5] rounded-[16px] flex-1 h-[237px] flex flex-col items-center justify-center gap-[18px] overflow-clip px-[20px] py-[26px] cursor-pointer">
       <div className="overflow-clip relative shrink-0 size-[140px]">{children}</div>
       <span className="font-['Roboto',sans-serif] font-bold text-white text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</span>
     </div>
@@ -37,6 +39,9 @@ function Tile({ label, children }: { label: string; children: ReactNode }) {
 }
 
 export function ImplantDetail() {
+  const navigate = useNavigate();
+  const { setFlowMode, refillDate } = useTherapy();
+  const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   return (
     <DetailShell icon={<ImplantIcon size={56} />} title="Implant" headerRight={<ConnectedStatus />}>
       <div className="flex flex-col gap-[40px] flex-1">
@@ -59,7 +64,7 @@ export function ImplantDetail() {
             <div className="flex flex-col items-start whitespace-nowrap">
               <p className={`${labelCls} px-[24px]`}>Next refill before</p>
               <div className="bg-[#fdf3d1] rounded-[24px] px-[24px] flex items-center justify-center">
-                <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] leading-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>19.08.2026</p>
+                <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] leading-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{refillDate}</p>
               </div>
             </div>
           </div>
@@ -107,7 +112,7 @@ export function ImplantDetail() {
 
         {/* Action tiles — pinned to the bottom of the page */}
         <div className="flex gap-[24px] mt-auto pt-[24px]">
-          <Tile label="Refill">
+          <Tile label="Refill" onClick={startRefill}>
             <div className="absolute flex inset-[-8.75%_-3.93%_29.79%_23.01%] items-center justify-center" style={{ containerType: "size" }}>
               <div className="flex-none h-[hypot(36.3553cqw,-67.1953cqh)] rotate-[-153.3deg] skew-x-[-2.31deg] w-[hypot(-63.6447cqw,-32.8047cqh)]">
                 <div className="relative size-full">

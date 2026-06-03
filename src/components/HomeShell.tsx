@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useNavigate } from '../navigation';
+import { useTherapy } from '../therapy';
 
 // Existing assets in /public/icons/
 const imgImplantOuter = "/icons/34c72d33-da0a-4524-baf8-8740816e1c94.svg";
@@ -274,6 +275,8 @@ function ActionTile({ filled, label, children, onClick }: { filled?: boolean; la
 
 function ActionsCard() {
   const navigate = useNavigate();
+  const { setFlowMode } = useTherapy();
+  const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   return (
     <div className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px]">
       <div onClick={() => navigate('actions')} className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px] cursor-pointer">
@@ -297,7 +300,7 @@ function ActionsCard() {
           </div>
         </ActionTile>
         {/* Refill */}
-        <ActionTile filled label="Refill">
+        <ActionTile filled label="Refill" onClick={startRefill}>
           <div className="absolute flex inset-[-8.75%_-3.93%_29.79%_23.01%] items-center justify-center" style={{ containerType: "size" }}>
             <div className="flex-none h-[hypot(36.3553cqw,-67.1953cqh)] rotate-[-153.3deg] skew-x-[-2.31deg] w-[hypot(-63.6447cqw,-32.8047cqh)]">
               <div className="relative size-full">
@@ -405,12 +408,13 @@ type Props = {
 export function HomeShell({ therapyStatus, therapyBody, onTherapyClick }: Props) {
   const navigate = useNavigate();
   void navigate; // available for future header buttons
+  const { refillDate } = useTherapy();
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] overflow-hidden">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
       <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[56px] px-[80px] top-[35px] w-[1200px]">
         <PatientCard />
-        <ImplantCard refillDate={therapyStatus === 'none' ? 'N/A' : '19.08.2026'} />
+        <ImplantCard refillDate={therapyStatus === 'none' ? 'N/A' : refillDate} />
         <div onClick={onTherapyClick} className={`bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] ${onTherapyClick ? 'cursor-pointer' : ''}`}>
           <TherapyHeader status={therapyStatus} />
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start pb-[16px] pt-[8px] px-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">

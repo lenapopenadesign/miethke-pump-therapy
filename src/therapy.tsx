@@ -113,7 +113,26 @@ type TherapyState = {
   // cleared automatically when the user starts adding an interval.
   useBaseOnly: boolean;
   setUseBaseOnly: (b: boolean) => void;
+  // Which wizard the shared therapy screens are part of. 'refill' adds the
+  // Filling + Medication steps and the "Refill" chrome; 'setup' is onboarding.
+  flowMode: FlowMode;
+  setFlowMode: (m: FlowMode) => void;
+  // Reservoir refill bookkeeping. completeRefill() tops the reservoir up and
+  // pushes the next-refill date out by a full-fill interval (~78 days).
+  refillDate: string;
+  completeRefill: () => void;
 };
+
+export type FlowMode = 'setup' | 'refill';
+
+// Next-refill date `days` from today, formatted dd.mm.yyyy.
+function refillDateInDays(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  return `${dd}.${mm}.${d.getFullYear()}`;
+}
 
 const TherapyContext = createContext<TherapyState | null>(null);
 
@@ -185,6 +204,9 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [sheetReturnTo, setSheetReturnTo] = useState<ScreenId>('intervals-populated');
   const [previewIntervalId, setPreviewIntervalId] = useState<string | null>(null);
   const [useBaseOnly, setUseBaseOnly] = useState(false);
+  const [flowMode, setFlowMode] = useState<FlowMode>('setup');
+  const [refillDate, setRefillDate] = useState('19.08.2026');
+  const completeRefill = () => setRefillDate(refillDateInDays(78));
 
   // The "Daytime (base)" interval is the base dose by definition — propagate
   // base-dose changes to every day's daytime interval.
@@ -271,6 +293,8 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       strokeStrategy, setStrokeStrategy,
       dayPattern, setDayPattern,
       useBaseOnly, setUseBaseOnly,
+      flowMode, setFlowMode,
+      refillDate, completeRefill,
     }}>
       {children}
     </TherapyContext.Provider>

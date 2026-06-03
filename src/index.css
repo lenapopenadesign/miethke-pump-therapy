@@ -64,3 +64,10 @@ body {
   background: white;
   overflow: hidden;
 }
+
+/* Refill "Filling" step: needle slowly probes down to the port and back up. */
+@keyframes needleSearch {
+  0%, 100% { transform: translateY(-269px); }
+  50%      { transform: translateY(0); }
+}
+.needle-search { animation: needleSearch 5s ease-in-out infinite; }
