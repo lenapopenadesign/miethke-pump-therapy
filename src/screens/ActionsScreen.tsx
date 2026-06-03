@@ -109,7 +109,7 @@ function HandIcon() {
 export function ActionsScreen() {
   return (
     <DetailShell icon={<HandIcon />} title="Actions">
-      <div className="flex flex-col gap-[20px]">
+      <div className="flex flex-col gap-[32px]">
         <SectionCard label="Recommended">
           <Tile filled label="Refill"><RefillIcon white /></Tile>
           <Tile filled label="Clinician Bolus"><ClinicianIcon white /></Tile>
