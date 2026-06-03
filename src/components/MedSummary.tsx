@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { coDoseUgDay, doseStringsFor, type Medication } from '../therapy';
+import { coDoseUgDay, concUgPerUl, doseStringsFor, type Medication } from '../therapy';
 
 function fmtDay(ug: number, concUnit: string): { value: string; unit: string } {
   const s = doseStringsFor(ug, concUnit);
@@ -36,9 +36,9 @@ export function MedSummary({
   medications: Medication[];
   currentUg?: number;
 }) {
-  const c0 = medications[0]?.concentration ?? 1;
+  const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const showCurrent = currentUg != null;
-  const co = (ug: number, m: Medication, i: number) => (i === 0 ? ug : coDoseUgDay(ug, c0, m.concentration));
+  const co = (ug: number, m: Medication, i: number) => (i === 0 ? ug : coDoseUgDay(ug, c0, concUgPerUl(m)));
   const rows = medications.map((m, i) => ({
     med: m,
     base: fmtDay(co(baseDose, m, i), m.unit),

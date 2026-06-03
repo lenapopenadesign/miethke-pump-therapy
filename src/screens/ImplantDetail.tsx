@@ -59,7 +59,7 @@ export function ImplantDetail() {
             <div className="flex flex-col items-start whitespace-nowrap">
               <p className={`${labelCls} px-[24px]`}>Next refill before</p>
               <div className="bg-[#fdf3d1] rounded-[24px] px-[24px] flex items-center justify-center">
-                <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] leading-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>24.07.2025</p>
+                <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] leading-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>19.08.2026</p>
               </div>
             </div>
           </div>

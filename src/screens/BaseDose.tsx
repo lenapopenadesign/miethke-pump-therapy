@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, coDoseUgDay, doseStringsFor, doseUnitFor, type Medication } from '../therapy';
+import { useTherapy, coDoseUgDay, concUgPerUl, doseStringsFor, doseUnitFor, type Medication } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { MedicationIcon } from '../components/MedicationIcon';
 
@@ -22,7 +22,7 @@ function NameCell({ name, concentration }: { name: string; concentration: string
 export function BaseDose() {
   const navigate = useNavigate();
   const { baseDose, setBaseDose, medications } = useTherapy();
-  const c0 = medications[0]?.concentration ?? 1;
+  const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const [editingId, setEditingId] = useState<string | undefined>(medications[0]?.id);
   // Raw text of the field while it's being typed into. Kept separate from the
   // formatted dose so a keystroke isn't reformatted mid-entry (typing "360"
@@ -33,12 +33,13 @@ export function BaseDose() {
 
   // Each med's 24h dose (µg/day). The primary (index 0) is the base dose itself;
   // every other drug is co-delivered in the same volume.
-  const ugFor = (m: Medication, i: number) => (i === 0 ? baseDose : coDoseUgDay(baseDose, c0, m.concentration));
+  const ugFor = (m: Medication, i: number) => (i === 0 ? baseDose : coDoseUgDay(baseDose, c0, concUgPerUl(m)));
   // The base dose is entered per DAY. Editing any med back-solves the shared
   // delivered volume (the primary's µg/day) so the rest of the table stays
   // consistent; the per-hour readout is always dayUg / 24.
   const applyEditDaily = (m: Medication, i: number, ugPerDay: number) => {
-    const primary = i === 0 ? ugPerDay : (m.concentration > 0 ? (ugPerDay * c0) / m.concentration : 0);
+    const mc = concUgPerUl(m);
+    const primary = i === 0 ? ugPerDay : (mc > 0 ? (ugPerDay * c0) / mc : 0);
     setBaseDose(Math.max(0, Math.min(20000, Math.round(primary))));
   };
 

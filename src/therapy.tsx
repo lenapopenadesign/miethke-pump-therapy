@@ -121,25 +121,26 @@ const DEFAULT_DRAFT: Draft = {
   label: '',
   startMin: 8 * 60,
   endMin: 10 * 60 + 30,
-  dose: 480,
+  dose: 288,
 };
 
-// Weekday (Mon–Fri) schedule. endMin is exclusive — displays as (endMin-1).
+// Frida's intrathecal pain program (morphine + bupivacaine + clonidine, one
+// shared flow rate). `dose` is the PRIMARY (morphine) µg/day; it equals
+// flow(µL/h) × morphine-conc(0.6 µg/µL) × 24. Daytime base = flow 20 → 288.
+// endMin is exclusive — displays as (endMin-1).
 const SEED_INTERVALS: Interval[] = [
-  { id: 'iv-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 390,  dose: 200 }, // 00:00 – 06:29
-  { id: 'iv-morning', label: 'Morning peak',   startMin: 390,  endMin: 481,  dose: 480 }, // 06:30 – 08:00
-  { id: 'iv-day',     label: 'Daytime (base)', startMin: 481,  endMin: 1080, dose: 360 }, // 08:01 – 17:59
-  { id: 'iv-evening', label: 'Evening peak',   startMin: 1080, endMin: 1261, dose: 450 }, // 18:00 – 21:00
-  { id: 'iv-wind',    label: 'Wind-down',      startMin: 1261, endMin: 1440, dose: 280 }, // 21:01 – 23:59
+  { id: 'iv-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 360,  dose: 201.6 }, // 00:00 – 05:59 · flow 14
+  { id: 'iv-morning', label: 'Morning peak',   startMin: 360,  endMin: 540,  dose: 432 },   // 06:00 – 08:59 · flow 30
+  { id: 'iv-day',     label: 'Daytime (base)', startMin: 540,  endMin: 1080, dose: 288 },   // 09:00 – 17:59 · flow 20
+  { id: 'iv-evening', label: 'Evening peak',   startMin: 1080, endMin: 1380, dose: 345.6 }, // 18:00 – 22:59 · flow 24
 ];
 
-// Weekend (Sat–Sun) schedule.
+// Weekend (Sat–Sun): sleeps in — morning peak shifted later and runs longer.
 const SEED_WEEKEND_INTERVALS: Interval[] = [
-  { id: 'iv-we-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 510,  dose: 200 }, // 00:00 – 08:29
-  { id: 'iv-we-morning', label: 'Morning peak',   startMin: 510,  endMin: 661,  dose: 480 }, // 08:30 – 11:00
-  { id: 'iv-we-day',     label: 'Daytime (base)', startMin: 661,  endMin: 1080, dose: 360 }, // 11:01 – 17:59
-  { id: 'iv-we-evening', label: 'Evening peak',   startMin: 1080, endMin: 1291, dose: 450 }, // 18:00 – 21:30
-  { id: 'iv-we-wind',    label: 'Wind-down',      startMin: 1291, endMin: 1440, dose: 280 }, // 21:31 – 23:59
+  { id: 'iv-we-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 480,  dose: 201.6 }, // 00:00 – 07:59 · flow 14
+  { id: 'iv-we-morning', label: 'Morning peak',   startMin: 480,  endMin: 720,  dose: 432 },   // 08:00 – 11:59 · flow 30
+  { id: 'iv-we-day',     label: 'Daytime (base)', startMin: 720,  endMin: 1080, dose: 288 },   // 12:00 – 17:59 · flow 20
+  { id: 'iv-we-evening', label: 'Evening peak',   startMin: 1080, endMin: 1380, dose: 345.6 }, // 18:00 – 22:59 · flow 24
 ];
 
 function uid() {
@@ -156,15 +157,18 @@ const SEED_BY_DAY: IntervalsByDay = {
   sunday:    SEED_WEEKEND_INTERVALS.map(iv => ({ ...iv })),
 };
 
+// Single-reservoir admixture. medications[0] (Morphine) is the primary / flow
+// driver. Morphine is entered as 600 µg/mL (= 0.6 mg/mL) so its dosing reads in
+// µg; bupivacaine in mg; clonidine in µg — matching the program sheet.
 const SEED_MEDICATIONS: Medication[] = [
-  { id: 'med-baclofen',    name: 'Baclofen',    concentration: 100, unit: 'µg/ml' },
-  { id: 'med-morphine',    name: 'Morphine',    concentration: 10,  unit: 'mg/ml' },
-  { id: 'med-bupivacaine', name: 'Bupivacaine', concentration: 5,   unit: 'mg/ml' },
+  { id: 'med-morphine',    name: 'Morphine',    concentration: 600, unit: 'µg/ml' },
+  { id: 'med-bupivacaine', name: 'Bupivacaine', concentration: 6,   unit: 'mg/ml' },
+  { id: 'med-clonidine',   name: 'Clonidine',   concentration: 60,  unit: 'µg/ml' },
 ];
 
 export function TherapyProvider({ children }: { children: ReactNode }) {
   const [medications, setMedications] = useState<Medication[]>(SEED_MEDICATIONS);
-  const [baseDose, setBaseDoseRaw] = useState(360);
+  const [baseDose, setBaseDoseRaw] = useState(288);
   const [intervalsByDay, setIntervalsByDay] = useState<IntervalsByDay>(SEED_BY_DAY);
   const [editingScope, setEditingScope] = useState<DayKey[]>([...WEEKDAY_KEYS]);
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
@@ -284,10 +288,21 @@ export function useTherapy() {
 export const hourlyUg = (dailyUg: number) => dailyUg / 24;
 
 /**
+ * A medication's concentration in canonical µg/µL (= µg per microlitre).
+ * 1 mg/mL = 1 µg/µL; 1 µg/mL = 0.001 µg/µL. Use this whenever concentrations of
+ * different medications are compared, since the reservoir mixes mg/mL and µg/mL
+ * agents and raw values are not directly comparable.
+ */
+export function concUgPerUl(m: Medication): number {
+  return m.unit.includes('µg') ? m.concentration / 1000 : m.concentration;
+}
+
+/**
  * Daily mass (µg/day) of a co-delivered medication. The primary drug's dose
  * fixes the delivered volume (primaryUgDay / primaryConc); every other drug in
  * the mixture is co-delivered in that same volume, so its mass scales by the
- * concentration ratio. Concentration is mg/ml, which equals µg/µl numerically.
+ * concentration ratio. Both concentrations MUST be in the same unit — pass the
+ * canonical µg/µL values from concUgPerUl().
  */
 export function coDoseUgDay(primaryUgDay: number, primaryConc: number, medConc: number): number {
   if (primaryConc <= 0) return 0;

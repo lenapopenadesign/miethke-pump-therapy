@@ -1,5 +1,5 @@
 import { useNavigate } from '../navigation';
-import { useTherapy, STROKE_OPTIONS, deliveryPlan, fmtInterval, type StrokeStrategy } from '../therapy';
+import { useTherapy, STROKE_OPTIONS, deliveryPlan, concUgPerUl, fmtInterval, type StrokeStrategy } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 
 function DeliveryIcon() {
@@ -16,7 +16,7 @@ export function RegularTherapy() {
   const { baseDose, strokeStrategy, setStrokeStrategy, medications } = useTherapy();
   const selectedIdx = STROKE_OPTIONS.findIndex(o => o.bundle === strokeStrategy);
   const selected = STROKE_OPTIONS[selectedIdx >= 0 ? selectedIdx : 0];
-  const plan = deliveryPlan(baseDose, medications[0]?.concentration ?? 1, selected.bundle);
+  const plan = deliveryPlan(baseDose, medications[0] ? concUgPerUl(medications[0]) : 1, selected.bundle);
 
   return (
     <WizardShell step="therapy" onBack={() => navigate('intervals-empty')}>

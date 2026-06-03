@@ -1,6 +1,6 @@
 import { useNavigate } from '../navigation';
 import {
-  useTherapy, fmtTime, coDoseUgDay, doseStringsFor, doseUnitFor,
+  useTherapy, fmtTime, coDoseUgDay, concUgPerUl, doseStringsFor, doseUnitFor,
   doseColor,
 } from '../therapy';
 import type { ReactNode } from 'react';
@@ -276,7 +276,7 @@ export function AddIntervalSheetDose() {
   const conc = (i: number) => (medications[i] ? `${medications[i].concentration} ${medications[i].unit}` : '');
   // Interval dose stored as µg/day; UI works in µg/h. Step = 1 µg/h ≈ 24 µg/day.
   const pctDelta = baseDose > 0 ? Math.round(((draft.dose - baseDose) / baseDose) * 100) : 0;
-  const primaryConc = medications[0]?.concentration ?? 1;
+  const primaryConc = medications[0] ? concUgPerUl(medications[0]) : 1;
   const primaryUnit = medications[0]?.unit ?? 'µg/ml';
   const primaryDiv = doseUnitFor(primaryUnit).div; // µg per displayed unit
   const primaryDose = doseStringsFor(draft.dose, primaryUnit);
@@ -373,7 +373,7 @@ export function AddIntervalSheetDose() {
           label={m.name}
           concentration={conc(i + 1)}
           unit={m.unit}
-          ugDay={coDoseUgDay(draft.dose, primaryConc, m.concentration)}
+          ugDay={coDoseUgDay(draft.dose, primaryConc, concUgPerUl(m))}
           lengthFraction={lengthFraction}
           top={540 + i * 80}
         />

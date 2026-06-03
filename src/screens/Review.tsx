@@ -3,6 +3,7 @@ import { useNavigate } from '../navigation';
 import {
   useTherapy,
   coDoseUgDay,
+  concUgPerUl,
   doseColor,
   doseStringsFor,
   estimatedDailyTotal,
@@ -81,7 +82,7 @@ export function Review() {
   const selected = useBaseOnly ? [] : (tab === 'weekend' ? orderedWeekend : ordered);
 
   const strokeOpt = STROKE_OPTIONS.find(s => s.bundle === strokeStrategy) ?? STROKE_OPTIONS[0];
-  const plan = deliveryPlan(baseDose, medications[0]?.concentration ?? 1, strokeOpt.bundle);
+  const plan = deliveryPlan(baseDose, medications[0] ? concUgPerUl(medications[0]) : 1, strokeOpt.bundle);
   const estDaily = useBaseOnly ? baseDose : estimatedDailyTotal(baseDose, selected);
   const onActivate = () => { if (confirmed) navigate('activate'); };
 
@@ -140,7 +141,7 @@ export function Review() {
               {selected.map(iv => {
                 const pct = baseDose > 0 ? Math.round(((iv.dose - baseDose) / baseDose) * 100) : 0;
                 const isOpen = expanded.has(iv.id);
-                const c0 = medications[0]?.concentration ?? 1;
+                const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
                 return (
                   <div key={iv.id} className="bg-white border border-[#d9dbde] rounded-[12px] overflow-hidden">
                     <div
@@ -157,7 +158,7 @@ export function Review() {
                     {isOpen && (
                       <div className="border-t border-[#e3e6e9] bg-[#f7fafc] px-[16px] py-[16px] flex flex-col gap-[10px]">
                         {medications.map((m, i) => {
-                          const ug = i === 0 ? iv.dose : coDoseUgDay(iv.dose, c0, m.concentration);
+                          const ug = i === 0 ? iv.dose : coDoseUgDay(iv.dose, c0, concUgPerUl(m));
                           const ds = doseStringsFor(ug, m.unit);
                           return (
                             <div key={m.id} className="grid [grid-template-columns:1fr_220px_160px_180px_40px] items-center">

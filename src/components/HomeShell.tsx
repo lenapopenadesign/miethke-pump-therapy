@@ -214,7 +214,7 @@ function ImplantCard() {
                   </div>
                   <div className="bg-[#fdf3d1] content-stretch flex items-center justify-center px-[24px] relative rounded-[24px] shrink-0">
                     <p className="font-['Roboto',sans-serif] font-bold leading-[48px] relative shrink-0 text-[#b3850e] text-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                      24.07.2025
+                      19.08.2026
                     </p>
                   </div>
                 </div>
