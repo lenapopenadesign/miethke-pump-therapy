@@ -57,16 +57,36 @@ function WarningNote({ text }: { text: string }) {
   );
 }
 
-/** White "add therapy" glyph (medication bottle + plus) for the filled action tile. */
+// White "Add Therapy" icon (medication calendar + bottle + plus) — exact Figma
+// composition (node 7963:45207), white assets for the filled action tile.
+const atImg = (n: number) => `/icons/at-${n}.svg`;
+const IMGF = "absolute block inset-0 max-w-none size-full";
 function AddTherapyIcon() {
   return (
-    <svg viewBox="0 0 72 72" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="block size-full">
-      <rect x="15" y="29" width="29" height="34" rx="4" />
-      <path d="M19 29v-5a4 4 0 0 1 4-4h13a4 4 0 0 1 4 4v5" />
-      <line x1="24" y1="43" x2="35" y2="43" />
-      <line x1="24" y1="51" x2="35" y2="51" />
-      <path d="M54 11v18M45 20h18" />
-    </svg>
+    <>
+      <div className="absolute left-[-14px] overflow-clip size-[104.145px] top-[1.18px]">
+        <div className="-translate-x-1/2 absolute aspect-[400/400] bottom-0 left-1/2 overflow-clip top-0">
+          <div className="absolute contents inset-[18.92%_30.29%_32.95%_15.2%]">
+            <div className="absolute inset-[18.92%_30.29%_71%_15.2%]"><img alt="" className={IMGF} src={atImg(1)} /></div>
+            <div className="absolute inset-[27.82%_50.03%_32.95%_15.2%]"><img alt="" className={IMGF} src={atImg(2)} /></div>
+          </div>
+          <div className="absolute inset-[12.67%_35.51%_78.7%_20.41%]"><img alt="" className={IMGF} src={atImg(3)} /></div>
+          <div className="absolute inset-[47.67%_52.31%_41.86%_37.22%]"><img alt="" className={IMGF} src={atImg(4)} /></div>
+          <div className="absolute inset-[26.63%_30.29%_70.99%_15.2%]"><img alt="" className={IMGF} src={atImg(5)} /></div>
+          <div className="absolute inset-[47.67%_66.88%_41.86%_22.65%]"><img alt="" className={IMGF} src={atImg(6)} /></div>
+          <div className="absolute inset-[33.1%_66.88%_56.43%_22.65%]"><img alt="" className={IMGF} src={atImg(7)} /></div>
+          <div className="absolute inset-[33.1%_52.31%_56.43%_37.22%]"><img alt="" className={IMGF} src={atImg(8)} /></div>
+          <div className="absolute inset-[32.13%_22.02%_58.18%_61.41%]"><img alt="" className={IMGF} src={atImg(9)} /></div>
+          <div className="absolute inset-[39.42%_15.2%_12.67%_54.61%]"><img alt="" className={IMGF} src={atImg(10)} /></div>
+          <div className="absolute inset-[28.93%_31.08%_71%_64.17%]"><img alt="" className={IMGF} src={atImg(11)} /></div>
+        </div>
+      </div>
+      <div className="absolute content-stretch flex flex-col h-[77.335px] items-center justify-center left-[74.51px] overflow-clip px-[3.025px] py-[4.537px] top-[-19.95px] w-[49.494px]">
+        <div className="h-[30.382px] overflow-clip relative shrink-0 w-[30.248px]">
+          <img alt="" className={IMGF} src="/icons/at-plus.svg" />
+        </div>
+      </div>
+    </>
   );
 }
 
