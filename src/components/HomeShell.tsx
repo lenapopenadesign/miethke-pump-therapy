@@ -63,7 +63,7 @@ const atImg = (n: number) => `/icons/at-${n}.svg`;
 const IMGF = "absolute block inset-0 max-w-none size-full";
 function AddTherapyIcon() {
   return (
-    <>
+    <div className="absolute inset-0" style={{ transform: 'translate(18px, 16px)' }}>
       <div className="absolute left-[-14px] overflow-clip size-[104.145px] top-[1.18px]">
         <div className="-translate-x-1/2 absolute aspect-[400/400] bottom-0 left-1/2 overflow-clip top-0">
           <div className="absolute contents inset-[18.92%_30.29%_32.95%_15.2%]">
@@ -86,7 +86,7 @@ function AddTherapyIcon() {
           <img alt="" className={IMGF} src="/icons/at-plus.svg" />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
