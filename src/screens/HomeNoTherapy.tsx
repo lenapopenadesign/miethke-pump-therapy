@@ -12,7 +12,7 @@ function NoTherapyBody({ onCta }: { onCta: () => void }) {
           <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgWarning} />
         </div>
         <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#45483c] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-          Set-up a therapy for your patient to start the medication delivery.
+          Start the onboarding to set up a therapy.
         </p>
       </div>
     </div>

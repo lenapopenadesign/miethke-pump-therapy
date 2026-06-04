@@ -43,6 +43,32 @@ const imgActPrime2 = "/icons/act-prime-2.svg";
 const imgActPrime3 = "/icons/act-prime-3.svg";
 const imgActClinician1 = "/icons/act-clinician-1.svg";
 const imgActClinician2 = "/icons/act-clinician-2.svg";
+const imgWarning = "/icons/c667ceb3-ed53-4c5b-b4f8-9b7620e8b97b.svg";
+
+/** Amber "start the onboarding…" note used in the no-therapy Patient/Therapy cards. */
+function WarningNote({ text }: { text: string }) {
+  return (
+    <div className="bg-[#fdf3d1] flex gap-[16px] items-center rounded-[16px] px-[24px] py-[16px] w-full">
+      <div className="h-[40px] w-[41px] shrink-0 relative">
+        <img alt="" src={imgWarning} className="absolute inset-0 block size-full" />
+      </div>
+      <p className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[24px] leading-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{text}</p>
+    </div>
+  );
+}
+
+/** White "add therapy" glyph (medication bottle + plus) for the filled action tile. */
+function AddTherapyIcon() {
+  return (
+    <svg viewBox="0 0 72 72" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="block size-full">
+      <rect x="15" y="29" width="29" height="34" rx="4" />
+      <path d="M19 29v-5a4 4 0 0 1 4-4h13a4 4 0 0 1 4 4v5" />
+      <line x1="24" y1="43" x2="35" y2="43" />
+      <line x1="24" y1="51" x2="35" y2="51" />
+      <path d="M54 11v18M45 20h18" />
+    </svg>
+  );
+}
 
 function ArrowForward({ size = 40 }: { size?: number }) {
   return (
@@ -117,7 +143,7 @@ export function Filling() {
   );
 }
 
-function PatientCard() {
+function PatientCard({ noTherapy }: { noTherapy: boolean }) {
   const navigate = useNavigate();
   return (
     <div onClick={() => navigate('patient-detail')} className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
@@ -125,34 +151,38 @@ function PatientCard() {
         <div className="content-stretch flex flex-1 gap-[16px] items-center min-w-px relative">
           <PatientIcon />
           <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-            Frida Kenton
+            {noTherapy ? 'Patient' : 'Frida Kenton'}
           </p>
         </div>
         <ArrowForward />
       </div>
       <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
         <div className="content-stretch flex items-start px-[24px] relative shrink-0 w-full">
-          <div className="content-stretch flex flex-1 flex-col gap-[24px] items-start min-w-px relative">
-            <div className="content-stretch flex font-['Roboto',sans-serif] font-normal gap-[40px] items-center relative shrink-0 text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-              <p className="leading-[32px] relative shrink-0">*01.04.1984</p>
-              <p className="leading-[32px] relative shrink-0">Gender: Female</p>
-              <p className="leading-[0] relative shrink-0">
-                <span className="leading-[32px]">{`Condition: `}</span>
-                <span className="leading-[32px]">RRMS</span>
-              </p>
-              <p className="leading-[0] relative shrink-0">
-                <span className="leading-[32px]">{`Patient N°: `}</span>
-                <span className="font-light leading-[32px]">930230393</span>
-              </p>
+          {noTherapy ? (
+            <WarningNote text="Start the onboarding to enter patient data" />
+          ) : (
+            <div className="content-stretch flex flex-1 flex-col gap-[24px] items-start min-w-px relative">
+              <div className="content-stretch flex font-['Roboto',sans-serif] font-normal gap-[40px] items-center relative shrink-0 text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="leading-[32px] relative shrink-0">*01.04.1984</p>
+                <p className="leading-[32px] relative shrink-0">Gender: Female</p>
+                <p className="leading-[0] relative shrink-0">
+                  <span className="leading-[32px]">{`Condition: `}</span>
+                  <span className="leading-[32px]">RRMS</span>
+                </p>
+                <p className="leading-[0] relative shrink-0">
+                  <span className="leading-[32px]">{`Patient N°: `}</span>
+                  <span className="font-light leading-[32px]">930230393</span>
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function ImplantCard({ refillDate }: { refillDate: string }) {
+function ImplantCard({ refillDate, noTherapy }: { refillDate: string; noTherapy: boolean }) {
   const navigate = useNavigate();
   const noDate = refillDate === 'N/A';
   return (
@@ -185,10 +215,10 @@ function ImplantCard({ refillDate }: { refillDate: string }) {
               <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
                 <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>Fill level</p>
                 <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  <span className="leading-[48px] text-[32px]">40/</span>
+                  <span className="leading-[48px] text-[32px]">{noTherapy ? '10/' : '40/'}</span>
                   <span className="font-normal leading-[48px] text-[32px]">40 ml</span>
                 </p>
-                <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>100 %</p>
+                <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>{noTherapy ? '25 %' : '100 %'}</p>
               </div>
               {/* Catheter */}
               <div className="content-stretch flex items-center relative shrink-0">
@@ -200,10 +230,10 @@ function ImplantCard({ refillDate }: { refillDate: string }) {
                 <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
                   <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>Catheter</p>
                   <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    <span className="leading-[48px] text-[32px]">0.3</span>
+                    <span className="leading-[48px] text-[32px]">{noTherapy ? 'N/A' : '0.3'}</span>
                     <span className="font-normal leading-[48px] text-[32px]">{` ml`}</span>
                   </p>
-                  <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>53 cm</p>
+                  <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>{noTherapy ? 'N/A cm' : '53 cm'}</p>
                 </div>
               </div>
               {/* Next refill */}
@@ -273,10 +303,11 @@ function ActionTile({ filled, label, children, onClick }: { filled?: boolean; la
   );
 }
 
-function ActionsCard() {
+function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
   const navigate = useNavigate();
   const { setFlowMode } = useTherapy();
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
+  const startSetup = () => { setFlowMode('setup'); navigate('add-medication'); };
   return (
     <div className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px]">
       <div onClick={() => navigate('actions')} className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px] cursor-pointer">
@@ -293,12 +324,18 @@ function ActionsCard() {
         <ArrowForward />
       </div>
       <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex gap-[25px] items-start overflow-clip p-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
-        {/* Onboarding */}
-        <ActionTile filled label="Onboarding" onClick={() => navigate('add-medication')}>
-          <div className="absolute inset-[5.51%_0_4.49%_0]">
-            <img alt="" src={imgActOnboarding} className="block max-w-none size-full" />
-          </div>
-        </ActionTile>
+        {/* First tile: Add Therapy (no therapy) or Onboarding (active) */}
+        {noTherapy ? (
+          <ActionTile filled label="Add Therapy" onClick={startSetup}>
+            <AddTherapyIcon />
+          </ActionTile>
+        ) : (
+          <ActionTile filled label="Onboarding" onClick={() => navigate('add-medication')}>
+            <div className="absolute inset-[5.51%_0_4.49%_0]">
+              <img alt="" src={imgActOnboarding} className="block max-w-none size-full" />
+            </div>
+          </ActionTile>
+        )}
         {/* Refill */}
         <ActionTile filled label="Refill" onClick={startRefill}>
           <div className="absolute flex inset-[-8.75%_-3.93%_29.79%_23.01%] items-center justify-center" style={{ containerType: "size" }}>
@@ -324,11 +361,13 @@ function ActionsCard() {
           <div className="absolute inset-[10%_35.58%_53.18%_41.06%]"><div className="absolute inset-[-1.94%_-3.05%_-1.94%_-3.07%]"><img alt="" src={imgActPrime2} className="block max-w-none size-full" /></div></div>
           <div className="absolute inset-[42.84%_56.65%_20.35%_20%]"><div className="absolute inset-[-1.94%_-3.06%_-1.93%_-3.06%]"><img alt="" src={imgActPrime3} className="block max-w-none size-full" /></div></div>
         </ActionTile>
-        {/* Clinician Bolus */}
-        <ActionTile filled label="Clinician Bolus">
-          <div className="absolute inset-[6.25%_33.75%_21.25%_11.25%]"><img alt="" src={imgActClinician1} className="absolute block inset-0 max-w-none size-full" /></div>
-          <div className="absolute inset-[20%_11.25%_5%_66.25%]"><img alt="" src={imgActClinician2} className="absolute block inset-0 max-w-none size-full" /></div>
-        </ActionTile>
+        {/* Clinician Bolus — active only */}
+        {!noTherapy && (
+          <ActionTile filled label="Clinician Bolus">
+            <div className="absolute inset-[6.25%_33.75%_21.25%_11.25%]"><img alt="" src={imgActClinician1} className="absolute block inset-0 max-w-none size-full" /></div>
+            <div className="absolute inset-[20%_11.25%_5%_66.25%]"><img alt="" src={imgActClinician2} className="absolute block inset-0 max-w-none size-full" /></div>
+          </ActionTile>
+        )}
       </div>
     </div>
   );
@@ -409,19 +448,20 @@ export function HomeShell({ therapyStatus, therapyBody, onTherapyClick }: Props)
   const navigate = useNavigate();
   void navigate; // available for future header buttons
   const { refillDate } = useTherapy();
+  const noTherapy = therapyStatus === 'none';
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] overflow-hidden">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
       <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[56px] px-[80px] top-[35px] w-[1200px]">
-        <PatientCard />
-        <ImplantCard refillDate={therapyStatus === 'none' ? 'N/A' : refillDate} />
+        <PatientCard noTherapy={noTherapy} />
+        <ImplantCard refillDate={noTherapy ? 'N/A' : refillDate} noTherapy={noTherapy} />
         <div onClick={onTherapyClick} className={`bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] ${onTherapyClick ? 'cursor-pointer' : ''}`}>
           <TherapyHeader status={therapyStatus} />
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start pb-[16px] pt-[8px] px-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
             {therapyBody}
           </div>
         </div>
-        <ActionsCard />
+        <ActionsCard noTherapy={noTherapy} />
       </div>
       <BottomNav />
     </div>
