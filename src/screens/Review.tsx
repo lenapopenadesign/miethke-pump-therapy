@@ -147,7 +147,7 @@ export function Review() {
                     <div
                       onClick={() => toggleExpanded(iv.id)}
                       className="grid items-center [grid-template-columns:1fr_220px_160px_180px_40px] h-[72px] px-[16px] cursor-pointer select-none">
-                      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{iv.label}</p>
+                      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{iv.label}</p>
                       <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{timeRangeLabel(iv.startMin, iv.endMin)}</p>
                       <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{pct >= 0 ? '+' : '−'} {Math.abs(pct)} %</p>
                       <p className="font-['Roboto',sans-serif] text-[#00769e] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{doseStringsFor(iv.dose, primaryUnit).perHour}</span> {doseStringsFor(iv.dose, primaryUnit).unit}/h</p>
@@ -162,7 +162,7 @@ export function Review() {
                           const ds = doseStringsFor(ug, m.unit);
                           return (
                             <div key={m.id} className="grid [grid-template-columns:1fr_220px_160px_180px_40px] items-center">
-                              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{m.name}</p>
+                              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{m.name}</p>
                               <span />
                               <span />
                               <p className="font-['Roboto',sans-serif] text-[#00769e] text-[20px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{ds.perHour}</span> {ds.unit}/h</p>

@@ -312,7 +312,7 @@ export function AddIntervalSheetDose() {
       >
         <div className="w-[8px] h-[48px] rounded-[4px]" style={{ background: doseColor(draft.dose || baseDose, baseDose) }} />
         <div className="flex flex-col gap-[2px] w-[240px] shrink-0">
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             {draft.label || '(no label)'}
           </p>
           <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[18px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -339,7 +339,7 @@ export function AddIntervalSheetDose() {
       <div className="absolute left-[80px] right-[80px] top-[440px] flex items-center gap-[24px]">
         <div className="w-[260px]">
           <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-            <span className="font-bold text-[#00769e] text-[26px]">{medications[0]?.name || 'Baclofen'}</span>
+            <span className="font-bold text-[#00769e] text-[30px]">{medications[0]?.name || 'Baclofen'}</span>
             <span className="text-[#9ea8b2] text-[20px]"> {conc(0)}</span>
           </p>
         </div>
@@ -408,7 +408,7 @@ function DerivedRow({
     <div className="absolute left-[80px] right-[80px] flex items-center gap-[24px]" style={{ top }}>
       <div className="w-[260px]">
         <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-          <span className="font-bold text-[#00769e] text-[26px]">{label}</span>
+          <span className="font-bold text-[#00769e] text-[30px]">{label}</span>
           <span className="text-[#9ea8b2] text-[20px]"> {concentration}</span>
         </p>
       </div>

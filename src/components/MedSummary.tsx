@@ -62,7 +62,7 @@ export function MedSummary({
         {/* Rows */}
         {rows.map(r => (
           <Fragment key={r.med.id}>
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.med.name}</p>
+            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.med.name}</p>
             <p className="font-['Roboto',sans-serif] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
               <span className="font-bold text-[#00769e]">{r.med.concentration}</span> <span className="font-normal text-[#5f8aa0]">{r.med.unit}</span>
             </p>

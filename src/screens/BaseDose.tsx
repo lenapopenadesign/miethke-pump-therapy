@@ -13,7 +13,7 @@ const colLabel = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px
 function NameCell({ name, concentration }: { name: string; concentration: string }) {
   return (
     <>
-      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] leading-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{name}</p>
+      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] leading-[40px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{name}</p>
       <p className="font-['Roboto',sans-serif] font-normal text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{concentration}</p>
     </>
   );
