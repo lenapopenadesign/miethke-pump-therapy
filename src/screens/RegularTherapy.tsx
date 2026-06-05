@@ -1,5 +1,5 @@
 import { useNavigate } from '../navigation';
-import { useTherapy, STROKE_OPTIONS, deliveryPlan, doseUnitFor, fmtInterval, type StrokeStrategy } from '../therapy';
+import { useTherapy, STROKE_OPTIONS, deliveryPlan, doseUnitFor, fmtDose, fmtInterval, type StrokeStrategy } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 
 function DeliveryIcon() {
@@ -58,8 +58,7 @@ export function RegularTherapy() {
   const selected = STROKE_OPTIONS[selectedIdx >= 0 ? selectedIdx : 0];
   const plan = deliveryPlan(baseDose, selected.intervalMin);
   const { unit, div } = doseUnitFor(medications[0]?.unit ?? 'µg/ml');
-  const perDelivery = (plan.dosePerDelivery / div);
-  const perDeliveryStr = perDelivery >= 100 ? Math.round(perDelivery).toString() : perDelivery >= 10 ? perDelivery.toFixed(1) : perDelivery.toFixed(2);
+  const perDeliveryStr = fmtDose(plan.dosePerDelivery / div);
 
   return (
     <WizardShell step="delivery" onBack={() => navigate('intervals-empty')}>

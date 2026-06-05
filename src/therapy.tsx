@@ -134,28 +134,29 @@ function refillDateInDays(days: number): string {
 
 const TherapyContext = createContext<TherapyState | null>(null);
 
+// Preset to the (omitted) morning peak, so adding the first interval in a demo
+// lands on sensible values the presenter can accept as-is. 06:00–08:59, flow 30.
 const DEFAULT_DRAFT: Draft = {
-  label: '',
-  startMin: 8 * 60,
-  endMin: 10 * 60 + 30,
-  dose: 288,
+  label: 'Morning peak',
+  startMin: 6 * 60,   // 06:00
+  endMin: 9 * 60,     // end exclusive → displays 08:59
+  dose: 432,
 };
 
 // Frida's intrathecal pain program (morphine + bupivacaine + clonidine, one
 // shared flow rate). `dose` is the PRIMARY (morphine) µg/day; it equals
 // flow(µL/h) × morphine-conc(0.6 µg/µL) × 24. Daytime base = flow 20 → 288.
-// endMin is exclusive — displays as (endMin-1).
+// endMin is exclusive — displays as (endMin-1). The morning peak is intentionally
+// left out of the seed so it can be added live in a demo (see DEFAULT_DRAFT).
 const SEED_INTERVALS: Interval[] = [
   { id: 'iv-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 360,  dose: 201.6 }, // 00:00 – 05:59 · flow 14
-  { id: 'iv-morning', label: 'Morning peak',   startMin: 360,  endMin: 540,  dose: 432 },   // 06:00 – 08:59 · flow 30
   { id: 'iv-day',     label: 'Daytime (base)', startMin: 540,  endMin: 1080, dose: 288 },   // 09:00 – 17:59 · flow 20
   { id: 'iv-evening', label: 'Evening peak',   startMin: 1080, endMin: 1380, dose: 345.6 }, // 18:00 – 22:59 · flow 24
 ];
 
-// Weekend (Sat–Sun): sleeps in — morning peak shifted later and runs longer.
+// Weekend (Sat–Sun): sleeps in — night runs longer, daytime starts later.
 const SEED_WEEKEND_INTERVALS: Interval[] = [
   { id: 'iv-we-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 480,  dose: 201.6 }, // 00:00 – 07:59 · flow 14
-  { id: 'iv-we-morning', label: 'Morning peak',   startMin: 480,  endMin: 720,  dose: 432 },   // 08:00 – 11:59 · flow 30
   { id: 'iv-we-day',     label: 'Daytime (base)', startMin: 720,  endMin: 1080, dose: 288 },   // 12:00 – 17:59 · flow 20
   { id: 'iv-we-evening', label: 'Evening peak',   startMin: 1080, endMin: 1380, dose: 345.6 }, // 18:00 – 22:59 · flow 24
 ];
@@ -175,10 +176,10 @@ const SEED_BY_DAY: IntervalsByDay = {
 };
 
 // Single-reservoir admixture. medications[0] (Morphine) is the primary / flow
-// driver. Morphine is entered as 600 µg/mL (= 0.6 mg/mL) so its dosing reads in
-// µg; bupivacaine in mg; clonidine in µg — matching the program sheet.
+// driver, dosed in mg (0.6 mg/mL); bupivacaine in mg; clonidine in µg —
+// matching the program sheet.
 const SEED_MEDICATIONS: Medication[] = [
-  { id: 'med-morphine',    name: 'Morphine',    concentration: 600, unit: 'µg/ml' },
+  { id: 'med-morphine',    name: 'Morphine',    concentration: 0.6, unit: 'mg/ml' },
   { id: 'med-bupivacaine', name: 'Bupivacaine', concentration: 6,   unit: 'mg/ml' },
   { id: 'med-clonidine',   name: 'Clonidine',   concentration: 60,  unit: 'µg/ml' },
 ];
@@ -342,7 +343,7 @@ export function doseUnitFor(concUnit: string): { unit: 'mg' | 'µg'; div: number
 
 // Adaptive formatter: integer-ish above 100, more decimals as the value shrinks
 // (mg doses are numerically tiny). Keeps ~3 significant figures.
-function fmtDose(v: number): string {
+export function fmtDose(v: number): string {
   if (!isFinite(v) || v === 0) return '0';
   const a = Math.abs(v);
   if (a >= 100) return Math.round(v).toString();

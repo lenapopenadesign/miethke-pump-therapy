@@ -6,6 +6,8 @@ import {
   concUgPerUl,
   doseColor,
   doseStringsFor,
+  doseUnitFor,
+  fmtDose,
   estimatedDailyTotal,
   withBaseFillers,
   deliveryPlan,
@@ -83,6 +85,7 @@ export function Review() {
 
   const strokeOpt = STROKE_OPTIONS.find(s => s.bundle === strokeStrategy) ?? STROKE_OPTIONS[0];
   const plan = deliveryPlan(baseDose, strokeOpt.intervalMin);
+  const primary = doseUnitFor(medications[0]?.unit ?? 'µg/ml');
   const estDaily = useBaseOnly ? baseDose : estimatedDailyTotal(baseDose, selected);
   const onActivate = () => { if (confirmed) navigate('activate'); };
 
@@ -106,7 +109,7 @@ export function Review() {
             </p>
             <div className="bg-[#d9dbde] h-px w-full my-[8px]" />
             <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[14px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Per delivery</p>
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{plan.dosePerDelivery.toFixed(1)} µg</p>
+            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fmtDose(plan.dosePerDelivery / primary.div)} {primary.unit}</p>
           </div>
         ) : (
           <>
