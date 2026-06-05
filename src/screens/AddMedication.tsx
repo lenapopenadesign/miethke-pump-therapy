@@ -23,7 +23,7 @@ export function AddMedication() {
   const isRefill = flowMode === 'refill';
 
   return (
-    <WizardShell step={isRefill ? 'medication' : 'therapy'} onBack={() => navigate(isRefill ? 'refill-filling' : 'home-no-therapy')}>
+    <WizardShell step="medication" onBack={() => navigate(isRefill ? 'refill-filling' : 'home-no-therapy')}>
       <div className="flex-1 flex flex-col gap-[24px]">
         {/* Title */}
         <div className="flex gap-[16px] items-center">

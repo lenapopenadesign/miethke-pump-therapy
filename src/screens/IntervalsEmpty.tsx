@@ -42,7 +42,7 @@ export function IntervalsEmpty() {
   const onSkip = () => { setUseBaseOnly(true); navigate('regular-therapy'); };
 
   return (
-    <WizardShell step="therapy" onBack={() => navigate('base-dose')}>
+    <WizardShell step="intervals" onBack={() => navigate('base-dose')}>
       <div className="flex-1 flex flex-col gap-[24px]">
         {/* Title */}
         <div className="flex items-center gap-[16px]">

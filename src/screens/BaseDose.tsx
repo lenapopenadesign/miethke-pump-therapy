@@ -44,7 +44,7 @@ export function BaseDose() {
   };
 
   return (
-    <WizardShell step="therapy" onBack={() => navigate('add-medication')}>
+    <WizardShell step="base-dose" onBack={() => navigate('add-medication')}>
       <div className="flex-1 flex flex-col gap-[40px]">
         {/* Title */}
         <div className="flex gap-[16px] items-center">

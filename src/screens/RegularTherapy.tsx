@@ -62,7 +62,7 @@ export function RegularTherapy() {
   const perDeliveryStr = perDelivery >= 100 ? Math.round(perDelivery).toString() : perDelivery >= 10 ? perDelivery.toFixed(1) : perDelivery.toFixed(2);
 
   return (
-    <WizardShell step="therapy" onBack={() => navigate('intervals-empty')}>
+    <WizardShell step="delivery" onBack={() => navigate('intervals-empty')}>
       <div className="flex-1 flex flex-col">
         <div className="flex flex-col gap-[40px]">
           {/* Title */}

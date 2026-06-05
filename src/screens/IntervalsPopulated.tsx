@@ -105,7 +105,7 @@ export function IntervalsPopulated() {
   const chipDefs = dayPattern === 'per-day' ? PER_DAY_CHIPS : WEEKDAY_WEEKEND_CHIPS;
 
   return (
-    <WizardShell step="therapy" onBack={() => navigate('base-dose')}>
+    <WizardShell step="intervals" decision="intervals" onBack={() => navigate('base-dose')}>
       <div className="flex-1 flex flex-col gap-[24px]">
         {/* Title */}
         <div className="flex items-center gap-[16px]">

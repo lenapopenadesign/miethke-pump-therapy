@@ -8,22 +8,53 @@ const imgSignet = "/icons/9f250784-cad4-4195-99ce-4b9dc94364a5.svg";
 const imgRefillSyringe = "/icons/act-refill-syringe-b.svg";
 const imgRefillPump = "/icons/act-refill-pump-b.svg";
 
-export type WizardStep = 'filling' | 'medication' | 'therapy' | 'review' | 'transfer';
+// Granular step a screen reports it belongs to. The setup wizard shows all of
+// these as distinct dots; the refill wizard collapses the therapy-editing steps
+// (base-dose / intervals / delivery) into a single "Therapy" dot.
+export type WizardStep = 'filling' | 'medication' | 'base-dose' | 'intervals' | 'delivery' | 'review' | 'transfer';
 
-const STEP_SETS: Record<FlowMode, { key: WizardStep; label: string }[]> = {
-  setup: [
-    { key: 'therapy',  label: 'Therapy' },
-    { key: 'review',   label: 'Review' },
-    { key: 'transfer', label: 'Transfer' },
-  ],
-  refill: [
-    { key: 'filling',    label: 'Filling' },
-    { key: 'medication', label: 'Medication' },
-    { key: 'therapy',    label: 'Therapy' },
-    { key: 'review',     label: 'Review' },
-    { key: 'transfer',   label: 'Transfer' },
-  ],
+// Which middle path the setup user has taken. 'undecided' previews BOTH the
+// Intervals and Delivery steps; once the user adds an interval ('intervals') or
+// skips to base-dose-only delivery ('regular'), the unused step collapses away.
+export type SetupDecision = 'undecided' | 'intervals' | 'regular';
+
+const MEDICATION = { key: 'medication' as const, label: 'Medication' };
+const BASE_DOSE = { key: 'base-dose' as const, label: 'Base Dose' };
+const INTERVALS = { key: 'intervals' as const, label: 'Intervals' };
+const DELIVERY = { key: 'delivery' as const, label: 'Delivery' };
+const REVIEW = { key: 'review' as const, label: 'Review' };
+const TRANSFER = { key: 'transfer' as const, label: 'Transfer' };
+
+const REFILL_STEPS = [
+  { key: 'filling', label: 'Filling' },
+  { key: 'medication', label: 'Medication' },
+  { key: 'therapy', label: 'Therapy' },
+  { key: 'review', label: 'Review' },
+  { key: 'transfer', label: 'Transfer' },
+];
+
+// Refill collapses the granular therapy-editing steps into one "Therapy" dot.
+const REFILL_KEY: Record<WizardStep, string> = {
+  filling: 'filling',
+  medication: 'medication',
+  'base-dose': 'therapy',
+  intervals: 'therapy',
+  delivery: 'therapy',
+  review: 'review',
+  transfer: 'transfer',
 };
+
+/** Build the dot list + active key for the current flow / step / decision. */
+function buildStepper(flowMode: FlowMode, step: WizardStep, decision: SetupDecision) {
+  if (flowMode === 'refill') {
+    return { steps: REFILL_STEPS, activeKey: REFILL_KEY[step] };
+  }
+  const middle =
+    decision === 'intervals' ? [INTERVALS] :
+    decision === 'regular' ? [DELIVERY] :
+    [INTERVALS, DELIVERY];
+  return { steps: [MEDICATION, BASE_DOSE, ...middle, REVIEW, TRANSFER], activeKey: step };
+}
 
 function RefillTitleIcon() {
   return (
@@ -46,8 +77,8 @@ function Check() {
   );
 }
 
-function Stepper({ step, steps }: { step: WizardStep; steps: { key: WizardStep; label: string }[] }) {
-  const activeIdx = steps.findIndex(s => s.key === step);
+function Stepper({ activeKey, steps }: { activeKey: string; steps: { key: string; label: string }[] }) {
+  const activeIdx = steps.findIndex(s => s.key === activeKey);
   // Dot centers sit at 22px and 1018px within the 1040px track (44px dots, justify-between).
   const trackStart = 22;
   const trackEnd = 1018;
@@ -96,18 +127,31 @@ type Props = {
   step: WizardStep;
   onBack: () => void;
   children: ReactNode;
+  // Setup-flow override for which middle path is shown. Omit to derive it from
+  // the current step + base-dose-only choice (see deriveDecision below). The
+  // intervals-populated screen passes 'intervals' explicitly.
+  decision?: SetupDecision;
 };
 
 /**
- * Shared chrome for the "Edit Therapy" wizard: purple status bar, a centered
- * "Edit Therapy" header (back arrow / title / signet) and the 3-step
- * Therapy → Review → Transfer dots stepper. Screens supply their body as
- * children — the body area is a padded flex column filling the remaining height.
+ * Shared chrome for the therapy wizard: purple status bar, a centered header
+ * (back arrow / title / signet) and the dots stepper. The setup flow shows
+ * granular steps (Medication · Base Dose · Intervals/Delivery · Review ·
+ * Transfer) with the middle path collapsing once the user decides; the refill
+ * flow shows Filling · Medication · Therapy · Review · Transfer. Screens supply
+ * their body as children — a padded flex column filling the remaining height.
  */
-export function WizardShell({ step, onBack, children }: Props) {
-  const { flowMode } = useTherapy();
-  const steps = STEP_SETS[flowMode];
+export function WizardShell({ step, onBack, children, decision }: Props) {
+  const { flowMode, useBaseOnly } = useTherapy();
   const isRefill = flowMode === 'refill';
+  // Default decision: delivery → regular; review/transfer follow the path taken
+  // (base-dose-only ⇒ regular); everything earlier previews both paths.
+  const resolvedDecision: SetupDecision =
+    decision ??
+    (step === 'delivery' ? 'regular'
+      : step === 'review' || step === 'transfer' ? (useBaseOnly ? 'regular' : 'intervals')
+      : 'undecided');
+  const { steps, activeKey } = buildStepper(flowMode, step, resolvedDecision);
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] flex flex-col overflow-hidden">
       <div className="bg-[#3b2d7c] h-[35px] w-[1200px] shrink-0" />
@@ -131,7 +175,7 @@ export function WizardShell({ step, onBack, children }: Props) {
             <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgSignet} />
           </div>
         </div>
-        <Stepper step={step} steps={steps} />
+        <Stepper activeKey={activeKey} steps={steps} />
       </div>
       {/* Body */}
       <div className="flex-1 flex flex-col px-[80px] pt-[40px] pb-[80px] w-[1200px] min-h-0">
