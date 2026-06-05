@@ -19,11 +19,15 @@ const NEXT: Partial<Record<Phase, { to: Phase; delay: number }>> = {
   filling:   { to: 'filled',    delay: 6900 }, // stepped refill (see FILL_SEQ)
 };
 
-// Fluid levels — the pump empties / fills monotonically in discrete pulses,
-// each level held briefly (a "stop") before the next move. Reached `STEP_MS`
-// apart, with a quick 450ms move then a short hold.
+// Fluid levels (fraction of the 40 ml reservoir) — the pump empties / fills
+// monotonically in discrete pulses, each level held briefly (a "stop") before
+// the next move. Reached `STEP_MS` apart, with a quick 450ms move then a short
+// hold. The fill-level readout (x/40 ml) is derived from the same value, so the
+// number drains to 0 and fills to 40 in lockstep with the graphic.
 const STEP_MS = 650;
-const DRAIN_SEQ = [0.3, 0.235, 0.235, 0.155, 0.155, 0.08, 0.08, 0];
+const START_LEVEL = 0.25; // 10/40 ml — matches the implant card before refill
+const RESERVOIR_ML = 40;
+const DRAIN_SEQ = [0.25, 0.19, 0.19, 0.125, 0.125, 0.06, 0.06, 0];
 const FILL_SEQ = [0, 0.12, 0.12, 0.32, 0.32, 0.55, 0.55, 0.78, 0.78, 1];
 
 const GREEN = '#24ab5e';
@@ -94,7 +98,7 @@ export function RefillFilling() {
   const { flowMode, setFlowMode } = useTherapy();
   const [phase, setPhase] = useState<Phase>('init');
   const [barFull, setBarFull] = useState(false);
-  const [fillLevel, setFillLevel] = useState(0.3);
+  const [fillLevel, setFillLevel] = useState(START_LEVEL);
 
   // Ensure refill chrome even if reached directly (e.g. dev jump-list).
   useEffect(() => { if (flowMode !== 'refill') setFlowMode('refill'); }, [flowMode, setFlowMode]);
@@ -118,7 +122,7 @@ export function RefillFilling() {
       const timers = seq.map((lvl, i) => window.setTimeout(() => setFillLevel(lvl), i * STEP_MS));
       return () => timers.forEach(clearTimeout);
     }
-    setFillLevel(phase === 'filled' || phase === 'done' ? 1 : 0.3);
+    setFillLevel(phase === 'filled' || phase === 'done' ? 1 : START_LEVEL);
   }, [phase]);
 
   const cancel = () => { setFlowMode('setup'); navigate('home-active'); };
@@ -127,7 +131,7 @@ export function RefillFilling() {
   const color = isGreen ? GREEN : BLUE;
   const cardBg = isGreen ? 'bg-[#d0f6e4]' : 'bg-[#e6f4f9]';
   const needle: 'search' | 'in' | 'up' = phase === 'ready' ? 'search' : phase === 'done' ? 'up' : 'in';
-  const fillMl = phase === 'filled' || phase === 'done' ? 40 : 4;
+  const fillMl = Math.round(fillLevel * RESERVOIR_ML);
   const heading = phase === 'ready' ? 'ready to start' : isGreen ? 'needle in port' : 'needle detection deactivated';
 
   return (
