@@ -65,19 +65,14 @@ export function RegularTherapy() {
       <div className="flex-1 flex flex-col">
         <div className="flex flex-col gap-[40px]">
           {/* Title */}
-          <div className="flex flex-col gap-[16px]">
-            <div className="flex items-center gap-[16px]">
-              <DeliveryIcon />
-              <p className="font-['Roboto',sans-serif] font-extrabold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                Time interval between medication delivery
-              </p>
-              <div className="bg-[#0094c5] h-[36px] px-[16px] rounded-[18px] flex items-center shrink-0">
-                <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>optional</p>
-              </div>
-            </div>
-            <p className="font-['Roboto',sans-serif] font-normal leading-[32px] text-[#45483c] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-              Adjust the interval between medication delivery
+          <div className="flex items-center gap-[16px] py-[20px]">
+            <DeliveryIcon />
+            <p className="font-['Roboto',sans-serif] font-extrabold leading-[48px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              Delivery
             </p>
+            <div className="bg-[#0094c5] h-[36px] px-[16px] rounded-[18px] flex items-center shrink-0">
+              <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>optional</p>
+            </div>
           </div>
 
           {/* Combined card: heading + per-stroke value + delivery diagram */}
