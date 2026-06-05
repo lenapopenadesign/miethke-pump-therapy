@@ -17,12 +17,14 @@ export type Draft = Omit<Interval, 'id'>;
 export type StrokeStrategy = 1 | 2 | 4 | 8 | 16;
 export type DayPattern = 'same' | 'weekday-weekend' | 'per-day';
 
-export const STROKE_OPTIONS: { bundle: StrokeStrategy; label: string }[] = [
-  { bundle: 1,  label: 'Most continuous' },
-  { bundle: 2,  label: 'Continuous' },
-  { bundle: 4,  label: 'Balanced' },
-  { bundle: 8,  label: 'Spaced' },
-  { bundle: 16, label: 'Most spaced' },
+// Each strategy maps to a fixed time between deliveries, from "most continuous"
+// (28 min) to "most spaced" (~4 h). Intervals are intentionally uneven.
+export const STROKE_OPTIONS: { bundle: StrokeStrategy; label: string; intervalMin: number }[] = [
+  { bundle: 1,  label: 'Most continuous', intervalMin: 28 },
+  { bundle: 2,  label: 'Continuous',      intervalMin: 59 },
+  { bundle: 4,  label: 'Balanced',        intervalMin: 124 },
+  { bundle: 8,  label: 'Spaced',          intervalMin: 182 },
+  { bundle: 16, label: 'Most spaced',     intervalMin: 239 },
 ];
 
 // Pump physics: each stroke delivers a fixed micro-volume, and the hardware can
@@ -41,23 +43,19 @@ export type DeliveryPlan = {
 };
 
 /**
- * Compute the medication delivery schedule for a given base dose and (primary)
- * medication concentration. Concentration in mg/ml equals µg/µl numerically.
- * `bundle` groups that many strokes into one delivery (default 1 = most
- * continuous = minimum possible interval). The interval is clamped so we never
- * exceed MAX_PUSHES_PER_MIN.
+ * Delivery schedule for a chosen time-between-deliveries (intervalMin). The
+ * reservoir delivers the base dose spread evenly across the day, so each
+ * delivery carries baseDose / deliveriesPerDay. All values track the base dose.
  */
-export function deliveryPlan(baseDoseUgDay: number, concMgPerMl: number, bundle = 1): DeliveryPlan {
-  const ugPerStroke = STROKE_VOLUME_UL * concMgPerMl;            // 10 µg @ conc 1 mg/ml
-  const strokesPerDay = ugPerStroke > 0 ? baseDoseUgDay / ugPerStroke : 0; // 360/10 = 36
-  const baseInterval = strokesPerDay > 0 ? 1440 / strokesPerDay : Infinity; // 40 min
-  const intervalMin = Math.max(baseInterval * bundle, 1 / MAX_PUSHES_PER_MIN);
+export function deliveryPlan(baseDoseUgDay: number, intervalMin: number): DeliveryPlan {
+  const deliveriesPerDay = intervalMin > 0 ? 1440 / intervalMin : 0;
+  const dosePerDelivery = deliveriesPerDay > 0 ? baseDoseUgDay / deliveriesPerDay : 0;
   return {
-    ugPerStroke,
-    strokesPerDay,
+    ugPerStroke: dosePerDelivery,
+    strokesPerDay: deliveriesPerDay,
     intervalMin,
-    dosePerDelivery: ugPerStroke * bundle,
-    deliveriesPerDay: bundle > 0 ? strokesPerDay / bundle : 0,
+    dosePerDelivery,
+    deliveriesPerDay,
   };
 }
 
@@ -385,9 +383,14 @@ export function doseColor(dose: number, base: number): string {
   return '#055273';                // dark navy
 }
 
-/** Human-readable delivery interval, e.g. "40 minutes", "1.6 minutes", "4 seconds". */
+/** Human-readable delivery interval, e.g. "28 minutes", "2 h 4 min", "4 seconds". */
 export function fmtInterval(min: number): string {
   if (min < 1) return `${Math.round(min * 60)} seconds`;
+  if (min >= 60) {
+    const h = Math.floor(min / 60);
+    const m = Math.round(min % 60);
+    return m ? `${h} h ${m} min` : `${h} h`;
+  }
   const rounded = min >= 10 ? Math.round(min) : Math.round(min * 10) / 10;
   return `${rounded} minutes`;
 }

@@ -82,7 +82,7 @@ export function Review() {
   const selected = useBaseOnly ? [] : (tab === 'weekend' ? orderedWeekend : ordered);
 
   const strokeOpt = STROKE_OPTIONS.find(s => s.bundle === strokeStrategy) ?? STROKE_OPTIONS[0];
-  const plan = deliveryPlan(baseDose, medications[0] ? concUgPerUl(medications[0]) : 1, strokeOpt.bundle);
+  const plan = deliveryPlan(baseDose, strokeOpt.intervalMin);
   const estDaily = useBaseOnly ? baseDose : estimatedDailyTotal(baseDose, selected);
   const onActivate = () => { if (confirmed) navigate('activate'); };
 
