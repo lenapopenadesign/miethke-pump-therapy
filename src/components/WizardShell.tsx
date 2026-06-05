@@ -168,7 +168,7 @@ export function WizardShell({ step, onBack, children, decision }: Props) {
           <div className="flex gap-[16px] items-center">
             {isRefill ? <RefillTitleIcon /> : <MedicationIcon size={48} />}
             <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] text-[#00769e] text-[44px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-              {isRefill ? 'Refill' : 'Edit Therapy'}
+              {isRefill ? 'Refill' : 'Add Therapy'}
             </p>
           </div>
           <div className="h-[62px] overflow-clip relative shrink-0 w-[53px]">
