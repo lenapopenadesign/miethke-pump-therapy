@@ -8,7 +8,6 @@ const imgImplantInner = "/icons/9abb359f-8740-4fa9-b48f-b8901ba56a97.svg";
 const imgImplantCenter = "/icons/37e6818a-754b-4e9b-b353-0ad921147c10.svg";
 const imgArrowFwd = "/icons/f04447fa-418c-41ba-99a3-878c9f1c122c.svg";
 const imgBluetooth = "/icons/5a33dcf5-7db9-4c58-93be-23c8e66ada1b.svg";
-const imgPumpBody = "/icons/8e769376-bb2c-4c40-bf16-19717acbcf24.svg";
 const imgPatientHead = "/icons/2eda2d01-d4e8-442a-91df-65a1be850736.svg";
 const imgPatientBody = "/icons/6d08d65a-50cc-4fbb-ade0-78f165f059ad.svg";
 const imgTherapy01 = "/icons/86041251-eefc-437f-9c68-eee545a2721d.svg";
@@ -139,11 +138,26 @@ export function TherapyIcon({ size = 64 }: { size?: number }) {
   );
 }
 
-export function Filling() {
+// Pump silhouette (viewBox 197×230): ring wall + fill-port spout, with the
+// reservoir interior (circle cx 99, cy 131.5, r 72.58) filled to `fill` (0..1).
+const PUMP_RING = "M99 52C54.8913 52 19 87.667 19 131.5C19 175.333 54.8913 211 99 211C143.109 211 179 175.333 179 131.5C179 87.667 143.109 52 99 52ZM99 203.626C58.9749 203.626 26.4208 171.268 26.4208 131.5C26.4208 91.7322 58.9749 59.3745 99 59.3745C139.025 59.3745 171.579 91.725 171.579 131.5C171.579 171.275 139.018 203.626 99 203.626Z";
+const PUMP_BODY = "M194.672 110.339C192.841 101.919 190.694 93.1202 186.421 86.1926C180.741 76.9846 174.263 67.3606 165.416 59.2857L158.414 50.3932L167.707 42.8919L160.052 33.0887C160.641 31.2313 160.87 28.8504 159.743 26.0823C158.292 22.5253 155.427 21.1914 153.531 20.3093C153.344 20.2232 153.165 20.1372 152.971 20.0511C142.408 14.9523 130.925 10.0256 118.846 5.40721C117.396 4.84784 116.089 4.29565 114.832 3.7578C110.509 1.91476 106.423 0.172113 99.5934 0H99.4569L97.0297 0.0645424H97.001C84.1682 0.516338 73.856 5.98092 64.5636 17.2686C59.6301 23.2639 54.79 29.6679 50.1079 35.8712C43.8962 44.0896 37.4762 52.5948 30.8408 60.1032C30.0868 60.9566 29.1819 61.8172 28.2268 62.7208C27.2718 63.6243 26.2879 64.5566 25.34 65.5893C19.0709 72.4451 8.50016 87.3401 5.8144 96.3186C-1.02208 119.167 -1.79047 137.941 3.30099 157.182C8.16983 175.555 18.4102 192.085 32.909 204.986C47.4078 217.888 65.0304 226.163 83.881 228.91C88.8575 229.634 93.791 230 98.6886 230C110.121 230 121.316 228.021 132.117 224.091C146.58 218.82 159.829 210.042 170.428 198.704C181.028 187.359 188.891 173.547 193.164 158.76C197.717 142.997 198.22 126.704 194.658 110.331L194.672 110.339ZM183.671 156.027C179.829 169.323 172.755 181.751 163.211 191.963C153.675 202.168 141.754 210.071 128.749 214.811C114.882 219.86 100.276 221.316 85.3316 219.135C50.8906 214.115 21.7782 188.198 12.8879 154.658C8.27754 137.274 9.02439 120.156 15.3151 99.1513C17.4335 92.066 27.164 78.2754 32.6648 72.2587C33.3758 71.4842 34.1872 70.7097 35.0561 69.8849C36.1261 68.8666 37.232 67.8196 38.2805 66.6435C45.1672 58.8482 51.7021 50.1924 58.0215 41.8234C62.639 35.7062 67.4217 29.3811 72.2187 23.5436C79.7805 14.3642 87.292 10.2981 97.3457 9.93951L99.4857 9.87497C104.34 10.0112 106.983 11.1443 110.961 12.8367C112.239 13.3818 113.69 14.0057 115.32 14.6224C127.14 19.1404 138.365 23.9524 148.677 28.9293C148.899 29.0369 149.129 29.1444 149.345 29.2448C149.783 29.4528 150.379 29.7253 150.623 29.8974C150.644 29.9405 150.652 29.9763 150.652 29.9978C150.623 30.1197 150.494 30.4496 150.02 31.2887L149.366 32.4361L148.756 31.6831L139.571 42.4186L158.163 66.0268L158.472 66.3064C166.558 73.6141 172.64 82.6643 178.005 91.356C181.466 96.9569 183.362 104.831 185.013 112.418C188.223 127.17 187.771 141.835 183.678 156.013L183.671 156.027Z";
+const PUMP_PORT = "M99.0036 16C90.7273 16 84 22.5015 84 30.5C84 38.4985 90.7273 45 99.0036 45C107.28 45 114 38.4985 114 30.5C114 22.5015 107.273 16 99.0036 16ZM99.0036 37.7324C94.8727 37.7324 91.52 34.4852 91.52 30.5C91.52 26.5148 94.88 23.2676 99.0036 23.2676C103.127 23.2676 106.487 26.5148 106.487 30.5C106.487 34.4852 103.127 37.7324 99.0036 37.7324Z";
+
+export function Filling({ fill = 1 }: { fill?: number }) {
+  const cy = 131.5, r = 72.58, bottom = cy + r;
+  const f = Math.max(0, Math.min(1, fill));
+  const h = f * 2 * r;
   return (
     <div className="h-[170px] overflow-clip relative w-[165px] shrink-0">
       <div className="absolute inset-[11.67%_16.38%]">
-        <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgPumpBody} />
+        <svg preserveAspectRatio="none" viewBox="0 0 197 230" fill="none" className="absolute block inset-0 size-full">
+          <defs><clipPath id="implantResClip"><circle cx="99" cy={cy} r={r} /></clipPath></defs>
+          <rect x="19" width="160" y={bottom - h} height={h} fill="#0094C5" clipPath="url(#implantResClip)" />
+          <path d={PUMP_RING} fill="#0094C5" />
+          <path d={PUMP_BODY} fill="#0094C5" />
+          <path d={PUMP_PORT} fill="#0094C5" />
+        </svg>
       </div>
     </div>
   );
@@ -211,7 +225,7 @@ function ImplantCard({ refillDate, noTherapy }: { refillDate: string; noTherapy:
       <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
         <div className="content-stretch flex items-center pr-[24px] relative shrink-0 w-full">
           <div className="content-stretch flex flex-1 gap-[24px] items-center min-w-px relative">
-            <Filling />
+            <Filling fill={noTherapy ? 0.25 : 1} />
             <div className="content-stretch flex flex-1 items-center justify-between min-w-px relative">
               {/* Fill level */}
               <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
