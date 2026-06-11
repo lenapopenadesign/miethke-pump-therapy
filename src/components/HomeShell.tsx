@@ -231,10 +231,10 @@ function ImplantCard({ refillDate, noTherapy }: { refillDate: string; noTherapy:
               <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
                 <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>Fill level</p>
                 <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  <span className="leading-[48px] text-[32px]">{noTherapy ? '10/' : '40/'}</span>
-                  <span className="font-normal leading-[48px] text-[32px]">40 ml</span>
+                  <span className="leading-[52px] text-[36px]">{noTherapy ? '10/' : '40/'}</span>
+                  <span className="font-normal leading-[52px] text-[36px]">40 ml</span>
                 </p>
-                <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>{noTherapy ? '25 %' : '100 %'}</p>
+                <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{noTherapy ? '25 %' : '100 %'}</p>
               </div>
               {/* Catheter */}
               <div className="content-stretch flex items-center relative shrink-0">
@@ -246,10 +246,10 @@ function ImplantCard({ refillDate, noTherapy }: { refillDate: string; noTherapy:
                 <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
                   <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>Catheter</p>
                   <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    <span className="leading-[48px] text-[32px]">{noTherapy ? 'N/A' : '0.3'}</span>
-                    <span className="font-normal leading-[48px] text-[32px]">{` ml`}</span>
+                    <span className="leading-[52px] text-[36px]">{noTherapy ? 'N/A' : '0.3'}</span>
+                    <span className="font-normal leading-[52px] text-[36px]">{` ml`}</span>
                   </p>
-                  <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>{noTherapy ? 'N/A cm' : '53 cm'}</p>
+                  <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{noTherapy ? 'N/A cm' : '53 cm'}</p>
                 </div>
               </div>
               {/* Next refill */}
@@ -261,7 +261,7 @@ function ImplantCard({ refillDate, noTherapy }: { refillDate: string; noTherapy:
                     </p>
                   </div>
                   <div className={`content-stretch flex items-center justify-center px-[24px] relative rounded-[24px] shrink-0 ${noDate ? '' : 'bg-[#fdf3d1]'}`}>
-                    <p className={`font-['Roboto',sans-serif] font-bold leading-[48px] relative shrink-0 text-[32px] tracking-[0.1px] whitespace-nowrap ${noDate ? 'text-[#9ea8b2]' : 'text-[#b3850e]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+                    <p className={`font-['Roboto',sans-serif] font-bold leading-[52px] relative shrink-0 text-[36px] tracking-[0.1px] whitespace-nowrap ${noDate ? 'text-[#9ea8b2]' : 'text-[#b3850e]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
                       {refillDate}
                     </p>
                   </div>

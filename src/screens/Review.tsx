@@ -109,7 +109,7 @@ export function Review() {
             </p>
             <div className="bg-[#d9dbde] h-px w-full my-[8px]" />
             <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[14px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Per delivery</p>
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fmtDose(plan.dosePerDelivery / primary.div)} {primary.unit}</p>
+            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fmtDose(plan.dosePerDelivery / primary.div)} {primary.unit}</p>
           </div>
         ) : (
           <>
@@ -151,9 +151,9 @@ export function Review() {
                       onClick={() => toggleExpanded(iv.id)}
                       className="grid items-center [grid-template-columns:1fr_220px_160px_180px_40px] h-[72px] px-[16px] cursor-pointer select-none">
                       <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{iv.label}</p>
-                      <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{timeRangeLabel(iv.startMin, iv.endMin)}</p>
-                      <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{pct >= 0 ? '+' : '−'} {Math.abs(pct)} %</p>
-                      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[22px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{doseStringsFor(iv.dose, primaryUnit).perHour}</span> {doseStringsFor(iv.dose, primaryUnit).unit}/h</p>
+                      <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[26px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{timeRangeLabel(iv.startMin, iv.endMin)}</p>
+                      <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{pct >= 0 ? '+' : '−'} {Math.abs(pct)} %</p>
+                      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[26px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{doseStringsFor(iv.dose, primaryUnit).perHour}</span> {doseStringsFor(iv.dose, primaryUnit).unit}/h</p>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="justify-self-end transition-transform duration-200" style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
                         <path d="M9 6l6 6-6 6" stroke="#0094c5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
@@ -168,7 +168,7 @@ export function Review() {
                               <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{m.name}</p>
                               <span />
                               <span />
-                              <p className="font-['Roboto',sans-serif] text-[#00769e] text-[20px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{ds.perHour}</span> {ds.unit}/h</p>
+                              <p className="font-['Roboto',sans-serif] text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{ds.perHour}</span> {ds.unit}/h</p>
                               <span />
                             </div>
                           );

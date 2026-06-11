@@ -14,8 +14,8 @@ function fmtHour(ug: number, concUnit: string): { value: string; unit: string } 
 function Chip({ value, unit, bg }: { value: string; unit: string; bg: string }) {
   return (
     <div className={`${bg} rounded-[10px] px-[18px] py-[12px] flex items-baseline gap-[6px]`}>
-      <span className="font-['Roboto',sans-serif] font-bold text-[#00658a] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{value}</span>
-      <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>{unit}</span>
+      <span className="font-['Roboto',sans-serif] font-bold text-[#00658a] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{value}</span>
+      <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>{unit}</span>
     </div>
   );
 }

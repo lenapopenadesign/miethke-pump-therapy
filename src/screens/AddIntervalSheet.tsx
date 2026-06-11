@@ -319,10 +319,10 @@ export function AddIntervalSheetDose() {
             {fmtTime(draft.startMin)} – {endDisplay}
           </p>
         </div>
-        <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[22px] tracking-[0.1px] w-[120px] shrink-0" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[26px] tracking-[0.1px] w-[120px] shrink-0" style={{ fontVariationSettings: "'wdth' 100" }}>
           {pctDelta >= 0 ? '+' : '−'} {Math.abs(pctDelta)} %
         </p>
-        <p className="flex-1 font-['Roboto',sans-serif] text-[#00769e] text-[24px] tracking-[0.1px] min-w-px" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="flex-1 font-['Roboto',sans-serif] text-[#00769e] text-[28px] tracking-[0.1px] min-w-px" style={{ fontVariationSettings: "'wdth' 100" }}>
           <span className="font-bold">{primaryDose.perHour}</span> {primaryDose.unit}/h
         </p>
         <img alt="" src={imgEditPencil} className="size-[32px] shrink-0 block" />
@@ -354,13 +354,13 @@ export function AddIntervalSheetDose() {
               const ugH = (isNaN(v) ? 0 : v) * primaryDiv; // displayed unit/h → µg/h
               setDraft({ ...draft, dose: Math.max(0, Math.min(2000, Math.round(ugH * 24))) });
             }}
-            className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#1a1a1a] text-[32px] tracking-[0.1px] bg-transparent outline-none border-0 p-0 text-left"
+            className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#1a1a1a] text-[36px] tracking-[0.1px] bg-transparent outline-none border-0 p-0 text-left"
             style={{ fontVariationSettings: "'wdth' 100" }}
           />
-          <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{primaryDose.unit}/h</span>
+          <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{primaryDose.unit}/h</span>
         </div>
         <div className="flex-1 flex flex-col items-end justify-center">
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             ≈ {intervalPrimary.perDay} {intervalPrimary.unit}
           </p>
         </div>
@@ -413,11 +413,11 @@ function DerivedRow({
         </p>
       </div>
       <div className="w-[300px] flex items-baseline gap-[8px] px-[20px]">
-        <span className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.perHour}</span>
-        <span className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/h</span>
+        <span className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.perHour}</span>
+        <span className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/h</span>
       </div>
       <div className="flex-1 flex flex-col items-end justify-center">
-        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           ≈ {intervalStr} {d.unit}
         </p>
       </div>

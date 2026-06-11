@@ -20,14 +20,23 @@ function LoadingBar() {
 
 export function Activate() {
   const navigate = useNavigate();
-  const { flowMode, setFlowMode, completeRefill } = useTherapy();
+  const { flowMode, setFlowMode, completeRefill, therapyActive, setTherapyActive } = useTherapy();
   useEffect(() => {
     const t = setTimeout(() => {
-      if (flowMode === 'refill') { completeRefill(); setFlowMode('setup'); }
-      navigate('home-active');
+      if (flowMode === 'refill') {
+        // A refill doesn't create a therapy — return to whichever home matches
+        // the current state.
+        completeRefill();
+        setFlowMode('setup');
+        navigate(therapyActive ? 'home-active' : 'home-no-therapy');
+      } else {
+        // Setup flow finished: therapy is now active.
+        setTherapyActive(true);
+        navigate('home-active');
+      }
     }, 2500);
     return () => clearTimeout(t);
-  }, [navigate, flowMode, setFlowMode, completeRefill]);
+  }, [navigate, flowMode, setFlowMode, completeRefill, therapyActive, setTherapyActive]);
   return (
     <WizardShell step="transfer" onBack={() => navigate('review')}>
       <div className="flex flex-col gap-[24px]">

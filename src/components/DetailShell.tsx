@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useNavigate } from '../navigation';
+import { useTherapy } from '../therapy';
 import { BottomNav } from './HomeShell';
 
 const imgBack = "/icons/01195f3c-ce0c-4269-a4cc-2742bc124f77.svg";
@@ -16,17 +17,19 @@ type Props = {
  * Chrome for the home "detail" screens (Patient, Implant) reached by tapping a
  * card on the overview: purple status bar, a left-aligned header with back
  * arrow / icon / title (+ optional right-hand status) / signet, a scrollable
- * body and the shared bottom navigation. Back always returns to the active home.
+ * body and the shared bottom navigation. Back returns to the home screen that
+ * matches the current therapy state (active vs. no-therapy).
  */
 export function DetailShell({ icon, title, headerRight, children }: Props) {
   const navigate = useNavigate();
+  const { homeScreen } = useTherapy();
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] overflow-hidden">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
       {/* Header band */}
       <div className="absolute left-0 top-[35px] w-[1200px] bg-[#e6f4f9] flex h-[140px] items-center justify-between px-[40px]">
         <div className="flex flex-1 min-w-px items-center gap-[24px]">
-          <div onClick={() => navigate('home-active')} className="flex items-center justify-center shrink-0 cursor-pointer w-[56px]">
+          <div onClick={() => navigate(homeScreen)} className="flex items-center justify-center shrink-0 cursor-pointer w-[56px]">
             <div className="rotate-180 overflow-clip relative size-[56px]">
               <div className="absolute inset-[20%_0.03%_17.61%_0]">
                 <img alt="Back" className="absolute block inset-0 max-w-none size-full" src={imgBack} />

@@ -2,7 +2,7 @@ import { DetailShell } from '../components/DetailShell';
 import { PatientIcon } from '../components/HomeShell';
 
 const labelCls = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]";
-const valueCls = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]";
+const valueCls = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]";
 
 function Field({ label, value, multiline = false }: { label: string; value: string; multiline?: boolean }) {
   return (

@@ -119,6 +119,12 @@ type TherapyState = {
   // pushes the next-refill date out by a full-fill interval (~78 days).
   refillDate: string;
   completeRefill: () => void;
+  // Whether a therapy has been set up + activated on the implant. Drives which
+  // home screen ("home-active" vs "home-no-therapy") the chrome returns to.
+  therapyActive: boolean;
+  setTherapyActive: (b: boolean) => void;
+  // The home screen matching the current therapy state — use for "back to home".
+  homeScreen: ScreenId;
 };
 
 export type FlowMode = 'setup' | 'refill';
@@ -206,6 +212,8 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [flowMode, setFlowMode] = useState<FlowMode>('setup');
   const [refillDate, setRefillDate] = useState('19.08.2026');
   const completeRefill = () => setRefillDate(refillDateInDays(78));
+  const [therapyActive, setTherapyActive] = useState(false);
+  const homeScreen: ScreenId = therapyActive ? 'home-active' : 'home-no-therapy';
 
   // The "Daytime (base)" interval is the base dose by definition — propagate
   // base-dose changes to every day's daytime interval.
@@ -294,6 +302,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       useBaseOnly, setUseBaseOnly,
       flowMode, setFlowMode,
       refillDate, completeRefill,
+      therapyActive, setTherapyActive, homeScreen,
     }}>
       {children}
     </TherapyContext.Provider>

@@ -64,7 +64,18 @@ function useDeviceLayout() {
 
 export function App() {
   const [screen, setScreen] = useState<ScreenId>('home-no-therapy');
+  const [showNav, setShowNav] = useState(false);
   const { isDevice, scale, w, h } = useDeviceLayout();
+
+  // Toggle the dev jump-list with the backtick key (so it stays out of the way
+  // during realistic desktop testing but is one keypress away).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === '`') setShowNav(v => !v);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const screens = (
     <>
@@ -110,41 +121,68 @@ export function App() {
 
   // Desktop preview: scale the 1200×1920 canvas so its full height (incl. the
   // bottom nav) always fits the browser window. Capped so it isn't huge on tall
-  // monitors and stays usable next to the dev jump-list.
-  const deskScale = Math.max(0.25, Math.min(0.5, (h - 48) / DESIGN_H));
+  // monitors and leaves room for the tablet bezel.
+  const deskScale = Math.max(0.25, Math.min(0.5, (h - 120) / DESIGN_H));
   return (
     <TherapyProvider>
       <NavProvider value={setScreen}>
         <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-        <div className="device-shell" style={{ width: DESIGN_W * deskScale, height: DESIGN_H * deskScale }}>
-          <div className="device-inner" style={{ transform: `scale(${deskScale})` }}>
-            <div className="screen">{screens}</div>
+        {/* Android Galaxy Tab–style bezel so desktop testing reads as a real tablet. */}
+        <div className="tablet-frame">
+          <div className="device-shell" style={{ width: DESIGN_W * deskScale, height: DESIGN_H * deskScale }}>
+            <div className="device-inner" style={{ transform: `scale(${deskScale})` }}>
+              <div className="screen">{screens}</div>
+            </div>
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontFamily: 'system-ui', fontSize: 13 }}>
-          <strong style={{ fontSize: 12, color: '#666' }}>Jump to (dev only)</strong>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {ORDER.map(s => (
-              <button
-                key={s}
-                onClick={() => setScreen(s)}
-                style={{
-                  fontWeight: s === screen ? 'bold' : 'normal',
-                  background: s === screen ? '#0094c5' : 'white',
-                  color: s === screen ? 'white' : 'black',
-                  border: '1px solid #ccc',
-                  padding: '4px 8px',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  width: 160,
-                }}
-              >
-                {s}
-              </button>
-            ))}
+        {showNav && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontFamily: 'system-ui', fontSize: 13 }}>
+            <strong style={{ fontSize: 12, color: '#666' }}>Jump to (dev only)</strong>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {ORDER.map(s => (
+                <button
+                  key={s}
+                  onClick={() => setScreen(s)}
+                  style={{
+                    fontWeight: s === screen ? 'bold' : 'normal',
+                    background: s === screen ? '#0094c5' : 'white',
+                    color: s === screen ? 'white' : 'black',
+                    border: '1px solid #ccc',
+                    padding: '4px 8px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    width: 160,
+                  }}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
+        )}
         </div>
-        </div>
+        {/* Unobtrusive toggle for the dev jump-list (also bound to the ` key). */}
+        <button
+          onClick={() => setShowNav(v => !v)}
+          title="Toggle screen list (`)"
+          style={{
+            position: 'fixed',
+            bottom: 12,
+            left: 12,
+            width: 28,
+            height: 28,
+            borderRadius: 8,
+            border: '1px solid rgba(0,0,0,0.12)',
+            background: 'rgba(255,255,255,0.7)',
+            color: '#888',
+            fontSize: 14,
+            lineHeight: '1',
+            cursor: 'pointer',
+            opacity: 0.5,
+          }}
+        >
+          ⌘
+        </button>
       </NavProvider>
     </TherapyProvider>
   );

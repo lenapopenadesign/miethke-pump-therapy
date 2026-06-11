@@ -85,7 +85,7 @@ export function RegularTherapy() {
                 <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Per stroke
                 </p>
-                <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   {perDeliveryStr} {unit}
                 </p>
               </div>
