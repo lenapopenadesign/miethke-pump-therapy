@@ -37,14 +37,17 @@ function timeRangeLabel(startMin: number, endMin: number): string {
 function Chart({ intervals, baseDose, unit }: { intervals: Interval[]; baseDose: number; unit: string }) {
   const slots = withBaseFillers(intervals, baseDose);
   const maxDose = Math.max(baseDose, ...slots.map(s => s.dose), 1);
-  const FLOOR = 150;
-  const MAX_BAR = 116;
+  const FLOOR = 256;
+  const MAX_BAR = 210;
   return (
-    <div className="relative w-full bg-[#f7fafc] border border-[#d9dbde] rounded-[16px]" style={{ height: 200 }}>
-      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => (
-        <p key={t} className="absolute font-['Roboto',sans-serif] text-[#9ea8b2] text-[16px] top-[14px] whitespace-nowrap"
-           style={{ left: `${[1.5, 24.5, 48.5, 72.5, 95.5][i]}%`, fontVariationSettings: "'wdth' 100" }}>{t}</p>
-      ))}
+    <div className="relative w-full bg-[#f7fafc] border border-[#d9dbde] rounded-[16px]" style={{ height: 330 }}>
+      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => {
+        const first = i === 0, last = i === 4;
+        return (
+          <p key={t} className="absolute font-['Roboto',sans-serif] text-[#9ea8b2] text-[26px] top-[18px] whitespace-nowrap"
+             style={{ left: last ? undefined : first ? 16 : `${(i / 4) * 100}%`, right: last ? 16 : undefined, transform: first || last ? undefined : 'translateX(-50%)', fontVariationSettings: "'wdth' 100" }}>{t}</p>
+        );
+      })}
       {slots.map(slot => {
         const left = (slot.startMin / 1440) * 100;
         const width = ((slot.endMin - slot.startMin) / 1440) * 100;
@@ -53,7 +56,7 @@ function Chart({ intervals, baseDose, unit }: { intervals: Interval[]; baseDose:
           <div key={slot.id} className="absolute rounded-[4px] flex items-start justify-center overflow-hidden"
             style={{ left: `${left}%`, width: `${width}%`, top: FLOOR - height, height, background: doseColor(slot.dose, baseDose), opacity: slot.isBase ? 0.7 : 1 }}>
             {width > 7 && (
-              <p className="font-['Roboto',sans-serif] font-bold text-[13px] text-white pt-[6px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <p className="font-['Roboto',sans-serif] font-bold text-[20px] text-white pt-[10px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                 {doseStringsFor(slot.dose, unit).perHour} {doseStringsFor(slot.dose, unit).unit}/h
               </p>
             )}
@@ -134,10 +137,10 @@ export function Review() {
 
             {/* Interval detail list */}
             <div className="grid items-center [grid-template-columns:1fr_220px_160px_180px_40px] px-[16px]">
-              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">INTERVALS</p>
-              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">Time</p>
-              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">Δ from base</p>
-              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">Dose / h</p>
+              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[1px]">INTERVALS</p>
+              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[1px]">Time</p>
+              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[1px]">Δ from base</p>
+              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[1px]">Dose / h</p>
               <span />
             </div>
             <div className="flex flex-col gap-[12px]">
@@ -182,10 +185,12 @@ export function Review() {
           </>
         )}
 
-        <MedSummary baseDose={baseDose} estDaily={estDaily} medications={medications} />
+        <div className="mt-auto">
+          <MedSummary baseDose={baseDose} estDaily={estDaily} medications={medications} />
+        </div>
 
         {/* Footer — confirm + Activate */}
-        <div className="mt-auto w-full flex flex-col gap-[24px]">
+        <div className="w-full flex flex-col gap-[24px]">
           <label className="flex items-center gap-[16px] cursor-pointer select-none">
             <span onClick={() => setConfirmed(c => !c)}
               className={`size-[40px] rounded-[6px] flex items-center justify-center border-2 ${confirmed ? 'bg-[#0094c5] border-[#0094c5]' : 'bg-white border-[#9ea8b2]'}`}>
@@ -195,7 +200,7 @@ export function Review() {
                 </svg>
               )}
             </span>
-            <p onClick={() => setConfirmed(c => !c)} className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p onClick={() => setConfirmed(c => !c)} className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
               I confirm that the data is correct and may be transferred.
             </p>
           </label>

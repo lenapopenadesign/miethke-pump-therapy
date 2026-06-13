@@ -20,13 +20,16 @@ const DAY_PATTERNS: { key: DayPattern; label: string }[] = [
 
 function BaseDoseChart({ hourly, unit }: { hourly: string; unit: string }) {
   return (
-    <div className="relative w-full h-[200px] bg-[#f7fafc] border border-[#d9dbde] rounded-[16px]">
-      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => (
-        <p key={t} className="absolute font-['Roboto',sans-serif] text-[#9ea8b2] text-[16px] top-[14px] whitespace-nowrap"
-           style={{ left: `${[2, 24.5, 49, 73, 95.5][i]}%`, fontVariationSettings: "'wdth' 100" }}>{t}</p>
-      ))}
-      <div className="absolute left-[24px] right-[24px] bottom-[24px] h-[50px] bg-[#8cc7e8] rounded-[4px] flex items-center px-[24px]">
-        <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+    <div className="relative w-full h-[330px] bg-[#f7fafc] border border-[#d9dbde] rounded-[16px]">
+      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => {
+        const first = i === 0, last = i === 4;
+        return (
+          <p key={t} className="absolute font-['Roboto',sans-serif] text-[#9ea8b2] text-[26px] top-[18px] whitespace-nowrap"
+             style={{ left: last ? undefined : first ? 16 : `${(i / 4) * 100}%`, right: last ? 16 : undefined, transform: first || last ? undefined : 'translateX(-50%)', fontVariationSettings: "'wdth' 100" }}>{t}</p>
+        );
+      })}
+      <div className="absolute left-[24px] right-[24px] bottom-[24px] h-[72px] bg-[#8cc7e8] rounded-[4px] flex items-center px-[24px]">
+        <p className="font-['Roboto',sans-serif] font-bold text-[24px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
           Base dose {hourly} {unit}/h
         </p>
       </div>
@@ -54,7 +57,7 @@ export function IntervalsEmpty() {
             <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>optional</p>
           </div>
         </div>
-        <p className="font-['Roboto',sans-serif] font-normal leading-[32px] text-[#45483c] text-[22px] tracking-[0.1px] w-full" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-normal leading-[38px] text-[#45483c] text-[26px] tracking-[0.1px] w-full" style={{ fontVariationSettings: "'wdth' 100" }}>
           Therapy will run at the base dose around the clock. Add intervals to vary the dose at specific times of day (e.g. higher during physiotherapy, lower at night).
         </p>
 

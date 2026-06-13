@@ -6,31 +6,16 @@ import { MedicationIcon } from '../components/MedicationIcon';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
 
-// 4-column grid: MEDICATION (name + subtle concentration) | Dose/day | Dose/hour | edit-pencil.
-// Mirrors the Medication / Add-interval rows: identity on the left, values on the
-// right. The base dose (primary) is editable by default; other medications can be
-// edited on demand via the pencil. Whichever row is active shows the input box;
-// the rest stay subtle.
-const GRID = 'grid items-center gap-[24px] w-[1040px] [grid-template-columns:1fr_340px_280px_56px]';
-const colLabel = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[1px]";
-const colLabelSubtle = "font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[20px] tracking-[1px]";
+// Column layout matches Figma 7176:67204: MEDICATION | Concentration | Dose/day |
+// Dose/hour | edit-pencil, gap-8, rows spaced gap-40.
+const GRID = 'grid items-center gap-[8px] w-[1040px] [grid-template-columns:184px_216px_385px_1fr_40px]';
+const hdr = "font-['Roboto',sans-serif] text-[#00769e] text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap";
 
-/** Medication identity: bold name + subtle concentration inline (Add-interval style). */
-function NameCell({ name, concentration }: { name: string; concentration: string }) {
-  return (
-    <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-      <span className="font-bold text-[#00769e] text-[32px] leading-[40px]">{name}</span>
-      <span className="font-normal text-[#9ea8b2] text-[24px]"> {concentration}</span>
-    </p>
-  );
-}
-
-/** Read-only dose value, rendered subtly (normal weight, grey). */
+/** Read-only dose value, rendered subtly (grey) so only the editable field stands out. */
 function SubtleDose({ value, unit }: { value: string; unit: string }) {
   return (
-    <p className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-      <span className="text-[36px] leading-[48px]">{value}</span>
-      <span className="text-[26px]"> {unit}</span>
+    <p className="font-['Roboto',sans-serif] text-[#9ea8b2] text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+      <span className="font-bold">{value}</span> <span className="font-normal">{unit}</span>
     </p>
   );
 }
@@ -42,19 +27,17 @@ export function BaseDose() {
   // The medication whose dose is currently editable. Defaults to the primary
   // (the base dose itself); the pencil on any other row switches editing to it.
   const [editingId, setEditingId] = useState<string | undefined>(medications[0]?.id);
-  // Raw text of the field while it's being typed into. Kept separate from the
-  // formatted dose so a keystroke isn't reformatted mid-entry (typing "360"
-  // would otherwise collapse to "3.0"). Reset to null (→ show formatted) on blur
-  // or when switching the edited row.
+  // Raw text of the field while it's being typed into (kept separate from the
+  // formatted dose so a keystroke isn't reformatted mid-entry). Reset on blur /
+  // when switching the edited row.
   const [draftText, setDraftText] = useState<string | null>(null);
   const ctaEnabled = baseDose > 0;
 
   // Each med's 24h dose (µg/day). The primary (index 0) is the base dose itself;
   // every other drug is co-delivered in the same volume.
   const ugFor = (m: Medication, i: number) => (i === 0 ? baseDose : coDoseUgDay(baseDose, c0, concUgPerUl(m)));
-  // The base dose is entered per DAY. Editing any med back-solves the shared
-  // delivered volume (the primary's µg/day) so the rest of the table stays
-  // consistent; the per-hour readout is always dayUg / 24.
+  // Editing any med back-solves the shared delivered volume (the primary's
+  // µg/day) so the rest of the table stays consistent.
   const applyEditDaily = (m: Medication, i: number, ugPerDay: number) => {
     const mc = concUgPerUl(m);
     const primary = i === 0 ? ugPerDay : (mc > 0 ? (ugPerDay * c0) / mc : 0);
@@ -63,70 +46,79 @@ export function BaseDose() {
 
   return (
     <WizardShell step="base-dose" onBack={() => navigate('add-medication')}>
-      <div className="flex-1 flex flex-col gap-[40px]">
-        {/* Title */}
-        <div className="flex gap-[16px] items-center">
-          <MedicationIcon size={48} />
-          <p className="font-['Roboto',sans-serif] font-extrabold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-            Base Dose
-          </p>
-        </div>
-
-        {/* Table */}
+      <div className="flex-1 flex flex-col">
         <div className="flex flex-col gap-[24px]">
-          {/* Column headers */}
-          <div className={GRID}>
-            <p className={colLabel}>MEDICATION</p>
-            <p className={colLabel}>Dose/day</p>
-            <p className={colLabelSubtle}>Dose/hour</p>
-            <span />
+          {/* Title */}
+          <div className="flex gap-[16px] items-center">
+            <MedicationIcon size={56} />
+            <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              Base Dose
+            </p>
           </div>
 
-          {medications.map((m, i) => {
-            const ug = ugFor(m, i);
-            const d = doseStringsFor(ug, m.unit);
-            const div = doseUnitFor(m.unit).div; // µg per displayed unit (mg → 1000, µg → 1)
-            const editing = m.id === editingId;
-            return (
-              <div key={m.id} className={GRID}>
-                <NameCell name={m.name} concentration={`${m.concentration} ${m.unit}`} />
+          {/* Table */}
+          <div className="flex flex-col gap-[40px]">
+            {/* Column headers */}
+            <div className={GRID}>
+              <p className={`${hdr} font-normal`}>MEDICATION</p>
+              <p className={`${hdr} font-normal`}>Concentration</p>
+              <p className={`${hdr} font-bold`}>Dose/day</p>
+              <p className={`${hdr} font-normal`}>Dose/hour</p>
+              <span />
+            </div>
 
-                {/* Dose/day — editable input for the active med, subtle otherwise */}
-                {editing ? (
-                  <div className="bg-white border border-[#c4ccd4] rounded-[8px] h-[76px] w-full flex items-center px-[20px] gap-[8px] focus-within:border-[#0094c5]">
-                    <input
-                      type="text" inputMode="decimal" pattern="[0-9]*\.?[0-9]*"
-                      value={draftText ?? d.perDay}
-                      onChange={e => {
-                        const raw = e.target.value.replace(/[^0-9.]/g, '');
-                        setDraftText(raw);
-                        const v = parseFloat(raw);
-                        applyEditDaily(m, i, (isNaN(v) ? 0 : v) * div); // displayed unit/d → µg/d
-                      }}
-                      onBlur={() => setDraftText(null)}
-                      className="flex-1 min-w-px font-bold text-[#1a1a1a] text-[40px] bg-transparent outline-none border-0 p-0"
-                      style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
+            {medications.map((m, i) => {
+              const ug = ugFor(m, i);
+              const d = doseStringsFor(ug, m.unit);
+              const div = doseUnitFor(m.unit).div; // µg per displayed unit (mg → 1000, µg → 1)
+              const editing = m.id === editingId;
+              return (
+                <div key={m.id} className={GRID}>
+                  {/* Medication name */}
+                  <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{m.name}</p>
+
+                  {/* Concentration */}
+                  <p className="font-['Roboto',sans-serif] text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    <span className="font-bold text-[#00769e]">{m.concentration}</span> <span className="font-normal text-[#00769e]">{m.unit}</span>
+                  </p>
+
+                  {/* Dose/day — editable field for the active med, subtle otherwise */}
+                  {editing ? (
+                    <div className="bg-white border border-[#a5a5a5] rounded-[8px] h-[72px] w-full flex items-center pl-[16px] pr-[8px] gap-[8px] focus-within:border-[#0094c5]">
+                      <input
+                        type="text" inputMode="decimal" pattern="[0-9]*\.?[0-9]*"
+                        value={draftText ?? d.perDay}
+                        onChange={e => {
+                          const raw = e.target.value.replace(/[^0-9.]/g, '');
+                          setDraftText(raw);
+                          const v = parseFloat(raw);
+                          applyEditDaily(m, i, (isNaN(v) ? 0 : v) * div); // displayed unit/d → µg/d
+                        }}
+                        onBlur={() => setDraftText(null)}
+                        className="flex-1 min-w-px font-bold text-[#45483c] text-[36px] leading-[48px] bg-transparent outline-none border-0 p-0"
+                        style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
+                      />
+                      <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[24px] text-right pr-[8px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/d</span>
+                    </div>
+                  ) : (
+                    <SubtleDose value={d.perDay} unit={`${d.unit}/d`} />
+                  )}
+
+                  {/* Dose/hour — always read-only, derived as dose/day ÷ 24 */}
+                  <SubtleDose value={d.perHour} unit={`${d.unit}/h`} />
+
+                  {/* Edit pencil — selects this row for editing (hidden on the active row) */}
+                  {editing ? <span /> : (
+                    <img
+                      alt="Edit dose" src={imgEditPencil}
+                      onClick={() => { setDraftText(null); setEditingId(m.id); }}
+                      className="size-[40px] shrink-0 block cursor-pointer"
                     />
-                    <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/d</span>
-                  </div>
-                ) : (
-                  <SubtleDose value={d.perDay} unit={`${d.unit}/d`} />
-                )}
-
-                {/* Dose/hour — always read-only, derived as dose/day ÷ 24 */}
-                <SubtleDose value={d.perHour} unit={`${d.unit}/h`} />
-
-                {/* Edit pencil — selects this row for editing (hidden on the active row) */}
-                {editing ? <span /> : (
-                  <img
-                    alt="Edit dose" src={imgEditPencil}
-                    onClick={() => { setDraftText(null); setEditingId(m.id); }}
-                    className="size-[40px] shrink-0 block cursor-pointer justify-self-end"
-                  />
-                )}
-              </div>
-            );
-          })}
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Save CTA */}

@@ -3,17 +3,14 @@ import { useNavigate } from '../navigation';
 import { useTherapy } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 
-const imgCheck = "/icons/9f696640-976b-4195-a9c5-662c75d84b76.svg";
-
 function LoadingBar() {
   return (
-    <div className="border-2 border-[#65d8fe] border-solid flex flex-col items-start justify-center p-[2px] rounded-[76px] w-full">
-      <div className="flex gap-[8px] h-[20px] items-center justify-center overflow-clip px-[40px] py-[16px] rounded-[47px] w-full" style={{ backgroundImage: "linear-gradient(-90deg, rgb(101, 216, 254) 0%, rgb(0, 118, 158) 100%)" }}>
-        <div className="relative shrink-0 size-[24px]">
-          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCheck} />
-        </div>
-        <p className="font-['Poppins',sans-serif] text-[16px] text-[rgba(255,255,255,0)] text-center whitespace-nowrap">Done</p>
-      </div>
+    <div className="border-2 border-[#65d8fe] border-solid p-[2px] rounded-[76px] w-full overflow-clip">
+      {/* Gradient fill animates its width from 0 → 100% as the transfer runs. */}
+      <div
+        className="progress-fill h-[52px] rounded-[47px]"
+        style={{ backgroundImage: "linear-gradient(90deg, rgb(0, 118, 158) 0%, rgb(101, 216, 254) 100%)" }}
+      />
     </div>
   );
 }

@@ -14,7 +14,7 @@ const imgPrime3 = "/icons/imp-prime-3.svg";
 const imgAccess = "/icons/imp-access.svg";
 const imgRevision = "/icons/imp-revision.svg";
 
-const labelCls = "font-['Roboto',sans-serif] font-normal text-[#00769e] text-[20px] tracking-[0.1px]";
+const labelCls = "font-['Roboto',sans-serif] font-normal text-[#00769e] text-[22px] tracking-[0.1px]";
 
 /** Label on the left, light-blue value box on the right. */
 function StatPair({ label, value, unit }: { label: string; value: string; unit?: string }) {

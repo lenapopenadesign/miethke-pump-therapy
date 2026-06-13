@@ -20,7 +20,7 @@ function Chip({ value, unit, bg }: { value: string; unit: string; bg: string }) 
   );
 }
 
-const hdr = "font-['Roboto',sans-serif] text-[18px] tracking-[1px] pb-[6px]";
+const hdr = "font-['Roboto',sans-serif] text-[22px] tracking-[1px] pb-[6px]";
 
 /**
  * The per-medication 24h summary — the headline data on the Intervals, Review
@@ -63,7 +63,7 @@ export function MedSummary({
         {rows.map(r => (
           <Fragment key={r.med.id}>
             <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.med.name}</p>
-            <p className="font-['Roboto',sans-serif] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
               <span className="font-bold text-[#00769e]">{r.med.concentration}</span> <span className="font-normal text-[#5f8aa0]">{r.med.unit}</span>
             </p>
             <Chip value={r.base.value} unit={r.base.unit} bg="bg-[#d6eaf3]" />

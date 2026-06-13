@@ -68,7 +68,7 @@ function PreviewChart({
   unit?: string;
 }) {
   const containerW = 1040;
-  const containerH = 130;
+  const containerH = 330; // matches the Intervals/Review chart height
   const left = 80;
   const top = 130;
   const innerLeft = 12;
@@ -78,30 +78,29 @@ function PreviewChart({
   const newWidth = Math.max(0, ((newEnd - newStart) / 1440) * innerW);
   const hasNew = newEnd > newStart;
   // Base bar and NEW box share the same vertical band (NEW sits inline, same height).
-  const BAR_TOP = 60;
-  const BAR_H = 44;
+  const BAR_TOP = 140;
+  const BAR_H = 150;
   return (
     <div className="absolute bg-[#f7fafc] border border-[#d9dbde] rounded-[12px]" style={{ left, top, width: containerW, height: containerH }}>
-      {/* Time ticks */}
-      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => (
-        <p
-          key={t}
-          className="absolute font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[14px] tracking-[0.1px]"
-          style={{
-            top: 12,
-            left: innerLeft + (innerW * i) / 4 - (i === 0 ? 0 : i === 4 ? 36 : 18),
-            fontVariationSettings: "'wdth' 100",
-          }}
-        >
-          {t}
-        </p>
-      ))}
+      {/* Time ticks — kept inside the rectangle (first left-aligned, last right-aligned) */}
+      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => {
+        const first = i === 0, last = i === 4;
+        return (
+          <p
+            key={t}
+            className="absolute font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[26px] tracking-[0.1px]"
+            style={{ top: 18, left: last ? undefined : first ? 16 : `${(i / 4) * 100}%`, right: last ? 16 : undefined, transform: first || last ? undefined : 'translateX(-50%)', fontVariationSettings: "'wdth' 100" }}
+          >
+            {t}
+          </p>
+        );
+      })}
       {/* Base dose bar — full width */}
       <div
-        className="absolute rounded-[3px] bg-[#8cc7e8] flex items-center px-[12px]"
+        className="absolute rounded-[3px] bg-[#8cc7e8] flex items-center px-[16px]"
         style={{ left: innerLeft, right: innerLeft, top: BAR_TOP, height: BAR_H }}
       >
-        <p className="font-['Roboto',sans-serif] font-bold text-[14px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-bold text-[20px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
           Base dose {baseStr.perHour} {baseStr.unit}/h
         </p>
       </div>
@@ -118,7 +117,7 @@ function PreviewChart({
             border: '2px dashed #0094c5',
           }}
         >
-          <p className="font-['Roboto',sans-serif] font-bold text-[12px] text-[#00769e] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-[#00769e] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             NEW
           </p>
         </div>
@@ -212,8 +211,8 @@ export function AddIntervalSheetWhen() {
         unit={primaryUnit}
       />
       {/* Label */}
-      <div className="absolute left-[80px] right-[80px] top-[300px] flex flex-col gap-[8px]">
-        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+      <div className="absolute left-[80px] right-[80px] top-[500px] flex flex-col gap-[8px]">
+        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           Label
         </p>
         <div className="bg-white border border-[#d9dbde] rounded-[12px] h-[80px] flex items-center px-[20px]">
@@ -230,16 +229,16 @@ export function AddIntervalSheetWhen() {
       </div>
 
       {/* Start / End time fields */}
-      <div className="absolute left-[80px] right-[80px] top-[460px] flex gap-[24px] items-end">
+      <div className="absolute left-[80px] right-[80px] top-[660px] flex gap-[24px] items-end">
         <div className="flex-1 flex flex-col gap-[8px]">
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             Start
           </p>
           <TimeField value={draft.startMin} onChange={min => setDraft({ ...draft, startMin: min })} />
         </div>
         <p className="font-['Roboto',sans-serif] font-bold text-[#667380] text-[32px] pb-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>→</p>
         <div className="flex-1 flex flex-col gap-[8px]">
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             End
           </p>
           <TimeField value={draft.endMin} onChange={min => setDraft({ ...draft, endMin: min })} />
@@ -248,7 +247,7 @@ export function AddIntervalSheetWhen() {
 
       {/* Length caption */}
       <p
-        className="absolute font-['Roboto',sans-serif] font-medium text-[#667380] text-[18px] tracking-[0.1px] left-[80px] top-[600px]"
+        className="absolute font-['Roboto',sans-serif] font-medium text-[#667380] text-[18px] tracking-[0.1px] left-[80px] top-[800px]"
         style={{ fontVariationSettings: "'wdth' 100" }}
       >
         Length: {lengthH}h {lengthM}m · {pctDay}% of the day
@@ -308,7 +307,7 @@ export function AddIntervalSheetDose() {
       {/* Summary row */}
       <div
         onClick={() => navigate('add-interval-when')}
-        className="absolute bg-white border border-[#d9dbde] rounded-[12px] h-[80px] left-[80px] right-[80px] top-[280px] flex items-center px-[24px] gap-[24px] cursor-pointer"
+        className="absolute bg-white border border-[#d9dbde] rounded-[12px] h-[80px] left-[80px] right-[80px] top-[480px] flex items-center px-[24px] gap-[24px] cursor-pointer"
       >
         <div className="w-[8px] h-[48px] rounded-[4px]" style={{ background: doseColor(draft.dose || baseDose, baseDose) }} />
         <div className="flex flex-col gap-[2px] w-[240px] shrink-0">
@@ -329,18 +328,18 @@ export function AddIntervalSheetDose() {
       </div>
 
       {/* Column headers */}
-      <div className="absolute left-[80px] right-[80px] top-[392px] flex items-center gap-[24px]">
+      <div className="absolute left-[80px] right-[80px] top-[592px] flex items-center gap-[24px]">
         <div className="w-[260px]" />
-        <p className="w-[300px] font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/h</p>
-        <p className="flex-1 text-right font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/interval</p>
+        <p className="w-[300px] font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/h</p>
+        <p className="flex-1 text-right font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/interval</p>
       </div>
 
       {/* Baclofen ± row */}
-      <div className="absolute left-[80px] right-[80px] top-[440px] flex items-center gap-[24px]">
+      <div className="absolute left-[80px] right-[80px] top-[640px] flex items-center gap-[24px]">
         <div className="w-[260px]">
           <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             <span className="font-bold text-[#00769e] text-[30px]">{medications[0]?.name || 'Baclofen'}</span>
-            <span className="text-[#9ea8b2] text-[20px]"> {conc(0)}</span>
+            <span className="text-[#9ea8b2] text-[22px]"> {conc(0)}</span>
           </p>
         </div>
         <div className="bg-white border border-[#c4ccd4] rounded-[8px] h-[76px] w-[300px] flex items-center px-[20px] gap-[8px] focus-within:border-[#0094c5]">
@@ -375,7 +374,7 @@ export function AddIntervalSheetDose() {
           unit={m.unit}
           ugDay={coDoseUgDay(draft.dose, primaryConc, concUgPerUl(m))}
           lengthFraction={lengthFraction}
-          top={540 + i * 80}
+          top={740 + i * 80}
         />
       ))}
 
@@ -409,7 +408,7 @@ function DerivedRow({
       <div className="w-[260px]">
         <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           <span className="font-bold text-[#00769e] text-[30px]">{label}</span>
-          <span className="text-[#9ea8b2] text-[20px]"> {concentration}</span>
+          <span className="text-[#9ea8b2] text-[22px]"> {concentration}</span>
         </p>
       </div>
       <div className="w-[300px] flex items-baseline gap-[8px] px-[20px]">

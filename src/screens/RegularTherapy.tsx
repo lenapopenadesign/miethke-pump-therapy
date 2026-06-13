@@ -20,7 +20,7 @@ function DeliveryIcon() {
  */
 function DeliveryDiagram({ deliveriesPerDay, dosePerDelivery, baseDose }:
   { deliveriesPerDay: number; dosePerDelivery: number; baseDose: number }) {
-  const W = 1000, H = 200, LEFT = 8, RIGHT = 8, TOP = 16, BASE = 154;
+  const W = 1000, H = 240, LEFT = 8, RIGHT = 8, TOP = 16, BASE = 194;
   const plotW = W - LEFT - RIGHT;
   const maxBarH = BASE - TOP;
   // Fixed dose scale = most-spaced per-delivery dose (fewest deliveries/day).
@@ -31,7 +31,7 @@ function DeliveryDiagram({ deliveriesPerDay, dosePerDelivery, baseDose }:
   const barW = Math.min(10, (plotW / n) * 0.5);
   const times = ['00:00', '06:00', '12:00', '18:00', '24:00'];
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full block" style={{ height: 200 }}>
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full block" style={{ height: 240 }}>
       {/* delivery ticks */}
       {Array.from({ length: n }).map((_, i) => {
         const x = LEFT + ((i + 0.5) / n) * plotW - barW / 2;
@@ -44,7 +44,7 @@ function DeliveryDiagram({ deliveriesPerDay, dosePerDelivery, baseDose }:
         const last = times.length - 1;
         const anchor = i === 0 ? 'start' : i === last ? 'end' : 'middle';
         return (
-          <text key={t} x={LEFT + (i / last) * plotW} y={BASE + 32} textAnchor={anchor} fontFamily="Roboto, sans-serif" fontSize="18" fill="#7e95a3">{t}</text>
+          <text key={t} x={LEFT + (i / last) * plotW} y={BASE + 34} textAnchor={anchor} fontFamily="Roboto, sans-serif" fontSize="22" fill="#7e95a3">{t}</text>
         );
       })}
     </svg>
@@ -83,7 +83,7 @@ export function RegularTherapy() {
               </p>
               <div className="flex items-baseline gap-[10px] shrink-0">
                 <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  Per stroke
+                  Per delivery
                 </p>
                 <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   {perDeliveryStr} {unit}

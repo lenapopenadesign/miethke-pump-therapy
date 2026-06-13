@@ -38,57 +38,15 @@ body {
   position: relative;
 }
 
-/* Android Galaxy Tab–style bezel wrapping the desktop preview. */
-.tablet-frame {
-  position: relative;
-  padding: 22px;
-  border-radius: 30px;
-  background: linear-gradient(150deg, #34373c 0%, #1b1c1f 45%, #101113 100%);
-  box-shadow:
-    0 0 0 2px #050506,                 /* crisp outer edge */
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06), /* top metallic highlight */
-    0 18px 60px rgba(0, 0, 0, 0.4);
-}
-
-/* Front-facing camera on the top bezel. */
-.tablet-frame::before {
-  content: '';
-  position: absolute;
-  top: 9px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #2c3138 0%, #0a0b0d 70%);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-}
-
-/* Physical home button on the bottom bezel (Samsung-style oval). */
-.tablet-frame::after {
-  content: '';
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 34px;
-  height: 12px;
-  border-radius: 6px;
-  background: linear-gradient(180deg, #15161a 0%, #0a0b0d 100%);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.08),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(255, 255, 255, 0.04);
-}
-
-/* Device frame: viewport is 1200x1920 (tablet portrait), shown at 0.4 scale */
+/* Device frame: viewport is 1200x1920 (tablet portrait), scaled to fit. */
 .device-shell {
   width: 480px;
   height: 768px;
   overflow: hidden;
   background: white;
-  border-radius: 6px;
+  border-radius: 8px;
   position: relative;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
 .device-inner {
@@ -105,6 +63,16 @@ body {
   position: relative;
   background: white;
   overflow: hidden;
+}
+
+/* Transfer step: progress bar fills left→right over the ~2.5s transfer. */
+@keyframes progressLoad {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+.progress-fill {
+  width: 0%;
+  animation: progressLoad 2.35s ease-out forwards;
 }
 
 /* Refill "Filling" step: needle slowly probes down to the port and back up. */

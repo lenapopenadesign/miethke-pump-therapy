@@ -52,15 +52,18 @@ function timeRangeLabel(startMin: number, endMin: number): string {
 function Chart({ intervals, baseDose, unit }: { intervals: Interval[]; baseDose: number; unit: string }) {
   const slots = withBaseFillers(intervals, baseDose);
   const maxDose = Math.max(baseDose, ...slots.map(s => s.dose), 1);
-  const CHART_H = 200;
-  const FLOOR = 150;       // bar baseline within the chart
-  const MAX_BAR = 116;
+  const CHART_H = 330;
+  const FLOOR = 256;       // bar baseline within the chart
+  const MAX_BAR = 210;
   return (
     <div className="relative w-full bg-[#f7fafc] border border-[#d9dbde] rounded-[16px]" style={{ height: CHART_H }}>
-      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => (
-        <p key={t} className="absolute font-['Roboto',sans-serif] text-[#9ea8b2] text-[16px] top-[14px] whitespace-nowrap"
-           style={{ left: `${[1.5, 24.5, 48.5, 72.5, 95.5][i]}%`, fontVariationSettings: "'wdth' 100" }}>{t}</p>
-      ))}
+      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => {
+        const first = i === 0, last = i === 4;
+        return (
+          <p key={t} className="absolute font-['Roboto',sans-serif] text-[#9ea8b2] text-[26px] top-[18px] whitespace-nowrap"
+             style={{ left: last ? undefined : first ? 16 : `${(i / 4) * 100}%`, right: last ? 16 : undefined, transform: first || last ? undefined : 'translateX(-50%)', fontVariationSettings: "'wdth' 100" }}>{t}</p>
+        );
+      })}
       {slots.map(slot => {
         const left = (slot.startMin / 1440) * 100;
         const width = ((slot.endMin - slot.startMin) / 1440) * 100;
@@ -70,7 +73,7 @@ function Chart({ intervals, baseDose, unit }: { intervals: Interval[]; baseDose:
             className="absolute rounded-[4px] flex items-start justify-center overflow-hidden"
             style={{ left: `${left}%`, width: `${width}%`, top: FLOOR - height, height, background: doseColor(slot.dose, baseDose), opacity: slot.isBase ? 0.7 : 1 }}>
             {width > 7 && (
-              <p className="font-['Roboto',sans-serif] font-bold text-[13px] text-white pt-[6px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <p className="font-['Roboto',sans-serif] font-bold text-[20px] text-white pt-[10px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                 {doseStringsFor(slot.dose, unit).perHour} {doseStringsFor(slot.dose, unit).unit}/h
               </p>
             )}
@@ -115,7 +118,7 @@ export function IntervalsPopulated() {
             <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>optional</p>
           </div>
         </div>
-        <p className="font-['Roboto',sans-serif] font-normal leading-[32px] text-[#45483c] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-normal leading-[38px] text-[#45483c] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           Therapy will run at the base dose around the clock. Add intervals to vary the dose at specific times of day (e.g. higher during physiotherapy, lower at night).
         </p>
 
@@ -151,10 +154,10 @@ export function IntervalsPopulated() {
 
         {/* Interval list with Δ-from-base */}
         <div className="grid items-center [grid-template-columns:1fr_220px_160px_180px_56px] px-[16px]">
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">INTERVALS</p>
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">Time</p>
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">Δ from base</p>
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[18px] tracking-[1px]">Dose / h</p>
+          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[1px]">INTERVALS</p>
+          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[1px]">Time</p>
+          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[1px]">Δ from base</p>
+          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[1px]">Dose / h</p>
           <span />
         </div>
         <div className="flex flex-col gap-[12px]">
@@ -178,10 +181,12 @@ export function IntervalsPopulated() {
           <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[24px] tracking-[0.1px] whitespace-pre" style={{ fontVariationSettings: "'wdth' 100" }}>{`+  Add interval to ${addLabel}`}</p>
         </div>
 
-        <MedSummary baseDose={baseDose} estDaily={estDaily} medications={medications} />
+        <div className="mt-auto">
+          <MedSummary baseDose={baseDose} estDaily={estDaily} medications={medications} />
+        </div>
 
         {/* Continue */}
-        <div onClick={() => navigate('review')} className="mt-auto bg-[#0094c5] h-[88px] rounded-[80px] w-full cursor-pointer flex items-center justify-center">
+        <div onClick={() => navigate('review')} className="bg-[#0094c5] h-[88px] rounded-[80px] w-full cursor-pointer flex items-center justify-center">
           <p className="font-['Roboto',sans-serif] font-bold text-[24px] text-white tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Continue to review</p>
         </div>
       </div>

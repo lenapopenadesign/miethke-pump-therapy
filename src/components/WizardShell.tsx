@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { MedicationIcon } from './MedicationIcon';
 import { useTherapy } from '../therapy';
 
 const imgBack = "/icons/01195f3c-ce0c-4269-a4cc-2742bc124f77.svg";
@@ -85,49 +84,53 @@ function Check() {
   );
 }
 
-/** Setup-flow stepper: dots on a rail with labels below. */
-function DotStepper({ activeKey, steps }: { activeKey: string; steps: { key: string; label: string }[] }) {
+/**
+ * Setup-flow stepper: a chevron / breadcrumb row (Figma 8409:53071). Each step is
+ * a right-pointing arrow segment with a radio circle + label. Done & active steps
+ * use the light-blue fill; upcoming steps are grey. The arrow notch is carved with
+ * clip-path so the parent white background shows through as the separator.
+ */
+const CHEV = 18; // px depth of the arrow point / left notch
+const CHEV_GAP = 8; // px white separator left between interlocking arrows
+function ChevronStepper({ activeKey, steps }: { activeKey: string; steps: { key: string; label: string }[] }) {
   const activeIdx = steps.findIndex(s => s.key === activeKey);
-  // Dot centers sit at 22px and 1018px within the 1040px track (44px dots, justify-between).
-  const trackStart = 22;
-  const trackEnd = 1018;
-  const centerAt = (i: number) => trackStart + ((trackEnd - trackStart) * i) / (steps.length - 1);
-  const progressW = centerAt(activeIdx) - trackStart;
-
   return (
-    <div className="relative w-[1040px] mx-auto h-[80px]">
-      {/* Rail + completed progress */}
-      <div className="absolute top-[20px] h-[2px] bg-[#b5d4e3]" style={{ left: trackStart, right: 1040 - trackEnd }} />
-      <div className="absolute top-[20px] h-[2px] bg-[#0094c5]" style={{ left: trackStart, width: progressW }} />
-      {/* Dots + labels */}
-      <div className="absolute inset-0 flex items-start justify-between">
-        {steps.map((s, i) => {
-          const state = i < activeIdx ? 'done' : i === activeIdx ? 'active' : 'upcoming';
-          return (
-            <div key={s.key} className="flex flex-col items-center gap-[10px] w-[44px]">
-              <div className="size-[44px] flex items-center justify-center">
-                {state === 'active' ? (
-                  <div className="size-[44px] rounded-full bg-[#b2e0f0] flex items-center justify-center">
-                    <div className="size-[20px] rounded-full bg-[#0094c5]" />
-                  </div>
-                ) : state === 'done' ? (
-                  <div className="size-[34px] rounded-full bg-[#0094c5] flex items-center justify-center">
-                    <Check />
-                  </div>
-                ) : (
-                  <div className="size-[34px] rounded-full bg-white border-2 border-[#b5c3cc]" />
-                )}
+    <div className="flex h-[76px] w-[1200px]">
+      {steps.map((s, i) => {
+        const first = i === 0;
+        const last = i === steps.length - 1;
+        const state = i < activeIdx ? 'done' : i === activeIdx ? 'active' : 'upcoming';
+        const clip = first
+          ? `polygon(0 0, calc(100% - ${CHEV}px) 0, 100% 50%, calc(100% - ${CHEV}px) 100%, 0 100%)`
+          : last
+            ? `polygon(0 0, 100% 0, 100% 100%, 0 100%, ${CHEV}px 50%)`
+            : `polygon(0 0, calc(100% - ${CHEV}px) 0, 100% 50%, calc(100% - ${CHEV}px) 100%, 0 100%, ${CHEV}px 50%)`;
+        return (
+          <div
+            key={s.key}
+            className="flex-1 min-w-px h-[76px] flex items-center gap-[8px] pr-[6px]"
+            // Overlap each arrow's point into the next one's notch, leaving only a
+            // thin CHEV_GAP separator (so the arrows read as a tight breadcrumb).
+            style={{ background: state === 'upcoming' ? '#f0f0f0' : '#d1eaf8', clipPath: clip, paddingLeft: first ? 28 : 12 + CHEV, marginLeft: first ? 0 : -(CHEV - CHEV_GAP) }}
+          >
+            {state === 'done' ? (
+              <div className="size-[40px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0"><Check /></div>
+            ) : state === 'active' ? (
+              <div className="size-[40px] rounded-full border-[3px] border-[#0094c5] bg-white flex items-center justify-center shrink-0">
+                <div className="size-[18px] rounded-full bg-[#0094c5]" />
               </div>
-              <p
-                className={`font-['Roboto',sans-serif] text-[28px] tracking-[0.1px] whitespace-nowrap absolute top-[52px] ${state === 'upcoming' ? 'font-normal text-[#9aa7b0]' : 'font-bold text-[#00769e]'}`}
-                style={{ fontVariationSettings: "'wdth' 100" }}
-              >
-                {s.label}
-              </p>
-            </div>
-          );
-        })}
-      </div>
+            ) : (
+              <div className="size-[40px] rounded-full border-2 border-[#cdd5da] bg-white shrink-0" />
+            )}
+            <p
+              className={`flex-1 min-w-px truncate font-['Roboto',sans-serif] leading-[26px] text-[20px] tracking-[0.1px] ${state === 'upcoming' ? 'font-normal text-[#a5a5a5]' : state === 'active' ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
+              style={{ fontVariationSettings: "'wdth' 100" }}
+            >
+              {s.label}
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -177,7 +180,7 @@ function RefillHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => vo
   );
 }
 
-/** Setup header band: centered "Add Therapy" title + dots stepper. */
+/** Setup header band: left-aligned "Add Therapy" title + chevron stepper (Figma 8409:53071). */
 function SetupHeaderBand({ step, onBack, decision, useBaseOnly }: { step: WizardStep; onBack: () => void; decision?: SetupDecision; useBaseOnly: boolean }) {
   // Default decision: delivery → regular; review/transfer follow the path taken
   // (base-dose-only ⇒ regular); everything earlier previews both paths.
@@ -188,18 +191,17 @@ function SetupHeaderBand({ step, onBack, decision, useBaseOnly }: { step: Wizard
       : 'undecided');
   const { steps, activeKey } = buildSetupStepper(step, resolvedDecision);
   return (
-    <div className="bg-[#e6f4f9] w-[1200px] shrink-0 flex flex-col pb-[24px]">
-      <div className="flex h-[120px] items-center justify-between px-[40px]">
-        <BackArrow onBack={onBack} />
-        <div className="flex gap-[16px] items-center">
-          <MedicationIcon size={48} />
-          <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] text-[#00769e] text-[44px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+    <div className="w-[1200px] shrink-0 flex flex-col gap-[8px]">
+      <div className="bg-[#e6f4f9] flex h-[96px] items-center justify-between px-[40px]">
+        <div className="flex gap-[20px] items-center">
+          <BackArrow onBack={onBack} />
+          <p className="font-['Roboto',sans-serif] font-extrabold text-[#00769e] text-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Add Therapy
           </p>
         </div>
         <Signet />
       </div>
-      <DotStepper activeKey={activeKey} steps={steps} />
+      <ChevronStepper activeKey={activeKey} steps={steps} />
     </div>
   );
 }

@@ -119,20 +119,16 @@ export function App() {
     );
   }
 
-  // Desktop preview: scale the 1200×1920 canvas so its full height (incl. the
-  // bottom nav) always fits the browser window. Capped so it isn't huge on tall
-  // monitors and leaves room for the tablet bezel.
-  const deskScale = Math.max(0.25, Math.min(0.5, (h - 120) / DESIGN_H));
+  // Desktop preview: scale the 1200×1920 canvas to fit the window — bound by
+  // height so the whole layout (incl. the bottom CTA) is visible without scroll.
+  const deskScale = Math.max(0.25, Math.min((h - 48) / DESIGN_H, (w - 48) / DESIGN_W));
   return (
     <TherapyProvider>
       <NavProvider value={setScreen}>
         <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-        {/* Android Galaxy Tab–style bezel so desktop testing reads as a real tablet. */}
-        <div className="tablet-frame">
-          <div className="device-shell" style={{ width: DESIGN_W * deskScale, height: DESIGN_H * deskScale }}>
-            <div className="device-inner" style={{ transform: `scale(${deskScale})` }}>
-              <div className="screen">{screens}</div>
-            </div>
+        <div className="device-shell" style={{ width: DESIGN_W * deskScale, height: DESIGN_H * deskScale }}>
+          <div className="device-inner" style={{ transform: `scale(${deskScale})` }}>
+            <div className="screen">{screens}</div>
           </div>
         </div>
         {showNav && (
