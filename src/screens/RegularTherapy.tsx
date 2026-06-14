@@ -82,7 +82,7 @@ export function RegularTherapy() {
                 {selected.label} · every {fmtInterval(plan.intervalMin)}
               </p>
               <div className="flex items-baseline gap-[10px] shrink-0">
-                <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Per delivery
                 </p>
                 <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -95,7 +95,7 @@ export function RegularTherapy() {
               dosePerDelivery={plan.dosePerDelivery}
               baseDose={baseDose}
             />
-            <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[18px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
               {Math.round(plan.deliveriesPerDay)} deliveries/day
             </p>
           </div>

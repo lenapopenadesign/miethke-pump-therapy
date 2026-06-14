@@ -10,7 +10,7 @@ const imgEditPencil = "/icons/edit-pencil.svg";
 /* Plain 24-hour HH:MM field (no native clock icon / AM-PM). */
 function TimeField({ value, onChange }: { value: number; onChange: (min: number) => void }) {
   return (
-    <div className="bg-white border border-[#d9dbde] rounded-[12px] h-[80px] flex items-center px-[20px]">
+    <div className="bg-white border-2 border-[#6b7785] rounded-[12px] h-[80px] flex items-center px-[20px] focus-within:border-[#0094c5]">
       <input
         type="text"
         inputMode="numeric"
@@ -215,7 +215,7 @@ export function AddIntervalSheetWhen() {
         <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           Label
         </p>
-        <div className="bg-white border border-[#d9dbde] rounded-[12px] h-[80px] flex items-center px-[20px]">
+        <div className="bg-white border-2 border-[#6b7785] rounded-[12px] h-[80px] flex items-center px-[20px] focus-within:border-[#0094c5]">
           <input
             type="text"
             value={draft.label}
@@ -225,7 +225,7 @@ export function AddIntervalSheetWhen() {
             style={{ fontVariationSettings: "'wdth' 100" }}
           />
         </div>
-        <p className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[14px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{`e.g. "Morning peak", "Physio", "Wind-down"`}</p>
+        <p className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{`e.g. "Morning peak", "Physio", "Wind-down"`}</p>
       </div>
 
       {/* Start / End time fields */}
@@ -247,7 +247,7 @@ export function AddIntervalSheetWhen() {
 
       {/* Length caption */}
       <p
-        className="absolute font-['Roboto',sans-serif] font-medium text-[#667380] text-[18px] tracking-[0.1px] left-[80px] top-[800px]"
+        className="absolute font-['Roboto',sans-serif] font-medium text-[#667380] text-[28px] tracking-[0.1px] left-[80px] top-[800px]"
         style={{ fontVariationSettings: "'wdth' 100" }}
       >
         Length: {lengthH}h {lengthM}m · {pctDay}% of the day
@@ -321,7 +321,7 @@ export function AddIntervalSheetDose() {
         <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[26px] tracking-[0.1px] w-[120px] shrink-0" style={{ fontVariationSettings: "'wdth' 100" }}>
           {pctDelta >= 0 ? '+' : '−'} {Math.abs(pctDelta)} %
         </p>
-        <p className="flex-1 font-['Roboto',sans-serif] text-[#00769e] text-[28px] tracking-[0.1px] min-w-px" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="flex-1 font-['Roboto',sans-serif] text-[#00769e] text-[32px] tracking-[0.1px] min-w-px" style={{ fontVariationSettings: "'wdth' 100" }}>
           <span className="font-bold">{primaryDose.perHour}</span> {primaryDose.unit}/h
         </p>
         <img alt="" src={imgEditPencil} className="size-[32px] shrink-0 block" />
@@ -329,20 +329,20 @@ export function AddIntervalSheetDose() {
 
       {/* Column headers */}
       <div className="absolute left-[80px] right-[80px] top-[592px] flex items-center gap-[24px]">
-        <div className="w-[260px]" />
+        <div className="w-[330px]" />
         <p className="w-[300px] font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/h</p>
         <p className="flex-1 text-right font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose/interval</p>
       </div>
 
       {/* Baclofen ± row */}
       <div className="absolute left-[80px] right-[80px] top-[640px] flex items-center gap-[24px]">
-        <div className="w-[260px]">
+        <div className="w-[330px]">
           <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             <span className="font-bold text-[#00769e] text-[30px]">{medications[0]?.name || 'Baclofen'}</span>
-            <span className="text-[#9ea8b2] text-[22px]"> {conc(0)}</span>
+            <span className="text-[#9ea8b2] text-[26px]"> {conc(0)}</span>
           </p>
         </div>
-        <div className="bg-white border border-[#c4ccd4] rounded-[8px] h-[76px] w-[300px] flex items-center px-[20px] gap-[8px] focus-within:border-[#0094c5]">
+        <div className="bg-white border-2 border-[#6b7785] rounded-[8px] h-[76px] w-[300px] flex items-center px-[20px] gap-[8px] focus-within:border-[#0094c5]">
           <input
             type="text"
             inputMode="decimal"
@@ -353,13 +353,13 @@ export function AddIntervalSheetDose() {
               const ugH = (isNaN(v) ? 0 : v) * primaryDiv; // displayed unit/h → µg/h
               setDraft({ ...draft, dose: Math.max(0, Math.min(2000, Math.round(ugH * 24))) });
             }}
-            className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#1a1a1a] text-[36px] tracking-[0.1px] bg-transparent outline-none border-0 p-0 text-left"
+            className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#1a1a1a] text-[40px] tracking-[0.1px] bg-transparent outline-none border-0 p-0 text-left"
             style={{ fontVariationSettings: "'wdth' 100" }}
           />
-          <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{primaryDose.unit}/h</span>
+          <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{primaryDose.unit}/h</span>
         </div>
         <div className="flex-1 flex flex-col items-end justify-center">
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             ≈ {intervalPrimary.perDay} {intervalPrimary.unit}
           </p>
         </div>
@@ -405,18 +405,18 @@ function DerivedRow({
   const intervalStr = doseStringsFor(ugDay * lengthFraction, unit).perDay;
   return (
     <div className="absolute left-[80px] right-[80px] flex items-center gap-[24px]" style={{ top }}>
-      <div className="w-[260px]">
+      <div className="w-[330px]">
         <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           <span className="font-bold text-[#00769e] text-[30px]">{label}</span>
-          <span className="text-[#9ea8b2] text-[22px]"> {concentration}</span>
+          <span className="text-[#9ea8b2] text-[26px]"> {concentration}</span>
         </p>
       </div>
       <div className="w-[300px] flex items-baseline gap-[8px] px-[20px]">
-        <span className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.perHour}</span>
-        <span className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/h</span>
+        <span className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[40px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.perHour}</span>
+        <span className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/h</span>
       </div>
       <div className="flex-1 flex flex-col items-end justify-center">
-        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           ≈ {intervalStr} {d.unit}
         </p>
       </div>

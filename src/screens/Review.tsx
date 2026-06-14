@@ -101,6 +101,9 @@ export function Review() {
           <p className="font-['Roboto',sans-serif] font-extrabold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Review</p>
         </div>
 
+        {/* Medication summary — shown first on the Review page */}
+        <MedSummary baseDose={baseDose} estDaily={estDaily} medications={medications} />
+
         {useBaseOnly ? (
           /* Base-only: delivery-interval card */
           <div className="w-full border-2 border-[#0094c5] rounded-[16px] bg-[#e6f4f9] px-[32px] py-[24px] flex flex-col gap-[12px]">
@@ -185,12 +188,8 @@ export function Review() {
           </>
         )}
 
-        <div className="mt-auto">
-          <MedSummary baseDose={baseDose} estDaily={estDaily} medications={medications} />
-        </div>
-
         {/* Footer — confirm + Activate */}
-        <div className="w-full flex flex-col gap-[24px]">
+        <div className="mt-auto w-full flex flex-col gap-[24px]">
           <label className="flex items-center gap-[16px] cursor-pointer select-none">
             <span onClick={() => setConfirmed(c => !c)}
               className={`size-[40px] rounded-[6px] flex items-center justify-center border-2 ${confirmed ? 'bg-[#0094c5] border-[#0094c5]' : 'bg-white border-[#9ea8b2]'}`}>

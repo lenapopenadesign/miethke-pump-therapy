@@ -160,11 +160,13 @@ const SEED_INTERVALS: Interval[] = [
   { id: 'iv-evening', label: 'Evening peak',   startMin: 1080, endMin: 1380, dose: 345.6 }, // 18:00 – 22:59 · flow 24
 ];
 
-// Weekend (Sat–Sun): sleeps in — night runs longer, daytime starts later.
+// Weekend (Sat–Sun): identical to weekdays except the morning runs slightly
+// later — the night/sleep interval ends 2h later (sleeps in). Daytime + evening
+// match the weekday timings exactly.
 const SEED_WEEKEND_INTERVALS: Interval[] = [
-  { id: 'iv-we-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 480,  dose: 201.6 }, // 00:00 – 07:59 · flow 14
-  { id: 'iv-we-day',     label: 'Daytime (base)', startMin: 720,  endMin: 1080, dose: 288 },   // 12:00 – 17:59 · flow 20
-  { id: 'iv-we-evening', label: 'Evening peak',   startMin: 1080, endMin: 1380, dose: 345.6 }, // 18:00 – 22:59 · flow 24
+  { id: 'iv-we-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 480,  dose: 201.6 }, // 00:00 – 07:59 · sleeps in
+  { id: 'iv-we-day',     label: 'Daytime (base)', startMin: 540,  endMin: 1080, dose: 288 },   // 09:00 – 17:59 · same as weekday
+  { id: 'iv-we-evening', label: 'Evening peak',   startMin: 1080, endMin: 1380, dose: 345.6 }, // 18:00 – 22:59 · same as weekday
 ];
 
 function uid() {

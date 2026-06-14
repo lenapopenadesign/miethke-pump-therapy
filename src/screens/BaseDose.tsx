@@ -14,7 +14,7 @@ const hdr = "font-['Roboto',sans-serif] text-[#00769e] text-[24px] leading-[32px
 /** Read-only dose value, rendered subtly (grey) so only the editable field stands out. */
 function SubtleDose({ value, unit }: { value: string; unit: string }) {
   return (
-    <p className="font-['Roboto',sans-serif] text-[#9ea8b2] text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+    <p className="font-['Roboto',sans-serif] text-[#9ea8b2] text-[28px] leading-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
       <span className="font-bold">{value}</span> <span className="font-normal">{unit}</span>
     </p>
   );
@@ -75,16 +75,16 @@ export function BaseDose() {
               return (
                 <div key={m.id} className={GRID}>
                   {/* Medication name */}
-                  <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{m.name}</p>
+                  <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] leading-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{m.name}</p>
 
                   {/* Concentration */}
-                  <p className="font-['Roboto',sans-serif] text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  <p className="font-['Roboto',sans-serif] text-[28px] leading-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                     <span className="font-bold text-[#00769e]">{m.concentration}</span> <span className="font-normal text-[#00769e]">{m.unit}</span>
                   </p>
 
                   {/* Dose/day — editable field for the active med, subtle otherwise */}
                   {editing ? (
-                    <div className="bg-white border border-[#a5a5a5] rounded-[8px] h-[72px] w-full flex items-center pl-[16px] pr-[8px] gap-[8px] focus-within:border-[#0094c5]">
+                    <div className="bg-white border-2 border-[#6b7785] rounded-[8px] h-[72px] w-full flex items-center pl-[16px] pr-[8px] gap-[8px] focus-within:border-[#0094c5]">
                       <input
                         type="text" inputMode="decimal" pattern="[0-9]*\.?[0-9]*"
                         value={draftText ?? d.perDay}
@@ -95,10 +95,10 @@ export function BaseDose() {
                           applyEditDaily(m, i, (isNaN(v) ? 0 : v) * div); // displayed unit/d → µg/d
                         }}
                         onBlur={() => setDraftText(null)}
-                        className="flex-1 min-w-px font-bold text-[#45483c] text-[36px] leading-[48px] bg-transparent outline-none border-0 p-0"
+                        className="flex-1 min-w-px font-bold text-[#45483c] text-[40px] leading-[52px] bg-transparent outline-none border-0 p-0"
                         style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
                       />
-                      <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[24px] text-right pr-[8px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/d</span>
+                      <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[28px] text-right pr-[8px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/d</span>
                     </div>
                   ) : (
                     <SubtleDose value={d.perDay} unit={`${d.unit}/d`} />
