@@ -137,9 +137,11 @@ export function RefillFilling() {
   return (
     <WizardShell step="filling" onBack={cancel}>
       <div className="flex-1 flex flex-col gap-[32px]">
-        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-          {phase === 'init' ? 'Initializing refill' : 'Refill reservoir'}
-        </p>
+        {phase === 'init' && (
+          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            Initializing refill
+          </p>
+        )}
 
         {phase === 'init' ? (
           <div className="border-2 border-[#65d8fe] rounded-[76px] p-[3px] w-full">

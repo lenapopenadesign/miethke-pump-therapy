@@ -143,7 +143,7 @@ export function TherapyDetail() {
                 <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   {strokeOpt.label} · every {fmtInterval(plan.intervalMin)}
                 </p>
-                <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   {Math.round(plan.deliveriesPerDay)} deliveries/day
                 </p>
                 <div className="bg-[#bcdcec] h-px w-full my-[6px]" />

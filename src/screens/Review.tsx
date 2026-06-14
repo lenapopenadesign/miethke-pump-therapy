@@ -111,7 +111,7 @@ export function Review() {
               </p>
               <div className="flex items-end justify-between gap-[24px]">
                 <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[40px] leading-[44px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  {Math.round(plan.deliveriesPerDay)} <span className="font-normal text-[#667380] text-[26px]">deliveries/day</span>
+                  {Math.round(plan.deliveriesPerDay)} <span className="font-normal text-[#667380] text-[30px]">deliveries/day</span>
                 </p>
                 <div className="flex items-baseline gap-[12px] shrink-0">
                   <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Per delivery</p>

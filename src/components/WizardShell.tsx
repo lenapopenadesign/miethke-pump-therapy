@@ -19,7 +19,7 @@ export type SetupDecision = 'undecided' | 'intervals' | 'regular';
 const MEDICATION = { key: 'medication' as const, label: 'Medication' };
 const BASE_DOSE = { key: 'base-dose' as const, label: 'Base Dose' };
 const INTERVALS = { key: 'intervals' as const, label: 'Intervals' };
-const DELIVERY = { key: 'delivery' as const, label: 'Delivery frequency' };
+const DELIVERY = { key: 'delivery' as const, label: 'Delivery' };
 const REVIEW = { key: 'review' as const, label: 'Review' };
 const TRANSFER = { key: 'transfer' as const, label: 'Transfer' };
 
@@ -29,7 +29,7 @@ const REFILL_BAR_STEPS = [
   { key: 'medication', label: 'Medication' },
   { key: 'base-dose', label: 'Base Dose' },
   { key: 'intervals', label: 'Intervals' },
-  { key: 'delivery', label: 'Delivery frequency' },
+  { key: 'delivery', label: 'Delivery' },
   { key: 'review', label: 'Review' },
   { key: 'transfer', label: 'Transfer' },
 ];
@@ -139,15 +139,15 @@ function ChevronStepper({ activeKey, steps }: { activeKey: string; steps: { key:
 function BarStepper({ activeKey, steps }: { activeKey: string; steps: { key: string; label: string }[] }) {
   const activeIdx = steps.findIndex(s => s.key === activeKey);
   return (
-    <div className="flex gap-[8px] h-[40px] items-start w-full">
+    <div className="flex gap-[8px] h-[48px] items-start w-full">
       {steps.map((s, i) => {
         const upcoming = i > activeIdx;
         const active = i === activeIdx;
         return (
-          <div key={s.key} className="flex-1 min-w-px flex flex-col gap-[4px] h-[40px] items-start">
+          <div key={s.key} className="flex-1 min-w-px flex flex-col gap-[4px] h-[48px] items-start">
             <div className={`h-[8px] w-full rounded-[4px] shrink-0 ${upcoming ? 'bg-[#cbcbcb]' : 'bg-[#0094c5]'}`} />
             <p
-              className={`font-['Roboto',sans-serif] leading-[24px] text-[20px] tracking-[0.1px] w-full ${upcoming ? 'font-normal text-[#a5a5a5]' : active ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
+              className={`font-['Roboto',sans-serif] leading-[34px] text-[29px] tracking-[0.1px] w-full whitespace-nowrap ${upcoming ? 'font-normal text-[#a5a5a5]' : active ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
               style={{ fontVariationSettings: "'wdth' 100" }}
             >
               {s.label}

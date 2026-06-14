@@ -4,6 +4,7 @@ import {
   doseColor,
 } from '../therapy';
 import type { ReactNode } from 'react';
+import { BaseDoseChart } from '../components/BaseDoseChart';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
 
@@ -53,75 +54,15 @@ function SheetShell({ children }: { children: ReactNode }) {
 }
 
 /* ------------------------------------------------------------- */
-/* 24h preview chart with base bar + dashed NEW placeholder      */
+/* 24h preview chart — the base-dose bar (same as the empty       */
+/* Intervals page) with a dashed NEW column for the new interval. */
 /* ------------------------------------------------------------- */
 
-function PreviewChart({
-  baseDose,
-  newStart,
-  newEnd,
-  unit = 'µg/ml',
-}: {
-  baseDose: number;
-  newStart: number;
-  newEnd: number;
-  unit?: string;
-}) {
-  const containerW = 1040;
-  const containerH = 330; // matches the Intervals/Review chart height
-  const left = 80;
-  const top = 130;
-  const innerLeft = 12;
-  const innerW = containerW - 24;
+function PreviewChart({ baseDose, newStart, newEnd, unit }: { baseDose: number; newStart: number; newEnd: number; unit: string }) {
   const baseStr = doseStringsFor(baseDose, unit);
-  const newLeft = innerLeft + (newStart / 1440) * innerW;
-  const newWidth = Math.max(0, ((newEnd - newStart) / 1440) * innerW);
-  const hasNew = newEnd > newStart;
-  // Base bar and NEW box share the same vertical band (NEW sits inline, same height).
-  const BAR_TOP = 140;
-  const BAR_H = 150;
   return (
-    <div className="absolute bg-[#f7fafc] border border-[#d9dbde] rounded-[12px]" style={{ left, top, width: containerW, height: containerH }}>
-      {/* Time ticks — kept inside the rectangle (first left-aligned, last right-aligned) */}
-      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => {
-        const first = i === 0, last = i === 4;
-        return (
-          <p
-            key={t}
-            className="absolute font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[26px] tracking-[0.1px]"
-            style={{ top: 18, left: last ? undefined : first ? 16 : `${(i / 4) * 100}%`, right: last ? 16 : undefined, transform: first || last ? undefined : 'translateX(-50%)', fontVariationSettings: "'wdth' 100" }}
-          >
-            {t}
-          </p>
-        );
-      })}
-      {/* Base dose bar — full width */}
-      <div
-        className="absolute rounded-[3px] bg-[#3f93c7] flex items-start px-[16px] pt-[14px]"
-        style={{ left: innerLeft, right: innerLeft, top: BAR_TOP, height: BAR_H }}
-      >
-        <p className="font-['Roboto',sans-serif] font-bold text-[28px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-          Base dose {baseStr.perHour} {baseStr.unit}/h
-        </p>
-      </div>
-      {/* NEW placeholder — dashed box, same band as base bar */}
-      {hasNew && (
-        <div
-          className="absolute rounded-[3px] flex items-end justify-center pb-[14px]"
-          style={{
-            left: newLeft,
-            width: newWidth,
-            top: BAR_TOP,
-            height: BAR_H,
-            background: 'rgba(255,255,255,0.55)',
-            border: '2px dashed #0094c5',
-          }}
-        >
-          <p className="font-['Roboto',sans-serif] font-bold text-[24px] text-[#00769e] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-            NEW
-          </p>
-        </div>
-      )}
+    <div className="absolute left-[80px] right-[80px] top-[130px]">
+      <BaseDoseChart hourly={baseStr.perHour} unit={baseStr.unit} newStart={newStart} newEnd={newEnd} />
     </div>
   );
 }
@@ -200,12 +141,7 @@ export function AddIntervalSheetWhen() {
   const validTime = draft.endMin > draft.startMin && draft.label.trim().length > 0;
   return (
     <SheetShell>
-      <PreviewChart
-        baseDose={baseDose}
-        newStart={draft.startMin}
-        newEnd={draft.endMin}
-        unit={primaryUnit}
-      />
+      <PreviewChart baseDose={baseDose} newStart={draft.startMin} newEnd={draft.endMin} unit={primaryUnit} />
       {/* Label */}
       <div className="absolute left-[80px] right-[80px] top-[500px] flex flex-col gap-[8px]">
         <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -286,12 +222,7 @@ export function AddIntervalSheetDose() {
   const endDisplay = draft.endMin >= 1440 ? '23:59' : fmtTime(Math.max(0, draft.endMin - 1));
   return (
     <SheetShell>
-      <PreviewChart
-        baseDose={baseDose}
-        newStart={draft.startMin}
-        newEnd={draft.endMin}
-        unit={primaryUnit}
-      />
+      <PreviewChart baseDose={baseDose} newStart={draft.startMin} newEnd={draft.endMin} unit={primaryUnit} />
       {/* Summary row */}
       <div
         onClick={() => navigate('add-interval-when')}

@@ -84,10 +84,10 @@ export function AddMedication() {
         {/* Add medication */}
         <button
           onClick={addMedication}
-          className="self-start flex gap-[12px] h-[64px] items-center justify-center px-[32px] rounded-[40px] border-2 border-[#0094c5] cursor-pointer"
+          className="self-start flex gap-[16px] h-[88px] items-center justify-center px-[40px] rounded-[80px] border-2 border-[#0094c5] cursor-pointer"
         >
-          <span className="text-[#0094c5] text-[32px] leading-none">+</span>
-          <span className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <span className="text-[#0094c5] text-[40px] leading-none">+</span>
+          <span className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Add medication
           </span>
         </button>

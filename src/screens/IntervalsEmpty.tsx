@@ -1,6 +1,7 @@
 import { useNavigate } from '../navigation';
 import { useTherapy, doseStringsFor, type DayPattern } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
+import { BaseDoseChart } from '../components/BaseDoseChart';
 
 function IntervalsIcon() {
   return (
@@ -17,25 +18,6 @@ const DAY_PATTERNS: { key: DayPattern; label: string }[] = [
   { key: 'weekday-weekend', label: 'Weekdays / Weekends' },
   { key: 'per-day',         label: 'Different every day' },
 ];
-
-function BaseDoseChart({ hourly, unit }: { hourly: string; unit: string }) {
-  return (
-    <div className="relative w-full h-[330px] bg-[#f7fafc] border border-[#d9dbde] rounded-[16px]">
-      {['00:00', '06:00', '12:00', '18:00', '24:00'].map((t, i) => {
-        const first = i === 0, last = i === 4;
-        return (
-          <p key={t} className="absolute font-['Roboto',sans-serif] text-[#9ea8b2] text-[26px] top-[18px] whitespace-nowrap"
-             style={{ left: last ? undefined : first ? 16 : `${(i / 4) * 100}%`, right: last ? 16 : undefined, transform: first || last ? undefined : 'translateX(-50%)', fontVariationSettings: "'wdth' 100" }}>{t}</p>
-        );
-      })}
-      <div className="absolute left-[24px] right-[24px] bottom-[24px] h-[72px] bg-[#3f93c7] rounded-[4px] flex items-center px-[24px]">
-        <p className="font-['Roboto',sans-serif] font-bold text-[24px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-          Base dose {hourly} {unit}/h
-        </p>
-      </div>
-    </div>
-  );
-}
 
 export function IntervalsEmpty() {
   const navigate = useNavigate();

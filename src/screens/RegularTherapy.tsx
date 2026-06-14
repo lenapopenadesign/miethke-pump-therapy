@@ -95,7 +95,7 @@ export function RegularTherapy() {
               dosePerDelivery={plan.dosePerDelivery}
               baseDose={baseDose}
             />
-            <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
               {Math.round(plan.deliveriesPerDay)} deliveries/day
             </p>
           </div>
