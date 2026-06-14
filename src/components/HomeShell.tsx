@@ -198,7 +198,7 @@ function PatientCard() {
   );
 }
 
-function ImplantCard({ refillDate, noTherapy, fillFraction }: { refillDate: string; noTherapy: boolean; fillFraction: number }) {
+function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFraction: number }) {
   const navigate = useNavigate();
   const noDate = refillDate === 'N/A';
   const fillMl = Math.round(fillFraction * 40);
@@ -248,10 +248,10 @@ function ImplantCard({ refillDate, noTherapy, fillFraction }: { refillDate: stri
                 <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
                   <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>Catheter</p>
                   <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    <span className="leading-[52px] text-[36px]">{noTherapy ? 'N/A' : '0.3'}</span>
+                    <span className="leading-[52px] text-[36px]">0.3</span>
                     <span className="font-normal leading-[52px] text-[36px]">{` ml`}</span>
                   </p>
-                  <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{noTherapy ? 'N/A cm' : '53 cm'}</p>
+                  <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>53 cm</p>
                 </div>
               </div>
               {/* Next refill */}
@@ -472,7 +472,7 @@ export function HomeShell({ therapyStatus, therapyBody, onTherapyClick }: Props)
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
       <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[56px] px-[80px] top-[35px] w-[1200px]">
         <PatientCard />
-        <ImplantCard refillDate={noTherapy ? 'N/A' : refillDate} noTherapy={noTherapy} fillFraction={fillFraction} />
+        <ImplantCard refillDate={noTherapy ? 'N/A' : refillDate} fillFraction={fillFraction} />
         <div onClick={onTherapyClick} className={`bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] ${onTherapyClick ? 'cursor-pointer' : ''}`}>
           <TherapyHeader status={therapyStatus} />
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start pb-[16px] pt-[8px] px-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
