@@ -101,22 +101,25 @@ export function Review() {
           <p className="font-['Roboto',sans-serif] font-extrabold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Review</p>
         </div>
 
-        {/* Medication summary — shown first on the Review page */}
-        <MedSummary baseDose={baseDose} estDaily={estDaily} medications={medications} />
-
         {useBaseOnly ? (
-          /* Base-only: delivery-interval card */
-          <div className="w-full border-2 border-[#0094c5] rounded-[16px] bg-[#e6f4f9] px-[32px] py-[24px] flex flex-col gap-[12px]">
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-              {strokeOpt.label} · every {fmtInterval(plan.intervalMin)}
-            </p>
-            <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[18px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-              {Math.round(plan.deliveriesPerDay)} deliveries/day
-            </p>
-            <div className="bg-[#d9dbde] h-px w-full my-[8px]" />
-            <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[14px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Per delivery</p>
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fmtDose(plan.dosePerDelivery / primary.div)} {primary.unit}</p>
-          </div>
+          <>
+            {/* Base-only: medication summary on top, compact delivery teaser below */}
+            <MedSummary estDaily={estDaily} medications={medications} />
+            <div className="w-full border-2 border-[#0094c5] rounded-[16px] bg-[#e6f4f9] px-[32px] py-[24px] flex flex-col gap-[16px]">
+              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                {strokeOpt.label} · every {fmtInterval(plan.intervalMin)}
+              </p>
+              <div className="flex items-end justify-between gap-[24px]">
+                <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[40px] leading-[44px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  {Math.round(plan.deliveriesPerDay)} <span className="font-normal text-[#667380] text-[26px]">deliveries/day</span>
+                </p>
+                <div className="flex items-baseline gap-[12px] shrink-0">
+                  <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Per delivery</p>
+                  <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[40px] leading-[44px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fmtDose(plan.dosePerDelivery / primary.div)} {primary.unit}</p>
+                </div>
+              </div>
+            </div>
+          </>
         ) : (
           <>
             {/* Mon–Fri / Sat–Sun toggle */}
@@ -185,11 +188,16 @@ export function Review() {
                 );
               })}
             </div>
+
+            {/* Intervals: medication summary pinned to the bottom */}
+            <div className="mt-auto">
+              <MedSummary estDaily={estDaily} medications={medications} />
+            </div>
           </>
         )}
 
         {/* Footer — confirm + Activate */}
-        <div className="mt-auto w-full flex flex-col gap-[24px]">
+        <div className={`${useBaseOnly ? 'mt-auto ' : ''}w-full flex flex-col gap-[24px]`}>
           <label className="flex items-center gap-[16px] cursor-pointer select-none">
             <span onClick={() => setConfirmed(c => !c)}
               className={`size-[40px] rounded-[6px] flex items-center justify-center border-2 ${confirmed ? 'bg-[#0094c5] border-[#0094c5]' : 'bg-white border-[#9ea8b2]'}`}>

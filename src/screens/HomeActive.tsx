@@ -24,14 +24,14 @@ function WeekTabs({ active, onChange }: { active: 'weekdays' | 'weekend'; onChan
     <div className="bg-[#e6f4f9] flex flex-1 gap-[6px] items-start p-[4px] rounded-[12px] w-full">
       {(['weekdays', 'weekend'] as const).map(tab => {
         const isActive = tab === active;
-        const label = tab === 'weekdays' ? 'Weekdays  ·  Mon–Fri' : 'Weekend  ·  Sat–Sun';
+        const label = tab === 'weekdays' ? 'Mon–Fri' : 'Sat–Sun';
         return (
           <div
             key={tab}
             onClick={() => onChange(tab)}
-            className={`flex flex-1 items-center justify-center py-[12px] rounded-[8px] cursor-pointer ${isActive ? 'bg-[#0094c5]' : ''}`}
+            className={`flex flex-1 items-center justify-center py-[16px] rounded-[8px] cursor-pointer ${isActive ? 'bg-[#0094c5]' : ''}`}
           >
-            <p className={`font-['Roboto',sans-serif] font-bold text-[20px] whitespace-pre ${isActive ? 'text-white' : 'text-[#5f7388]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className={`font-['Roboto',sans-serif] font-bold text-[28px] whitespace-pre ${isActive ? 'text-white' : 'text-[#5f7388]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
               {label}
             </p>
           </div>
@@ -94,13 +94,9 @@ function ActiveBody() {
     <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-[984px]">
       {hasIntervals && <WeekTabs active={activeTab} onChange={setActiveTab} />}
       {hasIntervals && (
-        <>
-          <p className="font-['Roboto',sans-serif] font-bold leading-[24px] text-[#00769e] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>INTERVALS</p>
-          <IntervalsChart baseDose={baseDose} intervals={sourceIntervals} onBarClick={setPreviewIntervalId} />
-        </>
+        <IntervalsChart baseDose={baseDose} intervals={sourceIntervals} onBarClick={setPreviewIntervalId} />
       )}
       <MedSummary
-        baseDose={baseDose}
         estDaily={estDaily}
         medications={medications}
         currentUg={hasIntervals ? currentPrimaryUg : undefined}

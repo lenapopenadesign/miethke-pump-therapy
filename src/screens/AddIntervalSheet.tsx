@@ -97,17 +97,17 @@ function PreviewChart({
       })}
       {/* Base dose bar — full width */}
       <div
-        className="absolute rounded-[3px] bg-[#8cc7e8] flex items-center px-[16px]"
+        className="absolute rounded-[3px] bg-[#3f93c7] flex items-start px-[16px] pt-[14px]"
         style={{ left: innerLeft, right: innerLeft, top: BAR_TOP, height: BAR_H }}
       >
-        <p className="font-['Roboto',sans-serif] font-bold text-[20px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-bold text-[28px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
           Base dose {baseStr.perHour} {baseStr.unit}/h
         </p>
       </div>
       {/* NEW placeholder — dashed box, same band as base bar */}
       {hasNew && (
         <div
-          className="absolute rounded-[3px] flex items-center justify-center"
+          className="absolute rounded-[3px] flex items-end justify-center pb-[14px]"
           style={{
             left: newLeft,
             width: newWidth,
@@ -117,7 +117,7 @@ function PreviewChart({
             border: '2px dashed #0094c5',
           }}
         >
-          <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-[#00769e] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-bold text-[24px] text-[#00769e] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             NEW
           </p>
         </div>
@@ -188,10 +188,6 @@ export function AddIntervalSheetWhen() {
   const navigate = useNavigate();
   const { baseDose, draft, setDraft, intervals, editingId, removeInterval, sheetReturnTo, medications } = useTherapy();
   const primaryUnit = medications[0]?.unit ?? 'µg/ml';
-  const lengthMin = Math.max(0, draft.endMin - draft.startMin);
-  const lengthH = Math.floor(lengthMin / 60);
-  const lengthM = lengthMin % 60;
-  const pctDay = ((lengthMin / 1440) * 100).toFixed(1);
   const cancelTarget = (sheetReturnTo === 'intervals-populated' && intervals.length === 0)
     ? 'intervals-empty'
     : sheetReturnTo;
@@ -229,7 +225,7 @@ export function AddIntervalSheetWhen() {
       </div>
 
       {/* Start / End time fields */}
-      <div className="absolute left-[80px] right-[80px] top-[660px] flex gap-[24px] items-end">
+      <div className="absolute left-[80px] right-[80px] top-[740px] flex gap-[24px] items-end">
         <div className="flex-1 flex flex-col gap-[8px]">
           <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             Start
@@ -244,14 +240,6 @@ export function AddIntervalSheetWhen() {
           <TimeField value={draft.endMin} onChange={min => setDraft({ ...draft, endMin: min })} />
         </div>
       </div>
-
-      {/* Length caption */}
-      <p
-        className="absolute font-['Roboto',sans-serif] font-medium text-[#667380] text-[28px] tracking-[0.1px] left-[80px] top-[800px]"
-        style={{ fontVariationSettings: "'wdth' 100" }}
-      >
-        Length: {lengthH}h {lengthM}m · {pctDay}% of the day
-      </p>
 
       <SheetFooter
         showDelete={!!editingId}

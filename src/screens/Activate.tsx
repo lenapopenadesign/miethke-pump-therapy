@@ -5,10 +5,10 @@ import { WizardShell } from '../components/WizardShell';
 
 function LoadingBar() {
   return (
-    <div className="border-2 border-[#65d8fe] border-solid p-[2px] rounded-[76px] w-full overflow-clip">
+    <div className="border-2 border-[#65d8fe] border-solid p-[2px] rounded-[20px] w-full overflow-clip">
       {/* Gradient fill animates its width from 0 → 100% as the transfer runs. */}
       <div
-        className="progress-fill h-[52px] rounded-[47px]"
+        className="progress-fill h-[28px] rounded-[14px]"
         style={{ backgroundImage: "linear-gradient(90deg, rgb(0, 118, 158) 0%, rgb(101, 216, 254) 100%)" }}
       />
     </div>

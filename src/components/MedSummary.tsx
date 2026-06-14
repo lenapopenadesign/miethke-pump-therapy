@@ -11,9 +11,9 @@ function fmtHour(ug: number, concUnit: string): { value: string; unit: string } 
   return { value: s.perHour, unit: `${s.unit}/h` };
 }
 
-function Chip({ value, unit, bg }: { value: string; unit: string; bg: string }) {
+function Chip({ value, unit }: { value: string; unit: string }) {
   return (
-    <div className={`${bg} rounded-[10px] px-[18px] py-[12px] flex items-baseline gap-[6px]`}>
+    <div className="bg-[#bcdcec] rounded-[10px] px-[18px] py-[12px] flex items-baseline gap-[6px] w-full">
       <span className="font-['Roboto',sans-serif] font-bold text-[#00658a] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{value}</span>
       <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>{unit}</span>
     </div>
@@ -24,14 +24,13 @@ const hdr = "font-['Roboto',sans-serif] text-[22px] tracking-[1px] pb-[6px]";
 
 /**
  * The per-medication 24h summary — the headline data on the Intervals, Review
- * and Home (active) screens. A flat, prominent light-blue card with filled
- * Base dose / Total 24 h cells. When `currentUg` is provided (Home active) an
- * extra "Current" column shows the dose of the interval running right now.
+ * and Home (active) screens (Figma 7471:64607 / 7780:70952). Columns are evenly
+ * distributed: MEDICATION · Concentration · Total 24 h, plus a "Current interval"
+ * column when `currentUg` is provided (Home active, intervals running).
  */
 export function MedSummary({
-  baseDose, estDaily, medications, currentUg,
+  estDaily, medications, currentUg,
 }: {
-  baseDose: number;
   estDaily: number;
   medications: Medication[];
   currentUg?: number;
@@ -41,34 +40,32 @@ export function MedSummary({
   const co = (ug: number, m: Medication, i: number) => (i === 0 ? ug : coDoseUgDay(ug, c0, concUgPerUl(m)));
   const rows = medications.map((m, i) => ({
     med: m,
-    base: fmtDay(co(baseDose, m, i), m.unit),
     total: fmtDay(co(estDaily, m, i), m.unit),
     current: showCurrent ? fmtHour(co(currentUg as number, m, i), m.unit) : null,
   }));
+  // Evenly distributed columns (one extra when a current-interval value is shown).
   const cols = showCurrent
-    ? '[grid-template-columns:1.2fr_0.9fr_1fr_1fr_1fr]'
-    : '[grid-template-columns:1.2fr_1fr_1fr_1.1fr]';
-  const grid = `grid ${cols} gap-x-[14px] gap-y-[10px] items-center`;
+    ? '[grid-template-columns:1fr_1fr_1fr_1fr]'
+    : '[grid-template-columns:1fr_1fr_1fr]';
+  const grid = `grid ${cols} gap-x-[16px] gap-y-[12px] items-center`;
   return (
     <div className="w-full rounded-[20px] border border-[#bcdcec] bg-[#e6f4f9] px-[28px] py-[24px]">
       <div className={grid}>
         {/* Header */}
         <p className={`${hdr} font-bold text-[#00769e]`}>MEDICATION</p>
         <p className={`${hdr} font-normal text-[#5f8aa0]`}>Concentration</p>
-        <p className={`${hdr} font-normal text-[#00769e] pl-[18px]`}>Base dose</p>
         <p className={`${hdr} font-bold text-[#00769e] pl-[18px]`}>Total 24 h</p>
-        {showCurrent && <p className={`${hdr} font-bold text-[#00769e] pl-[18px]`}>Current</p>}
+        {showCurrent && <p className={`${hdr} font-bold text-[#00769e] pl-[18px]`}>Current interval</p>}
 
         {/* Rows */}
         {rows.map(r => (
           <Fragment key={r.med.id}>
             <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.med.name}</p>
-            <p className="font-['Roboto',sans-serif] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
               <span className="font-bold text-[#00769e]">{r.med.concentration}</span> <span className="font-normal text-[#5f8aa0]">{r.med.unit}</span>
             </p>
-            <Chip value={r.base.value} unit={r.base.unit} bg="bg-[#d6eaf3]" />
-            <Chip value={r.total.value} unit={r.total.unit} bg="bg-[#bfdeee]" />
-            {r.current && <Chip value={r.current.value} unit={r.current.unit} bg="bg-[#c9e9f5]" />}
+            <Chip value={r.total.value} unit={r.total.unit} />
+            {r.current && <Chip value={r.current.value} unit={r.current.unit} />}
           </Fragment>
         ))}
       </div>

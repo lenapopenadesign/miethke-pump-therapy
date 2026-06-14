@@ -84,7 +84,7 @@ export function BaseDose() {
 
                   {/* Dose/day — editable field for the active med, subtle otherwise */}
                   {editing ? (
-                    <div className="bg-white border-2 border-[#6b7785] rounded-[8px] h-[72px] w-full flex items-center pl-[16px] pr-[8px] gap-[8px] focus-within:border-[#0094c5]">
+                    <div className="bg-white border-2 border-[#6b7785] rounded-[8px] h-[72px] w-[260px] flex items-center pl-[16px] pr-[8px] gap-[8px] focus-within:border-[#0094c5]">
                       <input
                         type="text" inputMode="decimal" pattern="[0-9]*\.?[0-9]*"
                         value={draftText ?? d.perDay}

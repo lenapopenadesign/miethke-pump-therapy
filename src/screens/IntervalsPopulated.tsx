@@ -129,7 +129,7 @@ export function IntervalsPopulated() {
             return (
               <div key={p.key} onClick={() => setDayPattern(p.key)}
                 className={`flex-1 flex items-center justify-center py-[12px] rounded-[8px] cursor-pointer select-none ${active ? 'bg-[#0094c5]' : ''}`}>
-                <p className={`font-['Roboto',sans-serif] font-bold text-[22px] tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#667380]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{p.label}</p>
+                <p className={`font-['Roboto',sans-serif] font-bold text-[26px] tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#667380]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{p.label}</p>
               </div>
             );
           })}
@@ -143,7 +143,7 @@ export function IntervalsPopulated() {
               return (
                 <div key={chip.key} onClick={() => setActiveChip(chip.key)}
                   className={`flex-1 flex items-center justify-center h-[60px] rounded-[12px] cursor-pointer select-none ${active ? 'bg-[#0094c5]' : 'bg-[#e6f4f9]'}`}>
-                  <p className={`font-['Roboto',sans-serif] font-bold text-[22px] tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#5f7388]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{chip.label}</p>
+                  <p className={`font-['Roboto',sans-serif] font-bold text-[26px] tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#5f7388]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{chip.label}</p>
                 </div>
               );
             })}
@@ -182,7 +182,7 @@ export function IntervalsPopulated() {
         </div>
 
         <div className="mt-auto">
-          <MedSummary baseDose={baseDose} estDaily={estDaily} medications={medications} />
+          <MedSummary estDaily={estDaily} medications={medications} />
         </div>
 
         {/* Continue */}

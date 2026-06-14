@@ -28,7 +28,7 @@ function BaseDoseChart({ hourly, unit }: { hourly: string; unit: string }) {
              style={{ left: last ? undefined : first ? 16 : `${(i / 4) * 100}%`, right: last ? 16 : undefined, transform: first || last ? undefined : 'translateX(-50%)', fontVariationSettings: "'wdth' 100" }}>{t}</p>
         );
       })}
-      <div className="absolute left-[24px] right-[24px] bottom-[24px] h-[72px] bg-[#8cc7e8] rounded-[4px] flex items-center px-[24px]">
+      <div className="absolute left-[24px] right-[24px] bottom-[24px] h-[72px] bg-[#3f93c7] rounded-[4px] flex items-center px-[24px]">
         <p className="font-['Roboto',sans-serif] font-bold text-[24px] text-white tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
           Base dose {hourly} {unit}/h
         </p>
@@ -68,7 +68,7 @@ export function IntervalsEmpty() {
             return (
               <div key={p.key} onClick={() => setDayPattern(p.key)}
                 className={`flex-1 flex items-center justify-center py-[12px] rounded-[8px] cursor-pointer select-none ${active ? 'bg-[#0094c5]' : ''}`}>
-                <p className={`font-['Roboto',sans-serif] font-bold text-[22px] tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#667380]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className={`font-['Roboto',sans-serif] font-bold text-[26px] tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#667380]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
                   {p.label}
                 </p>
               </div>
