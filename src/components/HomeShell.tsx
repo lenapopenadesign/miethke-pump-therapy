@@ -198,9 +198,11 @@ function PatientCard() {
   );
 }
 
-function ImplantCard({ refillDate, noTherapy }: { refillDate: string; noTherapy: boolean }) {
+function ImplantCard({ refillDate, noTherapy, fillFraction }: { refillDate: string; noTherapy: boolean; fillFraction: number }) {
   const navigate = useNavigate();
   const noDate = refillDate === 'N/A';
+  const fillMl = Math.round(fillFraction * 40);
+  const fillPct = Math.round(fillFraction * 100);
   return (
     <div onClick={() => navigate('implant-detail')} className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
       <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
@@ -225,16 +227,16 @@ function ImplantCard({ refillDate, noTherapy }: { refillDate: string; noTherapy:
       <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
         <div className="content-stretch flex items-center pr-[24px] relative shrink-0 w-full">
           <div className="content-stretch flex flex-1 gap-[24px] items-center min-w-px relative">
-            <Filling fill={noTherapy ? 0.25 : 1} />
+            <Filling fill={fillFraction} />
             <div className="content-stretch flex flex-1 items-center justify-between min-w-px relative">
-              {/* Fill level */}
+              {/* Fill level — physical reservoir, independent of therapy state */}
               <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
                 <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>Fill level</p>
                 <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                  <span className="leading-[52px] text-[36px]">{noTherapy ? '10/' : '40/'}</span>
+                  <span className="leading-[52px] text-[36px]">{fillMl}/</span>
                   <span className="font-normal leading-[52px] text-[36px]">40 ml</span>
                 </p>
-                <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{noTherapy ? '25 %' : '100 %'}</p>
+                <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fillPct} %</p>
               </div>
               {/* Catheter */}
               <div className="content-stretch flex items-center relative shrink-0">
@@ -463,14 +465,14 @@ type Props = {
 export function HomeShell({ therapyStatus, therapyBody, onTherapyClick }: Props) {
   const navigate = useNavigate();
   void navigate; // available for future header buttons
-  const { refillDate } = useTherapy();
+  const { refillDate, fillFraction } = useTherapy();
   const noTherapy = therapyStatus === 'none';
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] overflow-hidden">
       <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
       <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[56px] px-[80px] top-[35px] w-[1200px]">
         <PatientCard />
-        <ImplantCard refillDate={noTherapy ? 'N/A' : refillDate} noTherapy={noTherapy} />
+        <ImplantCard refillDate={noTherapy ? 'N/A' : refillDate} noTherapy={noTherapy} fillFraction={fillFraction} />
         <div onClick={onTherapyClick} className={`bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] ${onTherapyClick ? 'cursor-pointer' : ''}`}>
           <TherapyHeader status={therapyStatus} />
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start pb-[16px] pt-[8px] px-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">

@@ -68,7 +68,7 @@ export function RegularTherapy() {
           <div className="flex items-center gap-[16px] py-[20px]">
             <DeliveryIcon />
             <p className="font-['Roboto',sans-serif] font-extrabold leading-[48px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-              Delivery
+              Delivery frequency
             </p>
             <div className="bg-[#0094c5] h-[36px] px-[16px] rounded-[18px] flex items-center shrink-0">
               <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>optional</p>

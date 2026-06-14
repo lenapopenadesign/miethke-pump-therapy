@@ -11,6 +11,7 @@ import { Activate } from './screens/Activate';
 import { HomeActive } from './screens/HomeActive';
 import { PatientDetail } from './screens/PatientDetail';
 import { ImplantDetail } from './screens/ImplantDetail';
+import { TherapyDetail } from './screens/TherapyDetail';
 import { ActionsScreen } from './screens/ActionsScreen';
 import { RefillFilling } from './screens/RefillFilling';
 import { NavProvider, type ScreenId } from './navigation';
@@ -30,6 +31,7 @@ const ORDER: ScreenId[] = [
   'home-active',
   'patient-detail',
   'implant-detail',
+  'therapy-detail',
   'actions',
   'refill-filling',
 ];
@@ -92,6 +94,7 @@ export function App() {
       {screen === 'home-active' && <HomeActive />}
       {screen === 'patient-detail' && <PatientDetail />}
       {screen === 'implant-detail' && <ImplantDetail />}
+      {screen === 'therapy-detail' && <TherapyDetail />}
       {screen === 'actions' && <ActionsScreen />}
       {screen === 'refill-filling' && <RefillFilling />}
     </>

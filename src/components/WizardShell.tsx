@@ -19,7 +19,7 @@ export type SetupDecision = 'undecided' | 'intervals' | 'regular';
 const MEDICATION = { key: 'medication' as const, label: 'Medication' };
 const BASE_DOSE = { key: 'base-dose' as const, label: 'Base Dose' };
 const INTERVALS = { key: 'intervals' as const, label: 'Intervals' };
-const DELIVERY = { key: 'delivery' as const, label: 'Delivery' };
+const DELIVERY = { key: 'delivery' as const, label: 'Delivery frequency' };
 const REVIEW = { key: 'review' as const, label: 'Review' };
 const TRANSFER = { key: 'transfer' as const, label: 'Transfer' };
 
@@ -29,7 +29,7 @@ const REFILL_BAR_STEPS = [
   { key: 'medication', label: 'Medication' },
   { key: 'base-dose', label: 'Base Dose' },
   { key: 'intervals', label: 'Intervals' },
-  { key: 'delivery', label: 'Delivery' },
+  { key: 'delivery', label: 'Delivery frequency' },
   { key: 'review', label: 'Review' },
   { key: 'transfer', label: 'Transfer' },
 ];
@@ -123,7 +123,7 @@ function ChevronStepper({ activeKey, steps }: { activeKey: string; steps: { key:
               <div className="size-[40px] rounded-full border-2 border-[#cdd5da] bg-white shrink-0" />
             )}
             <p
-              className={`flex-1 min-w-px truncate font-['Roboto',sans-serif] leading-[26px] text-[20px] tracking-[0.1px] ${state === 'upcoming' ? 'font-normal text-[#a5a5a5]' : state === 'active' ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
+              className={`flex-1 min-w-px font-['Roboto',sans-serif] leading-[22px] text-[20px] tracking-[0.1px] ${state === 'upcoming' ? 'font-normal text-[#a5a5a5]' : state === 'active' ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
               style={{ fontVariationSettings: "'wdth' 100" }}
             >
               {s.label}

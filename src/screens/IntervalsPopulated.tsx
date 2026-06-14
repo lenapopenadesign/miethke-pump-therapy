@@ -182,7 +182,7 @@ export function IntervalsPopulated() {
         </div>
 
         <div className="mt-auto">
-          <MedSummary estDaily={estDaily} medications={medications} />
+          <MedSummary baseDose={baseDose} estDaily={estDaily} medications={medications} />
         </div>
 
         {/* Continue */}

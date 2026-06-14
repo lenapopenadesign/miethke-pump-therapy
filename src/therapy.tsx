@@ -116,8 +116,11 @@ type TherapyState = {
   flowMode: FlowMode;
   setFlowMode: (m: FlowMode) => void;
   // Reservoir refill bookkeeping. completeRefill() tops the reservoir up and
-  // pushes the next-refill date out by a full-fill interval (~78 days).
+  // pushes the next-refill date out by a full-fill interval (~78 days). The fill
+  // level is a physical property — it only changes on refill, NOT when a therapy
+  // is added.
   refillDate: string;
+  fillFraction: number; // 0..1 of the 40 ml reservoir
   completeRefill: () => void;
   // Whether a therapy has been set up + activated on the implant. Drives which
   // home screen ("home-active" vs "home-no-therapy") the chrome returns to.
@@ -211,7 +214,8 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [useBaseOnly, setUseBaseOnly] = useState(false);
   const [flowMode, setFlowMode] = useState<FlowMode>('setup');
   const [refillDate, setRefillDate] = useState('19.08.2026');
-  const completeRefill = () => setRefillDate(refillDateInDays(78));
+  const [fillFraction, setFillFraction] = useState(0.25); // 10 / 40 ml
+  const completeRefill = () => { setRefillDate(refillDateInDays(78)); setFillFraction(1); };
   const [therapyActive, setTherapyActive] = useState(false);
   const homeScreen: ScreenId = therapyActive ? 'home-active' : 'home-no-therapy';
 
@@ -301,7 +305,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       dayPattern, setDayPattern,
       useBaseOnly, setUseBaseOnly,
       flowMode, setFlowMode,
-      refillDate, completeRefill,
+      refillDate, fillFraction, completeRefill,
       therapyActive, setTherapyActive, homeScreen,
     }}>
       {children}

@@ -40,22 +40,24 @@ function Tile({ label, children, onClick }: { label: string; children: ReactNode
 
 export function ImplantDetail() {
   const navigate = useNavigate();
-  const { setFlowMode, refillDate } = useTherapy();
+  const { setFlowMode, refillDate, fillFraction } = useTherapy();
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
+  const fillMl = Math.round(fillFraction * 40);
+  const fillPct = Math.round(fillFraction * 100);
   return (
     <DetailShell icon={<ImplantIcon size={56} />} title="Implant" headerRight={<ConnectedStatus />}>
       <div className="flex flex-col gap-[40px] flex-1">
         {/* Top stats */}
         <div className="flex items-center gap-[16px]">
-          <Filling />
+          <Filling fill={fillFraction} />
           <div className="flex flex-1 items-start justify-between">
             <div className="flex flex-col text-[#00769e] whitespace-nowrap">
               <p className={labelCls}>Fill level</p>
               <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                <span className="font-bold text-[36px] leading-[52px]">40 / </span>
+                <span className="font-bold text-[36px] leading-[52px]">{fillMl} / </span>
                 <span className="font-normal text-[36px] leading-[52px]">40 ml</span>
               </p>
-              <p className="font-['Roboto',sans-serif] font-normal text-[28px] leading-[36px]" style={{ fontVariationSettings: "'wdth' 100" }}>100 %</p>
+              <p className="font-['Roboto',sans-serif] font-normal text-[28px] leading-[36px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fillPct} %</p>
             </div>
             <div className="flex flex-col text-[#00769e] whitespace-nowrap">
               <p className={labelCls}>Medication delivery</p>

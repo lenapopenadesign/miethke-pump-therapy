@@ -14,6 +14,7 @@ export type ScreenId =
   | 'home-active'
   | 'patient-detail'
   | 'implant-detail'
+  | 'therapy-detail'
   | 'actions'
   | 'refill-filling';
 

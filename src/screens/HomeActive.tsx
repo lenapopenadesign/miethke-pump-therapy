@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from '../navigation';
 import { HomeShell } from '../components/HomeShell';
 import { MedSummary } from '../components/MedSummary';
 import {
@@ -60,7 +61,7 @@ function IntervalsChart({ baseDose, intervals, onBarClick }: { baseDose: number;
         return (
           <div
             key={slot.id}
-            onClick={slot.isBase ? undefined : () => onBarClick(slot.id)}
+            onClick={slot.isBase ? undefined : (e) => { e.stopPropagation(); onBarClick(slot.id); }}
             className={`absolute rounded-[3px] ${slot.isBase ? '' : 'cursor-pointer'}`}
             style={{ left, top, width, height, background: doseColor(slot.dose, baseDose), opacity: slot.isBase ? 0.55 : 1 }}
           />
@@ -106,7 +107,8 @@ function ActiveBody() {
 }
 
 export function HomeActive() {
+  const navigate = useNavigate();
   return (
-    <HomeShell therapyStatus="active" therapyBody={<ActiveBody />} />
+    <HomeShell therapyStatus="active" therapyBody={<ActiveBody />} onTherapyClick={() => navigate('therapy-detail')} />
   );
 }
