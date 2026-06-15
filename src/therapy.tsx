@@ -214,7 +214,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [useBaseOnly, setUseBaseOnly] = useState(false);
   const [flowMode, setFlowMode] = useState<FlowMode>('setup');
   const [refillDate, setRefillDate] = useState('19.08.2026');
-  const [fillFraction, setFillFraction] = useState(0.25); // 10 / 40 ml
+  const [fillFraction, setFillFraction] = useState(0.95); // 38 / 40 ml
   const completeRefill = () => { setRefillDate(refillDateInDays(78)); setFillFraction(1); };
   const [therapyActive, setTherapyActive] = useState(false);
   const homeScreen: ScreenId = therapyActive ? 'home-active' : 'home-no-therapy';
