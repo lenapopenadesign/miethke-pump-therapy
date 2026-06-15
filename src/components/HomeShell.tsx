@@ -179,16 +179,16 @@ function PatientCard() {
       <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
         <div className="content-stretch flex items-start px-[24px] relative shrink-0 w-full">
           <div className="content-stretch flex flex-1 flex-col gap-[24px] items-start min-w-px relative">
-            <div className="content-stretch flex font-['Roboto',sans-serif] font-normal gap-[40px] items-center relative shrink-0 text-[#00769e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-              <p className="leading-[32px] relative shrink-0">*01.04.1984</p>
-              <p className="leading-[32px] relative shrink-0">Gender: Female</p>
+            <div className="content-stretch flex font-['Roboto',sans-serif] font-normal gap-[36px] items-center relative shrink-0 text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <p className="leading-[36px] relative shrink-0">*01.04.1984</p>
+              <p className="leading-[36px] relative shrink-0">Gender: Female</p>
               <p className="leading-[0] relative shrink-0">
-                <span className="leading-[32px]">{`Condition: `}</span>
-                <span className="leading-[32px]">RRMS</span>
+                <span className="leading-[36px]">{`Condition: `}</span>
+                <span className="leading-[36px]">Cancer</span>
               </p>
               <p className="leading-[0] relative shrink-0">
-                <span className="leading-[32px]">{`Patient N°: `}</span>
-                <span className="font-light leading-[32px]">930230393</span>
+                <span className="leading-[36px]">{`Patient N°: `}</span>
+                <span className="font-light leading-[36px]">930230393</span>
               </p>
             </div>
           </div>
