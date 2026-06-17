@@ -34,6 +34,20 @@ export const STROKE_OPTIONS: { bundle: StrokeStrategy; label: string; intervalMi
 export const STROKE_VOLUME_UL = 0.004;
 export const MAX_PUSHES_PER_MIN = 15; // → minimum interval 1/15 min = 4 s
 
+// Physical implant spec — single source of truth for the pump reservoir and the
+// catheter. The implant detail page and the home implant card both read these so
+// the values can never drift apart.
+export const RESERVOIR_ML = 40;
+export const CATHETER = {
+  brand: 'B.Braun',
+  originalLengthCm: 43,
+  removedLengthCm: 11,
+  implantedLengthCm: 32,
+  insideDiameterMm: 0.8,
+  outsideDiameterMm: 0.9,
+  volumeMl: 0.2,
+} as const;
+
 export type DeliveryPlan = {
   ugPerStroke: number;
   strokesPerDay: number;

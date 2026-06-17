@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy } from '../therapy';
+import { useTherapy, CATHETER, RESERVOIR_ML } from '../therapy';
 
 // Existing assets in /public/icons/
 const imgImplantOuter = "/icons/34c72d33-da0a-4524-baf8-8740816e1c94.svg";
@@ -201,7 +201,7 @@ function PatientCard() {
 function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFraction: number }) {
   const navigate = useNavigate();
   const noDate = refillDate === 'N/A';
-  const fillMl = Math.round(fillFraction * 40);
+  const fillMl = Math.round(fillFraction * RESERVOIR_ML);
   const fillPct = Math.round(fillFraction * 100);
   return (
     <div onClick={() => navigate('implant-detail')} className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
@@ -234,7 +234,7 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
                 <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>Fill level</p>
                 <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   <span className="leading-[52px] text-[36px]">{fillMl}/</span>
-                  <span className="font-normal leading-[52px] text-[36px]">40 ml</span>
+                  <span className="font-normal leading-[52px] text-[36px]">{RESERVOIR_ML} ml</span>
                 </p>
                 <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fillPct} %</p>
               </div>
@@ -248,10 +248,10 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
                 <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
                   <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>Catheter</p>
                   <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    <span className="leading-[52px] text-[36px]">0.3</span>
+                    <span className="leading-[52px] text-[36px]">{CATHETER.volumeMl}</span>
                     <span className="font-normal leading-[52px] text-[36px]">{` ml`}</span>
                   </p>
-                  <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>53 cm</p>
+                  <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{CATHETER.implantedLengthCm} cm</p>
                 </div>
               </div>
               {/* Next refill */}

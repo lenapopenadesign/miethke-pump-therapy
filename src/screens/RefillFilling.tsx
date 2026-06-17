@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy } from '../therapy';
+import { useTherapy, RESERVOIR_ML } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 
 /**
@@ -26,7 +26,6 @@ const NEXT: Partial<Record<Phase, { to: Phase; delay: number }>> = {
 // number drains to 0 and fills to 40 in lockstep with the graphic.
 const STEP_MS = 650;
 const START_LEVEL = 0.25; // 10/40 ml — matches the implant card before refill
-const RESERVOIR_ML = 40;
 const DRAIN_SEQ = [0.25, 0.19, 0.19, 0.125, 0.125, 0.06, 0.06, 0];
 const FILL_SEQ = [0, 0.12, 0.12, 0.32, 0.32, 0.55, 0.55, 0.78, 0.78, 1];
 
@@ -161,7 +160,7 @@ export function RefillFilling() {
             <div className="flex flex-col items-center gap-[10px] w-[430px]" style={{ marginTop: 54 }}>
               <p className="font-['Roboto',sans-serif] font-normal text-[48px] leading-[56px] text-center tracking-[0.1px]" style={{ color, transition: 'color 600ms ease-in-out' }}>Fill level:</p>
               <p className="font-['Roboto',sans-serif] text-[64px] leading-[56px] text-center tracking-[0.1px]" style={{ color, transition: 'color 600ms ease-in-out', fontVariationSettings: "'wdth' 100" }}>
-                <span className="font-extrabold">{fillMl}</span><span className="font-normal">/40 ml</span>
+                <span className="font-extrabold">{fillMl}</span><span className="font-normal">/{RESERVOIR_ML} ml</span>
               </p>
             </div>
           </div>

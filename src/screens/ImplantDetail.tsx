@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy } from '../therapy';
+import { useTherapy, CATHETER, RESERVOIR_ML } from '../therapy';
 import { DetailShell, ConnectedStatus } from '../components/DetailShell';
 import { ImplantIcon, Filling } from '../components/HomeShell';
 
@@ -42,7 +42,7 @@ export function ImplantDetail() {
   const navigate = useNavigate();
   const { setFlowMode, refillDate, fillFraction } = useTherapy();
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
-  const fillMl = Math.round(fillFraction * 40);
+  const fillMl = Math.round(fillFraction * RESERVOIR_ML);
   const fillPct = Math.round(fillFraction * 100);
   return (
     <DetailShell icon={<ImplantIcon size={56} />} title="Implant" headerRight={<ConnectedStatus />}>
@@ -55,7 +55,7 @@ export function ImplantDetail() {
               <p className={labelCls}>Fill level</p>
               <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                 <span className="font-bold text-[36px] leading-[52px]">{fillMl} / </span>
-                <span className="font-normal text-[36px] leading-[52px]">40 ml</span>
+                <span className="font-normal text-[36px] leading-[52px]">{RESERVOIR_ML} ml</span>
               </p>
               <p className="font-['Roboto',sans-serif] font-normal text-[28px] leading-[36px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fillPct} %</p>
             </div>
@@ -93,22 +93,22 @@ export function ImplantDetail() {
           </div>
           <div className="flex flex-col text-[#00769e] whitespace-nowrap">
             <p className={labelCls}>Catheter</p>
-            <p className="font-['Roboto',sans-serif] font-bold text-[36px] leading-[52px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>B.Braun</p>
+            <p className="font-['Roboto',sans-serif] font-bold text-[36px] leading-[52px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{CATHETER.brand}</p>
           </div>
         </div>
 
         <div className="flex flex-col gap-[16px]">
           <div className="flex gap-[48px]">
-            <StatPair label="Original length" value="43" unit="cm" />
-            <StatPair label="Inside diameter" value="0.8" unit="mm" />
+            <StatPair label="Original length" value={String(CATHETER.originalLengthCm)} unit="cm" />
+            <StatPair label="Inside diameter" value={String(CATHETER.insideDiameterMm)} unit="mm" />
           </div>
           <div className="flex gap-[48px]">
-            <StatPair label="Removed length" value="11" unit="cm" />
-            <StatPair label="Outside diameter" value="0.9" unit="mm" />
+            <StatPair label="Removed length" value={String(CATHETER.removedLengthCm)} unit="cm" />
+            <StatPair label="Outside diameter" value={String(CATHETER.outsideDiameterMm)} unit="mm" />
           </div>
           <div className="flex gap-[48px]">
-            <StatPair label="Implanted" value="32" unit="cm" />
-            <StatPair label="Catheter volume" value="0.2" unit="ml" />
+            <StatPair label="Implanted" value={String(CATHETER.implantedLengthCm)} unit="cm" />
+            <StatPair label="Catheter volume" value={String(CATHETER.volumeMl)} unit="ml" />
           </div>
         </div>
 
