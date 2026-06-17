@@ -3,26 +3,65 @@ import {
   useTherapy, fmtTime, coDoseUgDay, concUgPerUl, doseStringsFor, doseUnitFor,
   doseColor,
 } from '../therapy';
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { BaseDoseChart } from '../components/BaseDoseChart';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
 
-/* Plain 24-hour HH:MM field (no native clock icon / AM-PM). */
+/* Parse a partial time entry into minutes. Accepts "9", "9:3", "09:30", "0930",
+   "930" etc. Returns null while the entry isn't yet a usable time. */
+function parseTime(raw: string): number | null {
+  const digits = raw.replace(/[^0-9]/g, '');
+  if (digits.length === 0) return null;
+  let h: number, min: number;
+  if (raw.includes(':')) {
+    const [hp, mp = ''] = raw.split(':');
+    h = parseInt(hp || '0', 10);
+    min = parseInt(mp || '0', 10);
+  } else if (digits.length <= 2) {
+    h = parseInt(digits, 10);
+    min = 0;
+  } else {
+    // 3–4 digits: last two are minutes.
+    h = parseInt(digits.slice(0, digits.length - 2), 10);
+    min = parseInt(digits.slice(-2), 10);
+  }
+  if (isNaN(h) || isNaN(min)) return null;
+  h = Math.min(23, h);
+  min = Math.min(59, min);
+  return h * 60 + min;
+}
+
+/* Plain 24-hour HH:MM field (no native clock icon / AM-PM). Keeps a local text
+   buffer so partial entries can be typed; commits to minutes whenever the text
+   parses, and normalises back to HH:MM on blur. */
 function TimeField({ value, onChange }: { value: number; onChange: (min: number) => void }) {
+  const [text, setText] = useState(() => fmtTime(value));
+  const [focused, setFocused] = useState(false);
+
+  // Reflect external changes to the committed value while not actively editing.
+  useEffect(() => {
+    if (!focused) setText(fmtTime(value));
+  }, [value, focused]);
+
   return (
     <div className="bg-white border-2 border-[#6b7785] rounded-[12px] h-[80px] flex items-center px-[20px] focus-within:border-[#0094c5]">
       <input
         type="text"
         inputMode="numeric"
-        value={fmtTime(value)}
+        value={text}
+        onFocus={() => setFocused(true)}
         onChange={e => {
-          const m = e.target.value.match(/^(\d{1,2}):(\d{2})$/);
-          if (m) {
-            const h = Math.min(23, parseInt(m[1], 10));
-            const min = Math.min(59, parseInt(m[2], 10));
-            onChange(h * 60 + min);
-          }
+          const raw = e.target.value;
+          setText(raw);
+          const min = parseTime(raw);
+          if (min !== null) onChange(min);
+        }}
+        onBlur={() => {
+          setFocused(false);
+          const min = parseTime(text);
+          if (min !== null) onChange(min);
+          setText(fmtTime(min ?? value));
         }}
         className="flex-1 font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] tracking-[0.1px] bg-transparent outline-none border-0 p-0"
         style={{ fontVariationSettings: "'wdth' 100" }}
