@@ -227,8 +227,9 @@ const ACTIVE_MEDICATIONS: Medication[] = [
 // Windows are deltas vs the base; the base fills every uncovered minute. One
 // schedule applies to every day (no weekday/weekend differentiation).
 const ACTIVE_WINDOWS: Interval[] = [
-  { id: 'iv-night',   label: 'Night (sleep)', startMin: 0,    endMin: 360,  dose: 336 }, // 00:00–05:59 · −30%
-  { id: 'iv-evening', label: 'Evening peak',  startMin: 1080, endMin: 1380, dose: 576 }, // 18:00–22:59 · +20%
+  { id: 'iv-night-am', label: 'Night',        startMin: 0,    endMin: 360,  dose: 600 }, // 00:00–06:00 · +25% (part of the 22:00–06:00 night)
+  { id: 'iv-morning',  label: 'Morning peak', startMin: 360,  endMin: 390,  dose: 720 }, // 06:00–06:30 · +50%
+  { id: 'iv-night-pm', label: 'Night',        startMin: 1320, endMin: 1440, dose: 600 }, // 22:00–24:00 · +25% (part of the 22:00–06:00 night)
 ];
 const ACTIVE_BY_DAY: IntervalsByDay = {
   monday:    ACTIVE_WINDOWS.map(iv => ({ ...iv })),
