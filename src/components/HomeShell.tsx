@@ -39,8 +39,9 @@ const imgActAccess = "/icons/act-access.svg";
 const imgActPrime1 = "/icons/act-prime-1.svg";
 const imgActPrime2 = "/icons/act-prime-2.svg";
 const imgActPrime3 = "/icons/act-prime-3.svg";
-const imgActClinician1 = "/icons/act-clinician-1.svg";
-const imgActClinician2 = "/icons/act-clinician-2.svg";
+// Blue (light-tile) variants — the white originals are for the dark tiles.
+const imgActClinician1 = "/icons/act-clinician-1-blue.svg";
+const imgActClinician2 = "/icons/act-clinician-2-blue.svg";
 // White "Add Therapy" icon (medication calendar + bottle + plus) — exact Figma
 // composition (node 7963:45207), white assets for the filled action tile.
 const atImg = (n: number) => `/icons/at-${n}.svg`;
@@ -375,7 +376,7 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
         </ActionTile>
         {/* Clinician Bolus — active only */}
         {!noTherapy && (
-          <ActionTile filled label="Clinician Bolus">
+          <ActionTile label="Clinician Bolus">
             <div className="absolute inset-[6.25%_33.75%_21.25%_11.25%]"><img alt="" src={imgActClinician1} className="absolute block inset-0 max-w-none size-full" /></div>
             <div className="absolute inset-[20%_11.25%_5%_66.25%]"><img alt="" src={imgActClinician2} className="absolute block inset-0 max-w-none size-full" /></div>
           </ActionTile>

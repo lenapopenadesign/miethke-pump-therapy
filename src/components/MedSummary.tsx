@@ -50,7 +50,7 @@ export function MedSummary({
   // Evenly distributed columns (one each for the optional Base dose / Current).
   const colCount = 2 + (showBase ? 1 : 0) + 1 + (showCurrent ? 1 : 0);
   return (
-    <div className="w-full rounded-[20px] border border-[#bcdcec] bg-[#e6f4f9] px-[28px] py-[24px]">
+    <div className="w-full">
       <div className="grid gap-x-[16px] gap-y-[12px] items-center" style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
         {/* Header */}
         <span />

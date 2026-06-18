@@ -43,7 +43,10 @@ export function ValueRow({ label, value, unit, bg }: { label: string; value: str
  * detail page: a 24-hour bolus chart, the bolus-frequency line, and a
  * per-medication breakdown (Total 24 h, Base Dose and one row per dosing window).
  */
-export function TherapyBreakdown() {
+const NOW_MIN = 716; // "11:56" — current-time marker
+const NOW_POS = `calc(24px + (100% - 48px) * ${NOW_MIN / 1440})`;
+
+export function TherapyBreakdown({ showNow = false }: { showNow?: boolean }) {
   const { baseDose, bolusCount, intervals, medications } = useTherapy();
   const windows = [...intervals].sort((a, b) => a.startMin - b.startMin);
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
@@ -71,6 +74,12 @@ export function TherapyBreakdown() {
             </div>
           </div>
           <div className="absolute left-[24px] right-[24px] h-px bg-[#e3e6e9]" style={{ bottom: 48 }} />
+          {showNow && (
+            <>
+              <div className="absolute w-[2px] bg-[#063b66]" style={{ left: NOW_POS, top: 24, bottom: 48 }} />
+              <div className="absolute" style={{ left: NOW_POS, top: 14, transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '10px solid #063b66' }} />
+            </>
+          )}
           <p className="absolute left-[24px] bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={wdth}>00:00</p>
           <p className="absolute right-[24px] bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={wdth}>24:00</p>
         </div>

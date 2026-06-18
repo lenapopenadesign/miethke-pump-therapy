@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useRef, useState, type ReactNode } from 'react';
 import type { ScreenId } from './navigation';
 
 export type Interval = {
@@ -124,8 +124,14 @@ type TherapyState = {
   removeMedication: (id: string) => void;
   baseDose: number;
   setBaseDose: (n: number) => void;
-  // Reset the whole therapy to a blank slate (used when starting onboarding).
-  resetTherapy: () => void;
+  // Therapy editing lifecycle. The home screen always shows the committed
+  // therapy; these snapshot it so backing out of the wizard restores it and only
+  // an Activate commits the change. beginNewTherapy blanks the working state;
+  // beginEditTherapy keeps it; cancelTherapyEdit restores + returns the home id.
+  beginNewTherapy: () => void;
+  beginEditTherapy: () => void;
+  cancelTherapyEdit: () => ScreenId;
+  commitTherapy: () => void;
   // 7 independent per-day interval arrays. Edits propagate to the days listed
   // in editingScope (which the caller sets based on the current day-pattern +
   // active tab).
@@ -235,8 +241,8 @@ const ACTIVE_BY_DAY: IntervalsByDay = {
 };
 
 // -------- Empty therapy (a fresh add-therapy flow) --------
-// resetTherapy() returns to this so onboarding starts from scratch: one blank
-// medication row, no base dose and no dosing windows.
+// beginNewTherapy() blanks the working state to this so onboarding starts from
+// scratch: one blank medication row, no base dose and no dosing windows.
 const EMPTY_BY_DAY: IntervalsByDay = {
   monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [],
 };
@@ -274,15 +280,40 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [therapyActive, setTherapyActive] = useState(true);
   const homeScreen: ScreenId = therapyActive ? 'home-active' : 'home-no-therapy';
 
-  // Wipe the therapy back to a blank slate so the add-therapy wizard starts from
-  // scratch (no meds / base dose / windows). Called when onboarding begins.
-  const resetTherapy = () => {
+  // The committed therapy shown on the home screen is snapshotted when the user
+  // starts editing or creating a therapy, so backing out of the wizard restores
+  // it — the home screen only changes once a new/adjusted therapy is activated.
+  type Snapshot = { medications: Medication[]; baseDose: number; intervalsByDay: IntervalsByDay; bolusCountRaw: number | null; therapyActive: boolean };
+  const snapshotRef = useRef<Snapshot | null>(null);
+  const takeSnapshot = (): Snapshot => ({ medications, baseDose, intervalsByDay, bolusCountRaw, therapyActive });
+  const restoreSnapshot = (s: Snapshot) => {
+    setMedications(s.medications);
+    setBaseDoseRaw(s.baseDose);
+    setIntervalsByDay(s.intervalsByDay);
+    setBolusCountRaw(s.bolusCountRaw);
+    setTherapyActive(s.therapyActive);
+  };
+
+  // Start a fresh therapy: snapshot the current one, then blank the working state.
+  const beginNewTherapy = () => {
+    snapshotRef.current = takeSnapshot();
     setMedications(emptyMedications());
     setBaseDoseRaw(0);
     setIntervalsByDay(EMPTY_BY_DAY);
     setBolusCountRaw(null);
     setTherapyActive(false);
   };
+  // Adjust the existing therapy: snapshot it but keep the data to edit in place.
+  const beginEditTherapy = () => { snapshotRef.current = takeSnapshot(); };
+  // Abandon the wizard: restore the snapshot and report where home should land.
+  const cancelTherapyEdit = (): ScreenId => {
+    const s = snapshotRef.current;
+    snapshotRef.current = null;
+    if (s) { restoreSnapshot(s); return s.therapyActive ? 'home-active' : 'home-no-therapy'; }
+    return therapyActive ? 'home-active' : 'home-no-therapy';
+  };
+  // Activation completed: keep the working state and drop the snapshot.
+  const commitTherapy = () => { snapshotRef.current = null; setTherapyActive(true); };
 
   const setBaseDose = (n: number) => setBaseDoseRaw(Math.max(0, n));
 
@@ -376,7 +407,8 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   return (
     <TherapyContext.Provider value={{
       medications, addMedication, updateMedication, removeMedication,
-      baseDose, setBaseDose, resetTherapy,
+      baseDose, setBaseDose,
+      beginNewTherapy, beginEditTherapy, cancelTherapyEdit, commitTherapy,
       intervalsByDay,
       intervals, weekendIntervals,
       draft, setDraft,

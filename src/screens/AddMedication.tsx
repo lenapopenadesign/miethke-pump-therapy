@@ -19,11 +19,13 @@ const fieldBox = "h-[76px] bg-white border-2 border-[#6b7785] rounded-[8px] px-[
 
 export function AddMedication() {
   const navigate = useNavigate();
-  const { medications, addMedication, updateMedication, removeMedication, flowMode } = useTherapy();
+  const { medications, addMedication, updateMedication, removeMedication, flowMode, cancelTherapyEdit } = useTherapy();
   const isRefill = flowMode === 'refill';
+  // Backing out of setup abandons the draft and restores the committed therapy.
+  const onBack = () => { if (isRefill) navigate('refill-filling'); else navigate(cancelTherapyEdit()); };
 
   return (
-    <WizardShell step="medication" onBack={() => navigate(isRefill ? 'refill-filling' : 'home-no-therapy')}>
+    <WizardShell step="medication" onBack={onBack}>
       <div className="flex-1 flex flex-col gap-[24px]">
         {/* Title */}
         <div className="flex gap-[16px] items-center">
