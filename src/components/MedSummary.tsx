@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { coDoseUgDay, concUgPerUl, doseStringsFor, type Medication } from '../therapy';
 
 function fmtDay(ug: number, concUnit: string): { value: string; unit: string } {
@@ -11,23 +10,27 @@ function fmtHour(ug: number, concUnit: string): { value: string; unit: string } 
   return { value: s.perHour, unit: `${s.unit}/h` };
 }
 
-function Chip({ value, unit }: { value: string; unit: string }) {
+// Match the Review page's bars: medium-blue medication header, light value bars.
+const HEAD_BG = '#c4e1ef';
+const VAL_BG = '#d8ecf7';
+const wdth = { fontVariationSettings: "'wdth' 100" } as const;
+
+function ValueBar({ value, unit }: { value: string; unit: string }) {
   return (
-    <div className="bg-[#bcdcec] rounded-[10px] px-[18px] py-[12px] flex items-baseline gap-[6px] w-full">
-      <span className="font-['Roboto',sans-serif] font-bold text-[#00658a] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{value}</span>
-      <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>{unit}</span>
+    <div className="rounded-[8px] h-[60px] flex items-baseline px-[20px]" style={{ background: VAL_BG }}>
+      <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] self-center" style={wdth}>{value}</span>
+      <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px] self-center" style={wdth}>{unit}</span>
     </div>
   );
 }
 
-const hdr = "font-['Roboto',sans-serif] text-[22px] tracking-[1px] pb-[6px]";
+const hdr = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[1px] pb-[2px] pl-[4px]";
 
 /**
- * The per-medication 24h summary — the headline data on the Intervals, Review
- * and Home (active) screens (Figma 7471:64607 / 7780:70952). Columns are evenly
- * distributed: MEDICATION · Concentration · Total 24 h, plus an optional
- * "Base dose" column (when `baseDose` is given) and a "Current interval" column
- * (when `currentUg` is given, i.e. an interval is running).
+ * The per-medication 24h summary used on the Home (active) and Intervals
+ * screens. Presented like the Review page: each medication name + concentration
+ * sits in a filled header bar, with its Total 24 h — plus an optional Base dose /
+ * Current window — in light value bars.
  */
 export function MedSummary({
   baseDose, estDaily, medications, currentUg,
@@ -47,31 +50,31 @@ export function MedSummary({
     total: fmtDay(co(estDaily, m, i), m.unit),
     current: showCurrent ? fmtHour(co(currentUg as number, m, i), m.unit) : null,
   }));
-  // Evenly distributed columns (one each for the optional Base dose / Current).
-  const colCount = 2 + (showBase ? 1 : 0) + 1 + (showCurrent ? 1 : 0);
-  return (
-    <div className="w-full">
-      <div className="grid gap-x-[16px] gap-y-[12px] items-center" style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
-        {/* Header */}
-        <span />
-        <p className={`${hdr} font-normal text-[#5f8aa0]`}>Concentration</p>
-        {showBase && <p className={`${hdr} font-normal text-[#00769e] pl-[18px]`}>Base dose</p>}
-        <p className={`${hdr} font-bold text-[#00769e] pl-[18px]`}>Total 24 h</p>
-        {showCurrent && <p className={`${hdr} font-bold text-[#00769e] pl-[18px]`}>Current window</p>}
+  const valCols = (showBase ? 1 : 0) + 1 + (showCurrent ? 1 : 0);
+  const gridTemplateColumns = `minmax(0, 1.6fr) ${'minmax(0, 1fr) '.repeat(valCols).trim()}`;
 
-        {/* Rows */}
-        {rows.map(r => (
-          <Fragment key={r.med.id}>
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.med.name}</p>
-            <p className="font-['Roboto',sans-serif] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-              <span className="font-bold text-[#00769e]">{r.med.concentration}</span> <span className="font-normal text-[#5f8aa0]">{r.med.unit}</span>
-            </p>
-            {r.base && <Chip value={r.base.value} unit={r.base.unit} />}
-            <Chip value={r.total.value} unit={r.total.unit} />
-            {r.current && <Chip value={r.current.value} unit={r.current.unit} />}
-          </Fragment>
-        ))}
+  return (
+    <div className="w-full flex flex-col gap-[8px]">
+      {/* Column headers */}
+      <div className="grid gap-[12px] items-center" style={{ gridTemplateColumns }}>
+        <span />
+        {showBase && <p className={hdr}>Base dose</p>}
+        <p className={hdr}>Total 24 h</p>
+        {showCurrent && <p className={hdr}>Current window</p>}
       </div>
+
+      {/* One row per medication */}
+      {rows.map(r => (
+        <div key={r.med.id} className="grid gap-[12px] items-center" style={{ gridTemplateColumns }}>
+          <div className="rounded-[8px] h-[60px] flex items-baseline px-[20px]" style={{ background: HEAD_BG }}>
+            <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] self-center" style={wdth}>{r.med.name}</span>
+            <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[10px] self-center" style={wdth}>{r.med.concentration} {r.med.unit}</span>
+          </div>
+          {r.base && <ValueBar value={r.base.value} unit={r.base.unit} />}
+          <ValueBar value={r.total.value} unit={r.total.unit} />
+          {r.current && <ValueBar value={r.current.value} unit={r.current.unit} />}
+        </div>
+      ))}
     </div>
   );
 }

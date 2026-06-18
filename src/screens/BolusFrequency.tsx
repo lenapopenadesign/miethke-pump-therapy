@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtDose, doseUnitFor, BOLUS_VOLUME_UL, MIN_BOLUSES_PER_DAY } from '../therapy';
+import { useTherapy, fmtDose, doseUnitFor, concUgPerUl, coDoseUgDay, BOLUS_VOLUME_UL, MIN_BOLUSES_PER_DAY } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { TherapyHeaderChart } from '../components/TherapyHeaderChart';
 
@@ -39,9 +39,34 @@ function RangeSlider({ min, max, value, disabled, onChange }: { min: number; max
 
 function SyringeIcon() {
   return (
-    <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
-      <path d="M14 4l6 6M17 7l-9 9-3.5 1.5L6 14l9-9M4.5 19.5L3 21M8 16l-4 4" stroke="#0094c5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0094c5" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m18 2 4 4" />
+      <path d="m17 7 3-3" />
+      <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5" />
+      <path d="m9 11 4 4" />
+      <path d="m5 19-3 3" />
+      <path d="m14 4 6 6" />
     </svg>
+  );
+}
+
+/** A read-out tile listing a value per medication (e.g. the bolus dose). */
+function MultiDoseCard({ label, rows, highlight }: { label: string; rows: { name: string; value: string; unit: string }[]; highlight?: boolean }) {
+  return (
+    <div className={`flex-1 rounded-[16px] px-[24px] py-[20px] flex flex-col gap-[10px] ${highlight ? 'bg-[#d1eaf8]' : 'bg-[#e6f4f9]'}`}>
+      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
+      <div className="flex flex-col gap-[10px]">
+        {rows.map(r => (
+          <div key={r.name} className="flex flex-col whitespace-nowrap">
+            <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.name}</span>
+            <span>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.value}</span>
+              <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[20px] ml-[4px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.unit}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -65,10 +90,15 @@ export function BolusFrequency() {
   // Slider runs from the minimum frequency up to the maximum the dose allows.
   const sliderMin = Math.min(MIN_BOLUSES_PER_DAY, maxBoluses);
   const valid = maxBoluses > 0;
-  // Bolus dose reported in the primary medication's unit (mg or µg).
-  const doseU = doseUnitFor(medications[0]?.unit ?? 'µg/ml');
-  const bolusDoseUg = bolusCount > 0 ? baseDose / bolusCount : 0;
   const minutesBetween = bolusCount > 0 ? 1440 / bolusCount : 0;
+  // Per-bolus dose for every medication, each in its own unit (mg or µg).
+  const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
+  const bolusDoses = medications.map((m, i) => {
+    const ugDay = i === 0 ? baseDose : coDoseUgDay(baseDose, c0, concUgPerUl(m));
+    const perBolusUg = bolusCount > 0 ? ugDay / bolusCount : 0;
+    const u = doseUnitFor(m.unit);
+    return { name: m.name || (i === 0 ? 'Primary' : 'Medication'), value: valid ? fmtDose(perBolusUg / u.div) : '--', unit: `${u.unit}/bolus` };
+  });
 
   return (
     <WizardShell step="frequency" onBack={() => navigate('base-dose')} banner={<TherapyHeaderChart />}>
@@ -94,7 +124,7 @@ export function BolusFrequency() {
           {/* Read-out cards */}
           <div className="flex gap-[16px]">
             <StatCard label="Bolus number" value={valid ? String(bolusCount) : '--'} unit="boluses" highlight />
-            <StatCard label="Bolus dose" value={valid ? fmtDose(bolusDoseUg / doseU.div) : '--'} unit={`${doseU.unit}/bolus`} highlight />
+            <MultiDoseCard label="Bolus dose" rows={bolusDoses} highlight />
             <StatCard label="Bolus size" value={String(BOLUS_VOLUME_UL)} unit="µl" />
             <StatCard label="Time between bolus" value={valid ? `~${Math.round(minutesBetween)}` : '--'} unit="min" />
           </div>

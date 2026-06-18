@@ -6,6 +6,7 @@ import {
   doseUnitFor,
   estimatedDailyTotal,
   fmtTime,
+  type Interval,
 } from '../therapy';
 import { BolusBars } from './TherapyHeaderChart';
 import { TherapyIcon } from './HomeShell';
@@ -13,9 +14,9 @@ import { TherapyIcon } from './HomeShell';
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 const labelCls = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]";
 
-const HEAD_BG = '#a6d2e6';
-const TOTAL_BG = '#cce4f1';
-const ROW_BG = '#e9f4fa';
+const HEAD_BG = '#c4e1ef';
+const TOTAL_BG = '#d8ecf7';
+const ROW_BG = '#eef6fb';
 
 function KebabIcon() {
   return (
@@ -46,6 +47,32 @@ export function ValueRow({ label, value, unit, bg }: { label: string; value: str
 const NOW_MIN = 716; // "11:56" — current-time marker
 const NOW_POS = `calc(24px + (100% - 48px) * ${NOW_MIN / 1440})`;
 
+/**
+ * The 24-hour bolus chart card, shared by the Therapy detail page and the home
+ * therapy teaser so both render at the same height. `showNow` adds the
+ * current-time marker.
+ */
+export function ProfileChart({ baseDose, bolusCount, windows, showNow = false }: { baseDose: number; bolusCount: number; windows: Interval[]; showNow?: boolean }) {
+  return (
+    <div className="relative w-full bg-white border border-[#d9dbde] rounded-[16px]" style={{ height: 250 }}>
+      <div className="absolute left-[24px] right-[24px] top-[24px]" style={{ bottom: 48 }}>
+        <div className="absolute inset-0">
+          <BolusBars baseDose={baseDose} bolusCount={bolusCount} windows={windows} nominalH={92} maxH={150} minH={20} barWidth={9} />
+        </div>
+      </div>
+      <div className="absolute left-[24px] right-[24px] h-px bg-[#e3e6e9]" style={{ bottom: 48 }} />
+      {showNow && (
+        <>
+          <div className="absolute w-[2px] bg-[#063b66]" style={{ left: NOW_POS, top: 24, bottom: 48 }} />
+          <div className="absolute" style={{ left: NOW_POS, top: 14, transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '10px solid #063b66' }} />
+        </>
+      )}
+      <p className="absolute left-[24px] bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={wdth}>00:00</p>
+      <p className="absolute right-[24px] bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={wdth}>24:00</p>
+    </div>
+  );
+}
+
 export function TherapyBreakdown({ showNow = false }: { showNow?: boolean }) {
   const { baseDose, bolusCount, intervals, medications } = useTherapy();
   const windows = [...intervals].sort((a, b) => a.startMin - b.startMin);
@@ -67,22 +94,7 @@ export function TherapyBreakdown({ showNow = false }: { showNow?: boolean }) {
       {/* 24-hour view */}
       <div className="flex flex-col gap-[12px]">
         <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={wdth}>24-hour view</p>
-        <div className="relative w-full bg-white border border-[#d9dbde] rounded-[16px]" style={{ height: 250 }}>
-          <div className="absolute left-[24px] right-[24px] top-[24px]" style={{ bottom: 48 }}>
-            <div className="absolute inset-0">
-              <BolusBars baseDose={baseDose} bolusCount={bolusCount} windows={windows} nominalH={92} maxH={150} minH={20} barWidth={12} />
-            </div>
-          </div>
-          <div className="absolute left-[24px] right-[24px] h-px bg-[#e3e6e9]" style={{ bottom: 48 }} />
-          {showNow && (
-            <>
-              <div className="absolute w-[2px] bg-[#063b66]" style={{ left: NOW_POS, top: 24, bottom: 48 }} />
-              <div className="absolute" style={{ left: NOW_POS, top: 14, transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '10px solid #063b66' }} />
-            </>
-          )}
-          <p className="absolute left-[24px] bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={wdth}>00:00</p>
-          <p className="absolute right-[24px] bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={wdth}>24:00</p>
-        </div>
+        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} windows={windows} showNow={showNow} />
       </div>
 
       {/* Bolus frequency */}
@@ -108,7 +120,7 @@ export function TherapyBreakdown({ showNow = false }: { showNow?: boolean }) {
                   key={w.id}
                   label={`${fmtTime(w.startMin)} - ${fmtTime(w.endMin >= 1440 ? 1439 : w.endMin)}`}
                   value={doseStringsFor(intervalUg, u).perDay}
-                  unit={`${unit}/interval`}
+                  unit={`${unit}/window`}
                   bg={ROW_BG}
                 />
               );
