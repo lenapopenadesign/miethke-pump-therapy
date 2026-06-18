@@ -49,8 +49,8 @@ export function TherapyDetail() {
 
   // Edit keeps the current therapy and walks the wizard from the start; New
   // blanks it. Both snapshot the committed therapy so backing out restores it.
-  const onEdit = () => { beginEditTherapy(); setFlowMode('setup'); navigate('add-medication'); };
-  const onNew = () => { beginNewTherapy(); setFlowMode('setup'); navigate('add-medication'); };
+  const onEdit = () => { beginEditTherapy('therapy-detail'); setFlowMode('setup'); navigate('add-medication'); };
+  const onNew = () => { beginNewTherapy('therapy-detail'); setFlowMode('setup'); navigate('add-medication'); };
   const onStop = () => { setTherapyActive(false); navigate('home-no-therapy'); };
   const onClinicianBolus = () => navigate('actions');
 

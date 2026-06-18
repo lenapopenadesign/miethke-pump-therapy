@@ -128,8 +128,8 @@ type TherapyState = {
   // therapy; these snapshot it so backing out of the wizard restores it and only
   // an Activate commits the change. beginNewTherapy blanks the working state;
   // beginEditTherapy keeps it; cancelTherapyEdit restores + returns the home id.
-  beginNewTherapy: () => void;
-  beginEditTherapy: () => void;
+  beginNewTherapy: (returnTo?: ScreenId) => void;
+  beginEditTherapy: (returnTo?: ScreenId) => void;
   cancelTherapyEdit: () => ScreenId;
   commitTherapy: () => void;
   // 7 independent per-day interval arrays. Edits propagate to the days listed
@@ -295,8 +295,11 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
     setTherapyActive(s.therapyActive);
   };
 
+  // Screen the wizard was entered from, so backing out returns there.
+  const setupReturnRef = useRef<ScreenId>('home-active');
   // Start a fresh therapy: snapshot the current one, then blank the working state.
-  const beginNewTherapy = () => {
+  const beginNewTherapy = (returnTo: ScreenId = 'home-no-therapy') => {
+    setupReturnRef.current = returnTo;
     snapshotRef.current = takeSnapshot();
     setMedications(emptyMedications());
     setBaseDoseRaw(0);
@@ -305,13 +308,16 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
     setTherapyActive(false);
   };
   // Adjust the existing therapy: snapshot it but keep the data to edit in place.
-  const beginEditTherapy = () => { snapshotRef.current = takeSnapshot(); };
-  // Abandon the wizard: restore the snapshot and report where home should land.
+  const beginEditTherapy = (returnTo: ScreenId = 'home-active') => {
+    setupReturnRef.current = returnTo;
+    snapshotRef.current = takeSnapshot();
+  };
+  // Abandon the wizard: restore the snapshot and return to where it was started.
   const cancelTherapyEdit = (): ScreenId => {
     const s = snapshotRef.current;
     snapshotRef.current = null;
-    if (s) { restoreSnapshot(s); return s.therapyActive ? 'home-active' : 'home-no-therapy'; }
-    return therapyActive ? 'home-active' : 'home-no-therapy';
+    if (s) restoreSnapshot(s);
+    return setupReturnRef.current;
   };
   // Activation completed: keep the working state and drop the snapshot.
   const commitTherapy = () => { snapshotRef.current = null; setTherapyActive(true); };

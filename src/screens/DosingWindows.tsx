@@ -77,22 +77,14 @@ export function DosingWindows() {
 
               {windows.map(w => {
                 const rateUgH = w.dose / 24;
-                const isHighlight = w.id === highlightId;
                 const text = draft && draft.id === w.id ? draft.text : (w.dose > 0 ? fmtDose(rateUgH / doseU.div) : '');
                 return (
                   <div key={w.id} className={COLS}>
                     {/* Time window */}
-                    <div className="flex flex-col gap-[8px]">
-                      <div className="flex items-center gap-[12px]">
-                        <TimeField value={w.startMin} onChange={min => { setFocusedId(w.id); updateWindow(w.id, { startMin: min }); }} />
-                        <span className="font-['Roboto',sans-serif] font-bold text-[#667380] text-[28px]">–</span>
-                        <TimeField value={w.endMin} onChange={min => { setFocusedId(w.id); updateWindow(w.id, { endMin: min }); }} />
-                      </div>
-                      {isHighlight && (
-                        <p className="font-['Roboto',sans-serif] font-normal text-[#9ea8b2] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                          ▲ highlighted on the chart
-                        </p>
-                      )}
+                    <div className="flex items-center gap-[12px]">
+                      <TimeField value={w.startMin} onChange={min => { setFocusedId(w.id); updateWindow(w.id, { startMin: min }); }} />
+                      <span className="font-['Roboto',sans-serif] font-bold text-[#667380] text-[28px]">–</span>
+                      <TimeField value={w.endMin} onChange={min => { setFocusedId(w.id); updateWindow(w.id, { endMin: min }); }} />
                     </div>
 
                     {/* Dose in this window (editable µg/h) */}

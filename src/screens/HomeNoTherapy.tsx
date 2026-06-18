@@ -22,7 +22,7 @@ function NoTherapyBody({ onCta }: { onCta: () => void }) {
 export function HomeNoTherapy() {
   const navigate = useNavigate();
   const { setFlowMode, beginNewTherapy } = useTherapy();
-  const startSetup = () => { beginNewTherapy(); setFlowMode('setup'); navigate('add-medication'); };
+  const startSetup = () => { beginNewTherapy('home-no-therapy'); setFlowMode('setup'); navigate('add-medication'); };
   return (
     <HomeShell
       therapyStatus="none"
