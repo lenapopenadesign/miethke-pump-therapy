@@ -9,38 +9,33 @@ const imgRefillPump = "/icons/act-refill-pump-b.svg";
 
 // Granular step a screen reports it belongs to. The setup wizard shows all of
 // these as distinct dots; the refill wizard shows them as a segmented bar.
-export type WizardStep = 'filling' | 'medication' | 'base-dose' | 'intervals' | 'delivery' | 'review' | 'transfer';
+// 'intervals'/'delivery' are legacy keys kept so the now-orphaned old screens
+// still render; they map onto the 'windows' step.
+export type WizardStep = 'filling' | 'medication' | 'base-dose' | 'frequency' | 'windows' | 'intervals' | 'delivery' | 'review' | 'transfer';
 
-// Which middle path the setup user has taken. 'undecided' previews BOTH the
-// Intervals and Delivery steps; once the user adds an interval ('intervals') or
-// skips to base-dose-only delivery ('regular'), the unused step collapses away.
+// Retained for back-compat with screens that still pass a `decision` prop; it no
+// longer changes the (now linear) stepper.
 export type SetupDecision = 'undecided' | 'intervals' | 'regular';
 
-const MEDICATION = { key: 'medication' as const, label: 'Medication' };
-const BASE_DOSE = { key: 'base-dose' as const, label: 'Base Dose' };
-const INTERVALS = { key: 'intervals' as const, label: 'Intervals' };
-const DELIVERY = { key: 'delivery' as const, label: 'Delivery' };
-const REVIEW = { key: 'review' as const, label: 'Review' };
-const TRANSFER = { key: 'transfer' as const, label: 'Transfer' };
-
-// Refill shows the full granular path as a segmented bar (Figma 8146:52117).
-const REFILL_BAR_STEPS = [
-  { key: 'filling', label: 'Filling' },
+// The therapy wizard is a single linear path:
+// Medication · Base Dose · Frequency · Windows · Review · Transfer.
+const SETUP_STEPS = [
   { key: 'medication', label: 'Medication' },
   { key: 'base-dose', label: 'Base Dose' },
-  { key: 'intervals', label: 'Intervals' },
-  { key: 'delivery', label: 'Delivery' },
+  { key: 'frequency', label: 'Frequency' },
+  { key: 'windows', label: 'Windows' },
   { key: 'review', label: 'Review' },
   { key: 'transfer', label: 'Transfer' },
 ];
 
-/** Build the setup-flow dot list + active key for the current step / decision. */
-function buildSetupStepper(step: WizardStep, decision: SetupDecision) {
-  const middle =
-    decision === 'intervals' ? [INTERVALS] :
-    decision === 'regular' ? [DELIVERY] :
-    [INTERVALS, DELIVERY];
-  return { steps: [MEDICATION, BASE_DOSE, ...middle, REVIEW, TRANSFER], activeKey: step };
+// Refill prepends the Filling step; the rest of the path matches setup.
+const REFILL_BAR_STEPS = [{ key: 'filling', label: 'Filling' }, ...SETUP_STEPS];
+
+// Legacy step keys collapse onto the closest current step so old screens don't
+// highlight a missing dot.
+function normalizeStep(step: WizardStep): string {
+  if (step === 'intervals' || step === 'delivery') return 'windows';
+  return step;
 }
 
 function RefillTitleIcon({ size = 64 }: { size?: number }) {
@@ -175,21 +170,15 @@ function RefillHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => vo
         </div>
         <Signet />
       </div>
-      <BarStepper activeKey={step} steps={REFILL_BAR_STEPS} />
+      <BarStepper activeKey={normalizeStep(step)} steps={REFILL_BAR_STEPS} />
     </div>
   );
 }
 
 /** Setup header band: left-aligned "Add Therapy" title + chevron stepper (Figma 8409:53071). */
-function SetupHeaderBand({ step, onBack, decision, useBaseOnly }: { step: WizardStep; onBack: () => void; decision?: SetupDecision; useBaseOnly: boolean }) {
-  // Default decision: delivery → regular; review/transfer follow the path taken
-  // (base-dose-only ⇒ regular); everything earlier previews both paths.
-  const resolvedDecision: SetupDecision =
-    decision ??
-    (step === 'delivery' ? 'regular'
-      : step === 'review' || step === 'transfer' ? (useBaseOnly ? 'regular' : 'intervals')
-      : 'undecided');
-  const { steps, activeKey } = buildSetupStepper(step, resolvedDecision);
+function SetupHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => void }) {
+  const activeKey = normalizeStep(step);
+  const steps = SETUP_STEPS;
   return (
     <div className="w-[1200px] shrink-0 flex flex-col gap-[8px]">
       <div className="bg-[#e6f4f9] flex h-[96px] items-center justify-between px-[40px]">
@@ -210,30 +199,32 @@ type Props = {
   step: WizardStep;
   onBack: () => void;
   children: ReactNode;
-  // Setup-flow override for which middle path is shown. Omit to derive it from
-  // the current step + base-dose-only choice. The intervals-populated screen
-  // passes 'intervals' explicitly.
+  // Optional full-bleed band rendered between the stepper and the padded body —
+  // used by Base Dose / Frequency / Windows for the pinned "Total 24 h" header
+  // and 24-hour bolus chart.
+  banner?: ReactNode;
+  // Retained for back-compat with old screens that still pass it; ignored.
   decision?: SetupDecision;
 };
 
 /**
- * Shared chrome for the therapy wizard: purple status bar, a header and a
- * stepper. The setup flow shows a centered "Add Therapy" title with granular
- * dots (Medication · Base Dose · Intervals/Delivery · Review · Transfer); the
- * refill flow shows a left-aligned "Refill" title with a segmented-bar stepper
- * (Filling · Medication · Base Dose · Intervals · Delivery · Review · Transfer).
- * Screens supply their body as children — a padded flex column filling the
- * remaining height.
+ * Shared chrome for the therapy wizard: purple status bar, a header and a linear
+ * stepper (Medication · Base Dose · Frequency · Windows · Review · Transfer).
+ * The setup flow shows an "Add Therapy" title with chevron steps; the refill
+ * flow shows a left-aligned "Refill" title with a segmented bar. An optional
+ * `banner` is rendered full width under the stepper; screens supply the rest of
+ * their body as children — a padded flex column filling the remaining height.
  */
-export function WizardShell({ step, onBack, children, decision }: Props) {
-  const { flowMode, useBaseOnly } = useTherapy();
+export function WizardShell({ step, onBack, children, banner }: Props) {
+  const { flowMode } = useTherapy();
   const isRefill = flowMode === 'refill';
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] flex flex-col overflow-hidden">
       <div className="bg-[#3b2d7c] h-[35px] w-[1200px] shrink-0" />
       {isRefill
         ? <RefillHeaderBand step={step} onBack={onBack} />
-        : <SetupHeaderBand step={step} onBack={onBack} decision={decision} useBaseOnly={useBaseOnly} />}
+        : <SetupHeaderBand step={step} onBack={onBack} />}
+      {banner}
       {/* Body */}
       <div className="flex-1 flex flex-col px-[80px] pt-[40px] pb-[80px] w-[1200px] min-h-0">
         {children}

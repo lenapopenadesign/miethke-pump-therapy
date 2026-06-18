@@ -53,11 +53,11 @@ export function MedSummary({
     <div className="w-full rounded-[20px] border border-[#bcdcec] bg-[#e6f4f9] px-[28px] py-[24px]">
       <div className="grid gap-x-[16px] gap-y-[12px] items-center" style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
         {/* Header */}
-        <p className={`${hdr} font-bold text-[#00769e]`}>MEDICATION</p>
+        <span />
         <p className={`${hdr} font-normal text-[#5f8aa0]`}>Concentration</p>
         {showBase && <p className={`${hdr} font-normal text-[#00769e] pl-[18px]`}>Base dose</p>}
         <p className={`${hdr} font-bold text-[#00769e] pl-[18px]`}>Total 24 h</p>
-        {showCurrent && <p className={`${hdr} font-bold text-[#00769e] pl-[18px]`}>Current interval</p>}
+        {showCurrent && <p className={`${hdr} font-bold text-[#00769e] pl-[18px]`}>Current window</p>}
 
         {/* Rows */}
         {rows.map(r => (

@@ -33,7 +33,6 @@ const imgCathInline = "/icons/f1df5fc9-3123-4343-bf12-b6bacbd170ab.svg";
 const imgActiveCheck = "/icons/b3500d59-7e08-4cd9-a69d-8fff2c2f40b7.gif";
 const imgActionsHand = "/icons/5d577001-d49c-4bb9-9a48-3948e35d4261.svg";
 // Action-card tile icons (from the redesigned home Figma)
-const imgActOnboarding = "/icons/act-onboarding.svg";
 const imgActPrefillSyringe = "/icons/act-prefill-syringe.svg";
 const imgActPrefillPump = "/icons/act-prefill-pump.svg";
 const imgActAccess = "/icons/act-access.svg";
@@ -342,16 +341,11 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
         <ArrowForward />
       </div>
       <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex gap-[25px] items-start overflow-clip p-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
-        {/* First tile: Add Therapy (no therapy) or Onboarding (active) */}
-        {noTherapy ? (
+        {/* First tile: Add Therapy (no-therapy only). Active therapy shows the
+            Clinician Bolus tile at the end instead. */}
+        {noTherapy && (
           <ActionTile filled label="Add Therapy" onClick={startSetup}>
             <AddTherapyIcon />
-          </ActionTile>
-        ) : (
-          <ActionTile filled label="Onboarding" onClick={() => navigate('add-medication')}>
-            <div className="absolute inset-[5.51%_0_4.49%_0]">
-              <img alt="" src={imgActOnboarding} className="block max-w-none size-full" />
-            </div>
           </ActionTile>
         )}
         {/* Refill */}

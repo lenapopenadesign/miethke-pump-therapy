@@ -4,6 +4,8 @@ export type ScreenId =
   | 'home-no-therapy'
   | 'add-medication'
   | 'base-dose'
+  | 'frequency'
+  | 'windows'
   | 'intervals-empty'
   | 'add-interval-when'
   | 'add-interval-dose'

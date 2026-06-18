@@ -34,6 +34,32 @@ export const STROKE_OPTIONS: { bundle: StrokeStrategy; label: string; intervalMi
 export const STROKE_VOLUME_UL = 0.004;
 export const MAX_PUSHES_PER_MIN = 15; // → minimum interval 1/15 min = 4 s
 
+// A delivered "bolus" is a fixed micro-volume of the reservoir mixture (10 µl).
+// The base dose is split into whole 10 µl boluses across the day, so the maximum
+// bolus frequency is bounded by how much volume the dose actually represents.
+export const BOLUS_VOLUME_UL = 10;
+// Floor below which the frequency slider won't go (≈ one bolus every 6 h).
+export const MIN_BOLUSES_PER_DAY = 4;
+
+/**
+ * Daily delivered volume (µl) implied by a primary base dose. volume = mass /
+ * concentration, with concentration in canonical µg/µl. Returns 0 for a missing
+ * or zero-concentration primary so callers can show an empty state.
+ */
+export function dailyVolumeUl(baseDoseUgDay: number, primaryConcUgPerUl: number): number {
+  if (primaryConcUgPerUl <= 0) return 0;
+  return baseDoseUgDay / primaryConcUgPerUl;
+}
+
+/**
+ * Maximum number of whole 10 µl boluses the daily volume can be split into. This
+ * is the highest bolus frequency the pump can run for the given dose +
+ * concentration, and the default the setup flow selects.
+ */
+export function maxBolusesPerDay(baseDoseUgDay: number, primaryConcUgPerUl: number): number {
+  return Math.floor(dailyVolumeUl(baseDoseUgDay, primaryConcUgPerUl) / BOLUS_VOLUME_UL);
+}
+
 // Physical implant spec — single source of truth for the pump reservoir and the
 // catheter. The implant detail page and the home implant card both read these so
 // the values can never drift apart.
@@ -98,6 +124,8 @@ type TherapyState = {
   removeMedication: (id: string) => void;
   baseDose: number;
   setBaseDose: (n: number) => void;
+  // Reset the whole therapy to a blank slate (used when starting onboarding).
+  resetTherapy: () => void;
   // 7 independent per-day interval arrays. Edits propagate to the days listed
   // in editingScope (which the caller sets based on the current day-pattern +
   // active tab).
@@ -118,6 +146,16 @@ type TherapyState = {
   setPreviewIntervalId: (id: string | null) => void;
   strokeStrategy: StrokeStrategy;
   setStrokeStrategy: (s: StrokeStrategy) => void;
+  // Bolus frequency: boluses/day chosen by the user (defaults to the maximum the
+  // current dose + concentration allow). maxBoluses is that ceiling.
+  bolusCount: number;
+  maxBoluses: number;
+  setBolusCount: (n: number) => void;
+  // Dosing windows — time spans whose dose is raised/lowered vs the base dose.
+  // Backed by intervalsByDay (every day identical); these helpers edit all days.
+  addWindow: (w: Draft) => string;
+  updateWindow: (id: string, patch: Partial<Draft>) => void;
+  removeWindow: (id: string) => void;
   dayPattern: DayPattern;
   setDayPattern: (p: DayPattern) => void;
   // When true, Review and HomeActive ignore stored intervals and render a
@@ -166,55 +204,58 @@ const DEFAULT_DRAFT: Draft = {
   dose: 450,
 };
 
-// Frida's intrathecal pain program (morphine + bupivacaine, one shared flow
-// rate). `dose` is the PRIMARY (morphine) µg/day. Daytime base = 300 µg/day
-// (0.3 mg/day @ 1 mg/mL). endMin is exclusive — displays as (endMin-1). The
-// morning peak is intentionally left out of the seed so it can be added live in
-// a demo (see DEFAULT_DRAFT).
-const SEED_INTERVALS: Interval[] = [
-  { id: 'iv-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 360,  dose: 210 }, // 00:00 – 05:59 · −30%
-  { id: 'iv-day',     label: 'Daytime (base)', startMin: 540,  endMin: 1080, dose: 300 }, // 09:00 – 17:59 · base
-  { id: 'iv-evening', label: 'Evening peak',   startMin: 1080, endMin: 1380, dose: 360 }, // 18:00 – 22:59 · +20%
-];
-
-// Weekend (Sat–Sun): identical to weekdays except the morning runs slightly
-// later — the night/sleep interval ends 2h later (sleeps in). Daytime + evening
-// match the weekday timings exactly.
-const SEED_WEEKEND_INTERVALS: Interval[] = [
-  { id: 'iv-we-night',   label: 'Night (sleep)',  startMin: 0,    endMin: 480,  dose: 210 }, // 00:00 – 07:59 · sleeps in
-  { id: 'iv-we-day',     label: 'Daytime (base)', startMin: 540,  endMin: 1080, dose: 300 }, // 09:00 – 17:59 · same as weekday
-  { id: 'iv-we-evening', label: 'Evening peak',   startMin: 1080, endMin: 1380, dose: 360 }, // 18:00 – 22:59 · same as weekday
-];
-
 function uid() {
   return 'iv-' + Math.random().toString(36).slice(2, 9);
 }
 
-const SEED_BY_DAY: IntervalsByDay = {
-  monday:    SEED_INTERVALS.map(iv => ({ ...iv })),
-  tuesday:   SEED_INTERVALS.map(iv => ({ ...iv })),
-  wednesday: SEED_INTERVALS.map(iv => ({ ...iv })),
-  thursday:  SEED_INTERVALS.map(iv => ({ ...iv })),
-  friday:    SEED_INTERVALS.map(iv => ({ ...iv })),
-  saturday:  SEED_WEEKEND_INTERVALS.map(iv => ({ ...iv })),
-  sunday:    SEED_WEEKEND_INTERVALS.map(iv => ({ ...iv })),
-};
-
-// Single-reservoir admixture. medications[0] (Morphine) is the primary / flow
-// driver (1 mg/mL); bupivacaine is co-delivered in the same volume (30 mg/mL).
-const SEED_MEDICATIONS: Medication[] = [
+// -------- Active-therapy seed (the app boots into this) --------
+// A patient already on therapy: an intrathecal pain mix (morphine primary +
+// bupivacaine co-delivered) with a couple of dosing windows around the flat
+// base. Sized so the pump runs the maximum 48 boluses/day:
+//   480 µg/day morphine ÷ 1 mg/mL (= 1 µg/µL) = 480 µL/day ÷ 10 µL = 48 boluses.
+const ACTIVE_BASE_DOSE = 480; // µg/day morphine (= 0.48 mg/day @ 1 mg/mL) → 48 boluses
+const ACTIVE_MEDICATIONS: Medication[] = [
   { id: 'med-morphine',    name: 'Morphine',    concentration: 1,  unit: 'mg/ml' },
   { id: 'med-bupivacaine', name: 'Bupivacaine', concentration: 30, unit: 'mg/ml' },
 ];
+// Windows are deltas vs the base; the base fills every uncovered minute. One
+// schedule applies to every day (no weekday/weekend differentiation).
+const ACTIVE_WINDOWS: Interval[] = [
+  { id: 'iv-night',   label: 'Night (sleep)', startMin: 0,    endMin: 360,  dose: 336 }, // 00:00–05:59 · −30%
+  { id: 'iv-evening', label: 'Evening peak',  startMin: 1080, endMin: 1380, dose: 576 }, // 18:00–22:59 · +20%
+];
+const ACTIVE_BY_DAY: IntervalsByDay = {
+  monday:    ACTIVE_WINDOWS.map(iv => ({ ...iv })),
+  tuesday:   ACTIVE_WINDOWS.map(iv => ({ ...iv })),
+  wednesday: ACTIVE_WINDOWS.map(iv => ({ ...iv })),
+  thursday:  ACTIVE_WINDOWS.map(iv => ({ ...iv })),
+  friday:    ACTIVE_WINDOWS.map(iv => ({ ...iv })),
+  saturday:  ACTIVE_WINDOWS.map(iv => ({ ...iv })),
+  sunday:    ACTIVE_WINDOWS.map(iv => ({ ...iv })),
+};
+
+// -------- Empty therapy (a fresh add-therapy flow) --------
+// resetTherapy() returns to this so onboarding starts from scratch: one blank
+// medication row, no base dose and no dosing windows.
+const EMPTY_BY_DAY: IntervalsByDay = {
+  monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [],
+};
+const emptyMedications = (): Medication[] => [
+  { id: 'med-primary', name: '', concentration: 0, unit: 'mg/ml' },
+];
 
 export function TherapyProvider({ children }: { children: ReactNode }) {
-  const [medications, setMedications] = useState<Medication[]>(SEED_MEDICATIONS);
-  const [baseDose, setBaseDoseRaw] = useState(300); // 300 µg/day morphine = 0.3 mg/day
-  const [intervalsByDay, setIntervalsByDay] = useState<IntervalsByDay>(SEED_BY_DAY);
+  const [medications, setMedications] = useState<Medication[]>(ACTIVE_MEDICATIONS);
+  const [baseDose, setBaseDoseRaw] = useState(ACTIVE_BASE_DOSE); // µg/day primary
+  const [intervalsByDay, setIntervalsByDay] = useState<IntervalsByDay>(ACTIVE_BY_DAY);
   const [editingScope, setEditingScope] = useState<DayKey[]>([...WEEKDAY_KEYS]);
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [strokeStrategy, setStrokeStrategy] = useState<StrokeStrategy>(1);
+  // Chosen bolus frequency (boluses/day). null = "track the maximum" — the
+  // default the Frequency screen shows until the user drags the slider, so the
+  // count follows the base dose + concentration automatically.
+  const [bolusCountRaw, setBolusCountRaw] = useState<number | null>(null);
 
   const addMedication = () =>
     setMedications(prev => [...prev, { id: uid(), name: '', concentration: 0, unit: 'mg/ml' }]);
@@ -230,25 +271,52 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [refillDate, setRefillDate] = useState('19.08.2026');
   const [fillFraction, setFillFraction] = useState(0.95); // 38 / 40 ml
   const completeRefill = () => { setRefillDate(refillDateInDays(78)); setFillFraction(1); };
-  const [therapyActive, setTherapyActive] = useState(false);
+  const [therapyActive, setTherapyActive] = useState(true);
   const homeScreen: ScreenId = therapyActive ? 'home-active' : 'home-no-therapy';
 
-  // The "Daytime (base)" interval is the base dose by definition — propagate
-  // base-dose changes to every day's daytime interval.
-  const setBaseDose = (n: number) => {
-    setBaseDoseRaw(n);
-    const updateBase = (iv: Interval) => iv.label.startsWith('Daytime') ? { ...iv, dose: n } : iv;
-    setIntervalsByDay(prev => {
-      const next: IntervalsByDay = { ...prev };
-      for (const day of DAY_KEYS) next[day] = next[day].map(updateBase);
-      return next;
-    });
+  // Wipe the therapy back to a blank slate so the add-therapy wizard starts from
+  // scratch (no meds / base dose / windows). Called when onboarding begins.
+  const resetTherapy = () => {
+    setMedications(emptyMedications());
+    setBaseDoseRaw(0);
+    setIntervalsByDay(EMPTY_BY_DAY);
+    setBolusCountRaw(null);
+    setTherapyActive(false);
   };
+
+  const setBaseDose = (n: number) => setBaseDoseRaw(Math.max(0, n));
 
   // Derived "representative" weekday + weekend views — used by Review and
   // HomeActive which still toggle by group rather than per day.
   const intervals = intervalsByDay.monday;
   const weekendIntervals = intervalsByDay.saturday;
+
+  // -------- Bolus frequency --------
+  const primaryConc = medications[0] ? concUgPerUl(medications[0]) : 0;
+  const maxBoluses = maxBolusesPerDay(baseDose, primaryConc);
+  // Effective count: the user's choice, clamped to what the current dose allows,
+  // or the maximum when the user hasn't touched the slider.
+  const bolusCount = bolusCountRaw == null ? maxBoluses : Math.min(bolusCountRaw, maxBoluses);
+  const setBolusCount = (n: number) => setBolusCountRaw(n);
+
+  // -------- Dosing windows (one shared schedule applied to every day) --------
+  // Windows are stored in intervalsByDay so the existing Review / HomeActive /
+  // TherapyDetail consumers keep working; every day holds an identical copy.
+  const setAllDays = (fn: (list: Interval[]) => Interval[]) =>
+    setIntervalsByDay(prev => {
+      const next: IntervalsByDay = { ...prev };
+      for (const day of DAY_KEYS) next[day] = fn(next[day].map(iv => ({ ...iv })));
+      return next;
+    });
+  const addWindow = (w: Draft): string => {
+    const id = uid();
+    setAllDays(list => [...list, { id, ...w }]);
+    return id;
+  };
+  const updateWindow = (id: string, patch: Partial<Draft>) =>
+    setAllDays(list => list.map(iv => (iv.id === id ? { ...iv, ...patch } : iv)));
+  const removeWindow = (id: string) =>
+    setAllDays(list => list.filter(iv => iv.id !== id));
 
   function startAddingInterval(returnTo: ScreenId = 'intervals-populated', scope: DayKey[] = [...WEEKDAY_KEYS]) {
     setEditingId(null);
@@ -308,7 +376,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   return (
     <TherapyContext.Provider value={{
       medications, addMedication, updateMedication, removeMedication,
-      baseDose, setBaseDose,
+      baseDose, setBaseDose, resetTherapy,
       intervalsByDay,
       intervals, weekendIntervals,
       draft, setDraft,
@@ -316,6 +384,8 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       startAddingInterval, startEditingInterval, commitDraft, removeInterval, sheetReturnTo,
       previewIntervalId, setPreviewIntervalId,
       strokeStrategy, setStrokeStrategy,
+      bolusCount, maxBoluses, setBolusCount,
+      addWindow, updateWindow, removeWindow,
       dayPattern, setDayPattern,
       useBaseOnly, setUseBaseOnly,
       flowMode, setFlowMode,

@@ -51,7 +51,9 @@ export function AddMedication() {
                 <input
                   type="number"
                   className={fieldBox}
-                  value={Number.isFinite(med.concentration) ? med.concentration : ''}
+                  value={med.concentration > 0 ? med.concentration : ''}
+                  placeholder="0"
+                  onFocus={e => e.currentTarget.select()}
                   onChange={e => updateMedication(med.id, { concentration: parseFloat(e.target.value) || 0 })}
                 />
               </div>

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { HomeNoTherapy } from './screens/HomeNoTherapy';
 import { AddMedication } from './screens/AddMedication';
 import { BaseDose } from './screens/BaseDose';
+import { BolusFrequency } from './screens/BolusFrequency';
+import { DosingWindows } from './screens/DosingWindows';
 import { IntervalsEmpty } from './screens/IntervalsEmpty';
 import { AddIntervalSheetWhen, AddIntervalSheetDose } from './screens/AddIntervalSheet';
 import { IntervalsPopulated } from './screens/IntervalsPopulated';
@@ -21,6 +23,8 @@ const ORDER: ScreenId[] = [
   'home-no-therapy',
   'add-medication',
   'base-dose',
+  'frequency',
+  'windows',
   'intervals-empty',
   'add-interval-when',
   'add-interval-dose',
@@ -65,7 +69,7 @@ function useDeviceLayout() {
 }
 
 export function App() {
-  const [screen, setScreen] = useState<ScreenId>('home-no-therapy');
+  const [screen, setScreen] = useState<ScreenId>('home-active');
   const [showNav, setShowNav] = useState(false);
   const { isDevice, scale, w, h } = useDeviceLayout();
 
@@ -84,6 +88,8 @@ export function App() {
       {screen === 'home-no-therapy' && <HomeNoTherapy />}
       {screen === 'add-medication' && <AddMedication />}
       {screen === 'base-dose' && <BaseDose />}
+      {screen === 'frequency' && <BolusFrequency />}
+      {screen === 'windows' && <DosingWindows />}
       {screen === 'intervals-empty' && <IntervalsEmpty />}
       {screen === 'add-interval-when' && <AddIntervalSheetWhen />}
       {screen === 'add-interval-dose' && <AddIntervalSheetDose />}
