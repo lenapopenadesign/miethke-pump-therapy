@@ -1,7 +1,41 @@
+import { useRef } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy, fmtDose, doseUnitFor, BOLUS_VOLUME_UL, MIN_BOLUSES_PER_DAY } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { TherapyHeaderChart } from '../components/TherapyHeaderChart';
+
+/**
+ * Pointer-driven slider. The whole prototype canvas is rendered inside a CSS
+ * `transform: scale()`, where native <input type=range> dragging is unreliable
+ * (notably Safari/touch). Deriving the value from getBoundingClientRect() — which
+ * reflects the transform — makes dragging work at any scale, on any browser.
+ */
+function RangeSlider({ min, max, value, disabled, onChange }: { min: number; max: number; value: number; disabled?: boolean; onChange: (n: number) => void }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const pct = max > min ? (value - min) / (max - min) : 1;
+  const setFromX = (clientX: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const ratio = r.width > 0 ? Math.min(1, Math.max(0, (clientX - r.left) / r.width)) : 0;
+    onChange(Math.round(min + ratio * (max - min)));
+  };
+  return (
+    <div
+      ref={trackRef}
+      onPointerDown={e => { if (disabled) return; e.currentTarget.setPointerCapture(e.pointerId); setFromX(e.clientX); }}
+      onPointerMove={e => { if (disabled) return; if (!e.currentTarget.hasPointerCapture(e.pointerId)) return; setFromX(e.clientX); }}
+      className={`relative w-full h-[44px] flex items-center select-none touch-none ${disabled ? '' : 'cursor-pointer'}`}
+    >
+      <div className="absolute left-0 right-0 h-[12px] rounded-full bg-[#cfe6f1]" />
+      <div className="absolute left-0 h-[12px] rounded-full bg-[#0094c5]" style={{ width: `${pct * 100}%` }} />
+      <div
+        className="absolute size-[44px] rounded-full bg-[#0094c5] border-4 border-white -translate-x-1/2"
+        style={{ left: `${pct * 100}%`, boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}
+      />
+    </div>
+  );
+}
 
 function SyringeIcon() {
   return (
@@ -35,9 +69,6 @@ export function BolusFrequency() {
   const doseU = doseUnitFor(medications[0]?.unit ?? 'µg/ml');
   const bolusDoseUg = bolusCount > 0 ? baseDose / bolusCount : 0;
   const minutesBetween = bolusCount > 0 ? 1440 / bolusCount : 0;
-  const fillPct = valid && maxBoluses > sliderMin
-    ? ((bolusCount - sliderMin) / (maxBoluses - sliderMin)) * 100
-    : 100;
 
   return (
     <WizardShell step="frequency" onBack={() => navigate('base-dose')} banner={<TherapyHeaderChart />}>
@@ -53,17 +84,7 @@ export function BolusFrequency() {
 
           {/* Slider */}
           <div className="flex flex-col gap-[16px]">
-            <input
-              type="range"
-              min={sliderMin}
-              max={Math.max(sliderMin, maxBoluses)}
-              step={1}
-              value={bolusCount}
-              disabled={!valid}
-              onChange={e => setBolusCount(parseInt(e.target.value, 10))}
-              className="w-full h-[12px] rounded-full appearance-none cursor-pointer bolus-slider"
-              style={{ background: `linear-gradient(to right, #0094c5 ${fillPct}%, #cfe6f1 ${fillPct}%)` }}
-            />
+            <RangeSlider min={sliderMin} max={Math.max(sliderMin, maxBoluses)} value={bolusCount} disabled={!valid} onChange={setBolusCount} />
             <div className="flex justify-between">
               <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{valid ? sliderMin : '--'}</span>
               <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{valid ? maxBoluses : '--'}</span>
