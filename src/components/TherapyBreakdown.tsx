@@ -52,12 +52,12 @@ const NOW_POS = `calc(24px + (100% - 48px) * ${NOW_MIN / 1440})`;
  * therapy teaser so both render at the same height. `showNow` adds the
  * current-time marker.
  */
-export function ProfileChart({ baseDose, bolusCount, windows, showNow = false }: { baseDose: number; bolusCount: number; windows: Interval[]; showNow?: boolean }) {
+export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, showNow = false }: { baseDose: number; bolusCount: number; maxBoluses: number; windows: Interval[]; showNow?: boolean }) {
   return (
     <div className="relative w-full bg-white border border-[#d9dbde] rounded-[16px]" style={{ height: 250 }}>
       <div className="absolute left-[24px] right-[24px] top-[24px]" style={{ bottom: 48 }}>
         <div className="absolute inset-0">
-          <BolusBars baseDose={baseDose} bolusCount={bolusCount} windows={windows} nominalH={92} maxH={150} minH={20} barWidth={9} />
+          <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} nominalH={48} maxH={170} minH={18} barWidth={9} />
         </div>
       </div>
       <div className="absolute left-[24px] right-[24px] h-px bg-[#e3e6e9]" style={{ bottom: 48 }} />
@@ -74,7 +74,7 @@ export function ProfileChart({ baseDose, bolusCount, windows, showNow = false }:
 }
 
 export function TherapyBreakdown({ showNow = false }: { showNow?: boolean }) {
-  const { baseDose, bolusCount, intervals, medications } = useTherapy();
+  const { baseDose, bolusCount, maxBoluses, intervals, medications } = useTherapy();
   const windows = [...intervals].sort((a, b) => a.startMin - b.startMin);
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const primaryDailyUg = estimatedDailyTotal(baseDose, windows);
@@ -94,7 +94,7 @@ export function TherapyBreakdown({ showNow = false }: { showNow?: boolean }) {
       {/* 24-hour view */}
       <div className="flex flex-col gap-[12px]">
         <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={wdth}>24-hour view</p>
-        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} windows={windows} showNow={showNow} />
+        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} showNow={showNow} />
       </div>
 
       {/* Bolus frequency */}

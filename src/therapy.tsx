@@ -264,12 +264,27 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   // count follows the base dose + concentration automatically.
   const [bolusCountRaw, setBolusCountRaw] = useState<number | null>(null);
 
+  // Changing the primary medication invalidates the dose that was set for it, so
+  // wipe the base dose / windows / frequency. Keeping the same medication leaves
+  // them intact.
+  const clearDose = () => {
+    setBaseDoseRaw(0);
+    setIntervalsByDay(EMPTY_BY_DAY);
+    setBolusCountRaw(null);
+  };
   const addMedication = () =>
     setMedications(prev => [...prev, { id: uid(), name: '', concentration: 0, unit: 'mg/ml' }]);
-  const updateMedication = (id: string, patch: Partial<Omit<Medication, 'id'>>) =>
+  const updateMedication = (id: string, patch: Partial<Omit<Medication, 'id'>>) => {
+    const cur = medications.find(m => m.id === id);
+    const isPrimary = medications[0]?.id === id;
+    const changed = !!cur && (['name', 'concentration', 'unit'] as const).some(k => k in patch && patch[k] !== cur[k]);
+    if (isPrimary && changed) clearDose();
     setMedications(prev => prev.map(m => (m.id === id ? { ...m, ...patch } : m)));
-  const removeMedication = (id: string) =>
+  };
+  const removeMedication = (id: string) => {
+    if (medications[0]?.id === id) clearDose(); // removing the primary changes which drug drives the dose
     setMedications(prev => prev.filter(m => m.id !== id));
+  };
   const [dayPattern, setDayPattern] = useState<DayPattern>('same');
   const [sheetReturnTo, setSheetReturnTo] = useState<ScreenId>('intervals-populated');
   const [previewIntervalId, setPreviewIntervalId] = useState<string | null>(null);

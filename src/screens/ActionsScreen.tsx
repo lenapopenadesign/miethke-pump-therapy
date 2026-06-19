@@ -110,8 +110,12 @@ function HandIcon() {
 
 export function ActionsScreen() {
   const navigate = useNavigate();
-  const { setFlowMode } = useTherapy();
+  const { setFlowMode, beginEditTherapy, beginNewTherapy } = useTherapy();
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
+  // Edit keeps the current therapy, New starts blank; both walk the wizard from
+  // Medication and return here if the user backs out.
+  const editTherapy = () => { beginEditTherapy('actions'); setFlowMode('setup'); navigate('add-medication'); };
+  const newTherapy = () => { beginNewTherapy('actions'); setFlowMode('setup'); navigate('add-medication'); };
   return (
     <DetailShell icon={<HandIcon />} title="Actions">
       <div className="flex flex-col gap-[32px]">
@@ -133,8 +137,8 @@ export function ActionsScreen() {
 
         <SectionCard icon={<TherapyIcon size={56} />} label="Therapy">
           <Tile label="Clinician Bolus"><ClinicianIcon /></Tile>
-          <Tile label="Edit"><EditIcon /></Tile>
-          <Tile label="New"><NewIcon /></Tile>
+          <Tile label="Edit" onClick={editTherapy}><EditIcon /></Tile>
+          <Tile label="New" onClick={newTherapy}><NewIcon /></Tile>
           <Tile label="Stop"><StopIcon /></Tile>
         </SectionCard>
       </div>

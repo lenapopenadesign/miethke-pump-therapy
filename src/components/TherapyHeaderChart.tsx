@@ -67,7 +67,7 @@ export function TherapyTotalsBand() {
  * window being edited) with a dashed box + label.
  */
 export function TherapyHeaderChart({ highlight }: { highlight?: { startMin: number; endMin: number } | null }) {
-  const { baseDose, bolusCount, intervals } = useTherapy();
+  const { baseDose, bolusCount, maxBoluses, intervals } = useTherapy();
   return (
     <div className="w-[1200px] shrink-0">
       <TherapyTotalsBand />
@@ -76,7 +76,7 @@ export function TherapyHeaderChart({ highlight }: { highlight?: { startMin: numb
         <p className="font-['Roboto',sans-serif] font-bold text-white text-[28px] tracking-[0.1px] mb-[12px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           24-hour view
         </p>
-        <BolusChart baseDose={baseDose} bolusCount={bolusCount} windows={intervals} highlight={highlight} />
+        <BolusChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={intervals} highlight={highlight} />
       </div>
     </div>
   );
@@ -100,10 +100,14 @@ function rateAt(min: number, baseRate: number, windows: Interval[]): number {
  * Place inside a relative, bottom-anchored box of height `maxH`.
  */
 export function BolusBars({
-  baseDose, bolusCount, windows, nominalH = 84, maxH = 150, minH = 20, barWidth = 9,
+  baseDose, bolusCount, maxBoluses, windows, nominalH = 48, maxH = 150, minH = 18, barWidth = 9,
 }: {
   baseDose: number;
   bolusCount: number;
+  // Reference (maximum) frequency. Bar height scales by maxBoluses/bolusCount, so
+  // fewer boluses → taller bars (each bolus carries a larger dose). Defaults to
+  // bolusCount (no scaling) when omitted.
+  maxBoluses?: number;
   windows: Interval[];
   nominalH?: number;
   maxH?: number;
@@ -112,11 +116,12 @@ export function BolusBars({
 }) {
   const baseRate = baseDose / 24;
   const n = baseDose > 0 && bolusCount > 0 ? Math.min(bolusCount, MAX_BARS) : 0;
+  const freqFactor = maxBoluses && maxBoluses > 0 && bolusCount > 0 ? maxBoluses / bolusCount : 1;
   const bars = Array.from({ length: n }, (_, i) => {
     const midMin = ((i + 0.5) / n) * 1440;
     const rate = rateAt(midMin, baseRate, windows);
-    const h = baseRate > 0 ? (rate / baseRate) * nominalH : nominalH;
-    return Math.max(minH, Math.min(maxH, h));
+    const ratio = baseRate > 0 ? rate / baseRate : 1;
+    return Math.max(minH, Math.min(maxH, ratio * nominalH * freqFactor));
   });
   return (
     <div className="absolute inset-0 flex items-end justify-between">
@@ -128,10 +133,11 @@ export function BolusBars({
 }
 
 function BolusChart({
-  baseDose, bolusCount, windows, highlight,
+  baseDose, bolusCount, maxBoluses, windows, highlight,
 }: {
   baseDose: number;
   bolusCount: number;
+  maxBoluses: number;
   windows: Interval[];
   highlight?: { startMin: number; endMin: number } | null;
 }) {
@@ -152,9 +158,9 @@ function BolusChart({
             style={{ left: `${hlLeft}%`, width: `${hlWidth}%`, background: 'rgba(0,148,197,0.10)' }}
           />
         )}
-        {/* Bolus strokes — fixed width, so changing the bolus count only changes
-            how many bars there are and the distance between them. */}
-        <BolusBars baseDose={baseDose} bolusCount={bolusCount} windows={windows} />
+        {/* Bolus strokes — fixed width; height scales with the per-bolus dose, so
+            fewer boluses make the bars taller. */}
+        <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} maxH={CARD_H - BASELINE_FROM_BOTTOM - 24} />
       </div>
 
       {/* Baseline */}

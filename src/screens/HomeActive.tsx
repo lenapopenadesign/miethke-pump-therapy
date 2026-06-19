@@ -7,7 +7,7 @@ import { ProfileChart } from '../components/TherapyBreakdown';
 const NOW_MIN = 716; // "11:56"
 
 function ActiveBody() {
-  const { baseDose, bolusCount, intervals, useBaseOnly, medications } = useTherapy();
+  const { baseDose, bolusCount, maxBoluses, intervals, useBaseOnly, medications } = useTherapy();
   const sourceIntervals = useBaseOnly ? [] : intervals;
   const hasIntervals = sourceIntervals.length > 0;
   const estDaily = hasIntervals ? estimatedDailyTotal(baseDose, sourceIntervals) : baseDose;
@@ -18,7 +18,7 @@ function ActiveBody() {
   return (
     <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-[984px]">
       {hasIntervals && (
-        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} windows={sourceIntervals} showNow />
+        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={sourceIntervals} showNow />
       )}
       <MedSummary
         estDaily={estDaily}
