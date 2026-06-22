@@ -1,9 +1,38 @@
+import { useState } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { MedicationIcon } from '../components/MedicationIcon';
 
 const UNITS = ['mg/ml', 'µg/ml'];
+
+/**
+ * Decimal concentration input. Keeps a local text buffer while editing so
+ * partial entries like "0", "0." and "0.5" all display as typed (a controlled
+ * number input would drop the leading zero). Commits the parsed number on each
+ * keystroke; reverts to the formatted value on blur.
+ */
+function ConcentrationField({ value, onChange, className }: { value: number; onChange: (n: number) => void; className: string }) {
+  const [text, setText] = useState<string | null>(null);
+  const display = text ?? (value > 0 ? String(value) : '');
+  return (
+    <input
+      type="text"
+      inputMode="decimal"
+      className={className}
+      value={display}
+      placeholder="0"
+      onFocus={e => e.currentTarget.select()}
+      onChange={e => {
+        const raw = e.target.value.replace(/[^0-9.]/g, '');
+        setText(raw);
+        const v = parseFloat(raw);
+        onChange(isNaN(v) ? 0 : v);
+      }}
+      onBlur={() => setText(null)}
+    />
+  );
+}
 
 function TrashIcon() {
   return (
@@ -50,13 +79,10 @@ export function AddMedication() {
               </div>
               <div className="flex flex-col w-[260px]">
                 <label className={fieldLabel}>Concentration</label>
-                <input
-                  type="number"
+                <ConcentrationField
                   className={fieldBox}
-                  value={med.concentration > 0 ? med.concentration : ''}
-                  placeholder="0"
-                  onFocus={e => e.currentTarget.select()}
-                  onChange={e => updateMedication(med.id, { concentration: parseFloat(e.target.value) || 0 })}
+                  value={med.concentration}
+                  onChange={n => updateMedication(med.id, { concentration: n })}
                 />
               </div>
               <div className="flex flex-col w-[260px]">
