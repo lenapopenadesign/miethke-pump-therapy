@@ -11,9 +11,10 @@ function ActiveBody() {
   const sourceIntervals = useBaseOnly ? [] : intervals;
   const hasIntervals = sourceIntervals.length > 0;
   const estDaily = hasIntervals ? estimatedDailyTotal(baseDose, sourceIntervals) : baseDose;
-  // Dose of the window running right now (NOW_MIN), falling back to base dose.
+  // Total dose delivered during the window running right now (NOW_MIN). cur.dose
+  // is the window's daily-equivalent rate; scale it by the window's length.
   const cur = withBaseFillers(sourceIntervals, baseDose).find(s => NOW_MIN >= s.startMin && NOW_MIN < s.endMin);
-  const currentPrimaryUg = cur ? cur.dose : baseDose;
+  const currentWindowUg = cur ? cur.dose * (cur.endMin - cur.startMin) / 1440 : baseDose;
 
   return (
     <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-[984px]">
@@ -23,7 +24,7 @@ function ActiveBody() {
       <MedSummary
         estDaily={estDaily}
         medications={medications}
-        currentUg={hasIntervals ? currentPrimaryUg : undefined}
+        currentUg={hasIntervals ? currentWindowUg : undefined}
       />
     </div>
   );

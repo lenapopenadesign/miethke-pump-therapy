@@ -120,7 +120,7 @@ export function TherapyBreakdown({ showNow = false }: { showNow?: boolean }) {
                   key={w.id}
                   label={`${fmtTime(w.startMin)} - ${fmtTime(w.endMin >= 1440 ? 1439 : w.endMin)}`}
                   value={doseStringsFor(intervalUg, u).perDay}
-                  unit={`${unit}/window`}
+                  unit={`${unit}/w`}
                   bg={ROW_BG}
                 />
               );

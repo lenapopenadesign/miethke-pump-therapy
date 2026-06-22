@@ -77,7 +77,10 @@ export function DosingWindows() {
 
               {windows.map(w => {
                 const rateUgH = w.dose / 24;
-                const text = draft && draft.id === w.id ? draft.text : (w.dose > 0 ? fmtDose(rateUgH / doseU.div) : '');
+                const durMin = Math.max(0, w.endMin - w.startMin);
+                // Total dose delivered during the window (µg over its duration).
+                const perWindowUg = w.dose * durMin / 1440;
+                const text = draft && draft.id === w.id ? draft.text : (w.dose > 0 ? fmtDose(perWindowUg / doseU.div) : '');
                 return (
                   <div key={w.id} className={COLS}>
                     {/* Time window */}
@@ -87,7 +90,7 @@ export function DosingWindows() {
                       <TimeField value={w.endMin} onChange={min => { setFocusedId(w.id); updateWindow(w.id, { endMin: min }); }} />
                     </div>
 
-                    {/* Dose in this window (editable µg/h) */}
+                    {/* Dose in this window (editable — total dose over the window) */}
                     <div className="bg-white border-2 border-[#6b7785] rounded-[12px] h-[72px] flex items-center px-[18px] gap-[8px] focus-within:border-[#0094c5]">
                       <input
                         type="text" inputMode="decimal" pattern="[0-9]*\.?[0-9]*"
@@ -97,13 +100,16 @@ export function DosingWindows() {
                           const raw = e.target.value.replace(/[^0-9.]/g, '');
                           setDraft({ id: w.id, text: raw });
                           const v = parseFloat(raw);
-                          updateWindow(w.id, { dose: Math.max(0, Math.round((isNaN(v) ? 0 : v) * doseU.div * 24)) });
+                          // Per-window total → daily-equivalent rate stored on the window.
+                          const ugWindow = (isNaN(v) ? 0 : v) * doseU.div;
+                          const dose = durMin > 0 ? Math.round(ugWindow * 1440 / durMin) : 0;
+                          updateWindow(w.id, { dose: Math.max(0, dose) });
                         }}
                         onBlur={() => setDraft(null)}
                         className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#45483c] text-[32px] tracking-[0.1px] bg-transparent outline-none border-0 p-0"
                         style={{ fontVariationSettings: "'wdth' 100" }}
                       />
-                      <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>{doseU.unit}/h</span>
+                      <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>{doseU.unit}/w</span>
                     </div>
 
                     {/* Rate in this window (read-out, coloured vs base) */}

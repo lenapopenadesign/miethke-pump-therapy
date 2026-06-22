@@ -5,9 +5,10 @@ function fmtDay(ug: number, concUnit: string): { value: string; unit: string } {
   return { value: s.perDay, unit: `${s.unit}/d` };
 }
 
-function fmtHour(ug: number, concUnit: string): { value: string; unit: string } {
+// `ug` here is the total dose delivered during the current window (not a rate).
+function fmtWindow(ug: number, concUnit: string): { value: string; unit: string } {
   const s = doseStringsFor(ug, concUnit);
-  return { value: s.perHour, unit: `${s.unit}/h` };
+  return { value: s.perDay, unit: `${s.unit}/w` };
 }
 
 // Match the Review page's bars: medium-blue medication header, light value bars.
@@ -48,7 +49,7 @@ export function MedSummary({
     med: m,
     base: showBase ? fmtDay(co(baseDose as number, m, i), m.unit) : null,
     total: fmtDay(co(estDaily, m, i), m.unit),
-    current: showCurrent ? fmtHour(co(currentUg as number, m, i), m.unit) : null,
+    current: showCurrent ? fmtWindow(co(currentUg as number, m, i), m.unit) : null,
   }));
   const valCols = (showBase ? 1 : 0) + 1 + (showCurrent ? 1 : 0);
   const gridTemplateColumns = `minmax(0, 1.6fr) ${'minmax(0, 1fr) '.repeat(valCols).trim()}`;
