@@ -11,6 +11,8 @@ import { RegularTherapy } from './screens/RegularTherapy';
 import { Review } from './screens/Review';
 import { Activate } from './screens/Activate';
 import { HomeActive } from './screens/HomeActive';
+import { EditEntry } from './screens/EditEntry';
+import { Help } from './screens/Help';
 import { PatientDetail } from './screens/PatientDetail';
 import { ImplantDetail } from './screens/ImplantDetail';
 import { TherapyDetail } from './screens/TherapyDetail';
@@ -19,20 +21,17 @@ import { RefillFilling } from './screens/RefillFilling';
 import { NavProvider, type ScreenId } from './navigation';
 import { TherapyProvider } from './therapy';
 
+// The simplified, edit-only flow. The onboarding screens (add-medication,
+// intervals, activate-from-scratch) were dropped; the wizard is now
+// Edit entry · Base Dose · Windows · Review · Transfer.
 const ORDER: ScreenId[] = [
-  'home-no-therapy',
-  'add-medication',
+  'home-active',
+  'edit-entry',
   'base-dose',
-  'frequency',
   'windows',
-  'intervals-empty',
-  'add-interval-when',
-  'add-interval-dose',
-  'intervals-populated',
-  'regular-therapy',
   'review',
   'activate',
-  'home-active',
+  'help',
   'patient-detail',
   'implant-detail',
   'therapy-detail',
@@ -98,6 +97,8 @@ export function App() {
       {screen === 'review' && <Review />}
       {screen === 'activate' && <Activate />}
       {screen === 'home-active' && <HomeActive />}
+      {screen === 'edit-entry' && <EditEntry />}
+      {screen === 'help' && <Help />}
       {screen === 'patient-detail' && <PatientDetail />}
       {screen === 'implant-detail' && <ImplantDetail />}
       {screen === 'therapy-detail' && <TherapyDetail />}

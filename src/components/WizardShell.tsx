@@ -17,23 +17,23 @@ export type WizardStep = 'filling' | 'medication' | 'base-dose' | 'frequency' | 
 // longer changes the (now linear) stepper.
 export type SetupDecision = 'undecided' | 'intervals' | 'regular';
 
-// The therapy wizard is a single linear path:
-// Medication · Base Dose · Frequency · Windows · Review · Transfer.
+// The redesigned Edit Therapy wizard is a single linear path:
+// Base Dose · Windows · Review · Transfer. (Medication + Frequency were folded
+// into Base Dose in the simplified flow.)
 const SETUP_STEPS = [
-  { key: 'medication', label: 'Medication' },
   { key: 'base-dose', label: 'Base Dose' },
-  { key: 'frequency', label: 'Frequency' },
   { key: 'windows', label: 'Windows' },
   { key: 'review', label: 'Review' },
   { key: 'transfer', label: 'Transfer' },
 ];
 
-// Refill prepends the Filling step; the rest of the path matches setup.
+// Refill prepends the Filling step; the rest of the path matches the edit flow.
 const REFILL_BAR_STEPS = [{ key: 'filling', label: 'Filling' }, ...SETUP_STEPS];
 
 // Legacy step keys collapse onto the closest current step so old screens don't
 // highlight a missing dot.
 function normalizeStep(step: WizardStep): string {
+  if (step === 'medication' || step === 'frequency') return 'base-dose';
   if (step === 'intervals' || step === 'delivery') return 'windows';
   return step;
 }
@@ -185,7 +185,7 @@ function SetupHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => voi
         <div className="flex gap-[20px] items-center">
           <BackArrow onBack={onBack} />
           <p className="font-['Roboto',sans-serif] font-extrabold text-[#00769e] text-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-            Add Therapy
+            Edit Therapy
           </p>
         </div>
         <Signet />
@@ -199,10 +199,15 @@ type Props = {
   step: WizardStep;
   onBack: () => void;
   children: ReactNode;
-  // Optional full-bleed band rendered between the stepper and the padded body —
-  // used by Base Dose / Frequency / Windows for the pinned "Total 24 h" header
-  // and 24-hour bolus chart.
+  // Optional full-bleed band rendered between the stepper and the padded body.
   banner?: ReactNode;
+  // Optional region pinned below the stepper that does NOT scroll — used for the
+  // 24-hour diagram so it stays visible while the body scrolls under it.
+  pinnedTop?: ReactNode;
+  // Optional full-bleed region pinned to the bottom of the canvas (below the
+  // scrollable body) — used by the Edit Therapy steps for the "Total 24 h"
+  // summary + Save CTA.
+  footer?: ReactNode;
   // Retained for back-compat with old screens that still pass it; ignored.
   decision?: SetupDecision;
 };
@@ -215,7 +220,7 @@ type Props = {
  * `banner` is rendered full width under the stepper; screens supply the rest of
  * their body as children — a padded flex column filling the remaining height.
  */
-export function WizardShell({ step, onBack, children, banner }: Props) {
+export function WizardShell({ step, onBack, children, banner, pinnedTop, footer }: Props) {
   const { flowMode } = useTherapy();
   const isRefill = flowMode === 'refill';
   return (
@@ -225,10 +230,14 @@ export function WizardShell({ step, onBack, children, banner }: Props) {
         ? <RefillHeaderBand step={step} onBack={onBack} />
         : <SetupHeaderBand step={step} onBack={onBack} />}
       {banner}
-      {/* Body */}
-      <div className="flex-1 flex flex-col px-[80px] pt-[40px] pb-[80px] w-[1200px] min-h-0">
+      {/* Pinned top region (e.g. the 24-hour diagram) — stays put while the body scrolls. */}
+      {pinnedTop && <div className="shrink-0 w-[1200px] px-[80px] pt-[40px]">{pinnedTop}</div>}
+      {/* Scrollable body */}
+      <div className={`flex-1 min-h-0 overflow-y-auto flex flex-col px-[80px] pb-[40px] w-[1200px] ${pinnedTop ? 'pt-[32px]' : 'pt-[40px]'}`}>
         {children}
       </div>
+      {/* Pinned footer (full-bleed) */}
+      {footer && <div className="shrink-0 w-[1200px]">{footer}</div>}
     </div>
   );
 }

@@ -1,46 +1,40 @@
 import { useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, coDoseUgDay, concUgPerUl, doseStringsFor, doseUnitFor, type Medication } from '../therapy';
+import {
+  useTherapy, coDoseUgDay, concUgPerUl, doseStringsFor, doseUnitFor, fmtDose,
+  MIN_BOLUSES_PER_DAY, type Medication,
+} from '../therapy';
 import { WizardShell } from '../components/WizardShell';
-import { TherapyHeaderChart } from '../components/TherapyHeaderChart';
 import { MedicationIcon } from '../components/MedicationIcon';
+import { WizardChart, WizardTotalsFooter, SaveButton, RangeSlider, DeliveryIcon, ReadoutField } from '../components/WizardParts';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
 
-// MEDICATION | Concentration | Dose/day | Dose/hour | edit-pencil.
-const GRID = 'grid items-center gap-[8px] w-[1040px] [grid-template-columns:184px_216px_385px_1fr_40px]';
-const hdr = "font-['Roboto',sans-serif] text-[#00769e] text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap";
-
-/** Read-only dose value, rendered subtly (grey) so only the editable field stands out. */
-function SubtleDose({ value, unit }: { value: string; unit: string }) {
-  return (
-    <p className="font-['Roboto',sans-serif] text-[#9ea8b2] text-[28px] leading-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-      <span className="font-bold">{value}</span> <span className="font-normal">{unit}</span>
-    </p>
-  );
-}
-
-// Per-row display. Every medication — including the primary (index 0) — is shown
-// and edited in the unit its concentration implies (mg or µg), so the unit chosen
-// on the Medication page carries through here. The primary IS the base dose; the
-// co-meds are derived from the shared delivered volume.
+// Per-row display. The primary (index 0) IS the base dose; co-meds are derived
+// from the shared delivered volume. Each shows in the unit its concentration
+// implies (mg or µg).
 function rowDisplay(m: Medication, i: number, baseDose: number, c0: number) {
   const ug = i === 0 ? baseDose : coDoseUgDay(baseDose, c0, concUgPerUl(m));
   const d = doseStringsFor(ug, m.unit);
-  return { unit: d.unit, div: doseUnitFor(m.unit).div, perDay: baseDose > 0 ? d.perDay : '', perHour: baseDose > 0 ? d.perHour : '--' };
+  return { unit: d.unit, div: doseUnitFor(m.unit).div, perDay: baseDose > 0 ? d.perDay : '', ug };
 }
 
 export function BaseDose() {
   const navigate = useNavigate();
-  const { baseDose, setBaseDose, medications } = useTherapy();
+  const { baseDose, setBaseDose, medications, bolusCount, maxBoluses, setBolusCount } = useTherapy();
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
-  // The medication whose dose is currently editable. Defaults to the primary
-  // (the base dose itself); the pencil on any other row switches editing to it.
   const [editingId, setEditingId] = useState<string | undefined>(medications[0]?.id);
-  // Raw text while a field is being typed into (kept separate from the formatted
-  // dose so a keystroke isn't reformatted mid-entry). Reset on blur / row switch.
   const [draftText, setDraftText] = useState<string | null>(null);
   const ctaEnabled = baseDose > 0;
+  // Reference dose on entry — a >100% jump likely means a decimal slip, so warn.
+  const [initialBase] = useState(baseDose);
+  const bigIncrease = initialBase > 0 && baseDose > initialBase * 2;
+
+  // Delivery frequency: slider runs from the minimum up to the maximum the dose
+  // allows; the gap between deliveries is derived from the chosen count.
+  const sliderMin = Math.min(MIN_BOLUSES_PER_DAY, maxBoluses);
+  const freqValid = maxBoluses > 0;
+  const gapMin = bolusCount > 0 ? Math.round(1440 / bolusCount) : 0;
 
   // Editing any med back-solves the shared delivered volume (the primary's
   // µg/day) so the rest of the table stays consistent.
@@ -51,44 +45,59 @@ export function BaseDose() {
   };
 
   return (
-    <WizardShell step="base-dose" onBack={() => navigate('add-medication')} banner={<TherapyHeaderChart />}>
-      <div className="flex-1 flex flex-col">
+    <WizardShell
+      step="base-dose"
+      onBack={() => navigate('edit-entry')}
+      pinnedTop={<WizardChart baseOnly onHelp={() => navigate('help')} />}
+      footer={
+        <>
+          <WizardTotalsFooter baseOnly />
+          <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
+            <SaveButton enabled={ctaEnabled} onClick={() => navigate('windows')} />
+          </div>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-[40px]">
+        {/* Base Dose table */}
         <div className="flex flex-col gap-[24px]">
-          {/* Title */}
           <div className="flex gap-[16px] items-center">
-            <MedicationIcon size={56} />
+            <MedicationIcon size={48} />
             <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
               Base Dose
             </p>
           </div>
 
-          {/* Table */}
-          <div className="flex flex-col gap-[40px]">
-            {/* Column headers */}
-            <div className={GRID}>
-              <p className={`${hdr} font-normal`}>MEDICATION</p>
-              <p className={`${hdr} font-normal`}>Concentration</p>
-              <p className={`${hdr} font-bold`}>Dose/day</p>
-              <p className={`${hdr} font-normal`}>Dose/hour</p>
-              <span />
+          {bigIncrease && (
+            <div className="bg-[#fdf3d1] rounded-[12px] px-[28px] py-[20px] flex gap-[20px] items-start">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-[2px]"><path d="M12 3L2 20h20L12 3z" stroke="#b3850e" strokeWidth="1.8" strokeLinejoin="round" /><path d="M12 10v4" stroke="#b3850e" strokeWidth="2" strokeLinecap="round" /><circle cx="12" cy="17" r="1.1" fill="#b3850e" /></svg>
+              <div className="flex flex-col gap-[4px]">
+                <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Large dose increase &gt; 100%</p>
+                <p className="font-['Roboto',sans-serif] font-normal text-[#7a5c0a] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Please double-check for a decimal slip — e.g. 80 instead of 8 mcg/d.</p>
+              </div>
             </div>
+          )}
+
+          <div className="grid items-center gap-x-[16px] gap-y-[20px] [grid-template-columns:220px_1fr_1fr_56px]">
+            {/* Column headers above the value fields */}
+            <span />
+            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] leading-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Base Dose</p>
+            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] leading-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose per delivery</p>
+            <span />
 
             {medications.map((m, i) => {
               const d = rowDisplay(m, i, baseDose, c0);
               const editing = m.id === editingId;
+              // Dose per delivery = daily dose / delivery frequency, in the med's unit.
+              const perDelivery = baseDose > 0 ? fmtDose((d.ug / Math.max(1, bolusCount)) / d.div) : '';
               return (
-                <div key={m.id} className={GRID}>
-                  {/* Medication name */}
-                  <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] leading-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{m.name || (i === 0 ? 'Primary' : 'Medication')}</p>
-
-                  {/* Concentration */}
-                  <p className="font-['Roboto',sans-serif] text-[28px] leading-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    <span className="font-bold text-[#00769e]">{m.concentration}</span> <span className="font-normal text-[#00769e]">{m.unit}</span>
+                <div key={m.id} className="contents">
+                  <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] leading-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    {m.name || (i === 0 ? 'Primary' : 'Medication')}
                   </p>
 
-                  {/* Dose/day — editable field for the active med, subtle otherwise */}
                   {editing ? (
-                    <div className="bg-white border-2 border-[#6b7785] rounded-[8px] h-[72px] w-[260px] flex items-center pl-[16px] pr-[8px] gap-[8px] focus-within:border-[#0094c5]">
+                    <div className="bg-white border-2 border-[#6b7785] rounded-[8px] h-[72px] flex items-center pl-[20px] pr-[16px] gap-[8px] focus-within:border-[#0094c5]">
                       <input
                         type="text" inputMode="decimal" pattern="[0-9]*\.?[0-9]*"
                         autoFocus
@@ -98,27 +107,35 @@ export function BaseDose() {
                           const raw = e.target.value.replace(/[^0-9.]/g, '');
                           setDraftText(raw);
                           const v = parseFloat(raw);
-                          applyEditDaily(m, i, (isNaN(v) ? 0 : v) * d.div); // displayed unit/d → µg/d
+                          applyEditDaily(m, i, (isNaN(v) ? 0 : v) * d.div);
                         }}
                         onBlur={() => setDraftText(null)}
                         className="flex-1 min-w-px font-bold text-[#45483c] text-[40px] leading-[52px] bg-transparent outline-none border-0 p-0 placeholder:font-normal placeholder:text-[#9ea8b2] placeholder:text-[28px]"
+                        placeholder="0"
                         style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
                       />
-                      <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[28px] text-right pr-[8px]" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/d</span>
+                      <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[28px] text-right" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/d</span>
                     </div>
                   ) : (
-                    <SubtleDose value={d.perDay || '--'} unit={`${d.unit}/d`} />
+                    <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[20px]">
+                      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                        <span className="font-bold">{d.perDay || '--'}</span> <span className="font-normal text-[#5f8aa0]">{d.unit}/d</span>
+                      </p>
+                    </div>
                   )}
 
-                  {/* Dose/hour — always read-only, derived as dose/day ÷ 24 */}
-                  <SubtleDose value={d.perHour} unit={`${d.unit}/h`} />
+                  {/* Dose per delivery — derived from the daily dose ÷ delivery frequency */}
+                  <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[20px]">
+                    <p className="font-['Roboto',sans-serif] text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <span className="font-bold">{perDelivery ? `~ ${perDelivery}` : '--'}</span> <span className="font-normal text-[#5f8aa0]">{d.unit}</span>
+                    </p>
+                  </div>
 
-                  {/* Edit pencil — selects this row for editing (hidden on the active row) */}
                   {editing ? <span /> : (
                     <img
                       alt="Edit dose" src={imgEditPencil}
                       onClick={() => { setDraftText(null); setEditingId(m.id); }}
-                      className="size-[40px] shrink-0 block cursor-pointer"
+                      className="size-[40px] shrink-0 block cursor-pointer justify-self-end"
                     />
                   )}
                 </div>
@@ -127,14 +144,29 @@ export function BaseDose() {
           </div>
         </div>
 
-        {/* Save CTA */}
-        <div
-          onClick={() => { if (ctaEnabled) navigate('frequency'); }}
-          className={`mt-auto flex h-[88px] items-center justify-center px-[40px] rounded-[80px] w-full ${ctaEnabled ? 'bg-[#0094c5] cursor-pointer' : 'bg-[#cbcbcb] cursor-not-allowed'}`}
-        >
-          <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[24px] tracking-[0.1px] ${ctaEnabled ? 'text-white' : 'text-[#a5a5a5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
-            Save
-          </p>
+        {/* Delivery Frequency */}
+        <div className={`flex flex-col gap-[28px] ${freqValid ? '' : 'opacity-40 pointer-events-none'}`}>
+          <div className="flex gap-[16px] items-center">
+            <DeliveryIcon size={44} />
+            <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              Delivery Frequency
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-[8px]">
+            <RangeSlider min={sliderMin} max={Math.max(sliderMin, maxBoluses)} value={bolusCount} disabled={!freqValid} onChange={setBolusCount} />
+            <div className="flex justify-between">
+              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{freqValid ? sliderMin : '--'}</span>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{freqValid ? maxBoluses : '--'}</span>
+            </div>
+          </div>
+
+          <div className="grid items-center gap-x-[16px] gap-y-[16px] [grid-template-columns:260px_1fr]">
+            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Deliveries</p>
+            <ReadoutField>{freqValid ? bolusCount : '--'}</ReadoutField>
+            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Delivery time gap</p>
+            <ReadoutField>{freqValid ? `~ ${gapMin} min` : '--'}</ReadoutField>
+          </div>
         </div>
       </div>
     </WizardShell>

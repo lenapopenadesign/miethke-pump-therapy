@@ -38,7 +38,7 @@ export function Activate() {
     <WizardShell step="transfer" onBack={() => navigate('review')}>
       <div className="flex flex-col gap-[24px]">
         <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-          Activate therapy on implant
+          Save in implant
         </p>
         <LoadingBar />
       </div>

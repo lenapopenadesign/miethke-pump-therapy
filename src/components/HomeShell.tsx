@@ -75,6 +75,20 @@ function AddTherapyIcon() {
   );
 }
 
+// Edit Therapy tile glyph: the (blue, visible) therapy icon with a small edit
+// pencil badge — the white AddTherapyIcon is invisible on the unfilled tile.
+const imgEditPencilTile = "/icons/edit-pencil.svg";
+function EditTherapyIcon() {
+  return (
+    <div className="relative size-[140px]">
+      <TherapyIcon size={140} />
+      <div className="absolute right-[2px] bottom-[6px] size-[52px] rounded-full bg-white flex items-center justify-center">
+        <img alt="" src={imgEditPencilTile} className="size-[40px] block" />
+      </div>
+    </div>
+  );
+}
+
 function ArrowForward({ size = 40 }: { size?: number }) {
   return (
     <div className="content-stretch flex items-center justify-center min-w-[72px] px-[24px] relative rounded-[40px] shrink-0 size-[72px]">
@@ -184,7 +198,7 @@ function PatientCard() {
               <p className="leading-[36px] relative shrink-0">Gender: Female</p>
               <p className="leading-[0] relative shrink-0">
                 <span className="leading-[36px]">{`Condition: `}</span>
-                <span className="leading-[36px]">Cancer</span>
+                <span className="leading-[36px]">RRMS</span>
               </p>
               <p className="leading-[0] relative shrink-0">
                 <span className="leading-[36px]">{`Patient N°: `}</span>
@@ -312,7 +326,7 @@ function TherapyHeader({ status }: { status: TherapyStatus }) {
 
 function ActionTile({ filled, label, children, onClick }: { filled?: boolean; label: string; children: ReactNode; onClick?: () => void }) {
   return (
-    <div onClick={onClick} className={`content-stretch flex flex-col gap-[18px] h-[237px] items-center justify-center overflow-clip px-[20px] py-[26px] relative rounded-[16px] shrink-0 w-[229px] ${onClick ? 'cursor-pointer' : ''} ${filled ? 'bg-[#0094c5]' : 'border-2 border-[#0094c5] border-solid'}`}>
+    <div onClick={onClick} className={`content-stretch flex flex-col gap-[18px] h-[237px] items-center justify-center overflow-clip px-[20px] py-[26px] relative rounded-[16px] flex-1 min-w-0 ${onClick ? 'cursor-pointer' : ''} ${filled ? 'bg-[#0094c5]' : 'border-2 border-[#0094c5] border-solid'}`}>
       <div className="overflow-clip relative shrink-0 size-[140px]">{children}</div>
       <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[28px] text-center tracking-[0.1px] ${filled ? 'text-white' : 'text-[#0094c5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
         {label}
@@ -342,15 +356,14 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
         <ArrowForward />
       </div>
       <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex gap-[25px] items-start overflow-clip p-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
-        {/* First tile: Add Therapy (no-therapy only). Active therapy shows the
-            Clinician Bolus tile at the end instead. */}
+        {/* First tile: Add Therapy (no-therapy only). */}
         {noTherapy && (
           <ActionTile filled label="Add Therapy" onClick={startSetup}>
             <AddTherapyIcon />
           </ActionTile>
         )}
-        {/* Refill */}
-        <ActionTile filled label="Refill" onClick={startRefill}>
+        {/* Refill Pump */}
+        <ActionTile filled label="Refill Pump" onClick={startRefill}>
           <div className="absolute flex inset-[-8.75%_-3.93%_29.79%_23.01%] items-center justify-center" style={{ containerType: "size" }}>
             <div className="flex-none h-[hypot(36.3553cqw,-67.1953cqh)] rotate-[-153.3deg] skew-x-[-2.31deg] w-[hypot(-63.6447cqw,-32.8047cqh)]">
               <div className="relative size-full">
@@ -362,23 +375,33 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
             <img alt="" src={imgActPrefillPump} className="absolute block inset-0 max-w-none size-full" />
           </div>
         </ActionTile>
-        {/* Access */}
-        <ActionTile label="Access">
-          <div className="absolute inset-[0_-1.25%_-1.25%_0.39%]">
-            <img alt="" src={imgActAccess} className="absolute block inset-0 max-w-none size-full" />
-          </div>
-        </ActionTile>
-        {/* Prime Bolus */}
-        <ActionTile label="Prime Bolus">
-          <div className="absolute inset-[52.65%_20%_10.53%_56.61%]"><div className="absolute inset-[-1.94%_-3.06%_-1.94%_-3.05%]"><img alt="" src={imgActPrime1} className="block max-w-none size-full" /></div></div>
-          <div className="absolute inset-[10%_35.58%_53.18%_41.06%]"><div className="absolute inset-[-1.94%_-3.05%_-1.94%_-3.07%]"><img alt="" src={imgActPrime2} className="block max-w-none size-full" /></div></div>
-          <div className="absolute inset-[42.84%_56.65%_20.35%_20%]"><div className="absolute inset-[-1.94%_-3.06%_-1.93%_-3.06%]"><img alt="" src={imgActPrime3} className="block max-w-none size-full" /></div></div>
-        </ActionTile>
+        {/* No-therapy keeps the Access / Prime tiles; active therapy shows
+            Clinician Bolus + Edit Therapy (the redesigned Overview). */}
+        {noTherapy && (
+          <ActionTile label="Access">
+            <div className="absolute inset-[0_-1.25%_-1.25%_0.39%]">
+              <img alt="" src={imgActAccess} className="absolute block inset-0 max-w-none size-full" />
+            </div>
+          </ActionTile>
+        )}
+        {noTherapy && (
+          <ActionTile label="Prime Bolus">
+            <div className="absolute inset-[52.65%_20%_10.53%_56.61%]"><div className="absolute inset-[-1.94%_-3.06%_-1.94%_-3.05%]"><img alt="" src={imgActPrime1} className="block max-w-none size-full" /></div></div>
+            <div className="absolute inset-[10%_35.58%_53.18%_41.06%]"><div className="absolute inset-[-1.94%_-3.05%_-1.94%_-3.07%]"><img alt="" src={imgActPrime2} className="block max-w-none size-full" /></div></div>
+            <div className="absolute inset-[42.84%_56.65%_20.35%_20%]"><div className="absolute inset-[-1.94%_-3.06%_-1.93%_-3.06%]"><img alt="" src={imgActPrime3} className="block max-w-none size-full" /></div></div>
+          </ActionTile>
+        )}
         {/* Clinician Bolus — active only */}
         {!noTherapy && (
           <ActionTile label="Clinician Bolus">
             <div className="absolute inset-[6.25%_33.75%_21.25%_11.25%]"><img alt="" src={imgActClinician1} className="absolute block inset-0 max-w-none size-full" /></div>
             <div className="absolute inset-[20%_11.25%_5%_66.25%]"><img alt="" src={imgActClinician2} className="absolute block inset-0 max-w-none size-full" /></div>
+          </ActionTile>
+        )}
+        {/* Edit Therapy — active only; enters the redesigned Edit Therapy flow */}
+        {!noTherapy && (
+          <ActionTile label="Edit Therapy" onClick={() => navigate('edit-entry')}>
+            <EditTherapyIcon />
           </ActionTile>
         )}
       </div>
@@ -387,11 +410,12 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
 }
 
 export function BottomNav() {
+  const navigate = useNavigate();
   return (
     <div className="absolute bg-[#e6f4f9] bottom-0 content-stretch flex h-[120px] items-center justify-center left-0 overflow-x-clip overflow-y-auto px-[16px] py-[8px] w-[1200px]">
       <div className="content-stretch flex flex-1 gap-[16px] items-start justify-center min-w-px relative">
         {/* Overview (active) */}
-        <a className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">
+        <a onClick={() => navigate('home-active')} className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">
           <div className="bg-[#b2ecff] h-[56px] relative rounded-[24px] shrink-0 w-[80px]">
             <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgNavOverviewPill} />
             <div className="absolute left-[11.5px] overflow-clip size-[56px] top-0">
@@ -405,7 +429,7 @@ export function BottomNav() {
           </p>
         </a>
         {/* Help */}
-        <a className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">
+        <a onClick={() => navigate('help')} className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">
           <div className="h-[56px] relative shrink-0 w-[64px]">
             <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgNavInactivePill} />
             <div className="absolute left-[3.5px] overflow-clip size-[56px] top-0">

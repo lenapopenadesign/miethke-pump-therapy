@@ -14,6 +14,8 @@ export type ScreenId =
   | 'review'
   | 'activate'
   | 'home-active'
+  | 'edit-entry'
+  | 'help'
   | 'patient-detail'
   | 'implant-detail'
   | 'therapy-detail'

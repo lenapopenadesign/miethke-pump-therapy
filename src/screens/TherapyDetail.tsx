@@ -2,7 +2,8 @@ import { useNavigate } from '../navigation';
 import { useTherapy } from '../therapy';
 import { DetailShell } from '../components/DetailShell';
 import { TherapyIcon } from '../components/HomeShell';
-import { TherapyBreakdown } from '../components/TherapyBreakdown';
+import { TherapyChartCard, TherapyMedBreakdown } from '../components/TherapyBreakdown';
+import { WizardTotalsFooter } from '../components/WizardParts';
 
 const imgClin1 = "/icons/act-clinician-1.svg";
 const imgClin2 = "/icons/act-clinician-2.svg";
@@ -32,42 +33,40 @@ function PencilGlyph() {
     </svg>
   );
 }
-function PlusGlyph() {
-  return (
-    <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-      <path d="M12 4v16M4 12h16" stroke="white" strokeWidth="2.4" strokeLinecap="round" />
-    </svg>
-  );
-}
 function StopGlyph() {
   return <div className="size-[52px] rounded-[6px] bg-white" />;
 }
 
 export function TherapyDetail() {
   const navigate = useNavigate();
-  const { setFlowMode, setTherapyActive, beginNewTherapy, beginEditTherapy } = useTherapy();
+  const { setFlowMode, setTherapyActive } = useTherapy();
 
-  // Edit keeps the current therapy and walks the wizard from the start; New
-  // blanks it. Both snapshot the committed therapy so backing out restores it.
-  const onEdit = () => { beginEditTherapy('therapy-detail'); setFlowMode('setup'); navigate('add-medication'); };
-  const onNew = () => { beginNewTherapy('therapy-detail'); setFlowMode('setup'); navigate('add-medication'); };
+  // Edit opens the Edit-Therapy entry screen, where the user chooses to edit the
+  // existing therapy or start from scratch before dropping into the wizard.
+  const onEdit = () => { setFlowMode('setup'); navigate('edit-entry'); };
   const onStop = () => { setTherapyActive(false); navigate('home-no-therapy'); };
   const onClinicianBolus = () => navigate('actions');
 
   return (
-    <DetailShell icon={<TherapyIcon size={56} />} title="Therapy">
-      <div className="flex flex-col flex-1 min-h-0">
-        {/* Same body as the Review page (chart + per-medication breakdown). */}
-        <TherapyBreakdown showNow />
-
-        {/* Action tiles */}
-        <div className="flex gap-[24px] mt-auto pt-[24px]">
-          <ActionTile label="Clinician Bolus" onClick={onClinicianBolus}><ClinicianGlyph /></ActionTile>
-          <ActionTile label="Edit" onClick={onEdit}><PencilGlyph /></ActionTile>
-          <ActionTile label="New" onClick={onNew}><PlusGlyph /></ActionTile>
-          <ActionTile label="Stop" onClick={onStop}><StopGlyph /></ActionTile>
-        </div>
-      </div>
+    <DetailShell
+      icon={<TherapyIcon size={56} />}
+      title="Therapy"
+      pinnedTop={<TherapyChartCard showNow onHelp={() => navigate('help')} />}
+      footer={
+        <>
+          {/* Total 24 h band — same summary shown at the bottom of the wizard pages. */}
+          <WizardTotalsFooter />
+          {/* Action tiles */}
+          <div className="bg-[#e6f4f9] flex gap-[24px] px-[80px] pt-[24px] pb-[8px]">
+            <ActionTile label="Clinician Bolus" onClick={onClinicianBolus}><ClinicianGlyph /></ActionTile>
+            <ActionTile label="Edit" onClick={onEdit}><PencilGlyph /></ActionTile>
+            <ActionTile label="Stop" onClick={onStop}><StopGlyph /></ActionTile>
+          </div>
+        </>
+      }
+    >
+      {/* Scrollable medication breakdown (delivery frequency + accordion). */}
+      <TherapyMedBreakdown />
     </DetailShell>
   );
 }

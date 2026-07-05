@@ -129,6 +129,10 @@ type TherapyState = {
   // an Activate commits the change. beginNewTherapy blanks the working state;
   // beginEditTherapy keeps it; cancelTherapyEdit restores + returns the home id.
   beginNewTherapy: (returnTo?: ScreenId) => void;
+  // Like beginNewTherapy but keeps the current medication list — "start from
+  // scratch" in the edit flow clears the dose + windows + frequency while the
+  // preset medications stay in place.
+  beginScratchTherapy: (returnTo?: ScreenId) => void;
   beginEditTherapy: (returnTo?: ScreenId) => void;
   cancelTherapyEdit: () => ScreenId;
   commitTherapy: () => void;
@@ -219,17 +223,19 @@ function uid() {
 // bupivacaine co-delivered) with a couple of dosing windows around the flat
 // base. Sized so the pump runs the maximum 48 boluses/day:
 //   480 µg/day morphine ÷ 1 mg/mL (= 1 µg/µL) = 480 µL/day ÷ 10 µL = 48 boluses.
-const ACTIVE_BASE_DOSE = 480; // µg/day morphine (= 0.48 mg/day @ 1 mg/mL) → 48 boluses
+const ACTIVE_BASE_DOSE = 480; // µg/day Baclofen (= 0.48 mg/day @ 1 mg/mL) → 48 boluses
 const ACTIVE_MEDICATIONS: Medication[] = [
-  { id: 'med-morphine',    name: 'Morphine',    concentration: 1,  unit: 'mg/ml' },
-  { id: 'med-bupivacaine', name: 'Bupivacaine', concentration: 30, unit: 'mg/ml' },
+  { id: 'med-baclofen',    name: 'Baclofen',    concentration: 1, unit: 'mg/ml' },
+  { id: 'med-morphine',    name: 'Morphine',    concentration: 1, unit: 'mg/ml' },
+  { id: 'med-bupivacaine', name: 'Bupivacaine', concentration: 2, unit: 'mg/ml' },
 ];
 // Windows are deltas vs the base; the base fills every uncovered minute. One
-// schedule applies to every day (no weekday/weekend differentiation).
+// schedule applies to every day (no weekday/weekend differentiation). Two
+// well-separated windows (a morning peak and an evening peak) matching the
+// Edit Therapy reference design.
 const ACTIVE_WINDOWS: Interval[] = [
-  { id: 'iv-night-am', label: 'Night',        startMin: 0,    endMin: 360,  dose: 600 }, // 00:00–06:00 · +25% (part of the 22:00–06:00 night)
-  { id: 'iv-morning',  label: 'Morning peak', startMin: 360,  endMin: 390,  dose: 720 }, // 06:00–06:30 · +50%
-  { id: 'iv-night-pm', label: 'Night',        startMin: 1320, endMin: 1440, dose: 600 }, // 22:00–24:00 · +25% (part of the 22:00–06:00 night)
+  { id: 'iv-morning', label: 'Morning peak', startMin: 390,  endMin: 480,  dose: 624 }, // 06:30–08:00 · +30%
+  { id: 'iv-evening', label: 'Evening peak', startMin: 1200, endMin: 1290, dose: 720 }, // 20:00–21:30 · +50%
 ];
 const ACTIVE_BY_DAY: IntervalsByDay = {
   monday:    ACTIVE_WINDOWS.map(iv => ({ ...iv })),
@@ -317,6 +323,17 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
     setupReturnRef.current = returnTo;
     snapshotRef.current = takeSnapshot();
     setMedications(emptyMedications());
+    setBaseDoseRaw(0);
+    setIntervalsByDay(EMPTY_BY_DAY);
+    setBolusCountRaw(null);
+    setTherapyActive(false);
+  };
+  // Start from scratch but keep the preset medications: snapshot, then clear the
+  // dose, windows and frequency so the base dose (and the developing chart) start
+  // empty while the 3 medications remain.
+  const beginScratchTherapy = (returnTo: ScreenId = 'home-active') => {
+    setupReturnRef.current = returnTo;
+    snapshotRef.current = takeSnapshot();
     setBaseDoseRaw(0);
     setIntervalsByDay(EMPTY_BY_DAY);
     setBolusCountRaw(null);
@@ -430,7 +447,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
     <TherapyContext.Provider value={{
       medications, addMedication, updateMedication, removeMedication,
       baseDose, setBaseDose,
-      beginNewTherapy, beginEditTherapy, cancelTherapyEdit, commitTherapy,
+      beginNewTherapy, beginScratchTherapy, beginEditTherapy, cancelTherapyEdit, commitTherapy,
       intervalsByDay,
       intervals, weekendIntervals,
       draft, setDraft,

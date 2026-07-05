@@ -7,6 +7,7 @@ import { ProfileChart } from '../components/TherapyBreakdown';
 const NOW_MIN = 716; // "11:56"
 
 function ActiveBody() {
+  const navigate = useNavigate();
   const { baseDose, bolusCount, maxBoluses, intervals, useBaseOnly, medications } = useTherapy();
   const sourceIntervals = useBaseOnly ? [] : intervals;
   const hasIntervals = sourceIntervals.length > 0;
@@ -18,8 +19,10 @@ function ActiveBody() {
 
   return (
     <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-[984px]">
-      {hasIntervals && (
-        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={sourceIntervals} showNow />
+      {/* Always show the 24-hour chart for an active therapy — flat when the
+          therapy is base-dose only (no windows), with peaks once windows exist. */}
+      {baseDose > 0 && (
+        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={sourceIntervals} showNow onHelp={() => navigate('help')} />
       )}
       <MedSummary
         estDaily={estDaily}

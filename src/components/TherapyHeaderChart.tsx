@@ -84,7 +84,7 @@ export function TherapyHeaderChart({ highlight }: { highlight?: { startMin: numb
 
 const CARD_H = 240;
 const BASELINE_FROM_BOTTOM = 52; // room for the axis labels under the bars
-const MAX_BARS = 60;             // cap rendered bars so dense schedules stay legible
+const MAX_BARS = 80;             // cap rendered bars so dense schedules stay legible
 
 /** Dose rate (µg/h) at a given minute: a covering window's rate, else the base. */
 function rateAt(min: number, baseRate: number, windows: Interval[]): number {
