@@ -21,7 +21,6 @@ const imgPrime3 = "/icons/act-prime-3.svg";
 const imgAccess = "/icons/act-access.svg";
 const imgRevision = "/icons/act-revision-b.svg";
 const imgEdit = "/icons/act-edit.svg";
-const imgNew = "/icons/act-new.svg";
 
 const IMG = "absolute block inset-0 max-w-none size-full";
 
@@ -70,8 +69,12 @@ function EditIcon() {
   return <img alt="" src={imgEdit} className="h-[101px] w-[67px] block" />;
 }
 
-function NewIcon() {
-  return <img alt="" src={imgNew} className="size-[54px] block" />;
+/* Edit Therapy / Edit Medication: exact Figma icons, blue for the outline tiles. */
+function EditTherapyGlyph() {
+  return <img alt="" src="/icons/act-edit-therapy-b.svg" className="h-[110px] w-[119px] block object-contain" />;
+}
+function EditMedicationGlyph() {
+  return <img alt="" src="/icons/act-edit-medication-b.svg" className="h-[110px] w-[101px] block object-contain" />;
 }
 
 function StopIcon() {
@@ -110,12 +113,13 @@ function HandIcon() {
 
 export function ActionsScreen() {
   const navigate = useNavigate();
-  const { setFlowMode, beginEditTherapy, beginNewTherapy } = useTherapy();
+  const { setFlowMode, beginEditTherapy, setTherapyActive } = useTherapy();
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
-  // Edit keeps the current therapy, New starts blank; both walk the wizard from
-  // Medication and return here if the user backs out.
-  const editTherapy = () => { beginEditTherapy('actions'); setFlowMode('setup'); navigate('add-medication'); };
-  const newTherapy = () => { beginNewTherapy('actions'); setFlowMode('setup'); navigate('add-medication'); };
+  // Same therapy actions as the Therapy subpage: Edit Therapy opens the decision
+  // screen; Edit Medication jumps to the medication page (add/remove); Stop ends it.
+  const editTherapy = () => { setFlowMode('setup'); navigate('edit-entry'); };
+  const editMedication = () => { setFlowMode('setup'); beginEditTherapy('actions'); navigate('add-medication'); };
+  const onStop = () => { setTherapyActive(false); navigate('home-no-therapy'); };
   return (
     <DetailShell icon={<HandIcon />} title="Actions">
       <div className="flex flex-col gap-[32px]">
@@ -137,9 +141,9 @@ export function ActionsScreen() {
 
         <SectionCard icon={<TherapyIcon size={56} />} label="Therapy">
           <Tile label="Clinician Bolus"><ClinicianIcon /></Tile>
-          <Tile label="Edit" onClick={editTherapy}><EditIcon /></Tile>
-          <Tile label="New" onClick={newTherapy}><NewIcon /></Tile>
-          <Tile label="Stop"><StopIcon /></Tile>
+          <Tile label="Edit Therapy" onClick={editTherapy}><EditTherapyGlyph /></Tile>
+          <Tile label="Edit Medication" onClick={editMedication}><EditMedicationGlyph /></Tile>
+          <Tile label="Stop" onClick={onStop}><StopIcon /></Tile>
         </SectionCard>
       </div>
     </DetailShell>

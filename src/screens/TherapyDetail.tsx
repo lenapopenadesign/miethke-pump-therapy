@@ -2,8 +2,7 @@ import { useNavigate } from '../navigation';
 import { useTherapy } from '../therapy';
 import { DetailShell } from '../components/DetailShell';
 import { TherapyIcon } from '../components/HomeShell';
-import { TherapyChartCard, TherapyMedBreakdown, MED_TOTAL_BG } from '../components/TherapyBreakdown';
-import { WizardTotalsFooter } from '../components/WizardParts';
+import { TherapyChartCard, TherapyMedBreakdown } from '../components/TherapyBreakdown';
 
 const imgClin1 = "/icons/act-clinician-1.svg";
 const imgClin2 = "/icons/act-clinician-2.svg";
@@ -11,39 +10,40 @@ const imgClin2 = "/icons/act-clinician-2.svg";
 /* ----- bottom action tiles (filled blue, white glyph) ----- */
 function ActionTile({ label, onClick, children }: { label: string; onClick?: () => void; children: React.ReactNode }) {
   return (
-    <div onClick={onClick} className="bg-[#0094c5] rounded-[16px] flex-1 h-[230px] flex flex-col items-center justify-center gap-[16px] overflow-clip px-[16px] py-[20px] cursor-pointer">
-      <div className="relative size-[96px] flex items-center justify-center shrink-0">{children}</div>
-      <span className="font-['Roboto',sans-serif] font-bold text-white text-[28px] tracking-[0.1px] text-center" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</span>
+    <div onClick={onClick} className="bg-[#0094c5] rounded-[16px] flex-1 h-[230px] flex flex-col items-center justify-center gap-[16px] overflow-clip px-[12px] py-[20px] cursor-pointer">
+      <div className="relative size-[88px] flex items-center justify-center shrink-0">{children}</div>
+      <span className="font-['Roboto',sans-serif] font-bold text-white text-[26px] tracking-[0.1px] text-center leading-[30px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</span>
     </div>
   );
 }
 function ClinicianGlyph() {
   return (
-    <div className="relative size-[96px]">
+    <div className="relative size-[88px]">
       <div className="absolute inset-[6.25%_33.75%_21.25%_11.25%]"><img alt="" src={imgClin1} className="absolute inset-0 block max-w-none size-full" /></div>
       <div className="absolute inset-[20%_11.25%_5%_66.25%]"><img alt="" src={imgClin2} className="absolute inset-0 block max-w-none size-full" /></div>
     </div>
   );
 }
-function PencilGlyph() {
-  return (
-    <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-      <path d="M4 20h4l10-10-4-4L4 16v4z" stroke="white" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M14 6l4 4" stroke="white" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  );
+/* Edit Therapy / Edit Medication: exact white Figma icons (schedule+bottle+pencil, bottle+pencil). */
+function EditTherapyGlyph() {
+  return <img alt="" src="/icons/act-edit-therapy.svg" className="w-[84px] h-[78px] block object-contain" />;
+}
+function EditMedicationGlyph() {
+  return <img alt="" src="/icons/act-edit-medication.svg" className="h-[80px] w-[74px] block object-contain" />;
 }
 function StopGlyph() {
-  return <div className="size-[52px] rounded-[6px] bg-white" />;
+  return <div className="size-[48px] rounded-[6px] bg-white" />;
 }
 
 export function TherapyDetail() {
   const navigate = useNavigate();
-  const { setFlowMode, setTherapyActive } = useTherapy();
+  const { setFlowMode, setTherapyActive, beginEditTherapy } = useTherapy();
 
-  // Edit opens the Edit-Therapy entry screen, where the user chooses to edit the
-  // existing therapy or start from scratch before dropping into the wizard.
-  const onEdit = () => { setFlowMode('setup'); navigate('edit-entry'); };
+  // Edit Therapy opens the Edit-Therapy decision screen; Edit Medication jumps
+  // straight to the medication page (add/remove meds), both snapshotting so a
+  // back-out restores the current therapy.
+  const onEditTherapy = () => { setFlowMode('setup'); navigate('edit-entry'); };
+  const onEditMedication = () => { setFlowMode('setup'); beginEditTherapy('therapy-detail'); navigate('add-medication'); };
   const onStop = () => { setTherapyActive(false); navigate('home-no-therapy'); };
   const onClinicianBolus = () => navigate('actions');
 
@@ -53,20 +53,17 @@ export function TherapyDetail() {
       title="Therapy"
       pinnedTop={<TherapyChartCard showNow onHelp={() => navigate('help')} />}
       footer={
-        <>
-          {/* Total 24 h band — tinted to match the medication rows on this page. */}
-          <WizardTotalsFooter bg={MED_TOTAL_BG} />
-          {/* Action tiles */}
-          <div className="flex gap-[24px] px-[80px] pt-[24px] pb-[8px]">
-            <ActionTile label="Clinician Bolus" onClick={onClinicianBolus}><ClinicianGlyph /></ActionTile>
-            <ActionTile label="Edit" onClick={onEdit}><PencilGlyph /></ActionTile>
-            <ActionTile label="Stop" onClick={onStop}><StopGlyph /></ActionTile>
-          </div>
-        </>
+        <div className="flex gap-[16px] px-[80px] pt-[24px] pb-[32px]">
+          <ActionTile label="Clinician Bolus" onClick={onClinicianBolus}><ClinicianGlyph /></ActionTile>
+          <ActionTile label="Edit Therapy" onClick={onEditTherapy}><EditTherapyGlyph /></ActionTile>
+          <ActionTile label="Edit Medication" onClick={onEditMedication}><EditMedicationGlyph /></ActionTile>
+          <ActionTile label="Stop" onClick={onStop}><StopGlyph /></ActionTile>
+        </div>
       }
     >
-      {/* Scrollable medication breakdown (accordion; frequency hidden on this page). */}
-      <TherapyMedBreakdown showFrequency={false} />
+      {/* Breakdown accordion — delivery frequency + per-medication rows, each with a
+          Total 24 h line at the bottom of its expanded dropdown. */}
+      <TherapyMedBreakdown />
     </DetailShell>
   );
 }

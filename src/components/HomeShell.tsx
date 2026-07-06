@@ -130,6 +130,17 @@ export function ImplantIcon({ size = 64 }: { size?: number }) {
   );
 }
 
+/** Small horizontal battery glyph (mostly charged) for the implant battery-life line. */
+function BatteryIcon() {
+  return (
+    <svg width="46" height="26" viewBox="0 0 46 26" fill="none">
+      <rect x="1.5" y="4.5" width="35" height="17" rx="4" stroke="#00769e" strokeWidth="2.5" />
+      <rect x="5" y="8" width="24" height="10" rx="2" fill="#00769e" />
+      <rect x="39" y="9" width="4.5" height="8" rx="2" fill="#00769e" />
+    </svg>
+  );
+}
+
 export function TherapyIcon({ size = 64 }: { size?: number }) {
   return (
     <div className="overflow-clip relative shrink-0" style={{ width: size, height: size }}>
@@ -280,6 +291,11 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
                     <p className={`font-['Roboto',sans-serif] font-bold leading-[52px] relative shrink-0 text-[36px] tracking-[0.1px] whitespace-nowrap ${noDate ? 'text-[#9ea8b2]' : 'text-[#b3850e]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
                       {refillDate}
                     </p>
+                  </div>
+                  {/* Battery life */}
+                  <div className="flex items-center gap-[12px] px-[24px] pt-[12px]">
+                    <BatteryIcon />
+                    <p className="font-['Roboto',sans-serif] font-normal leading-[36px] text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>4 years</p>
                   </div>
                 </div>
               </div>

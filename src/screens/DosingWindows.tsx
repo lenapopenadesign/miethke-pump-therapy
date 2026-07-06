@@ -299,8 +299,8 @@ export function DosingWindows() {
               })}
             </div>
 
-            {/* Editor actions */}
-            <div className="flex flex-col gap-[16px]">
+            {/* Editor actions — aligned under (and as wide as) the "Set all selected to" input */}
+            <div className="flex flex-col gap-[16px] pl-[236px] pr-[72px]">
               <div className="flex gap-[16px]">
                 <button onClick={resetEditor} className="flex-1 h-[80px] rounded-[80px] border-2 border-[#0094c5] font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[26px] cursor-pointer" style={{ fontVariationSettings: "'wdth' 100" }}>Cancel</button>
                 <button onClick={commit} disabled={selCount === 0} className={`flex-1 h-[80px] rounded-[80px] font-['Roboto',sans-serif] font-bold text-[26px] ${selCount === 0 ? 'bg-[#cbcbcb] text-[#a5a5a5]' : 'bg-[#0094c5] text-white cursor-pointer'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{editingId ? 'Save window' : 'Add window'}</button>

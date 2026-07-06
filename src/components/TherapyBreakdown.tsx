@@ -5,6 +5,7 @@ import {
   concUgPerUl,
   doseStringsFor,
   doseUnitFor,
+  estimatedDailyTotal,
   fmtTime,
   type Interval,
 } from '../therapy';
@@ -38,14 +39,20 @@ function Chevron({ up }: { up?: boolean }) {
   );
 }
 
-/** Label + a filled value bar (bold value + grey unit). */
-export function ValueRow({ label, value, unit, bg }: { label: string; value: string; unit: string; bg: string }) {
+/** Label + a filled value bar (bold value + grey unit), with an optional +/-% delta. */
+export function ValueRow({ label, value, unit, bg, delta }: { label: string; value: string; unit: string; bg: string; delta?: number | null }) {
+  const showDelta = delta != null && delta !== 0;
   return (
     <div className="grid items-center gap-[24px] [grid-template-columns:220px_1fr]">
       <p className={labelCls}>{label}</p>
       <div className="rounded-[8px] h-[60px] flex items-baseline px-[24px]" style={{ background: bg }}>
         <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] self-center" style={wdth}>{value}</span>
         <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px] self-center" style={wdth}>{unit}</span>
+        {showDelta && (
+          <span className="ml-auto font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[24px] self-center whitespace-nowrap" style={wdth}>
+            {delta! > 0 ? '+' : '−'}{Math.abs(delta!)}%
+          </span>
+        )}
       </div>
     </div>
   );
@@ -125,6 +132,7 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const minsBetween = bolusCount > 0 ? Math.round(1440 / bolusCount) : 0;
   const bolusN = Math.max(1, bolusCount); // divisor for per-delivery doses
+  const primaryDailyUg = estimatedDailyTotal(baseDose, windows); // primary med's 24h total
   const [expandedId, setExpandedId] = useState<string | null>(medications[0]?.id ?? null);
 
   return (
@@ -162,9 +170,11 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
                 {/* Base dose per day, plus the dose one delivery carries at that base. */}
                 <ValueRow label="Dose per day" value={doseStringsFor(baseUg, u).perDay} unit={`${unit}/day`} bg={ROW_BG} />
                 <ValueRow label="Default Delivery" value={doseStringsFor(baseUg / bolusN, u).perDay} unit={`${unit}/delivery`} bg={ROW_BG} />
-                {/* Each window: the dose delivered in a single delivery during it. */}
+                {/* Each window: the dose delivered in a single delivery during it,
+                    with its increase/decrease vs the base dose. */}
                 {windows.map(w => {
                   const rateUg = i === 0 ? w.dose : coDoseUgDay(w.dose, c0, cm);
+                  const delta = baseDose > 0 ? Math.round((w.dose / baseDose - 1) * 100) : 0;
                   return (
                     <ValueRow
                       key={w.id}
@@ -172,9 +182,17 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
                       value={doseStringsFor(rateUg / bolusN, u).perDay}
                       unit={`${unit}/delivery`}
                       bg={ROW_BG}
+                      delta={delta}
                     />
                   );
                 })}
+                {/* Per-medication 24h total, at the bottom of the expanded dropdown. */}
+                <ValueRow
+                  label="Total 24 h"
+                  value={doseStringsFor(i === 0 ? primaryDailyUg : coDoseUgDay(primaryDailyUg, c0, cm), u).perDay}
+                  unit={`${unit}/day`}
+                  bg={TOTAL_BG}
+                />
               </>
             )}
           </div>
