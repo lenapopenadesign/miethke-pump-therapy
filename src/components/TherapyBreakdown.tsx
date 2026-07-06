@@ -77,7 +77,7 @@ export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, showNo
       {onHelp && <HelpBadge onClick={onHelp} />}
       <div className="absolute left-[24px] right-[24px] top-[24px]" style={{ bottom: 48 }}>
         <div className="absolute inset-0">
-          <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} nominalH={48} maxH={170} minH={18} barWidth={9} />
+          <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} nominalH={30} maxH={170} minH={10} barWidth={9} />
         </div>
       </div>
       <div className="absolute left-[24px] right-[24px] h-px bg-[#e3e6e9]" style={{ bottom: 48 }} />

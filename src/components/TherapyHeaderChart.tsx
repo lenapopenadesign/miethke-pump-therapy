@@ -100,7 +100,7 @@ function rateAt(min: number, baseRate: number, windows: Interval[]): number {
  * Place inside a relative, bottom-anchored box of height `maxH`.
  */
 export function BolusBars({
-  baseDose, bolusCount, maxBoluses, windows, nominalH = 48, maxH = 150, minH = 18, barWidth = 9,
+  baseDose, bolusCount, maxBoluses, windows, nominalH = 30, maxH = 150, minH = 10, barWidth = 9,
 }: {
   baseDose: number;
   bolusCount: number;

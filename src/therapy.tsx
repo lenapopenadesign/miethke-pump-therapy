@@ -40,6 +40,8 @@ export const MAX_PUSHES_PER_MIN = 15; // → minimum interval 1/15 min = 4 s
 export const BOLUS_VOLUME_UL = 10;
 // Floor below which the frequency slider won't go (≈ one bolus every 6 h).
 export const MIN_BOLUSES_PER_DAY = 4;
+// Ceiling on the delivery frequency, regardless of how much volume the dose allows.
+export const MAX_BOLUSES_PER_DAY = 80;
 
 /**
  * Daily delivered volume (µl) implied by a primary base dose. volume = mass /
@@ -57,7 +59,7 @@ export function dailyVolumeUl(baseDoseUgDay: number, primaryConcUgPerUl: number)
  * concentration, and the default the setup flow selects.
  */
 export function maxBolusesPerDay(baseDoseUgDay: number, primaryConcUgPerUl: number): number {
-  return Math.floor(dailyVolumeUl(baseDoseUgDay, primaryConcUgPerUl) / BOLUS_VOLUME_UL);
+  return Math.min(MAX_BOLUSES_PER_DAY, Math.floor(dailyVolumeUl(baseDoseUgDay, primaryConcUgPerUl) / BOLUS_VOLUME_UL));
 }
 
 // Physical implant spec — single source of truth for the pump reservoir and the
