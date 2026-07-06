@@ -98,27 +98,30 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9' }: { baseO
 
   const wdth = { fontVariationSettings: "'wdth' 100" } as const;
   return (
-    <div className="w-[1200px] px-[80px] pt-[28px] pb-[20px] flex flex-col gap-[12px]" style={{ background: bg }}>
-      {/* Header: delivery count (left) + "Total per 24 h" column header over the values (right) */}
+    <div className="w-[1200px] px-[80px] pt-[22px] pb-[14px] flex flex-col gap-[12px]" style={{ background: bg }}>
+      {/* Header: delivery count (left) + "Total per 24 h" filled pill (right) */}
       <div className="flex items-center justify-between">
-        <div className="border-2 border-[#0094c5] rounded-[40px] px-[28px] py-[10px]">
+        <div className="border-2 border-[#0094c5] rounded-[40px] px-[26px] py-[8px]">
           <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[26px] tracking-[0.1px]" style={wdth}>
             {active && bolusCount > 0 ? `${bolusCount} deliveries / day` : '— deliveries / day'}
           </span>
         </div>
-        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[2px] uppercase pr-[2px]" style={wdth}>Total per 24 h</p>
+        <div className="bg-[#00769e] rounded-[40px] px-[26px] py-[8px]">
+          <span className="font-['Roboto',sans-serif] font-bold text-white text-[26px] tracking-[0.1px]" style={wdth}>Total per 24 h</span>
+        </div>
       </div>
-      {/* Per-medication daily totals: name (left) tied to value (right); the value
-          column sits under the "Total per 24 h" header above. */}
-      <div className="flex flex-col gap-[6px]">
+      {/* Compact per-medication daily totals: name · concentration · value */}
+      <div className="flex flex-col gap-[2px]">
         {medications.map((m, i) => (
-          <div key={m.id} className="flex items-baseline justify-between py-[6px]">
-            <p className="whitespace-nowrap">
-              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px]" style={wdth}>{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
-              <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[24px] tracking-[0.1px] ml-[14px]" style={wdth}>{m.concentration} {m.unit}</span>
+          <div key={m.id} className="grid items-baseline [grid-template-columns:1fr_1fr_1fr]">
+            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px] whitespace-nowrap" style={wdth}>
+              {m.name || (i === 0 ? 'Primary' : 'Medication')}
             </p>
-            <p className="whitespace-nowrap text-right">
-              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px]" style={wdth}>{medTotal(m, i)}</span> <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px]" style={wdth}>{medUnit(m)}</span>
+            <p className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[24px] tracking-[0.1px] whitespace-nowrap" style={wdth}>
+              {m.concentration} {m.unit}
+            </p>
+            <p className="text-right whitespace-nowrap" style={wdth}>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px]">{medTotal(m, i)}</span> <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px]">{medUnit(m)}</span>
             </p>
           </div>
         ))}
