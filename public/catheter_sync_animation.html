@@ -21,8 +21,9 @@
     font-family:"Helvetica Neue",Arial,sans-serif;color:var(--blue);
   }
   .card{width:min(96vw,96vh);}
-  /* square animation canvas */
-  .stage{aspect-ratio:1/1;background:var(--bg);box-sizing:border-box;position:relative;
+  /* animation canvas — taller than wide so the scene-3 dropdown has room to open
+     downward into the lower part (pump/diagram stay top-anchored across all scenes) */
+  .stage{aspect-ratio:5/6;background:var(--bg);box-sizing:border-box;position:relative;
          padding:6% 6% 4%;display:flex;flex-direction:column;align-items:center;
          justify-content:flex-start;overflow:hidden;}
   /* play button */
@@ -45,7 +46,7 @@
   .scene.active{display:block;}
   .scene.show{opacity:1;}
   /* constant-height control area keeps the diagram fixed across scenes */
-  .ctrls{min-height:210px;}
+  .ctrls{min-height:210px;position:relative;}
 
   /* section header */
   .head{display:flex;align-items:center;gap:14px;margin:16px 4px 14px;
@@ -66,19 +67,36 @@
   .form{display:flex;gap:48px;flex-wrap:wrap;margin:8px 6px 0;align-items:flex-end;}
   .fld{font-size:30px;font-weight:700;color:var(--blue);}
   .fld .row{display:flex;align-items:center;gap:14px;margin-top:16px;font-weight:400;}
-  .box{min-width:170px;height:72px;border:3px solid var(--blue);border-radius:14px;
-       padding:0 18px;display:flex;align-items:center;justify-content:center;background:#fff;
-       font-size:36px;font-weight:700;color:#0a3b4d;}
-  .box.ph{color:#b9ccd5;font-weight:400;}
-  .unit{color:#7fa7b6;font-size:26px;}
-  .rate{font-size:38px;font-weight:700;color:var(--blue);}
-  .rate .u{font-size:24px;color:#7fa7b6;}
-  /* dropdown (scene 3) — mirrors the app's "Add delivery times" control */
-  .dd{margin-top:16px;height:82px;border:3px solid var(--blue);border-radius:14px;
-      display:flex;align-items:center;justify-content:space-between;padding:0 26px;
-      background:#fff;font-size:34px;font-weight:700;color:#0a3b4d;}
-  .dd.empty{color:#9bb2bd;font-weight:400;}
-  .dd svg{width:42px;height:42px;flex:0 0 auto;}
+  /* scene 3: dropdown + dose side by side (saves vertical space); a little gap below the diagram */
+  .d3{margin-bottom:26px;}
+  .s3row{display:flex;gap:36px;align-items:flex-start;}
+  .s3row .fld{flex:1;min-width:0;}
+  /* dropdown + dose field share the exact same full-width input size */
+  .dd,.dosebox{margin-top:16px;width:100%;height:82px;box-sizing:border-box;
+      border:3px solid var(--blue);border-radius:14px;padding:0 26px;background:#fff;
+      font-size:34px;font-weight:700;color:#0a3b4d;display:flex;align-items:center;}
+  .dd{justify-content:space-between;}
+  .dd.empty,.dosebox.ph{color:#9bb2bd;font-weight:400;}
+  #ddChev{width:42px;height:42px;flex:0 0 auto;transition:transform .28s ease;}
+  .dd.open #ddChev{transform:rotate(180deg);}
+  /* dropdown list overlay (scene 3) */
+  .ddwrap{position:relative;}
+  /* Opens downward into the lower part of the page (the stage is tall enough). */
+  .ddlist{position:absolute;left:0;right:0;top:calc(100% + 10px);z-index:6;background:#fff;
+      border:3px solid var(--blue);border-radius:14px;overflow:hidden;
+      opacity:0;transform:translateY(-10px);pointer-events:none;
+      transition:opacity .26s ease, transform .26s ease;}
+  .ddlist.open{opacity:1;transform:translateY(0);}
+  .ddrow{display:flex;align-items:center;justify-content:space-between;height:54px;padding:0 24px;
+      font-size:28px;font-weight:700;color:#0a3b4d;}
+  .ddrow + .ddrow{border-top:2px solid #eaf1f5;}
+  .ddrow.sel{background:#e6f4f9;color:var(--blue);}
+  .ck{width:40px;height:40px;border-radius:50%;border:3px solid #cdd9e0;box-sizing:border-box;
+      display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .ck svg{width:24px;height:24px;opacity:0;}
+  .ck svg path{stroke:#fff;stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .ddrow.sel .ck{background:var(--blue);border-color:var(--blue);}
+  .ddrow.sel .ck svg{opacity:1;}
 
   /* tabs */
   .tabs{display:flex;gap:16px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
@@ -146,7 +164,7 @@
 
   <!-- ================= SCENE 3 : DOSING WINDOWS ================= -->
   <div class="scene" data-scene="3">
-    <svg viewBox="0 0 720 209" xmlns="http://www.w3.org/2000/svg">
+    <svg class="d3" viewBox="0 0 720 209" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="2" width="716" height="200" rx="18" fill="var(--panel)"/>
       <rect id="hiBox" x="0" y="0" width="0" height="0" fill="var(--hi)" opacity="0"/>
       <line x1="28" y1="150" x2="692" y2="150" stroke="var(--baseline)" stroke-width="3"/>
@@ -155,17 +173,26 @@
       <text x="28" y="180" fill="var(--label)" font-size="24">00:00</text>
       <text x="692" y="180" fill="var(--label)" font-size="24" text-anchor="end">24:00</text>
       <text id="winLbl" x="0" y="180" fill="var(--blue)" font-size="22" font-weight="700"
-            text-anchor="middle" opacity="0">06:30 – 08:00</text>
+            text-anchor="middle" opacity="0">06:00 – 08:00</text>
       <g id="bars3"></g>
     </svg>
     <div class="ctrls">
-      <div class="fld">Add delivery times
-        <div class="dd empty" id="dd"><span id="ddText">Select a preset time…</span>
-          <svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--blue)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="s3row">
+        <div class="fld ddwrap">Add delivery times
+          <div class="dd empty" id="dd"><span id="ddText">Select a preset time…</span>
+            <svg id="ddChev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--blue)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="ddlist" id="ddlist">
+            <div class="ddrow"><span>06:00</span><span class="ck"><svg viewBox="0 0 22 22"><path d="M4 11.5L9 16L18 6"/></svg></span></div>
+            <div class="ddrow"><span>06:30</span><span class="ck"><svg viewBox="0 0 22 22"><path d="M4 11.5L9 16L18 6"/></svg></span></div>
+            <div class="ddrow"><span>07:00</span><span class="ck"><svg viewBox="0 0 22 22"><path d="M4 11.5L9 16L18 6"/></svg></span></div>
+            <div class="ddrow"><span>07:30</span><span class="ck"><svg viewBox="0 0 22 22"><path d="M4 11.5L9 16L18 6"/></svg></span></div>
+            <div class="ddrow"><span>08:00</span><span class="ck"><svg viewBox="0 0 22 22"><path d="M4 11.5L9 16L18 6"/></svg></span></div>
+          </div>
         </div>
-      </div>
-      <div class="fld" style="margin-top:26px">Set all selected to
-        <div class="row"><span class="box ph" id="dose">mcg/h</span></div>
+        <div class="fld">Set all selected to
+          <div class="dosebox ph" id="dose">mcg/h</div>
+        </div>
       </div>
     </div>
   </div>
@@ -273,30 +300,44 @@ for(let i=0;i<N3;i++){const x=X1+i*(X2-X1)/(N3-1)-6.5;
   bars3.push(mk(g3,{x,width:13,rx:2.5,fill:BLUE}));}
 const selBox=document.getElementById("selBox"),hiBox=document.getElementById("hiBox"),winLbl=document.getElementById("winLbl");
 const dose=document.getElementById("dose"),dd=document.getElementById("dd"),ddText=document.getElementById("ddText");
+const ddlist=document.getElementById("ddlist"), ddrows=[...document.querySelectorAll(".ddrow")];
+const SEL_START=0, SEL_N=5;                        // check rows 06:00-08:00 (= 5 window bars)
 const wx1=X1+winA*(X2-X1)/(N3-1)-16, wx2=X1+winB*(X2-X1)/(N3-1)+16, wW=wx2-wx1, wC=(wx1+wx2)/2;
-const TOT3=9000, segE=(t,a,d)=> t<=a?0 : (t>=a+d?1 : ease((t-a)/d));
+const TOT3=10000, segE=(t,a,d)=> t<=a?0 : (t>=a+d?1 : ease((t-a)/d));
+// Sequence: dropdown opens -> the 5 window times get checked (bars select) -> dropdown
+// closes with the range chosen -> the dose is raised for the selected bars.
 function scene3(t){
   t%=TOT3;
-  const sel =segE(t,1500,1000);   // read baseline, then selection box appears
-  const form=segE(t,3100, 900);   // pause, then time fields fill
-  const grow=segE(t,4600,1500);   // pause, then dose rises (long hold after)
-  // bars
+  const listVisible = t>=700 && t<4750;
+  let nSel = 0;
+  if(t>=1500) nSel = Math.min(SEL_N, Math.floor((t-1500)/280)+1);   // check one row every 280ms
+  const selShow = t>=1500 ? Math.min(1,(t-1500)/700) : 0;           // selection box / highlight fade-in
+  const confirmed = t>=4750;                                        // dropdown closed, range chosen
+  const grow = segE(t,5300,1500);                                   // dose rises for the selected bars
+
+  // ---- dropdown list ----
+  ddlist.classList.toggle("open", listVisible);
+  dd.classList.toggle("open", listVisible);
+  for(let k=0;k<ddrows.length;k++)
+    ddrows[k].classList.toggle("sel", listVisible && k>=SEL_START && k<SEL_START+nSel);
+  if(confirmed){ dd.classList.remove("empty"); ddText.textContent="06:00 - 08:00"; }
+  else { dd.classList.add("empty"); ddText.textContent="Select a preset time..."; }
+
+  // ---- diagram ----
   for(let i=0;i<N3;i++){
     const inWin=i>=winA&&i<=winB;
     setBar(bars3[i], inWin ? BASEH+(HIGH-BASEH)*grow : BASEH);
+    bars3[i].setAttribute("fill", (inWin && selShow>0.2) ? HL : BLUE);   // light up selected bars
   }
-  // selection box
-  selBox.setAttribute("opacity",sel);
+  selBox.setAttribute("opacity",selShow);
   selBox.setAttribute("x",wx1);selBox.setAttribute("width",wW);
   selBox.setAttribute("y",TOPBOX);selBox.setAttribute("height",(BASE-TOPBOX)+4);
-  // highlight fill
-  hiBox.setAttribute("opacity",0.35*grow);
+  hiBox.setAttribute("opacity",0.28*selShow);
   hiBox.setAttribute("x",wx1);hiBox.setAttribute("width",wW);
   hiBox.setAttribute("y",TOPBOX);hiBox.setAttribute("height",BASE-TOPBOX);
-  // label + form
-  winLbl.setAttribute("x",wC);winLbl.setAttribute("opacity",sel);
-  if(form>0.5){dd.classList.remove("empty");ddText.textContent="06:30 - 08:00";}
-  else{dd.classList.add("empty");ddText.textContent="Select a preset time...";}
+  winLbl.setAttribute("x",wC);winLbl.setAttribute("opacity",selShow);
+
+  // ---- dose field ----
   if(grow>0.05){dose.classList.remove("ph");dose.textContent=Math.round(30*grow)+" mcg/h";}
   else{dose.classList.add("ph");dose.textContent="mcg/h";}
 }

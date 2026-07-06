@@ -26,7 +26,7 @@ function HelpGlyph() {
 
 function PlayIcon() {
   return (
-    <div className="size-[96px] rounded-full bg-[#0094c5] flex items-center justify-center">
+    <div className="size-[96px] rounded-full bg-[#0094c5] border-[6px] border-white shadow-[0_4px_14px_rgba(0,0,0,0.25)] flex items-center justify-center">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
     </div>
   );
