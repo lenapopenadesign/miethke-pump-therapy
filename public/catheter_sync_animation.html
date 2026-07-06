@@ -35,8 +35,8 @@
        display:flex;align-items:center;justify-content:center;transition:transform .15s;}
   .playbtn:hover{transform:scale(1.07);}
   svg{display:block;width:100%;height:auto;}
-  .title{font-size:22px;font-weight:700;color:var(--blue);text-align:center;
-         margin:0 0 8px;height:70px;line-height:1.2;overflow:hidden;
+  .title{font-size:46px;font-weight:800;color:var(--blue);text-align:center;
+         margin:0 0 8px;height:140px;line-height:1.18;overflow:hidden;
          display:flex;align-items:center;justify-content:center;
          opacity:0;transition:opacity .45s ease;}      /* copy just fades — no movement */
   .title.show{opacity:1;}
@@ -45,39 +45,45 @@
   .scene.active{display:block;}
   .scene.show{opacity:1;}
   /* constant-height control area keeps the diagram fixed across scenes */
-  .ctrls{min-height:128px;}
+  .ctrls{min-height:210px;}
 
   /* section header */
-  .head{display:flex;align-items:center;gap:11px;margin:16px 4px 10px;
-        font-size:24px;font-weight:700;color:var(--blue);}
-  .head svg{width:36px;height:36px;flex:0 0 auto;}
+  .head{display:flex;align-items:center;gap:14px;margin:16px 4px 14px;
+        font-size:36px;font-weight:700;color:var(--blue);}
+  .head svg{width:48px;height:48px;flex:0 0 auto;}
 
   /* slider (scene 2) */
-  .slider{position:relative;height:30px;margin:6px 10px 0;}
-  .slider .track{position:absolute;top:50%;left:0;right:0;height:6px;
-        transform:translateY(-50%);background:var(--blue);border-radius:3px;}
-  .slider .handle{position:absolute;top:50%;width:26px;height:26px;border-radius:50%;
-        background:var(--blue);border:4px solid #fff;transform:translate(-50%,-50%);
-        box-shadow:0 1px 4px rgba(0,0,0,.25);}
-  .ends{display:flex;justify-content:space-between;margin:6px 8px 0;
-        font-size:28px;font-weight:700;color:var(--blue);}
+  .slider{position:relative;height:64px;margin:28px 10px 0;}
+  .slider .track{position:absolute;top:50%;left:0;right:0;height:16px;
+        transform:translateY(-50%);background:var(--blue);border-radius:8px;}
+  .slider .handle{position:absolute;top:50%;width:60px;height:60px;border-radius:50%;
+        background:var(--blue);border:8px solid #fff;transform:translate(-50%,-50%);
+        box-shadow:0 2px 8px rgba(0,0,0,.28);}
+  .ends{display:flex;justify-content:space-between;margin:18px 8px 0;
+        font-size:46px;font-weight:700;color:var(--blue);}
 
   /* form (scene 3) */
-  .form{display:flex;gap:34px;flex-wrap:wrap;margin:4px 6px 0;align-items:flex-end;}
-  .fld{font-size:16px;font-weight:700;color:var(--blue);}
-  .fld .row{display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:400;}
-  .box{min-width:88px;height:46px;border:2px solid var(--blue);border-radius:9px;
-       display:flex;align-items:center;justify-content:center;background:#fff;
-       font-size:22px;font-weight:700;color:#0a3b4d;}
+  .form{display:flex;gap:48px;flex-wrap:wrap;margin:8px 6px 0;align-items:flex-end;}
+  .fld{font-size:30px;font-weight:700;color:var(--blue);}
+  .fld .row{display:flex;align-items:center;gap:14px;margin-top:16px;font-weight:400;}
+  .box{min-width:170px;height:72px;border:3px solid var(--blue);border-radius:14px;
+       padding:0 18px;display:flex;align-items:center;justify-content:center;background:#fff;
+       font-size:36px;font-weight:700;color:#0a3b4d;}
   .box.ph{color:#b9ccd5;font-weight:400;}
-  .unit{color:#7fa7b6;font-size:16px;}
-  .rate{font-size:26px;font-weight:700;color:var(--blue);}
-  .rate .u{font-size:16px;color:#7fa7b6;}
+  .unit{color:#7fa7b6;font-size:26px;}
+  .rate{font-size:38px;font-weight:700;color:var(--blue);}
+  .rate .u{font-size:24px;color:#7fa7b6;}
+  /* dropdown (scene 3) — mirrors the app's "Add delivery times" control */
+  .dd{margin-top:16px;height:82px;border:3px solid var(--blue);border-radius:14px;
+      display:flex;align-items:center;justify-content:space-between;padding:0 26px;
+      background:#fff;font-size:34px;font-weight:700;color:#0a3b4d;}
+  .dd.empty{color:#9bb2bd;font-weight:400;}
+  .dd svg{width:42px;height:42px;flex:0 0 auto;}
 
   /* tabs */
-  .tabs{display:flex;gap:8px;justify-content:center;margin-top:26px;}
-  .tabs button{flex:0 0 auto;border:1.5px solid var(--blue);background:#fff;color:var(--blue);
-        border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;}
+  .tabs{display:flex;gap:16px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
+  .tabs button{flex:0 0 auto;border:2.5px solid var(--blue);background:#fff;color:var(--blue);
+        border-radius:44px;padding:16px 34px;font-size:28px;font-weight:700;cursor:pointer;}
   .tabs button.on{background:var(--blue);color:#fff;}
   .caption{display:none;text-align:center;color:#5a7d8b;font-size:15px;margin-top:14px;min-height:20px;
            opacity:0;transition:opacity .45s ease;}
@@ -133,19 +139,6 @@
       <g id="bars2"></g>
     </svg>
     <div class="ctrls">
-    <div class="head">
-      <svg viewBox="0 0 80 80">
-        <g fill="none" stroke="var(--blue)" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-45 42 38)">
-          <rect x="30" y="31" width="26" height="14" rx="2"/>      <!-- barrel -->
-          <line x1="56" y1="38" x2="66" y2="38"/>                  <!-- plunger rod -->
-          <line x1="66" y1="31" x2="66" y2="45"/>                  <!-- plunger flange -->
-          <line x1="36" y1="31" x2="36" y2="45"/>                  <!-- graduation -->
-          <line x1="30" y1="38" x2="20" y2="38"/>                  <!-- needle -->
-        </g>
-        <path d="M22 56 c6 7 6 12 0 15 c-6 -3 -6 -8 0 -15 Z" fill="var(--blue)"/> <!-- drop -->
-      </svg>
-      Delivery Frequency
-    </div>
     <div class="slider"><div class="track"></div><div class="handle" id="handle2"></div></div>
     <div class="ends"><span>4</span><span>36</span></div>
     </div>
@@ -166,18 +159,14 @@
       <g id="bars3"></g>
     </svg>
     <div class="ctrls">
-    <div class="head">
-      <svg viewBox="0 0 80 80"><g fill="var(--blue)"><rect x="14" y="40" width="12" height="26" rx="2"/><rect x="34" y="26" width="12" height="40" rx="2"/><rect x="54" y="14" width="12" height="52" rx="2"/></g></svg>
-      Dosing Windows
-    </div>
-    <div class="form">
-      <div class="fld">Time window
-        <div class="row"><span class="box" id="t1">&nbsp;</span>–<span class="box" id="t2">&nbsp;</span></div>
+      <div class="fld">Add delivery times
+        <div class="dd empty" id="dd"><span id="ddText">Select a preset time…</span>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--blue)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
       </div>
-      <div class="fld">Dose in this window
-        <div class="row"><span class="box ph" id="dose">µg/h</span></div>
+      <div class="fld" style="margin-top:26px">Set all selected to
+        <div class="row"><span class="box ph" id="dose">mcg/h</span></div>
       </div>
-    </div>
     </div>
   </div>
 
@@ -277,13 +266,13 @@ function scene2(t){
 }
 
 /* ---------- SCENE 3 : dosing windows ---------- */
-const N3=20, BASEH=FULL1, HIGH=2*FULL1, TOPBOX=BASE-HIGH-8; // base 15µg/h -> window 30µg/h = double
+const N3=20, BASEH=FULL1, HIGH=2*FULL1, TOPBOX=BASE-HIGH-8; // base 15mcg/h -> window 30mcg/h = double
 const g3=document.getElementById("bars3"), bars3=[];
 const winA=5, winB=9;                               // bar indices inside window
 for(let i=0;i<N3;i++){const x=X1+i*(X2-X1)/(N3-1)-6.5;
   bars3.push(mk(g3,{x,width:13,rx:2.5,fill:BLUE}));}
 const selBox=document.getElementById("selBox"),hiBox=document.getElementById("hiBox"),winLbl=document.getElementById("winLbl");
-const t1=document.getElementById("t1"),t2=document.getElementById("t2"),dose=document.getElementById("dose");
+const dose=document.getElementById("dose"),dd=document.getElementById("dd"),ddText=document.getElementById("ddText");
 const wx1=X1+winA*(X2-X1)/(N3-1)-16, wx2=X1+winB*(X2-X1)/(N3-1)+16, wW=wx2-wx1, wC=(wx1+wx2)/2;
 const TOT3=9000, segE=(t,a,d)=> t<=a?0 : (t>=a+d?1 : ease((t-a)/d));
 function scene3(t){
@@ -306,10 +295,10 @@ function scene3(t){
   hiBox.setAttribute("y",TOPBOX);hiBox.setAttribute("height",BASE-TOPBOX);
   // label + form
   winLbl.setAttribute("x",wC);winLbl.setAttribute("opacity",sel);
-  t1.textContent=form>0.4?"06:30":" ";
-  t2.textContent=form>0.7?"08:00":" ";
-  if(grow>0.05){dose.classList.remove("ph");dose.textContent=Math.round(30*grow)+" µg/h";}
-  else{dose.classList.add("ph");dose.textContent="µg/h";}
+  if(form>0.5){dd.classList.remove("empty");ddText.textContent="06:30 - 08:00";}
+  else{dd.classList.add("empty");ddText.textContent="Select a preset time...";}
+  if(grow>0.05){dose.classList.remove("ph");dose.textContent=Math.round(30*grow)+" mcg/h";}
+  else{dose.classList.add("ph");dose.textContent="mcg/h";}
 }
 
 /* ---------- player ---------- */
@@ -327,7 +316,7 @@ const titles={
 const captions={
  1:"Medication is delivered in quick pulses — one bar per pulse across the day.",
  2:"With many deliveries the pump fires in a steady rhythm. Lower the frequency and it fires two pulses back-to-back, then waits longer — each delivery a stack of two.",
- 3:"Select a time window to increase the dose just for that period (here 06:30–08:00, 30 µg/h)."
+ 3:"Select a time window to increase the dose just for that period (here 06:30–08:00, 30 mcg/h)."
 };
 
 const FADE_MS=470;                 // matches the CSS opacity transition
@@ -376,6 +365,8 @@ playOv.addEventListener("click",()=>play(scene));
 document.querySelectorAll(".tabs button").forEach(b=>{
   b.addEventListener("click",()=>play(+b.dataset.go));
 });
+// Auto-start as soon as the animation loads (no extra play click needed).
+play(scene);
 </script>
 </body>
 </html>

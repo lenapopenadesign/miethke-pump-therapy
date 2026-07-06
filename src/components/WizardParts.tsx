@@ -81,7 +81,7 @@ export function WizardChart({ highlights = [], onHelp, baseOnly = false }: { hig
  * steps: delivery count on the left, per-medication daily totals on the right.
  * Full-bleed across the 1200px canvas.
  */
-export function WizardTotalsFooter({ baseOnly = false }: { baseOnly?: boolean }) {
+export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9' }: { baseOnly?: boolean; bg?: string }) {
   const { baseDose, bolusCount, medications, intervals } = useTherapy();
   const windows = intervals;
   const primary = medications[0];
@@ -98,30 +98,27 @@ export function WizardTotalsFooter({ baseOnly = false }: { baseOnly?: boolean })
 
   const wdth = { fontVariationSettings: "'wdth' 100" } as const;
   return (
-    <div className="w-[1200px] bg-[#e6f4f9] px-[80px] pt-[28px] pb-[20px] flex flex-col gap-[24px]">
-      {/* Header pills */}
+    <div className="w-[1200px] px-[80px] pt-[28px] pb-[20px] flex flex-col gap-[12px]" style={{ background: bg }}>
+      {/* Header: delivery count (left) + "Total per 24 h" column header over the values (right) */}
       <div className="flex items-center justify-between">
         <div className="border-2 border-[#0094c5] rounded-[40px] px-[28px] py-[10px]">
           <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[26px] tracking-[0.1px]" style={wdth}>
             {active && bolusCount > 0 ? `${bolusCount} deliveries / day` : '— deliveries / day'}
           </span>
         </div>
-        <div className="bg-[#0094c5] rounded-[40px] px-[28px] py-[10px]">
-          <span className="font-['Roboto',sans-serif] font-bold text-white text-[26px] tracking-[0.1px]" style={wdth}>Total per 24 h</span>
-        </div>
+        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[2px] uppercase pr-[2px]" style={wdth}>Total per 24 h</p>
       </div>
-      {/* Per-medication daily totals */}
-      <div className="flex flex-col gap-[12px]">
+      {/* Per-medication daily totals: name (left) tied to value (right); the value
+          column sits under the "Total per 24 h" header above. */}
+      <div className="flex flex-col gap-[6px]">
         {medications.map((m, i) => (
-          <div key={m.id} className="grid items-baseline [grid-template-columns:1fr_1fr_1fr]">
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px] whitespace-nowrap" style={wdth}>
-              {m.name || (i === 0 ? 'Primary' : 'Medication')}
+          <div key={m.id} className="flex items-baseline justify-between py-[6px]">
+            <p className="whitespace-nowrap">
+              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px]" style={wdth}>{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
+              <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[24px] tracking-[0.1px] ml-[14px]" style={wdth}>{m.concentration} {m.unit}</span>
             </p>
-            <p className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[24px] tracking-[0.1px] whitespace-nowrap" style={wdth}>
-              {m.concentration} {m.unit}
-            </p>
-            <p className="font-['Roboto',sans-serif] text-right text-[#00769e] tracking-[0.1px] whitespace-nowrap" style={wdth}>
-              <span className="font-bold text-[30px]">{medTotal(m, i)}</span> <span className="font-normal text-[#5f8aa0] text-[22px]">{medUnit(m)}</span>
+            <p className="whitespace-nowrap text-right">
+              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px]" style={wdth}>{medTotal(m, i)}</span> <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px]" style={wdth}>{medUnit(m)}</span>
             </p>
           </div>
         ))}
@@ -130,18 +127,9 @@ export function WizardTotalsFooter({ baseOnly = false }: { baseOnly?: boolean })
   );
 }
 
-/** Syringe glyph used to title the Delivery Frequency section. */
+/** Gauge glyph used to title the Delivery Frequency section (matches the Help step icon). */
 export function DeliveryIcon({ size = 44 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#0094c5" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m18 2 4 4" />
-      <path d="m17 7 3-3" />
-      <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5" />
-      <path d="m9 11 4 4" />
-      <path d="m5 19-3 3" />
-      <path d="m14 4 6 6" />
-    </svg>
-  );
+  return <img src="/icons/step-frequency.svg" alt="" style={{ width: size, height: size }} className="object-contain shrink-0" />;
 }
 
 /**

@@ -32,18 +32,16 @@ function PlayIcon() {
   );
 }
 
-function StepIcon() {
-  return <div className="size-[48px] rounded-[10px] bg-[#d1eaf8] shrink-0" />;
-}
-
 function ArrowRight() {
   return <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="#0094c5" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 
 const STEPS = [
-  { title: 'Base dose', desc: 'Set the continuous background dose per medication' },
-  { title: 'Delivery Frequency', desc: 'Choose how often the pump delivers over the day' },
-  { title: 'Dosing windows', desc: 'Add time windows that raise or lower the dose' },
+  // Per-icon size: the vial artwork has internal padding, so it needs a larger box
+  // to read at the same visual weight as the others.
+  { title: 'Dose per day', desc: 'Set the continuous background dose per medication', icon: '/icons/step-base-dose.svg', size: 72 },
+  { title: 'Delivery Frequency', desc: 'Choose how often the pump delivers over the day', icon: '/icons/step-frequency.svg', size: 60 },
+  { title: 'Dosing windows', desc: 'Add time windows that raise or lower the dose', icon: '/icons/step-windows.svg', size: 52 },
 ];
 
 export function Help() {
@@ -85,7 +83,10 @@ export function Help() {
           <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px]" style={wdth}>Steps in this flow</p>
           {STEPS.map(s => (
             <div key={s.title} className="flex items-center gap-[24px]">
-              <StepIcon />
+              {/* Fixed-width slot keeps the titles aligned regardless of icon size. */}
+              <div className="w-[76px] flex items-center justify-center shrink-0">
+                <img src={s.icon} alt="" style={{ width: s.size, height: s.size }} className="object-contain" />
+              </div>
               <div className="flex flex-col">
                 <p className="font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] tracking-[0.1px]" style={wdth}>{s.title}</p>
                 <p className="font-['Roboto',sans-serif] font-normal text-[#8a97a1] text-[24px] tracking-[0.1px]" style={wdth}>{s.desc}</p>

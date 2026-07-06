@@ -18,6 +18,9 @@ const labelCls = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px
 const HEAD_BG = '#c4e1ef';
 const TOTAL_BG = '#d8ecf7';
 const ROW_BG = '#eef6fb';
+// Exported so the Therapy detail page can tint its Total 24 h band to match the
+// medication summary rows.
+export const MED_TOTAL_BG = TOTAL_BG;
 
 function KebabIcon() {
   return (
@@ -116,17 +119,20 @@ export function TherapyChartCard({ showNow = false, onHelp }: { showNow?: boolea
  * and the per-medication breakdown (Base Dose + one row per dosing window). The
  * first medication is expanded; the others collapse to just their header.
  */
-export function TherapyMedBreakdown() {
+export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: boolean }) {
   const { baseDose, bolusCount, intervals, medications } = useTherapy();
   const windows = [...intervals].sort((a, b) => a.startMin - b.startMin);
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const minsBetween = bolusCount > 0 ? Math.round(1440 / bolusCount) : 0;
+  const bolusN = Math.max(1, bolusCount); // divisor for per-delivery doses
   const [expandedId, setExpandedId] = useState<string | null>(medications[0]?.id ?? null);
 
   return (
     <div className="flex flex-col gap-[24px]">
-      {/* Bolus frequency */}
-      <ValueRow label="Bolus frequency" value={`${bolusCount}`} unit={`boluses · every ~${minsBetween} min`} bg={TOTAL_BG} />
+      {/* Delivery frequency */}
+      {showFrequency && (
+        <ValueRow label="Delivery frequency" value={`${bolusCount}`} unit={`deliveries · every ~${minsBetween} min`} bg={TOTAL_BG} />
+      )}
 
       {/* Per-medication breakdown. */}
       {medications.map((m, i) => {
@@ -153,16 +159,18 @@ export function TherapyMedBreakdown() {
             </button>
             {expanded && (
               <>
-                <ValueRow label="Base Dose" value={doseStringsFor(baseUg, u).perDay} unit={`${unit}/day`} bg={ROW_BG} />
+                {/* Base dose per day, plus the dose one delivery carries at that base. */}
+                <ValueRow label="Dose per day" value={doseStringsFor(baseUg, u).perDay} unit={`${unit}/day`} bg={ROW_BG} />
+                <ValueRow label="Default Delivery" value={doseStringsFor(baseUg / bolusN, u).perDay} unit={`${unit}/delivery`} bg={ROW_BG} />
+                {/* Each window: the dose delivered in a single delivery during it. */}
                 {windows.map(w => {
                   const rateUg = i === 0 ? w.dose : coDoseUgDay(w.dose, c0, cm);
-                  const intervalUg = rateUg * (w.endMin - w.startMin) / 1440;
                   return (
                     <ValueRow
                       key={w.id}
                       label={`${fmtTime(w.startMin)} - ${fmtTime(w.endMin >= 1440 ? 1439 : w.endMin)}`}
-                      value={doseStringsFor(intervalUg, u).perDay}
-                      unit={`${unit}/w`}
+                      value={doseStringsFor(rateUg / bolusN, u).perDay}
+                      unit={`${unit}/delivery`}
                       bg={ROW_BG}
                     />
                   );

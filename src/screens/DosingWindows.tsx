@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtDose, fmtTime, doseUnitFor, concUgPerUl, coDoseUgDay, doseStringsFor, type Medication } from '../therapy';
+import { useTherapy, fmtTime, doseUnitFor, concUgPerUl, coDoseUgDay, doseStringsFor, type Medication } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { WizardChart, WizardTotalsFooter, SaveButton, type Highlight } from '../components/WizardParts';
 
@@ -44,7 +44,6 @@ export function DosingWindows() {
   const navigate = useNavigate();
   const { baseDose, bolusCount, intervals, addWindow, updateWindow, removeWindow, medications } = useTherapy();
   const windows = intervals; // shared schedule (every day identical)
-  const doseU = doseUnitFor(medications[0]?.unit ?? 'µg/ml');
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
 
   // Selectable delivery moments = the delivery frequency chosen on the previous
@@ -63,6 +62,7 @@ export function DosingWindows() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [range, setRange] = useState<{ a: number; b: number } | null>(null); // slot indices
   const [doseText, setDoseText] = useState('');
+  const [refIndex, setRefIndex] = useState(0); // which medication the entered dose refers to
 
   const minSlot = range ? Math.min(range.a, range.b) : null;
   const maxSlot = range ? Math.max(range.a, range.b) : null;
@@ -70,10 +70,17 @@ export function DosingWindows() {
   const selEndMin = maxSlot != null ? slotEdges[maxSlot + 1] : null;
   const selCount = minSlot != null && maxSlot != null ? maxSlot - minSlot + 1 : 0;
 
-  // Per-window total dose (µg over its duration) in the primary med's unit.
-  const windowTotal = (dose: number, startMin: number, endMin: number) => {
-    const dur = Math.max(0, endMin - startMin);
-    return fmtDose((dose * dur / 1440) / doseU.div);
+  // Windows are expressed per delivery: one delivery is 1/bolusCount of the day.
+  const bolusN = Math.max(1, bolusCount);
+  const refMed = medications[refIndex] ?? medications[0];
+  const refU = doseUnitFor(refMed?.unit ?? 'µg/ml');
+  const refConc = refMed ? concUgPerUl(refMed) : 1;
+
+  // Per-delivery dose of medication i, given the primary's daily µg, in its unit.
+  const perDelivery = (primaryDailyUg: number, m: Medication, i: number) => {
+    const ug = i === 0 ? primaryDailyUg : coDoseUgDay(primaryDailyUg, c0, concUgPerUl(m));
+    const d = doseStringsFor(ug / bolusN, m.unit);
+    return { value: d.perDay, unit: `${d.unit}/del` };
   };
 
   const highlights: Highlight[] = useMemo(() => {
@@ -82,15 +89,17 @@ export function DosingWindows() {
     return list;
   }, [windows, open, selStartMin, selEndMin]);
 
-  const resetEditor = () => { setOpen(false); setEditingId(null); setDropdownOpen(false); setRange(null); setDoseText(''); };
+  const resetEditor = () => { setOpen(false); setEditingId(null); setDropdownOpen(false); setRange(null); setDoseText(''); setRefIndex(0); };
 
-  const openNew = () => { setEditingId(null); setRange(null); setDoseText(''); setDropdownOpen(false); setOpen(true); };
+  const openNew = () => { setEditingId(null); setRange(null); setDoseText(''); setRefIndex(0); setDropdownOpen(false); setOpen(true); };
   const openEdit = (id: string) => {
     const w = windows.find(x => x.id === id);
     if (!w) return;
     setEditingId(id);
     setRange({ a: minToSlot(w.startMin), b: minToSlot(w.endMin - 1) });
-    setDoseText(String(Math.round(w.dose / doseU.div)));
+    setRefIndex(0);
+    // Input shows the per-delivery dose the primary medication carries in this window.
+    setDoseText(doseStringsFor(w.dose / bolusN, medications[0]?.unit ?? 'µg/ml').perDay);
     setDropdownOpen(false);
     setOpen(true);
   };
@@ -101,22 +110,33 @@ export function DosingWindows() {
     setRange(prev => (!prev ? { a: i, b: i } : { a: prev.a, b: i }));
   };
 
+  // The entered per-delivery value (in the reference med's unit) back-solved to the
+  // primary medication's daily µg — the canonical value a window stores.
+  const primaryDose = (() => {
+    if (!doseText) return baseDose;
+    const refDailyUg = parseFloat(doseText) * refU.div * bolusN; // reference med µg/day
+    if (isNaN(refDailyUg)) return baseDose;
+    return refIndex === 0 ? refDailyUg : (refConc > 0 ? (refDailyUg * c0) / refConc : 0);
+  })();
+  const selDelta = deltaPct(primaryDose, baseDose);
+
+  // Pen tap: switch which medication the input refers to, re-expressing the same
+  // physical dose in the newly-selected med's per-delivery unit.
+  const switchRef = (j: number) => {
+    if (doseText) {
+      const ugJ = j === 0 ? primaryDose : coDoseUgDay(primaryDose, c0, concUgPerUl(medications[j]));
+      setDoseText(doseStringsFor(ugJ / bolusN, medications[j].unit).perDay);
+    }
+    setRefIndex(j);
+  };
+
   const commit = () => {
     if (selStartMin == null || selEndMin == null) return;
-    const dose = doseText ? Math.round(parseFloat(doseText) * doseU.div) : baseDose;
+    const dose = doseText ? Math.round(primaryDose) : baseDose;
     if (editingId) updateWindow(editingId, { startMin: selStartMin, endMin: selEndMin, dose });
     else addWindow({ label: 'Window', startMin: selStartMin, endMin: selEndMin, dose });
     resetEditor();
   };
-
-  // "Set all selected to" — dose applied to the primary; co-meds shown subtle.
-  const primaryDose = doseText ? parseFloat(doseText) * doseU.div : baseDose;
-  const coRow = (m: Medication, i: number) => {
-    const ug = i === 0 ? primaryDose : coDoseUgDay(primaryDose, c0, concUgPerUl(m));
-    const d = doseStringsFor(ug, m.unit);
-    return { name: m.name || 'Medication', value: d.perDay, unit: `${d.unit}/d` };
-  };
-  const selDelta = deltaPct(primaryDose, baseDose);
 
   return (
     <WizardShell
@@ -149,6 +169,7 @@ export function DosingWindows() {
             </p>
             {[...windows].sort((a, b) => a.startMin - b.startMin).map(w => {
               const delta = deltaPct(w.dose, baseDose);
+              const pd = perDelivery(w.dose, medications[0], 0);
               return (
                 <div key={w.id} className="bg-white border border-[#cfdbe3] rounded-[16px] h-[96px] flex items-center pl-[32px] pr-[12px] gap-[16px]">
                   <p onClick={() => openEdit(w.id)} className="flex-1 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px] cursor-pointer" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -157,8 +178,8 @@ export function DosingWindows() {
                   {delta && (
                     <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{delta.text}</p>
                   )}
-                  <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] min-w-[150px] text-right" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    {windowTotal(w.dose, w.startMin, w.endMin)} {doseU.unit}
+                  <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] min-w-[180px] text-right whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    {pd.value} {pd.unit}
                   </p>
                   <Kebab onClick={() => openEdit(w.id)} />
                 </div>
@@ -208,27 +229,32 @@ export function DosingWindows() {
               )}
             </div>
 
-            {/* Deliveries in selection */}
-            {selCount > 0 && !dropdownOpen && (
-              <div className="flex flex-col gap-[12px] pl-[236px] pr-[72px]">
-                <p className="font-['Roboto',sans-serif] font-normal text-[#8a97a1] text-[22px] tracking-[1px] uppercase" style={{ fontVariationSettings: "'wdth' 100" }}>Deliveries in selection</p>
-                {Array.from({ length: selCount }, (_, k) => {
-                  const slot = (minSlot as number) + k;
-                  const isStart = k === 0, isEnd = k === selCount - 1;
-                  return (
-                    <div key={slot} className="bg-white border border-[#cfdbe3] rounded-[12px] h-[80px] flex items-center px-[24px] gap-[16px]">
-                      <span className="w-[6px] h-[40px] rounded-full bg-[#0094c5]" />
-                      <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fmtTime(slotEdges[slot])}</span>
-                      {(isStart || isEnd) && (
-                        <span className="px-[14px] py-[2px] rounded-full bg-[#00769e] text-white font-['Roboto',sans-serif] text-[18px] tracking-[1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{isStart ? 'START' : 'END'}</span>
-                      )}
-                      <span className="flex-1" />
-                      <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[26px]" style={{ fontVariationSettings: "'wdth' 100" }}>{windowTotal(primaryDose, 0, 1440 / selCount)} {doseU.unit}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            {/* Deliveries in selection — compact; scrolls when more than ~3 are selected */}
+            {selCount > 0 && !dropdownOpen && (() => {
+              const pd = perDelivery(primaryDose, medications[0], 0);
+              return (
+                <div className="flex flex-col gap-[10px] pl-[236px] pr-[72px]">
+                  <p className="font-['Roboto',sans-serif] font-normal text-[#8a97a1] text-[22px] tracking-[1px] uppercase" style={{ fontVariationSettings: "'wdth' 100" }}>Deliveries in selection ({selCount})</p>
+                  <div className="flex flex-col gap-[8px] max-h-[210px] overflow-y-auto pr-[6px]">
+                    {Array.from({ length: selCount }, (_, k) => {
+                      const slot = (minSlot as number) + k;
+                      const isStart = k === 0, isEnd = k === selCount - 1;
+                      return (
+                        <div key={slot} className="bg-white border border-[#cfdbe3] rounded-[10px] h-[56px] flex items-center px-[20px] gap-[12px] shrink-0">
+                          <span className="w-[5px] h-[28px] rounded-full bg-[#0094c5]" />
+                          <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fmtTime(slotEdges[slot])}</span>
+                          {(isStart || isEnd) && (
+                            <span className="px-[12px] py-[1px] rounded-full bg-[#00769e] text-white font-['Roboto',sans-serif] text-[16px] tracking-[1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{isStart ? 'START' : 'END'}</span>
+                          )}
+                          <span className="flex-1" />
+                          <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{pd.value} {pd.unit}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Set all selected to */}
             <div className="grid items-center gap-x-[16px] gap-y-[16px] [grid-template-columns:220px_1fr_56px]">
@@ -237,33 +263,36 @@ export function DosingWindows() {
               <span />
 
               {medications.map((m, i) => {
-                const r = coRow(m, i);
+                const editing = i === refIndex;
+                const mUnit = doseUnitFor(m.unit).unit;
+                const pd = perDelivery(primaryDose, m, i);
+                const placeholder = perDelivery(baseDose, m, i).value;
                 return (
                   <div key={m.id} className="contents">
-                    <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{r.name}</p>
-                    {i === 0 ? (
+                    <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{m.name || 'Medication'}</p>
+                    {editing ? (
                       <div className="bg-white border-2 border-[#6b7785] rounded-[8px] h-[72px] flex items-center pl-[20px] pr-[16px] gap-[8px] focus-within:border-[#0094c5]">
                         <input
                           type="text" inputMode="decimal" pattern="[0-9]*\.?[0-9]*"
                           value={doseText}
                           onChange={e => setDoseText(e.target.value.replace(/[^0-9.]/g, ''))}
-                          placeholder={String(Math.round(baseDose / doseU.div))}
+                          placeholder={placeholder}
                           className="flex-1 min-w-px font-bold text-[#45483c] text-[36px] bg-transparent outline-none border-0 p-0 placeholder:font-normal placeholder:text-[#9ea8b2] placeholder:text-[28px]"
                           style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
                         />
-                        <span className="font-['Roboto',sans-serif] text-[#a5a5a5] text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{doseU.unit}/d</span>
+                        <span className="font-['Roboto',sans-serif] text-[#a5a5a5] text-[28px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{mUnit}/del</span>
                       </div>
                     ) : (
                       <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[20px]">
                         <p className="font-['Roboto',sans-serif] text-[#00769e] text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                          <span className="font-bold">{r.value}</span> <span className="font-normal text-[#5f8aa0]">{r.unit}</span>
+                          <span className="font-bold">{pd.value}</span> <span className="font-normal text-[#5f8aa0]">{pd.unit}</span>
                         </p>
                       </div>
                     )}
-                    {i === 0 && selDelta ? (
-                      <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[24px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{selDelta.text}</p>
-                    ) : i === 0 ? <span /> : (
-                      <img alt="" src={imgEditPencil} className="size-[36px] justify-self-end opacity-60" />
+                    {editing ? (
+                      selDelta ? <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[24px] whitespace-nowrap self-center" style={{ fontVariationSettings: "'wdth' 100" }}>{selDelta.text}</p> : <span />
+                    ) : (
+                      <img alt="Use as reference" src={imgEditPencil} onClick={() => switchRef(i)} className="size-[36px] justify-self-end opacity-70 cursor-pointer" />
                     )}
                   </div>
                 );

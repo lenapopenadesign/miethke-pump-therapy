@@ -21,7 +21,7 @@ function rowDisplay(m: Medication, i: number, baseDose: number, c0: number) {
 
 export function BaseDose() {
   const navigate = useNavigate();
-  const { baseDose, setBaseDose, medications, bolusCount, maxBoluses, setBolusCount } = useTherapy();
+  const { baseDose, setBaseDose, medications, bolusCount, maxBoluses, setBolusCount, cancelTherapyEdit } = useTherapy();
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const [editingId, setEditingId] = useState<string | undefined>(medications[0]?.id);
   const [draftText, setDraftText] = useState<string | null>(null);
@@ -47,7 +47,9 @@ export function BaseDose() {
   return (
     <WizardShell
       step="base-dose"
-      onBack={() => navigate('edit-entry')}
+      // Backing out of the editing steps abandons the edit: restore the therapy
+      // that was in place before, so returning home shows the original teaser.
+      onBack={() => { cancelTherapyEdit(); navigate('edit-entry'); }}
       pinnedTop={<WizardChart baseOnly onHelp={() => navigate('help')} />}
       footer={
         <>
@@ -64,7 +66,7 @@ export function BaseDose() {
           <div className="flex gap-[16px] items-center">
             <MedicationIcon size={48} />
             <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-              Base Dose
+              Dose per day
             </p>
           </div>
 
@@ -78,10 +80,10 @@ export function BaseDose() {
             </div>
           )}
 
-          <div className="grid items-center gap-x-[16px] gap-y-[20px] [grid-template-columns:220px_1fr_1fr_56px]">
+          <div className="grid items-center gap-x-[16px] gap-y-[20px] [grid-template-columns:260px_1fr_1fr_56px]">
             {/* Column headers above the value fields */}
             <span />
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] leading-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Base Dose</p>
+            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] leading-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose per day</p>
             <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] leading-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose per delivery</p>
             <span />
 
@@ -145,7 +147,7 @@ export function BaseDose() {
         </div>
 
         {/* Delivery Frequency */}
-        <div className={`flex flex-col gap-[28px] ${freqValid ? '' : 'opacity-40 pointer-events-none'}`}>
+        <div className={`flex flex-col gap-[28px] mt-[36px] ${freqValid ? '' : 'opacity-40 pointer-events-none'}`}>
           <div className="flex gap-[16px] items-center">
             <DeliveryIcon size={44} />
             <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>

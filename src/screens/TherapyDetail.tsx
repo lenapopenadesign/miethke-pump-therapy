@@ -2,7 +2,7 @@ import { useNavigate } from '../navigation';
 import { useTherapy } from '../therapy';
 import { DetailShell } from '../components/DetailShell';
 import { TherapyIcon } from '../components/HomeShell';
-import { TherapyChartCard, TherapyMedBreakdown } from '../components/TherapyBreakdown';
+import { TherapyChartCard, TherapyMedBreakdown, MED_TOTAL_BG } from '../components/TherapyBreakdown';
 import { WizardTotalsFooter } from '../components/WizardParts';
 
 const imgClin1 = "/icons/act-clinician-1.svg";
@@ -54,10 +54,10 @@ export function TherapyDetail() {
       pinnedTop={<TherapyChartCard showNow onHelp={() => navigate('help')} />}
       footer={
         <>
-          {/* Total 24 h band — same summary shown at the bottom of the wizard pages. */}
-          <WizardTotalsFooter />
+          {/* Total 24 h band — tinted to match the medication rows on this page. */}
+          <WizardTotalsFooter bg={MED_TOTAL_BG} />
           {/* Action tiles */}
-          <div className="bg-[#e6f4f9] flex gap-[24px] px-[80px] pt-[24px] pb-[8px]">
+          <div className="flex gap-[24px] px-[80px] pt-[24px] pb-[8px]">
             <ActionTile label="Clinician Bolus" onClick={onClinicianBolus}><ClinicianGlyph /></ActionTile>
             <ActionTile label="Edit" onClick={onEdit}><PencilGlyph /></ActionTile>
             <ActionTile label="Stop" onClick={onStop}><StopGlyph /></ActionTile>
@@ -65,8 +65,8 @@ export function TherapyDetail() {
         </>
       }
     >
-      {/* Scrollable medication breakdown (delivery frequency + accordion). */}
-      <TherapyMedBreakdown />
+      {/* Scrollable medication breakdown (accordion; frequency hidden on this page). */}
+      <TherapyMedBreakdown showFrequency={false} />
     </DetailShell>
   );
 }
