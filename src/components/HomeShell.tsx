@@ -261,7 +261,7 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
                   <span className="leading-[52px] text-[36px]">{fillMl}/</span>
                   <span className="font-normal leading-[52px] text-[36px]">{RESERVOIR_ML} ml</span>
                 </p>
-                <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fillPct} %</p>
+                <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fillPct} %</p>
               </div>
               {/* Catheter */}
               <div className="content-stretch flex items-center relative shrink-0">
@@ -276,7 +276,7 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
                     <span className="leading-[52px] text-[36px]">{CATHETER.volumeMl}</span>
                     <span className="font-normal leading-[52px] text-[36px]">{` ml`}</span>
                   </p>
-                  <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[28px]" style={{ fontVariationSettings: "'wdth' 100" }}>{CATHETER.implantedLengthCm} cm</p>
+                  <p className="font-['Roboto',sans-serif] font-normal leading-[36px] relative shrink-0 text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>{CATHETER.implantedLengthCm} cm</p>
                 </div>
               </div>
               {/* Next refill */}
@@ -353,7 +353,7 @@ function ActionTile({ filled, label, children, onClick }: { filled?: boolean; la
 
 function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
   const navigate = useNavigate();
-  const { setFlowMode } = useTherapy();
+  const { setFlowMode, beginEditTherapy } = useTherapy();
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   const startSetup = () => { setFlowMode('setup'); navigate('add-medication'); };
   return (
@@ -416,7 +416,7 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
         )}
         {/* Edit Therapy — active only; enters the redesigned Edit Therapy flow */}
         {!noTherapy && (
-          <ActionTile label="Edit Therapy" onClick={() => navigate('edit-entry')}>
+          <ActionTile label="Edit Therapy" onClick={() => { setFlowMode('setup'); beginEditTherapy('home-active'); navigate('base-dose'); }}>
             <EditTherapyIcon />
           </ActionTile>
         )}

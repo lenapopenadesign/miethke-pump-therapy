@@ -8,7 +8,7 @@ const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 function ValueBar({ value, unit }: { value: string; unit: string }) {
   return (
     <div className="rounded-[8px] h-[60px] flex items-baseline px-[20px]" style={{ background: VAL_BG }}>
-      <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] self-center" style={wdth}>{value}</span>
+      <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px] self-center" style={wdth}>{value}</span>
       <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px] self-center" style={wdth}>{unit}</span>
     </div>
   );

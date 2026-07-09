@@ -7,6 +7,7 @@ import {
   doseUnitFor,
   estimatedDailyTotal,
   fmtTime,
+  windowDeliverySpan,
   type Interval,
 } from '../therapy';
 import { BolusBars } from './TherapyHeaderChart';
@@ -39,15 +40,18 @@ function Chevron({ up }: { up?: boolean }) {
   );
 }
 
-/** Label + a filled value bar (bold value + grey unit), with an optional +/-% delta. */
-export function ValueRow({ label, value, unit, bg, delta }: { label: string; value: string; unit: string; bg: string; delta?: number | null }) {
+/** Label + a filled value bar (bold value + grey unit), with an optional total note and +/-% delta. */
+export function ValueRow({ label, value, unit, bg, delta, note }: { label: string; value: string; unit: string; bg: string; delta?: number | null; note?: string }) {
   const showDelta = delta != null && delta !== 0;
   return (
     <div className="grid items-center gap-[24px] [grid-template-columns:220px_1fr]">
       <p className={labelCls}>{label}</p>
       <div className="rounded-[8px] h-[60px] flex items-baseline px-[24px]" style={{ background: bg }}>
-        <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] self-center" style={wdth}>{value}</span>
+        <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px] self-center" style={wdth}>{value}</span>
         <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px] self-center" style={wdth}>{unit}</span>
+        {note && (
+          <span className="ml-[16px] font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] self-center whitespace-nowrap" style={wdth}>· {note}</span>
+        )}
         {showDelta && (
           <span className="ml-auto font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[24px] self-center whitespace-nowrap" style={wdth}>
             {delta! > 0 ? '+' : '−'}{Math.abs(delta!)}%
@@ -175,14 +179,20 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
                 {windows.map(w => {
                   const rateUg = i === 0 ? w.dose : coDoseUgDay(w.dose, c0, cm);
                   const delta = baseDose > 0 ? Math.round((w.dose / baseDose - 1) * 100) : 0;
+                  const span = windowDeliverySpan(w.startMin, w.endMin, bolusCount);
+                  const totalUg = (rateUg / bolusN) * span.count;
+                  const rangeLabel = span.firstMin === span.lastMin
+                    ? fmtTime(span.firstMin)
+                    : `${fmtTime(span.firstMin)} – ${fmtTime(span.lastMin)}`;
                   return (
                     <ValueRow
                       key={w.id}
-                      label={`${fmtTime(w.startMin)} - ${fmtTime(w.endMin >= 1440 ? 1439 : w.endMin)}`}
+                      label={rangeLabel}
                       value={doseStringsFor(rateUg / bolusN, u).perDay}
                       unit={`${unit}/delivery`}
                       bg={ROW_BG}
                       delta={delta}
+                      note={`${doseStringsFor(totalUg, u).perDay} ${doseStringsFor(totalUg, u).unit} total`}
                     />
                   );
                 })}

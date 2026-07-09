@@ -22,7 +22,7 @@ function StatPair({ label, value, unit }: { label: string; value: string; unit?:
     <div className="flex items-center gap-[20px] flex-1 min-w-px">
       <p className="w-[200px] shrink-0 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
       <div className="flex-1 min-w-px bg-[#e6f4f9] rounded-[8px] h-[64px] px-[20px] flex items-center gap-[8px]">
-        <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{value}</span>
+        <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{value}</span>
         {unit && <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[24px]">{unit}</span>}
       </div>
     </div>
@@ -57,7 +57,7 @@ export function ImplantDetail() {
                 <span className="font-bold text-[36px] leading-[52px]">{fillMl} / </span>
                 <span className="font-normal text-[36px] leading-[52px]">{RESERVOIR_ML} ml</span>
               </p>
-              <p className="font-['Roboto',sans-serif] font-normal text-[28px] leading-[36px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fillPct} %</p>
+              <p className="font-['Roboto',sans-serif] font-normal text-[32px] leading-[36px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fillPct} %</p>
             </div>
             <div className="flex flex-col text-[#00769e] whitespace-nowrap">
               <p className={labelCls}>Medication delivery</p>

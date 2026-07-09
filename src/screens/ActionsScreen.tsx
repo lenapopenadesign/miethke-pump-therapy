@@ -117,7 +117,7 @@ export function ActionsScreen() {
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   // Same therapy actions as the Therapy subpage: Edit Therapy opens the decision
   // screen; Edit Medication jumps to the medication page (add/remove); Stop ends it.
-  const editTherapy = () => { setFlowMode('setup'); navigate('edit-entry'); };
+  const editTherapy = () => { setFlowMode('setup'); beginEditTherapy('actions'); navigate('base-dose'); };
   const editMedication = () => { setFlowMode('setup'); beginEditTherapy('actions'); navigate('add-medication'); };
   const onStop = () => { setTherapyActive(false); navigate('home-no-therapy'); };
   return (

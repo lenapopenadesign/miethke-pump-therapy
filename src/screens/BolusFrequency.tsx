@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtDose, doseUnitFor, concUgPerUl, coDoseUgDay, BOLUS_VOLUME_UL, MIN_BOLUSES_PER_DAY } from '../therapy';
+import { useTherapy, fmtDose, doseUnitFor, concUgPerUl, coDoseUgDay, BOLUS_VOLUME_UL } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { TherapyHeaderChart } from '../components/TherapyHeaderChart';
 
@@ -10,15 +10,23 @@ import { TherapyHeaderChart } from '../components/TherapyHeaderChart';
  * (notably Safari/touch). Deriving the value from getBoundingClientRect() — which
  * reflects the transform — makes dragging work at any scale, on any browser.
  */
-function RangeSlider({ min, max, value, disabled, onChange }: { min: number; max: number; value: number; disabled?: boolean; onChange: (n: number) => void }) {
+function RangeSlider({ min, max, value, disabled, steps, onChange }: { min: number; max: number; value: number; disabled?: boolean; steps?: number[]; onChange: (n: number) => void }) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const pct = max > min ? (value - min) / (max - min) : 1;
+  const idx = steps ? Math.max(0, steps.indexOf(value)) : 0;
+  const pct = steps
+    ? (steps.length > 1 ? idx / (steps.length - 1) : 1)
+    : (max > min ? (value - min) / (max - min) : 1);
   const setFromX = (clientX: number) => {
     const el = trackRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
     const ratio = r.width > 0 ? Math.min(1, Math.max(0, (clientX - r.left) / r.width)) : 0;
-    onChange(Math.round(min + ratio * (max - min)));
+    if (steps) {
+      if (!steps.length) return;
+      onChange(steps[Math.round(ratio * (steps.length - 1))]);
+    } else {
+      onChange(Math.round(min + ratio * (max - min)));
+    }
   };
   return (
     <div
@@ -85,11 +93,11 @@ function StatCard({ label, value, unit, highlight }: { label: string; value: str
 
 export function BolusFrequency() {
   const navigate = useNavigate();
-  const { baseDose, bolusCount, maxBoluses, setBolusCount, medications } = useTherapy();
+  const { baseDose, bolusCount, maxBoluses, freqOptions, setBolusCount, medications } = useTherapy();
 
-  // Slider runs from the minimum frequency up to the maximum the dose allows.
-  const sliderMin = Math.min(MIN_BOLUSES_PER_DAY, maxBoluses);
-  const valid = maxBoluses > 0;
+  // Slider snaps through the valid frequencies (divisors of the day's stroke count).
+  const sliderMin = freqOptions.length ? freqOptions[0] : 0;
+  const valid = freqOptions.length > 0;
   const minutesBetween = bolusCount > 0 ? 1440 / bolusCount : 0;
   // Per-bolus dose for every medication, each in its own unit (mg or µg).
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
@@ -114,7 +122,7 @@ export function BolusFrequency() {
 
           {/* Slider */}
           <div className="flex flex-col gap-[16px]">
-            <RangeSlider min={sliderMin} max={Math.max(sliderMin, maxBoluses)} value={bolusCount} disabled={!valid} onChange={setBolusCount} />
+            <RangeSlider min={sliderMin} max={Math.max(sliderMin, maxBoluses)} value={bolusCount} steps={freqOptions} disabled={!valid} onChange={setBolusCount} />
             <div className="flex justify-between">
               <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{valid ? sliderMin : '--'}</span>
               <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{valid ? maxBoluses : '--'}</span>

@@ -42,7 +42,7 @@ export function TherapyDetail() {
   // Edit Therapy opens the Edit-Therapy decision screen; Edit Medication jumps
   // straight to the medication page (add/remove meds), both snapshotting so a
   // back-out restores the current therapy.
-  const onEditTherapy = () => { setFlowMode('setup'); navigate('edit-entry'); };
+  const onEditTherapy = () => { setFlowMode('setup'); beginEditTherapy('therapy-detail'); navigate('base-dose'); };
   const onEditMedication = () => { setFlowMode('setup'); beginEditTherapy('therapy-detail'); navigate('add-medication'); };
   const onStop = () => { setTherapyActive(false); navigate('home-no-therapy'); };
   const onClinicianBolus = () => navigate('actions');

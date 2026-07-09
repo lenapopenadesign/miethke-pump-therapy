@@ -38,10 +38,6 @@ export const MAX_PUSHES_PER_MIN = 15; // → minimum interval 1/15 min = 4 s
 // The base dose is split into whole 10 µl boluses across the day, so the maximum
 // bolus frequency is bounded by how much volume the dose actually represents.
 export const BOLUS_VOLUME_UL = 10;
-// Floor below which the frequency slider won't go (≈ one bolus every 6 h).
-export const MIN_BOLUSES_PER_DAY = 4;
-// Ceiling on the delivery frequency, regardless of how much volume the dose allows.
-export const MAX_BOLUSES_PER_DAY = 80;
 
 /**
  * Daily delivered volume (µl) implied by a primary base dose. volume = mass /
@@ -54,12 +50,57 @@ export function dailyVolumeUl(baseDoseUgDay: number, primaryConcUgPerUl: number)
 }
 
 /**
- * Maximum number of whole 10 µl boluses the daily volume can be split into. This
- * is the highest bolus frequency the pump can run for the given dose +
- * concentration, and the default the setup flow selects.
+ * Whole number of 10 µl strokes the daily volume represents. The pump can only
+ * deliver in 10 µl units, so the day's dose is quantised to this many strokes.
+ */
+export function strokesPerDay(baseDoseUgDay: number, primaryConcUgPerUl: number): number {
+  return Math.round(dailyVolumeUl(baseDoseUgDay, primaryConcUgPerUl) / BOLUS_VOLUME_UL);
+}
+
+/**
+ * Snap a window [startMin, endMin) onto the delivery grid implied by bolusCount
+ * (n evenly-spaced deliveries/day). Returns the first and last *actual* delivery
+ * time the window covers, and how many deliveries that is. endMin is the exclusive
+ * edge one slot past the last delivery, so the last delivery is at endMin − 1's slot.
+ */
+export function windowDeliverySpan(startMin: number, endMin: number, bolusCount: number): { firstMin: number; lastMin: number; count: number } {
+  const n = Math.max(1, bolusCount);
+  const slotOf = (min: number) => Math.min(n - 1, Math.max(0, Math.floor((min * n) / 1440)));
+  const timeAt = (slot: number) => Math.round((slot * 1440) / n);
+  const first = slotOf(startMin);
+  const last = slotOf(Math.max(startMin, endMin - 1));
+  return { firstMin: timeAt(first), lastMin: timeAt(last), count: last - first + 1 };
+}
+
+/**
+ * Valid delivery frequencies (deliveries per day). Each delivery must carry a
+ * whole number of 10 µl strokes, so the deliveries-per-day count has to divide
+ * the day's total stroke count evenly. Returns every divisor of the stroke
+ * count in ascending order — from 1 delivery/day (the whole dose at once) up to
+ * one delivery per stroke — with no artificial floor or ceiling.
+ */
+export function deliveryFrequencyOptions(baseDoseUgDay: number, primaryConcUgPerUl: number): number[] {
+  const strokes = strokesPerDay(baseDoseUgDay, primaryConcUgPerUl);
+  if (strokes <= 0) return [];
+  const divisors: number[] = [];
+  for (let d = 1; d <= strokes; d++) if (strokes % d === 0) divisors.push(d);
+  return divisors;
+}
+
+/** Snap an arbitrary frequency to the nearest valid option (ties → higher). */
+export function nearestFrequency(options: number[], value: number): number {
+  if (!options.length) return 0;
+  return options.reduce((best, o) => Math.abs(o - value) <= Math.abs(best - value) ? o : best, options[0]);
+}
+
+/**
+ * Maximum number of whole 10 µl boluses the daily volume can be split into,
+ * respecting the divisibility constraint — i.e. the highest valid delivery
+ * frequency. This is the default the setup flow selects.
  */
 export function maxBolusesPerDay(baseDoseUgDay: number, primaryConcUgPerUl: number): number {
-  return Math.min(MAX_BOLUSES_PER_DAY, Math.floor(dailyVolumeUl(baseDoseUgDay, primaryConcUgPerUl) / BOLUS_VOLUME_UL));
+  const opts = deliveryFrequencyOptions(baseDoseUgDay, primaryConcUgPerUl);
+  return opts.length ? opts[opts.length - 1] : 0;
 }
 
 // Physical implant spec — single source of truth for the pump reservoir and the
@@ -162,6 +203,8 @@ type TherapyState = {
   // current dose + concentration allow). maxBoluses is that ceiling.
   bolusCount: number;
   maxBoluses: number;
+  // Valid delivery frequencies (divisors of the day's stroke count), ascending.
+  freqOptions: number[];
   setBolusCount: (n: number) => void;
   // Dosing windows — time spans whose dose is raised/lowered vs the base dose.
   // Backed by intervalsByDay (every day identical); these helpers edit all days.
@@ -366,10 +409,13 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
 
   // -------- Bolus frequency --------
   const primaryConc = medications[0] ? concUgPerUl(medications[0]) : 0;
-  const maxBoluses = maxBolusesPerDay(baseDose, primaryConc);
-  // Effective count: the user's choice, clamped to what the current dose allows,
-  // or the maximum when the user hasn't touched the slider.
-  const bolusCount = bolusCountRaw == null ? maxBoluses : Math.min(bolusCountRaw, maxBoluses);
+  // Only divisors of the day's 10 µl stroke count are valid, so every delivery
+  // carries a whole number of 10 µl strokes.
+  const freqOptions = deliveryFrequencyOptions(baseDose, primaryConc);
+  const maxBoluses = freqOptions.length ? freqOptions[freqOptions.length - 1] : 0;
+  // Effective count: the user's choice snapped to the nearest valid option, or
+  // the maximum (most frequent) when the user hasn't touched the slider.
+  const bolusCount = bolusCountRaw == null ? maxBoluses : nearestFrequency(freqOptions, bolusCountRaw);
   const setBolusCount = (n: number) => setBolusCountRaw(n);
 
   // -------- Dosing windows (one shared schedule applied to every day) --------
@@ -458,7 +504,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       startAddingInterval, startEditingInterval, commitDraft, removeInterval, sheetReturnTo,
       previewIntervalId, setPreviewIntervalId,
       strokeStrategy, setStrokeStrategy,
-      bolusCount, maxBoluses, setBolusCount,
+      bolusCount, maxBoluses, freqOptions, setBolusCount,
       addWindow, updateWindow, removeWindow,
       dayPattern, setDayPattern,
       useBaseOnly, setUseBaseOnly,

@@ -45,10 +45,10 @@ export function TherapyTotalsBand() {
       <div className="flex flex-col items-end gap-[6px]">
         {medications.map((m, i) => (
           <div key={m.id} className="flex items-baseline gap-[24px] whitespace-nowrap">
-            <p className={`font-['Roboto',sans-serif] text-right text-white tracking-[0.1px] ${i === 0 ? 'font-bold text-[28px]' : 'font-normal text-[24px]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className={`font-['Roboto',sans-serif] text-right text-white tracking-[0.1px] ${i === 0 ? 'font-bold text-[32px]' : 'font-normal text-[32px]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
               {m.name || (i === 0 ? 'Primary' : 'Medication')}
             </p>
-            <p className={`font-['Roboto',sans-serif] text-right text-white tracking-[0.1px] ${i === 0 ? 'font-bold text-[28px]' : 'font-normal text-[24px]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className={`font-['Roboto',sans-serif] text-right text-white tracking-[0.1px] ${i === 0 ? 'font-bold text-[32px]' : 'font-normal text-[32px]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
               {medTotal(m, i)} {medUnit(m)}
             </p>
           </div>

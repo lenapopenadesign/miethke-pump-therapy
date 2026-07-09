@@ -4,6 +4,7 @@ import {
   coDoseUgDay,
   doseStringsFor,
   estimatedDailyTotal,
+  dailyVolumeUl,
   fmtTime,
 } from '../therapy';
 import { useRef, type ReactNode } from 'react';
@@ -68,7 +69,7 @@ export function WizardChart({ highlights = [], onHelp, baseOnly = false }: { hig
             className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[21px] whitespace-nowrap"
             style={{ left: `calc(30px + (100% - 60px) * ${center / 100})`, fontVariationSettings: "'wdth' 100" }}
           >
-            {fmtTime(hl.startMin)} – {end}
+            {hl.label ?? `${fmtTime(hl.startMin)} – ${end}`}
           </p>
         );
       })}
@@ -96,15 +97,27 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9' }: { baseO
     active ? doseStringsFor(medUgDay(m, i), m.unit).perDay : '--';
   const medUnit = (m: typeof medications[number]) => `${doseStringsFor(0, m.unit).unit}/d`;
 
+  // Daily delivered volume of the reservoir mixture (µl → ml), fixed by the dose
+  // regardless of how it's split into deliveries. Trim trailing zeros (1.50→1.5).
+  const volMlDay = active ? dailyVolumeUl(primaryDailyUg, c0) / 1000 : 0;
+  const volLabel = `${(Math.round(volMlDay * 100) / 100).toString()} ml / day`;
+
   const wdth = { fontVariationSettings: "'wdth' 100" } as const;
   return (
     <div className="w-[1200px] px-[80px] pt-[22px] pb-[14px] flex flex-col gap-[12px]" style={{ background: bg }}>
       {/* Header: delivery count (left) + "Total per 24 h" filled pill (right) */}
       <div className="flex items-center justify-between">
-        <div className="border-2 border-[#0094c5] rounded-[40px] px-[26px] py-[8px]">
-          <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[26px] tracking-[0.1px]" style={wdth}>
-            {active && bolusCount > 0 ? `${bolusCount} deliveries / day` : '— deliveries / day'}
-          </span>
+        <div className="flex items-center gap-[12px]">
+          <div className="border-2 border-[#0094c5] rounded-[40px] px-[26px] py-[8px]">
+            <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>
+              {active && bolusCount > 0 ? `${bolusCount} deliveries / day` : '— deliveries / day'}
+            </span>
+          </div>
+          <div className="border-2 border-[#0094c5] rounded-[40px] px-[26px] py-[8px]">
+            <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>
+              {active ? volLabel : '— ml / day'}
+            </span>
+          </div>
         </div>
         <div className="bg-[#00769e] rounded-[40px] px-[26px] py-[8px]">
           <span className="font-['Roboto',sans-serif] font-bold text-white text-[26px] tracking-[0.1px]" style={wdth}>Total per 24 h</span>
@@ -113,15 +126,13 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9' }: { baseO
       {/* Compact per-medication daily totals: name · concentration · value */}
       <div className="flex flex-col gap-[2px]">
         {medications.map((m, i) => (
-          <div key={m.id} className="grid items-baseline [grid-template-columns:1fr_1fr_1fr]">
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px] whitespace-nowrap" style={wdth}>
-              {m.name || (i === 0 ? 'Primary' : 'Medication')}
-            </p>
-            <p className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[24px] tracking-[0.1px] whitespace-nowrap" style={wdth}>
-              {m.concentration} {m.unit}
+          <div key={m.id} className="flex items-baseline justify-between gap-[24px]">
+            <p className="whitespace-nowrap" style={wdth}>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]">{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
+              <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[32px] tracking-[0.1px] ml-[16px]">{m.concentration} {m.unit}</span>
             </p>
             <p className="text-right whitespace-nowrap" style={wdth}>
-              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] tracking-[0.1px]">{medTotal(m, i)}</span> <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px]">{medUnit(m)}</span>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]">{medTotal(m, i)}</span> <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px]">{medUnit(m)}</span>
             </p>
           </div>
         ))}
@@ -140,15 +151,25 @@ export function DeliveryIcon({ size = 44 }: { size?: number }) {
  * <input type=range> dragging is unreliable when scaled). The value is derived
  * from getBoundingClientRect(), which reflects the transform.
  */
-export function RangeSlider({ min, max, value, disabled, onChange }: { min: number; max: number; value: number; disabled?: boolean; onChange: (n: number) => void }) {
+export function RangeSlider({ min, max, value, disabled, steps, onChange }: { min: number; max: number; value: number; disabled?: boolean; steps?: number[]; onChange: (n: number) => void }) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const pct = max > min ? (value - min) / (max - min) : 1;
+  // Discrete mode: the thumb snaps to positions in `steps` (evenly spaced along
+  // the track, regardless of their numeric gaps) so only valid values are picked.
+  const idx = steps ? Math.max(0, steps.indexOf(value)) : 0;
+  const pct = steps
+    ? (steps.length > 1 ? idx / (steps.length - 1) : 1)
+    : (max > min ? (value - min) / (max - min) : 1);
   const setFromX = (clientX: number) => {
     const el = trackRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
     const ratio = r.width > 0 ? Math.min(1, Math.max(0, (clientX - r.left) / r.width)) : 0;
-    onChange(Math.round(min + ratio * (max - min)));
+    if (steps) {
+      if (!steps.length) return;
+      onChange(steps[Math.round(ratio * (steps.length - 1))]);
+    } else {
+      onChange(Math.round(min + ratio * (max - min)));
+    }
   };
   return (
     <div
@@ -171,7 +192,7 @@ export function RangeSlider({ min, max, value, disabled, onChange }: { min: numb
 export function ReadoutField({ children }: { children: ReactNode }) {
   return (
     <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[24px] w-full">
-      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{children}</p>
+      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{children}</p>
     </div>
   );
 }

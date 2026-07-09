@@ -22,7 +22,7 @@ export type SetupDecision = 'undecided' | 'intervals' | 'regular';
 // into Base Dose in the simplified flow.)
 const SETUP_STEPS = [
   { key: 'base-dose', label: 'Dose per day' },
-  { key: 'windows', label: 'Windows' },
+  { key: 'windows', label: 'Customised Delivery' },
   { key: 'review', label: 'Review' },
   { key: 'transfer', label: 'Transfer' },
 ];
@@ -208,6 +208,9 @@ type Props = {
   // scrollable body) — used by the Edit Therapy steps for the "Total 24 h"
   // summary + Save CTA.
   footer?: ReactNode;
+  // Optional overlay layer rendered on top of the whole canvas (e.g. a modal +
+  // its backdrop). Covers the header/body/footer and is clipped to the shell.
+  overlay?: ReactNode;
   // Retained for back-compat with old screens that still pass it; ignored.
   decision?: SetupDecision;
 };
@@ -220,7 +223,7 @@ type Props = {
  * `banner` is rendered full width under the stepper; screens supply the rest of
  * their body as children — a padded flex column filling the remaining height.
  */
-export function WizardShell({ step, onBack, children, banner, pinnedTop, footer }: Props) {
+export function WizardShell({ step, onBack, children, banner, pinnedTop, footer, overlay }: Props) {
   const { flowMode } = useTherapy();
   const isRefill = flowMode === 'refill';
   return (
@@ -238,6 +241,8 @@ export function WizardShell({ step, onBack, children, banner, pinnedTop, footer 
       </div>
       {/* Pinned footer (full-bleed) */}
       {footer && <div className="shrink-0 w-[1200px]">{footer}</div>}
+      {/* Full-canvas overlay (modals) — clipped to the shell. */}
+      {overlay && <div className="absolute inset-0 z-50">{overlay}</div>}
     </div>
   );
 }

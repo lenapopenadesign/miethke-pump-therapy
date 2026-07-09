@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from '../navigation';
 import {
   useTherapy, coDoseUgDay, concUgPerUl, doseStringsFor, doseUnitFor, fmtDose,
-  MIN_BOLUSES_PER_DAY, type Medication,
+  type Medication,
 } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { MedicationIcon } from '../components/MedicationIcon';
@@ -21,7 +21,7 @@ function rowDisplay(m: Medication, i: number, baseDose: number, c0: number) {
 
 export function BaseDose() {
   const navigate = useNavigate();
-  const { baseDose, setBaseDose, medications, bolusCount, maxBoluses, setBolusCount, cancelTherapyEdit } = useTherapy();
+  const { baseDose, setBaseDose, medications, bolusCount, maxBoluses, freqOptions, setBolusCount, cancelTherapyEdit } = useTherapy();
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const [editingId, setEditingId] = useState<string | undefined>(medications[0]?.id);
   const [draftText, setDraftText] = useState<string | null>(null);
@@ -30,10 +30,11 @@ export function BaseDose() {
   const [initialBase] = useState(baseDose);
   const bigIncrease = initialBase > 0 && baseDose > initialBase * 2;
 
-  // Delivery frequency: slider runs from the minimum up to the maximum the dose
-  // allows; the gap between deliveries is derived from the chosen count.
-  const sliderMin = Math.min(MIN_BOLUSES_PER_DAY, maxBoluses);
-  const freqValid = maxBoluses > 0;
+  // Delivery frequency: the slider snaps through the valid options (divisors of
+  // the day's 10 µl stroke count); the gap between deliveries is derived from the
+  // chosen count.
+  const sliderMin = freqOptions.length ? freqOptions[0] : 0;
+  const freqValid = freqOptions.length > 0;
   const gapMin = bolusCount > 0 ? Math.round(1440 / bolusCount) : 0;
 
   // Editing any med back-solves the shared delivered volume (the primary's
@@ -49,7 +50,7 @@ export function BaseDose() {
       step="base-dose"
       // Backing out of the editing steps abandons the edit: restore the therapy
       // that was in place before, so returning home shows the original teaser.
-      onBack={() => { cancelTherapyEdit(); navigate('edit-entry'); }}
+      onBack={() => { const to = cancelTherapyEdit(); navigate(to); }}
       pinnedTop={<WizardChart baseOnly onHelp={() => navigate('help')} />}
       footer={
         <>
@@ -120,7 +121,7 @@ export function BaseDose() {
                     </div>
                   ) : (
                     <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[20px]">
-                      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                         <span className="font-bold">{d.perDay || '--'}</span> <span className="font-normal text-[#5f8aa0]">{d.unit}/d</span>
                       </p>
                     </div>
@@ -156,7 +157,7 @@ export function BaseDose() {
           </div>
 
           <div className="flex flex-col gap-[8px]">
-            <RangeSlider min={sliderMin} max={Math.max(sliderMin, maxBoluses)} value={bolusCount} disabled={!freqValid} onChange={setBolusCount} />
+            <RangeSlider min={sliderMin} max={Math.max(sliderMin, maxBoluses)} value={bolusCount} steps={freqOptions} disabled={!freqValid} onChange={setBolusCount} />
             <div className="flex justify-between">
               <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{freqValid ? sliderMin : '--'}</span>
               <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{freqValid ? maxBoluses : '--'}</span>

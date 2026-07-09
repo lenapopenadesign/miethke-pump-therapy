@@ -11,7 +11,6 @@ import { RegularTherapy } from './screens/RegularTherapy';
 import { Review } from './screens/Review';
 import { Activate } from './screens/Activate';
 import { HomeActive } from './screens/HomeActive';
-import { EditEntry } from './screens/EditEntry';
 import { Help } from './screens/Help';
 import { PatientDetail } from './screens/PatientDetail';
 import { ImplantDetail } from './screens/ImplantDetail';
@@ -23,10 +22,9 @@ import { TherapyProvider } from './therapy';
 
 // The simplified, edit-only flow. The onboarding screens (add-medication,
 // intervals, activate-from-scratch) were dropped; the wizard is now
-// Edit entry · Base Dose · Windows · Review · Transfer.
+// Base Dose · Windows · Review · Transfer.
 const ORDER: ScreenId[] = [
   'home-active',
-  'edit-entry',
   'base-dose',
   'windows',
   'review',
@@ -67,8 +65,19 @@ function useDeviceLayout() {
   return layout;
 }
 
+// Dev/export aid via the URL hash (kept out of the query string so Vite still
+// serves index.html): #raw=<screen-id> renders that screen bare at the exact
+// 1200×1920 design size (no preview chrome), for pixel-perfect capture.
+// #screen=<screen-id> just sets the initial screen in the normal preview.
+const hashParams = new URLSearchParams(
+  typeof window !== 'undefined' ? window.location.hash.replace(/^#/, '') : '',
+);
+const RAW_SCREEN = hashParams.get('raw');
+const RAW_MODE = RAW_SCREEN != null;
+const INITIAL_SCREEN = (RAW_SCREEN || hashParams.get('screen') || 'home-active') as ScreenId;
+
 export function App() {
-  const [screen, setScreen] = useState<ScreenId>('home-active');
+  const [screen, setScreen] = useState<ScreenId>(INITIAL_SCREEN);
   const [showNav, setShowNav] = useState(false);
   const { isDevice, scale, w, h } = useDeviceLayout();
 
@@ -97,7 +106,6 @@ export function App() {
       {screen === 'review' && <Review />}
       {screen === 'activate' && <Activate />}
       {screen === 'home-active' && <HomeActive />}
-      {screen === 'edit-entry' && <EditEntry />}
       {screen === 'help' && <Help />}
       {screen === 'patient-detail' && <PatientDetail />}
       {screen === 'implant-detail' && <ImplantDetail />}
@@ -106,6 +114,19 @@ export function App() {
       {screen === 'refill-filling' && <RefillFilling />}
     </>
   );
+
+  // Raw capture mode: the screen at its native 1200×1920, no shell/scaling/debug.
+  if (RAW_MODE) {
+    return (
+      <TherapyProvider>
+        <NavProvider value={setScreen}>
+          <div style={{ width: DESIGN_W, height: DESIGN_H, overflow: 'hidden' }}>
+            <div className="screen">{screens}</div>
+          </div>
+        </NavProvider>
+      </TherapyProvider>
+    );
+  }
 
   if (isDevice) {
     const scaledW = DESIGN_W * scale;
