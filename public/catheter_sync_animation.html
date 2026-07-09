@@ -12,7 +12,7 @@
     --panel:#ffffff;
     --baseline:#cfe7f1;
     --label:#9bb2bd;
-    --hi:#a9dcef;
+    --hi:#22c55e;
   }
   html,body{margin:0;height:100%;}
   body{
@@ -168,8 +168,8 @@
       <rect x="2" y="2" width="716" height="200" rx="18" fill="var(--panel)"/>
       <rect id="hiBox" x="0" y="0" width="0" height="0" fill="var(--hi)" opacity="0"/>
       <line x1="28" y1="150" x2="692" y2="150" stroke="var(--baseline)" stroke-width="3"/>
-      <rect id="selBox" x="0" y="0" width="0" height="0" fill="none" stroke="var(--blue)"
-            stroke-width="2.5" stroke-dasharray="7 6" rx="6" opacity="0"/>
+      <rect id="selBox" x="0" y="0" width="0" height="0" fill="none" stroke="#16a34a"
+            stroke-width="3" stroke-dasharray="7 6" rx="6" opacity="0"/>
       <text x="28" y="180" fill="var(--label)" font-size="24">00:00</text>
       <text x="692" y="180" fill="var(--label)" font-size="24" text-anchor="end">24:00</text>
       <text id="winLbl" x="0" y="180" fill="var(--blue)" font-size="22" font-weight="700"
@@ -191,7 +191,7 @@
           </div>
         </div>
         <div class="fld">Set all selected to
-          <div class="dosebox ph" id="dose">mcg/h</div>
+          <div class="dosebox ph" id="dose">mcg</div>
         </div>
       </div>
     </div>
@@ -215,6 +215,7 @@
 <script>
 const NS="http://www.w3.org/2000/svg";
 const BLUE="#0094C5";
+const SPEED=0.78;              // global slow-down for the whole animation (smaller = slower)
 const BASE=150, MAXTOP=34;                 // panel baseline & highest bar top
 const X1=60, X2=660;                        // bar field (inset for padding)
 const ease=p=> p<0.5 ? 2*p*p : 1-Math.pow(-2*p+2,2)/2;
@@ -244,7 +245,7 @@ function scene1(t){
 /* ---------- SCENE 2 : delivery frequency (stacking + double fire) ---------- */
 const g2=document.getElementById("bars2"), handle2=document.getElementById("handle2");
 const bars2=[]; for(let i=0;i<20;i++) bars2.push(mk(g2,{rx:2.5,fill:BLUE}));
-const S2_HS=60, S2_SEG=60, S2_GAP=6, S2_W=13, HL="#00BCE4";  // 1 pulse = 1 unit; stack = 2 units (~double)
+const S2_HS=60, S2_SEG=60, S2_GAP=6, S2_W=13, HL="#22c55e";  // 1 pulse = 1 unit; stack = 2 units (~double)
 const xSingle=i=>X1+i*(X2-X1)/19;
 const pairC=j=>X1+(2*j+0.5)*(X2-X1)/19;
 function setRect(b,x,y,h){b.setAttribute("x",x-S2_W/2);b.setAttribute("width",S2_W);
@@ -289,7 +290,7 @@ function scene2(t){
   }
   renderS2(mergeT,hi);
   if(!firing) fluid.setAttribute("opacity",0);
-  handle2.style.left=((1-mergeT)*100)+"%";   // right = many single deliveries, far left = doubled/stacked
+  handle2.style.left=(50+(1-mergeT)*50)+"%";   // right = many single deliveries, stops at the middle when doubled/stacked
 }
 
 /* ---------- SCENE 3 : dosing windows ---------- */
@@ -338,8 +339,8 @@ function scene3(t){
   winLbl.setAttribute("x",wC);winLbl.setAttribute("opacity",selShow);
 
   // ---- dose field ----
-  if(grow>0.05){dose.classList.remove("ph");dose.textContent=Math.round(30*grow)+" mcg/h";}
-  else{dose.classList.add("ph");dose.textContent="mcg/h";}
+  if(grow>0.05){dose.classList.remove("ph");dose.textContent=Math.round(30*grow)+" mcg";}
+  else{dose.classList.add("ph");dose.textContent="mcg";}
 }
 
 /* ---------- player ---------- */
@@ -357,11 +358,11 @@ const titles={
 const captions={
  1:"Medication is delivered in quick pulses — one bar per pulse across the day.",
  2:"With many deliveries the pump fires in a steady rhythm. Lower the frequency and it fires two pulses back-to-back, then waits longer — each delivery a stack of two.",
- 3:"Select a time window to increase the dose just for that period (here 06:30–08:00, 30 mcg/h)."
+ 3:"Select a time window to increase the dose just for that period (here 06:30–08:00, 30 mcg)."
 };
 
 const FADE_MS=470;                 // matches the CSS opacity transition
-const DUR={1:ANIM_DELAY+TOT1, 2:ANIM_DELAY+TOT2, 3:ANIM_DELAY+TOT3};  // one full loop per step
+const DUR={1:ANIM_DELAY+TOT1/SPEED, 2:ANIM_DELAY+TOT2/SPEED, 3:ANIM_DELAY+TOT3/SPEED};  // one full loop per step (SPEED-scaled)
 const scenesEls=[...document.querySelectorAll(".scene")];
 const tabsEls=[...document.querySelectorAll(".tabs button")];
 let advTimer=null, swapTimer=null, copyTimer=null;
@@ -394,7 +395,7 @@ function play(s){
 }
 
 function loop(now){
-  const at = playing ? Math.max(0,(now-start)-ANIM_DELAY) : 0;  // frozen on initial frame until play
+  const at = playing ? Math.max(0,(now-start)-ANIM_DELAY)*SPEED : 0;  // frozen on initial frame until play; SPEED-scaled
   if(scene===1){ scene1(at); }
   else if(scene===2){ scene2(at); }               // scene 2 drives its own fluid (double fire)
   else { scene3(at); fluid.setAttribute("opacity",1); fluid.setAttribute("transform",fT(1,0)); }
