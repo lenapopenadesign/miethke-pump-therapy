@@ -40,6 +40,38 @@ function Chevron({ up }: { up?: boolean }) {
   );
 }
 
+/** A single metric: bold 32px value + grey unit, baseline-aligned. */
+function Metric({ value, unit }: { value: string; unit: string }) {
+  return (
+    <span className="flex items-baseline whitespace-nowrap">
+      <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>{value}</span>
+      <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px]" style={wdth}>{unit}</span>
+    </span>
+  );
+}
+
+/**
+ * A delivery line shared by the default-delivery and per-window rows: label, then
+ * three aligned columns — dose per delivery, delivery total, and the +/-% vs the
+ * default delivery (blank for the default row itself). Mirrors the Customised
+ * Delivery cards so the metrics line up the same way on every page.
+ */
+export function DeliveryRow({ label, perValue, perUnit, totalValue, totalUnit, delta, bg }: { label: string; perValue: string; perUnit: string; totalValue: string; totalUnit: string; delta?: number | null; bg: string }) {
+  const showDelta = delta != null && delta !== 0;
+  return (
+    <div className="grid items-center gap-[24px] [grid-template-columns:220px_1fr]">
+      <p className={labelCls}>{label}</p>
+      <div className="rounded-[8px] h-[60px] grid items-center gap-[16px] px-[24px] [grid-template-columns:1fr_1fr_100px]" style={{ background: bg }}>
+        <Metric value={perValue} unit={perUnit} />
+        <Metric value={totalValue} unit={`${totalUnit} total`} />
+        <span className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] whitespace-nowrap" style={wdth}>
+          {showDelta ? `${delta! > 0 ? '+' : '−'}${Math.abs(delta!)}%` : ''}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 /** Label + a filled value bar (bold value + grey unit), with an optional total note and +/-% delta. */
 export function ValueRow({ label, value, unit, bg, delta, note }: { label: string; value: string; unit: string; bg: string; delta?: number | null; note?: string }) {
   const showDelta = delta != null && delta !== 0;
@@ -53,7 +85,7 @@ export function ValueRow({ label, value, unit, bg, delta, note }: { label: strin
           <span className="ml-[16px] font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] self-center whitespace-nowrap" style={wdth}>· {note}</span>
         )}
         {showDelta && (
-          <span className="ml-auto font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[24px] self-center whitespace-nowrap" style={wdth}>
+          <span className="ml-auto font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[40px] self-center whitespace-nowrap" style={wdth}>
             {delta! > 0 ? '+' : '−'}{Math.abs(delta!)}%
           </span>
         )}
@@ -102,19 +134,21 @@ export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, showNo
  * 24-hour bolus chart. Kept separate from the scrolling breakdown below so the
  * chart can stay visible while the medication list scrolls.
  */
-export function TherapyChartCard({ showNow = false, onHelp }: { showNow?: boolean; onHelp?: () => void }) {
+export function TherapyChartCard({ showNow = false, showHeader = true, onHelp }: { showNow?: boolean; showHeader?: boolean; onHelp?: () => void }) {
   const { baseDose, bolusCount, maxBoluses, intervals } = useTherapy();
   const windows = [...intervals].sort((a, b) => a.startMin - b.startMin);
   return (
     <div className="flex flex-col gap-[24px]">
       {/* Section header */}
-      <div className="flex items-center gap-[16px]">
-        <TherapyIcon size={48} />
-        <p className="flex-1 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>
-          Medication &amp; Therapy
-        </p>
-        <KebabIcon />
-      </div>
+      {showHeader && (
+        <div className="flex items-center gap-[16px]">
+          <TherapyIcon size={48} />
+          <p className="flex-1 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>
+            Medication &amp; Therapy
+          </p>
+          <KebabIcon />
+        </div>
+      )}
 
       {/* 24-hour view */}
       <div className="flex flex-col gap-[12px]">
@@ -136,6 +170,10 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const minsBetween = bolusCount > 0 ? Math.round(1440 / bolusCount) : 0;
   const bolusN = Math.max(1, bolusCount); // divisor for per-delivery doses
+  // Deliveries that run at the default (base) dose = all deliveries minus the
+  // ones the windows carve out. Used to sum the default deliveries, mirroring
+  // each window's own total.
+  const defaultDeliveryCount = Math.max(0, bolusCount - windows.reduce((s, w) => s + windowDeliverySpan(w.startMin, w.endMin, bolusCount).count, 0));
   const primaryDailyUg = estimatedDailyTotal(baseDose, windows); // primary med's 24h total
   const [expandedId, setExpandedId] = useState<string | null>(medications[0]?.id ?? null);
 
@@ -152,6 +190,7 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
         const u = m.unit;
         const unit = doseUnitFor(u).unit;
         const baseUg = i === 0 ? baseDose : coDoseUgDay(baseDose, c0, cm);
+        const totalUg = i === 0 ? primaryDailyUg : coDoseUgDay(primaryDailyUg, c0, cm);
         const expanded = expandedId === m.id;
         return (
           <div key={m.id} className="flex flex-col gap-[8px]">
@@ -161,19 +200,32 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
               className="grid items-center gap-[24px] [grid-template-columns:220px_1fr] cursor-pointer text-left"
             >
               <p className={labelCls}>Medication</p>
-              <div className="rounded-[8px] h-[60px] flex items-center justify-between px-[24px]" style={{ background: HEAD_BG }}>
-                <span className="flex items-baseline">
-                  <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={wdth}>{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
-                  <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px]" style={wdth}>{m.concentration} {m.unit}</span>
+              {/* Same 3-column grid as the delivery rows so the Total 24 h value
+                  lines up under the per-window total column, and the chevron under
+                  the % column. */}
+              <div className="rounded-[8px] h-[60px] grid items-center gap-[16px] px-[24px] [grid-template-columns:1fr_1fr_100px]" style={{ background: HEAD_BG }}>
+                <span className="flex items-baseline gap-[8px] min-w-0">
+                  <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] truncate" style={wdth}>{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
+                  <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] whitespace-nowrap" style={wdth}>{m.concentration} {m.unit}</span>
                 </span>
-                <Chevron up={expanded} />
+                {/* Total 24 h value — aligned with the per-window total column below. */}
+                <Metric value={doseStringsFor(totalUg, u).perDay} unit={`${unit}/day`} />
+                <span className="flex justify-end"><Chevron up={expanded} /></span>
               </div>
             </button>
             {expanded && (
               <>
-                {/* Base dose per day, plus the dose one delivery carries at that base. */}
-                <ValueRow label="Dose per day" value={doseStringsFor(baseUg, u).perDay} unit={`${unit}/day`} bg={ROW_BG} />
-                <ValueRow label="Default Delivery" value={doseStringsFor(baseUg / bolusN, u).perDay} unit={`${unit}/delivery`} bg={ROW_BG} />
+                {/* The dose one default delivery carries, plus the summed total
+                    across all default (non-window) deliveries — mirrors the
+                    per-window rows below. */}
+                <DeliveryRow
+                  label="Default delivery"
+                  perValue={doseStringsFor(baseUg / bolusN, u).perDay}
+                  perUnit={`${unit}/delivery`}
+                  totalValue={doseStringsFor((baseUg / bolusN) * defaultDeliveryCount, u).perDay}
+                  totalUnit={unit}
+                  bg={ROW_BG}
+                />
                 {/* Each window: the dose delivered in a single delivery during it,
                     with its increase/decrease vs the base dose. */}
                 {windows.map(w => {
@@ -185,24 +237,18 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
                     ? fmtTime(span.firstMin)
                     : `${fmtTime(span.firstMin)} – ${fmtTime(span.lastMin)}`;
                   return (
-                    <ValueRow
+                    <DeliveryRow
                       key={w.id}
                       label={rangeLabel}
-                      value={doseStringsFor(rateUg / bolusN, u).perDay}
-                      unit={`${unit}/delivery`}
-                      bg={ROW_BG}
+                      perValue={doseStringsFor(rateUg / bolusN, u).perDay}
+                      perUnit={`${unit}/delivery`}
+                      totalValue={doseStringsFor(totalUg, u).perDay}
+                      totalUnit={unit}
                       delta={delta}
-                      note={`${doseStringsFor(totalUg, u).perDay} ${doseStringsFor(totalUg, u).unit} total`}
+                      bg={ROW_BG}
                     />
                   );
                 })}
-                {/* Per-medication 24h total, at the bottom of the expanded dropdown. */}
-                <ValueRow
-                  label="Total 24 h"
-                  value={doseStringsFor(i === 0 ? primaryDailyUg : coDoseUgDay(primaryDailyUg, c0, cm), u).perDay}
-                  unit={`${unit}/day`}
-                  bg={TOTAL_BG}
-                />
               </>
             )}
           </div>

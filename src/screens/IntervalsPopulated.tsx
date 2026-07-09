@@ -134,7 +134,7 @@ export function IntervalsPopulated() {
                 className="grid items-center [grid-template-columns:1fr_220px_160px_180px_56px] bg-white border border-[#d9dbde] rounded-[12px] h-[72px] px-[16px] cursor-pointer">
                 <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{iv.label}</p>
                 <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[26px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{timeRangeLabel(iv.startMin, iv.endMin)}</p>
-                <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{pct >= 0 ? '+' : '−'} {Math.abs(pct)} %</p>
+                <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[40px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{pct >= 0 ? '+' : '−'} {Math.abs(pct)} %</p>
                 <p className="font-['Roboto',sans-serif] text-[#00769e] text-[26px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}><span className="font-bold">{doseStringsFor(iv.dose, primaryUnit).perHour}</span> {doseStringsFor(iv.dose, primaryUnit).unit}/h</p>
                 <img alt="" src={imgEditPencil} className="size-[40px] block justify-self-end" />
               </div>

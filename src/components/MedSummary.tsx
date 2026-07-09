@@ -60,7 +60,7 @@ export function MedSummary({
       {/* Column headers */}
       <div className="grid gap-[12px] items-center" style={{ gridTemplateColumns }}>
         <span />
-        {showBase && <p className={hdr}>Dose per day</p>}
+        {showBase && <p className={hdr}>Default delivery</p>}
         {showTotal && <p className={hdr}>Total 24 h</p>}
         {showLast && <p className={hdr}>Last delivery</p>}
       </div>

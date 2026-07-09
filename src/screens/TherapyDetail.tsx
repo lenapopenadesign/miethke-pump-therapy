@@ -51,7 +51,7 @@ export function TherapyDetail() {
     <DetailShell
       icon={<TherapyIcon size={56} />}
       title="Therapy"
-      pinnedTop={<TherapyChartCard showNow onHelp={() => navigate('help')} />}
+      pinnedTop={<TherapyChartCard showNow showHeader={false} onHelp={() => navigate('help')} />}
       footer={
         <div className="flex gap-[16px] px-[80px] pt-[24px] pb-[32px]">
           <ActionTile label="Clinician Bolus" onClick={onClinicianBolus}><ClinicianGlyph /></ActionTile>

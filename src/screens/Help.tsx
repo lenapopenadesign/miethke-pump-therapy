@@ -39,7 +39,7 @@ function ArrowRight() {
 const STEPS = [
   // Per-icon size: the vial artwork has internal padding, so it needs a larger box
   // to read at the same visual weight as the others.
-  { title: 'Dose per day', desc: 'Set the continuous background dose per medication', icon: '/icons/step-base-dose.svg', size: 72 },
+  { title: 'Default delivery', desc: 'Set the continuous background dose per medication', icon: '/icons/step-base-dose.svg', size: 72 },
   { title: 'Delivery Frequency', desc: 'Choose how often the pump delivers over the day', icon: '/icons/step-frequency.svg', size: 60 },
   { title: 'Customised Delivery', desc: 'Raise or lower the dose for chosen times of day', icon: '/icons/step-windows.svg', size: 52 },
 ];

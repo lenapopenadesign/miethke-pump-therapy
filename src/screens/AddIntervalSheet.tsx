@@ -276,7 +276,7 @@ export function AddIntervalSheetDose() {
             {fmtTime(draft.startMin)} – {endDisplay}
           </p>
         </div>
-        <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[26px] tracking-[0.1px] w-[120px] shrink-0" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[40px] tracking-[0.1px] w-[120px] shrink-0" style={{ fontVariationSettings: "'wdth' 100" }}>
           {pctDelta >= 0 ? '+' : '−'} {Math.abs(pctDelta)} %
         </p>
         <p className="flex-1 font-['Roboto',sans-serif] text-[#00769e] text-[32px] tracking-[0.1px] min-w-px" style={{ fontVariationSettings: "'wdth' 100" }}>

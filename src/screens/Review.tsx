@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from '../navigation';
 import { WizardShell } from '../components/WizardShell';
 import { WizardTotalsFooter, SaveButton } from '../components/WizardParts';
-import { TherapyChartCard, TherapyMedBreakdown } from '../components/TherapyBreakdown';
+import { TherapyChartCard } from '../components/TherapyBreakdown';
+import { TherapyChangeReview } from '../components/TherapyChangeReview';
 
 // Seed patient (matches the home + patient-detail screens).
 const PATIENT = { name: 'Frida Kenton', dob: '01.04.1984', id: '930230393' };
@@ -46,8 +47,8 @@ export function Review() {
         </>
       }
     >
-      {/* Scrollable medication breakdown (delivery frequency + accordion). */}
-      <TherapyMedBreakdown />
+      {/* Scrollable before/after comparison of the committed vs. edited therapy. */}
+      <TherapyChangeReview />
     </WizardShell>
   );
 }

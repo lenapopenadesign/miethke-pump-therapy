@@ -300,19 +300,22 @@ export function DosingWindows() {
             {[...windows].sort((a, b) => a.startMin - b.startMin).map(w => {
               const delta = deltaPct(w.dose, baseDose);
               const pd = perDelivery(w.dose, medications[0], 0);
-              const total = windowTotalFor(w.dose, windowDeliveries(w), medications[0], 0);
+              const td = doseStringsFor((w.dose / bolusN) * windowDeliveries(w), medications[0].unit);
               return (
-                <div key={w.id} className="bg-white border border-[#cfdbe3] rounded-[16px] h-[96px] flex items-center pl-[32px] pr-[12px] gap-[16px]">
-                  <p onClick={() => openEdit(w.id)} className="flex-1 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px] cursor-pointer" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <div key={w.id} className="bg-white border border-[#cfdbe3] rounded-[16px] h-[96px] grid items-center [grid-template-columns:1fr_210px_210px_100px_56px] gap-[16px] pl-[32px] pr-[12px]">
+                  <p onClick={() => openEdit(w.id)} className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px] cursor-pointer whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                     {deliveryRangeLabel(w.startMin, w.endMin)}
                   </p>
-                  {delta && (
-                    <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{delta.text}</p>
-                  )}
-                  <div className="flex flex-col items-end min-w-[220px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px] whitespace-nowrap">{pd.value} {pd.unit}</span>
-                    <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[32px] tracking-[0.1px] whitespace-nowrap">{total} total</span>
-                  </div>
+                  {/* Same order as the therapy/review breakdown: per delivery · total · %. */}
+                  <span className="flex items-baseline whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]">{pd.value}</span>
+                    <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px]">{pd.unit}</span>
+                  </span>
+                  <span className="flex items-baseline whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]">{td.perDay}</span>
+                    <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px]">{td.unit} total</span>
+                  </span>
+                  <span className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{delta ? delta.text : ''}</span>
                   <Kebab onClick={() => openEdit(w.id)} />
                 </div>
               );

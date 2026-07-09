@@ -158,6 +158,15 @@ export type Medication = {
   unit: string;
 };
 
+// A committed therapy reduced to what the breakdown/comparison views need, with
+// bolusCount + representative intervals already derived.
+export type BeforeTherapy = {
+  medications: Medication[];
+  baseDose: number;
+  bolusCount: number;
+  intervals: Interval[];
+};
+
 type TherapyState = {
   // Editable medication list. medications[0] is the primary drug (Baclofen) and
   // drives the base dose + delivery-interval calculation.
@@ -179,6 +188,11 @@ type TherapyState = {
   beginEditTherapy: (returnTo?: ScreenId) => void;
   cancelTherapyEdit: () => ScreenId;
   commitTherapy: () => void;
+  // The committed therapy as it was when editing began (the pre-edit snapshot,
+  // with bolusCount + representative intervals derived the same way as the live
+  // state). Null when no edit is in progress. Used by the Review page to show a
+  // before/after comparison. [[editBefore]]
+  editBefore: BeforeTherapy | null;
   // 7 independent per-day interval arrays. Edits propagate to the days listed
   // in editingScope (which the caller sets based on the current day-pattern +
   // active tab).
@@ -418,6 +432,19 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const bolusCount = bolusCountRaw == null ? maxBoluses : nearestFrequency(freqOptions, bolusCountRaw);
   const setBolusCount = (n: number) => setBolusCountRaw(n);
 
+  // Pre-edit snapshot reduced for the Review before/after view. The snapshot is a
+  // ref (set during navigation into the wizard, stable for the page's lifetime),
+  // so bolusCount is re-derived from its dose/frequency the same way as above.
+  const editBefore: BeforeTherapy | null = (() => {
+    const s = snapshotRef.current;
+    if (!s) return null;
+    const conc0 = s.medications[0] ? concUgPerUl(s.medications[0]) : 0;
+    const opts = deliveryFrequencyOptions(s.baseDose, conc0);
+    const maxB = opts.length ? opts[opts.length - 1] : 0;
+    const bc = s.bolusCountRaw == null ? maxB : nearestFrequency(opts, s.bolusCountRaw);
+    return { medications: s.medications, baseDose: s.baseDose, bolusCount: bc, intervals: s.intervalsByDay.monday };
+  })();
+
   // -------- Dosing windows (one shared schedule applied to every day) --------
   // Windows are stored in intervalsByDay so the existing Review / HomeActive /
   // TherapyDetail consumers keep working; every day holds an identical copy.
@@ -497,6 +524,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       medications, addMedication, updateMedication, removeMedication,
       baseDose, setBaseDose,
       beginNewTherapy, beginScratchTherapy, beginEditTherapy, cancelTherapyEdit, commitTherapy,
+      editBefore,
       intervalsByDay,
       intervals, weekendIntervals,
       draft, setDraft,

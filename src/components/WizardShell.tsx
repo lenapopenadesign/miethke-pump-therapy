@@ -21,7 +21,7 @@ export type SetupDecision = 'undecided' | 'intervals' | 'regular';
 // Base Dose · Windows · Review · Transfer. (Medication + Frequency were folded
 // into Base Dose in the simplified flow.)
 const SETUP_STEPS = [
-  { key: 'base-dose', label: 'Dose per day' },
+  { key: 'base-dose', label: 'Default delivery' },
   { key: 'windows', label: 'Customised Delivery' },
   { key: 'review', label: 'Review' },
   { key: 'transfer', label: 'Transfer' },

@@ -120,7 +120,7 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9' }: { baseO
           </div>
         </div>
         <div className="bg-[#00769e] rounded-[40px] px-[26px] py-[8px]">
-          <span className="font-['Roboto',sans-serif] font-bold text-white text-[26px] tracking-[0.1px]" style={wdth}>Total per 24 h</span>
+          <span className="font-['Roboto',sans-serif] font-bold text-white text-[32px] tracking-[0.1px]" style={wdth}>Total per 24 h</span>
         </div>
       </div>
       {/* Compact per-medication daily totals: name · concentration · value */}
