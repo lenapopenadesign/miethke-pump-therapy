@@ -19,7 +19,7 @@ import { TherapyMedBreakdown } from './TherapyBreakdown';
 // per-delivery dose, its total, and (after) the change %.
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 const FONT = "font-['Roboto',sans-serif]";
-const labelCls = `${FONT} font-bold text-[#00769e] text-[22px] tracking-[0.1px]`;
+const labelCls = `${FONT} font-bold text-[#00769e] text-[22px] leading-[24px] tracking-[0.1px]`;
 const HEAD_BG = '#c4e1ef';
 const ROW_BG = '#eef6fb';
 const CHANGE_BG = '#fdf3d1'; // amber — same tint as the dose-increase warning
@@ -29,10 +29,12 @@ const GOLD = '#b3850e';
 const GRID = 'grid items-center gap-[8px] [grid-template-columns:138px_1fr_24px_1fr_32px]';
 // Inside every chip: main (per-delivery / med name) · total integer · total
 // fraction + word · % — split at the decimal so the totals line up in a column.
-const CHIP = 'rounded-[8px] h-[60px] grid items-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_150px_58px]';
-// Width of the right-aligned integer box; the decimal point sits just past it, so
-// all totals' points land on the same x while the digits stay joined ("1.6").
-const INT_W = '48px';
+const CHIP = 'rounded-[8px] h-[60px] grid items-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_152px_64px]';
+// Right-aligned integer box + fixed fraction box: the decimal point lands on one
+// x (digits stay joined, "1.6") AND the trailing label ("total"/"mg/day") always
+// starts on the same x, since the fraction slot is a constant width.
+const INT_W = '46px';
+const FRAC_W = '64px';
 
 const BEFORE_COLOR = '#00769e';
 const AFTER_COLOR = GOLD; // dark yellow — the whole "after" section reads in this
@@ -89,26 +91,27 @@ function Dash() {
  */
 function doseCells(cell: Cell, unit: string, after: boolean, pct: number | null) {
   const color = after ? AFTER_COLOR : BEFORE_COLOR;
+  const labelColor = after ? AFTER_COLOR : '#5f8aa0'; // after: labels in dark yellow too
   if (!cell) return (<><span className="flex items-baseline"><Dash /></span><span /><span /></>);
   const [ip, fp] = cell.total ? splitNum(cell.total.value) : ['', ''];
   return (
     <>
       <span className="flex items-baseline whitespace-nowrap min-w-0">
         <span className={`${FONT} font-bold text-[30px] tracking-[0.1px]`} style={{ color, ...wdth }}>{cell.v.value}</span>
-        <span className={`${FONT} font-normal text-[#5f8aa0] text-[18px] ml-[5px]`} style={wdth}>{unit}</span>
+        <span className={`${FONT} font-normal text-[18px] ml-[5px]`} style={{ color: labelColor, ...wdth }}>{unit}</span>
       </span>
       <span className="whitespace-nowrap">
         {cell.total && (
           <>
             <span className={`${FONT} inline-block text-right font-bold text-[30px] tracking-[0.1px]`} style={{ width: INT_W, color, ...wdth }}>{ip}</span>
-            {fp && <span className={`${FONT} font-bold text-[30px] tracking-[0.1px]`} style={{ color, ...wdth }}>.{fp}</span>}
-            <span className={`${FONT} font-normal text-[#5f8aa0] text-[17px] ml-[4px]`} style={wdth}>total</span>
+            <span className={`${FONT} inline-block font-bold text-[30px] tracking-[0.1px]`} style={{ width: FRAC_W, color, ...wdth }}>{fp ? `.${fp}` : ''}</span>
+            <span className={`${FONT} font-normal text-[17px]`} style={{ color: labelColor, ...wdth }}>total</span>
           </>
         )}
       </span>
       <span className="flex items-baseline whitespace-nowrap">
         {pct != null && pct !== 0 && (
-          <span className={`${FONT} font-bold text-[20px]`} style={{ color: AFTER_COLOR, ...wdth }}>{pct > 0 ? '+' : '−'}{Math.abs(pct)} %</span>
+          <span className={`${FONT} font-bold text-[24px]`} style={{ color: AFTER_COLOR, ...wdth }}>{pct > 0 ? '+' : '−'}{Math.abs(pct)} %</span>
         )}
       </span>
     </>
@@ -146,9 +149,10 @@ type MedHeadData = { name: string; concentration: string; total: Val };
  * up with the totals column below. Concentration is dropped here — the totals sit
  * right after the ~150px per-delivery values, leaving no room for it.
  */
-function medCells(m: MedHeadData | null, unit: string, after: boolean) {
+function medCells(m: MedHeadData | null, unit: string, after: boolean, trailing?: React.ReactNode) {
   const color = after ? AFTER_COLOR : BEFORE_COLOR;
-  if (!m) return (<><span className="flex items-baseline"><Dash /></span><span /><span /></>);
+  if (!m) return (<><span className="flex items-baseline"><Dash /></span><span /><span className="flex justify-end">{trailing}</span></>);
+  const labelColor = after ? AFTER_COLOR : '#5f8aa0'; // after: labels in dark yellow too
   const [ip, fp] = splitNum(m.total.value);
   return (
     <>
@@ -157,10 +161,11 @@ function medCells(m: MedHeadData | null, unit: string, after: boolean) {
       </span>
       <span className="whitespace-nowrap">
         <span className={`${FONT} inline-block text-right font-bold text-[30px] tracking-[0.1px]`} style={{ width: INT_W, color, ...wdth }}>{ip}</span>
-        {fp && <span className={`${FONT} font-bold text-[30px] tracking-[0.1px]`} style={{ color, ...wdth }}>.{fp}</span>}
-        <span className={`${FONT} font-normal text-[#5f8aa0] text-[17px] ml-[4px]`} style={wdth}>{unit}</span>
+        <span className={`${FONT} inline-block font-bold text-[30px] tracking-[0.1px]`} style={{ width: FRAC_W, color, ...wdth }}>{fp ? `.${fp}` : ''}</span>
+        <span className={`${FONT} font-normal text-[17px]`} style={{ color: labelColor, ...wdth }}>{unit}</span>
       </span>
-      <span />
+      {/* Dropdown chevron sits inside the chip (pct column), like the therapy detail. */}
+      <span className="flex justify-end">{trailing}</span>
     </>
   );
 }
@@ -177,8 +182,8 @@ function MedHeaderRow({ before, after, unit, expanded, onToggle }: { before: Med
       <p className={labelCls}>Medication</p>
       <Chip bg={HEAD_BG}>{medCells(before, unit, false)}</Chip>
       <span className="flex justify-center"><ArrowIcon /></span>
-      <Chip bg={changed ? CHANGE_BG : HEAD_BG}>{medCells(after, unit, true)}</Chip>
-      <span className="flex justify-center"><Chevron up={expanded} /></span>
+      <Chip bg={changed ? CHANGE_BG : HEAD_BG}>{medCells(after, unit, true, <Chevron up={expanded} />)}</Chip>
+      <span />
     </button>
   );
 }
@@ -281,12 +286,12 @@ export function TherapyChangeReview() {
             />
             {expandedId === m.id && (
               <>
-                <DoseRow label="Default del." unit={perDelUnit} before={bMed ? bMed.defaultDelivery : null} after={aMed.defaultDelivery} />
+                <DoseRow label="Default delivery" unit={perDelUnit} before={bMed ? bMed.defaultDelivery : null} after={aMed.defaultDelivery} />
                 {orderedWins.map(([id, span]) => {
                   const aw = aMed.winMap.get(id);
                   const bw = bMed?.winMap.get(id);
                   const s = windowDeliverySpan(span.startMin, span.endMin, aw ? bolusCount : before.bolusCount);
-                  const label = s.firstMin === s.lastMin ? fmtTime(s.firstMin) : `${fmtTime(s.firstMin)} – ${fmtTime(s.lastMin)}`;
+                  const label = s.firstMin === s.lastMin ? fmtTime(s.firstMin) : `${fmtTime(s.firstMin)}–${fmtTime(s.lastMin)}`;
                   return (
                     <DoseRow
                       key={id}
