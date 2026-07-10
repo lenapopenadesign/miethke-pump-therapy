@@ -32,8 +32,8 @@ const GRID = 'grid items-center gap-[8px] [grid-template-columns:138px_0.9fr_24p
 // fraction + word · % — split at the decimal so the totals line up in a column.
 // The before chip carries no %, so its trailing column is minimal; the after chip
 // gives the % a wide slot so 2–3 digit changes fit.
-const CHIP_BEFORE = 'rounded-[8px] h-[60px] grid items-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_152px_16px]';
-const CHIP_AFTER = 'rounded-[8px] h-[60px] grid items-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_152px_78px]';
+const CHIP_BEFORE = 'rounded-[8px] h-[60px] grid items-baseline content-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_152px_16px]';
+const CHIP_AFTER = 'rounded-[8px] h-[60px] grid items-baseline content-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_152px_78px]';
 // Right-aligned integer box + fixed fraction box: the decimal point lands on one
 // x (digits stay joined, "1.6") AND the trailing label ("total"/"mg/day") always
 // starts on the same x, since the fraction slot is a constant width.
