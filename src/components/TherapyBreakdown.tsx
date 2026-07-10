@@ -40,11 +40,16 @@ function Chevron({ up }: { up?: boolean }) {
   );
 }
 
-/** A single metric: bold 32px value + grey unit, baseline-aligned. */
-function Metric({ value, unit, bold = true }: { value: string; unit: string; bold?: boolean }) {
+// Fixed value slot for the totals so their values (right-aligned) and their
+// labels ("mg/day"/"mg total") all land on the same x.
+const TOTAL_VAL_W = '88px';
+
+/** A single metric: bold 32px value + grey unit, baseline-aligned. `slotW` puts
+ *  the value in a fixed right-aligned box so the trailing labels line up. */
+function Metric({ value, unit, bold = true, slotW }: { value: string; unit: string; bold?: boolean; slotW?: string }) {
   return (
     <span className="flex items-baseline whitespace-nowrap">
-      <span className={`font-['Roboto',sans-serif] ${bold ? 'font-bold' : 'font-normal'} text-[#00769e] text-[32px] tracking-[0.1px]`} style={wdth}>{value}</span>
+      <span className={`font-['Roboto',sans-serif] ${bold ? 'font-bold' : 'font-normal'} text-[#00769e] text-[32px] tracking-[0.1px] ${slotW ? 'inline-block text-right shrink-0' : ''}`} style={slotW ? { width: slotW, ...wdth } : wdth}>{value}</span>
       <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px]" style={wdth}>{unit}</span>
     </span>
   );
@@ -60,9 +65,11 @@ export function DeliveryRow({ label, perValue, perUnit, totalValue, totalUnit, b
   return (
     <div className="grid items-center gap-[24px] [grid-template-columns:220px_1fr]">
       <p className={labelCls}>{label}</p>
-      <div className="rounded-[8px] h-[60px] grid items-center gap-[16px] px-[24px] [grid-template-columns:1fr_1fr]" style={{ background: bg }}>
+      {/* Same 3-column template as the medication header so the totals align. */}
+      <div className="rounded-[8px] h-[60px] grid items-center gap-[16px] px-[24px] [grid-template-columns:1fr_1fr_100px]" style={{ background: bg }}>
         <Metric value={perValue} unit={perUnit} bold={false} />
-        <Metric value={totalValue} unit={`${totalUnit} total`} />
+        <Metric value={totalValue} unit={`${totalUnit} total`} slotW={TOTAL_VAL_W} />
+        <span />
       </div>
     </div>
   );
@@ -209,7 +216,7 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
                   <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] whitespace-nowrap" style={wdth}>{m.concentration} {m.unit}</span>
                 </span>
                 {/* Total 24 h value — aligned with the per-window total column below. */}
-                <Metric value={doseStringsFor(totalUg, u).perDay} unit={`${unit}/day`} />
+                <Metric value={doseStringsFor(totalUg, u).perDay} unit={`${unit}/day`} slotW={TOTAL_VAL_W} />
                 <span className="flex justify-end"><Chevron up={expanded} /></span>
               </div>
             </button>

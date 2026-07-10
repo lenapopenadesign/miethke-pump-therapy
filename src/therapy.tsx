@@ -403,6 +403,9 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const beginEditTherapy = (returnTo: ScreenId = 'home-active') => {
     setupReturnRef.current = returnTo;
     snapshotRef.current = takeSnapshot();
+    // Lock the current delivery frequency so changing the base dose doesn't re-grid
+    // the day — which would shift the dosing windows drawn on that grid.
+    setBolusCountRaw(bolusCount);
   };
   // Abandon the wizard: restore the snapshot and return to where it was started.
   const cancelTherapyEdit = (): ScreenId => {
@@ -427,9 +430,12 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   // carries a whole number of 10 µl strokes.
   const freqOptions = deliveryFrequencyOptions(baseDose, primaryConc);
   const maxBoluses = freqOptions.length ? freqOptions[freqOptions.length - 1] : 0;
-  // Effective count: the user's choice snapped to the nearest valid option, or
-  // the maximum (most frequent) when the user hasn't touched the slider.
-  const bolusCount = bolusCountRaw == null ? maxBoluses : nearestFrequency(freqOptions, bolusCountRaw);
+  // Effective count: the maximum (most frequent) until the user picks a frequency,
+  // then that exact value (capped at the current max). It is NOT re-snapped when the
+  // base dose changes, so the delivery grid — and the dosing windows on it — stay put.
+  const bolusCount = bolusCountRaw == null
+    ? maxBoluses
+    : (maxBoluses > 0 ? Math.min(bolusCountRaw, maxBoluses) : bolusCountRaw);
   const setBolusCount = (n: number) => setBolusCountRaw(n);
 
   // Pre-edit snapshot reduced for the Review before/after view. The snapshot is a
@@ -441,7 +447,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
     const conc0 = s.medications[0] ? concUgPerUl(s.medications[0]) : 0;
     const opts = deliveryFrequencyOptions(s.baseDose, conc0);
     const maxB = opts.length ? opts[opts.length - 1] : 0;
-    const bc = s.bolusCountRaw == null ? maxB : nearestFrequency(opts, s.bolusCountRaw);
+    const bc = s.bolusCountRaw == null ? maxB : (maxB > 0 ? Math.min(s.bolusCountRaw, maxB) : s.bolusCountRaw);
     return { medications: s.medications, baseDose: s.baseDose, bolusCount: bc, intervals: s.intervalsByDay.monday };
   })();
 
