@@ -51,7 +51,7 @@ export function BaseDose() {
       // Backing out of the editing steps abandons the edit: restore the therapy
       // that was in place before, so returning home shows the original teaser.
       onBack={() => { const to = cancelTherapyEdit(); navigate(to); }}
-      pinnedTop={<WizardChart baseOnly onHelp={() => navigate('help')} />}
+      pinnedTop={<WizardChart onHelp={() => navigate('help')} />}
       footer={
         <>
           <WizardTotalsFooter baseOnly />

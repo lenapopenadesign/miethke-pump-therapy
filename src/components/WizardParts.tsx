@@ -6,12 +6,14 @@ import {
   estimatedDailyTotal,
   dailyVolumeUl,
   fmtTime,
+  type Interval,
 } from '../therapy';
 import { useRef, type ReactNode } from 'react';
-import { BolusBars } from './TherapyHeaderChart';
+import { BolusBars, PerDelAxis } from './TherapyHeaderChart';
 
 const CARD_H = 260;
 const BASELINE_FROM_BOTTOM = 52;
+const AXIS_L = 78; // left gutter for the dose-per-delivery labels
 
 export type Highlight = { startMin: number; endMin: number; label?: string };
 
@@ -32,14 +34,20 @@ export function HelpBadge({ onClick }: { onClick?: () => void }) {
  * card with teal bolus bars, a "?" help badge, and 00:00 / 24:00 axis labels. One
  * or more `highlights` outline a dosing window with a dashed box + centred label.
  */
-export function WizardChart({ highlights = [], onHelp, baseOnly = false }: { highlights?: Highlight[]; onHelp?: () => void; baseOnly?: boolean }) {
-  const { baseDose, bolusCount, maxBoluses, intervals } = useTherapy();
-  const barWindows = baseOnly ? [] : intervals;
+export function WizardChart({ highlights = [], onHelp, baseOnly = false, windowsOverride }: { highlights?: Highlight[]; onHelp?: () => void; baseOnly?: boolean; windowsOverride?: Interval[] }) {
+  const { baseDose, bolusCount, maxBoluses, intervals, medications } = useTherapy();
+  // windowsOverride lets the dosing-window editor preview the in-progress dose so
+  // the bars grow/shrink live as the +/- stepper changes the value.
+  const barWindows = baseOnly ? [] : (windowsOverride ?? intervals);
+  const unit = medications[0]?.unit ?? 'mg/ml';
   return (
     <div className="relative w-full bg-white rounded-[16px] border border-[#dbe3e8] overflow-hidden shrink-0" style={{ height: CARD_H }}>
       <HelpBadge onClick={onHelp} />
+      {/* Rough dose-per-delivery axis */}
+      <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={barWindows} unit={unit}
+        barMaxH={CARD_H - BASELINE_FROM_BOTTOM - 40} left={AXIS_L} right={30} baseline={BASELINE_FROM_BOTTOM} labelSize={22} />
       {/* Plot area */}
-      <div className="absolute left-[30px] right-[30px] top-[40px]" style={{ bottom: BASELINE_FROM_BOTTOM }}>
+      <div className="absolute right-[30px] top-[40px]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }}>
         {highlights.map((hl, i) => {
           if (hl.endMin <= hl.startMin) return null;
           const left = (hl.startMin / 1440) * 100;
@@ -55,9 +63,9 @@ export function WizardChart({ highlights = [], onHelp, baseOnly = false }: { hig
         <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={barWindows} maxH={CARD_H - BASELINE_FROM_BOTTOM - 40} />
       </div>
       {/* Baseline */}
-      <div className="absolute left-[30px] right-[30px] h-px bg-[#e3e6e9]" style={{ bottom: BASELINE_FROM_BOTTOM }} />
+      <div className="absolute right-[30px] h-px bg-[#e3e6e9]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
       {/* Axis + window labels */}
-      <p className="absolute left-[30px] bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>00:00</p>
+      <p className="absolute bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: AXIS_L, fontVariationSettings: "'wdth' 100" }}>00:00</p>
       <p className="absolute right-[30px] bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>24:00</p>
       {highlights.map((hl, i) => {
         if (hl.endMin <= hl.startMin) return null;
@@ -67,7 +75,7 @@ export function WizardChart({ highlights = [], onHelp, baseOnly = false }: { hig
           <p
             key={i}
             className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[21px] whitespace-nowrap"
-            style={{ left: `calc(30px + (100% - 60px) * ${center / 100})`, fontVariationSettings: "'wdth' 100" }}
+            style={{ left: `calc(${AXIS_L}px + (100% - ${AXIS_L + 30}px) * ${center / 100})`, fontVariationSettings: "'wdth' 100" }}
           >
             {hl.label ?? `${fmtTime(hl.startMin)} – ${end}`}
           </p>

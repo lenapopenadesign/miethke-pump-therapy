@@ -267,7 +267,7 @@ function s2fire(fp){                              // one quick fluid spurt
   else{ const g=(fp-0.45)/0.55; fluid.setAttribute("opacity",1-g); fluid.setAttribute("transform",fT(1+0.1*g,10*g)); }
 }
 const S2_SPURT=220;
-const BEAT_HI=340, N_HI=10, HIEND=BEAT_HI*N_HI;          // sweep only the first half (quicker)
+const BEAT_HI=500, N_HI=10, HIEND=BEAT_HI*N_HI;          // sweep only the first half — slower single-pulse rhythm
 const MERGE=1000;
 const BEAT_LO=1050, F2=300, N_LO=5, LOEND=BEAT_LO*N_LO;  // fewer deliveries: two fires then long pause (first half)
 const UNMERGE=1000;

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtTime, doseUnitFor, concUgPerUl, coDoseUgDay, doseStringsFor, strokesPerDay, windowDeliverySpan, BOLUS_VOLUME_UL, type Medication } from '../therapy';
+import { useTherapy, fmtTime, doseUnitFor, concUgPerUl, coDoseUgDay, doseStringsFor, strokesPerDay, windowDeliverySpan, BOLUS_VOLUME_UL, type Medication, type Interval } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { WizardChart, WizardTotalsFooter, SaveButton, type Highlight } from '../components/WizardParts';
 
@@ -105,6 +105,15 @@ export function DosingWindows() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [windows, open, selStartMin, selEndMin, rangeLabel]);
 
+  // While the editor is open, preview the window being edited at its live dose so
+  // the chart bars grow/shrink as the +/- stepper changes the value.
+  const previewWindows: Interval[] = useMemo(() => {
+    if (!open || selStartMin == null || selEndMin == null) return windows;
+    const rest = editingId ? windows.filter(w => w.id !== editingId) : windows;
+    return [...rest, { id: editingId ?? '__preview', startMin: selStartMin, endMin: selEndMin, dose: Math.round(primaryDose), label: 'Customised delivery' }];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [windows, open, editingId, selStartMin, selEndMin, primaryDose]);
+
   const resetEditor = () => { setOpen(false); setEditingId(null); setRange(null); setStrokes(null); setRefIndex(0); };
 
   const openNew = () => { setEditingId(null); setRange(null); setStrokes(baseK); setRefIndex(0); setOpen(true); };
@@ -195,7 +204,7 @@ export function DosingWindows() {
             {/* Body — stacked: diagram · delivery list · count+sum · dose */}
             <div className="flex-1 min-h-0 overflow-y-auto px-[80px] pt-[8px] pb-[24px] flex flex-col gap-[24px]">
               {/* 1. Diagram — always on top, highlights the selected deliveries */}
-              <WizardChart highlights={selStartMin != null && selEndMin != null ? [{ startMin: selStartMin, endMin: selEndMin, label: rangeLabel }] : []} />
+              <WizardChart windowsOverride={previewWindows} highlights={selStartMin != null && selEndMin != null ? [{ startMin: selStartMin, endMin: selEndMin, label: rangeLabel }] : []} />
 
               {/* 2. Delivery list — check the deliveries to include */}
               <div className="flex flex-col gap-[12px]">

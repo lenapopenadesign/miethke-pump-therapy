@@ -67,7 +67,7 @@ export function TherapyTotalsBand() {
  * window being edited) with a dashed box + label.
  */
 export function TherapyHeaderChart({ highlight }: { highlight?: { startMin: number; endMin: number } | null }) {
-  const { baseDose, bolusCount, maxBoluses, intervals } = useTherapy();
+  const { baseDose, bolusCount, maxBoluses, intervals, medications } = useTherapy();
   return (
     <div className="w-[1200px] shrink-0">
       <TherapyTotalsBand />
@@ -76,7 +76,7 @@ export function TherapyHeaderChart({ highlight }: { highlight?: { startMin: numb
         <p className="font-['Roboto',sans-serif] font-bold text-white text-[28px] tracking-[0.1px] mb-[12px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           24-hour view
         </p>
-        <BolusChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={intervals} highlight={highlight} />
+        <BolusChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={intervals} unit={medications[0]?.unit ?? 'mg/ml'} highlight={highlight} />
       </div>
     </div>
   );
@@ -92,36 +92,37 @@ function rateAt(min: number, baseRate: number, windows: Interval[]): number {
   return w ? w.dose / 24 : baseRate;
 }
 
+// The schedule's peak delivery reaches this fraction of the plot height, so the
+// highest delivery is always on-chart (and windows stay visible at any frequency).
+const PEAK_FRAC = 0.9;
+
 /**
  * The bolus "strokes": one fixed-width bar per delivered bolus, evenly spaced
- * across the day. A bar's height tracks the dose rate at that time, so dosing
- * windows read as taller/shorter runs. Sizes are caller-tunable so the same
- * profile renders in the big header chart and the smaller home/detail charts.
+ * across the day. Bars are normalised to the schedule's peak dose — the tallest
+ * reaches PEAK_FRAC of `maxH`, the rest scale in proportion — so dosing windows
+ * read as taller runs and the profile fills the chart at any delivery frequency.
  * Place inside a relative, bottom-anchored box of height `maxH`.
  */
 export function BolusBars({
-  baseDose, bolusCount, maxBoluses, windows, nominalH = 30, maxH = 150, minH = 10, barWidth = 9,
+  baseDose, bolusCount, windows, maxH = 150, minH = 10, barWidth = 9,
 }: {
   baseDose: number;
   bolusCount: number;
-  // Reference (maximum) frequency. Bar height scales by maxBoluses/bolusCount, so
-  // fewer boluses → taller bars (each bolus carries a larger dose). Defaults to
-  // bolusCount (no scaling) when omitted.
-  maxBoluses?: number;
+  maxBoluses?: number; // accepted for call-site compatibility; no longer used
   windows: Interval[];
-  nominalH?: number;
+  nominalH?: number;   // accepted for call-site compatibility; no longer used
   maxH?: number;
   minH?: number;
   barWidth?: number;
 }) {
   const baseRate = baseDose / 24;
   const n = baseDose > 0 && bolusCount > 0 ? Math.min(bolusCount, MAX_BARS) : 0;
-  const freqFactor = maxBoluses && maxBoluses > 0 && bolusCount > 0 ? maxBoluses / bolusCount : 1;
+  const maxDoseUg = Math.max(baseDose, ...windows.map(w => w.dose), 0);
+  const top = PEAK_FRAC * maxH;
   const bars = Array.from({ length: n }, (_, i) => {
     const midMin = ((i + 0.5) / n) * 1440;
-    const rate = rateAt(midMin, baseRate, windows);
-    const ratio = baseRate > 0 ? rate / baseRate : 1;
-    return Math.max(minH, Math.min(maxH, ratio * nominalH * freqFactor));
+    const frac = maxDoseUg > 0 ? (rateAt(midMin, baseRate, windows) * 24) / maxDoseUg : 0;
+    return Math.max(minH, Math.min(maxH, frac * top));
   });
   return (
     <div className="absolute inset-0 flex items-end justify-between">
@@ -132,13 +133,53 @@ export function BolusBars({
   );
 }
 
+/**
+ * A rough dose-per-delivery axis, matched to the normalised bars: the top gridline
+ * sits at the schedule's peak delivery (always shown, however high), with 1–2 more
+ * gridlines below at proportional doses. `barMaxH` is the bars' `maxH`; `left`/
+ * `right` are the plot insets and `baseline` the px from the card bottom.
+ */
+export function PerDelAxis({
+  baseDose, bolusCount, windows, unit, barMaxH, left, right, baseline, labelSize = 18,
+}: {
+  baseDose: number; bolusCount: number; windows: Interval[]; unit: string; barMaxH: number;
+  left: number; right: number; baseline: number; labelSize?: number;
+}) {
+  const bolusN = Math.max(1, bolusCount);
+  const maxDoseUg = Math.max(baseDose, ...windows.map(w => w.dose), 0);
+  if (!(maxDoseUg > 0)) return null;
+  const maxPerDelUg = maxDoseUg / bolusN; // highest per-delivery dose in the schedule
+  const top = PEAK_FRAC * barMaxH;        // height the peak delivery reaches
+  const gap = labelSize + 10;             // min spacing between tick labels
+  const fracs = top >= 3 * gap ? [1, 2 / 3, 1 / 3] : top >= 2 * gap ? [1, 1 / 2] : [1];
+  const wdth = { fontVariationSettings: "'wdth' 100" } as const;
+  return (
+    <>
+      <p className="absolute font-['Roboto',sans-serif] text-[#9ea8b2]" style={{ left: 8, top: 4, fontSize: labelSize, ...wdth }}>
+        {doseStringsFor(0, unit).unit}/del
+      </p>
+      {fracs.map((f, i) => (
+        <div key={i}>
+          <div className="absolute border-t border-dashed" style={{ left, right, bottom: baseline + f * top, borderColor: '#e6eaed' }} />
+          <p className="absolute text-right font-['Roboto',sans-serif] text-[#9ea8b2]" style={{ left: 0, width: left - 8, bottom: baseline + f * top - Math.round(labelSize * 0.55), fontSize: labelSize, ...wdth }}>
+            {doseStringsFor(maxPerDelUg * f, unit).perDay}
+          </p>
+        </div>
+      ))}
+    </>
+  );
+}
+
+const AXIS_L = 78; // left gutter for the dose-per-delivery labels
+
 function BolusChart({
-  baseDose, bolusCount, maxBoluses, windows, highlight,
+  baseDose, bolusCount, maxBoluses, windows, unit, highlight,
 }: {
   baseDose: number;
   bolusCount: number;
   maxBoluses: number;
   windows: Interval[];
+  unit: string;
   highlight?: { startMin: number; endMin: number } | null;
 }) {
   const hl = highlight && highlight.endMin > highlight.startMin ? highlight : null;
@@ -149,8 +190,11 @@ function BolusChart({
 
   return (
     <div className="relative w-full bg-white rounded-[16px] overflow-hidden" style={{ height: CARD_H }}>
+      {/* Rough dose-per-delivery axis */}
+      <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={windows} unit={unit}
+        barMaxH={CARD_H - BASELINE_FROM_BOTTOM - 24} left={AXIS_L} right={30} baseline={BASELINE_FROM_BOTTOM} labelSize={22} />
       {/* Plotting area (bars sit on the baseline; labels live below it) */}
-      <div className="absolute left-[30px] right-[30px] top-[24px]" style={{ bottom: BASELINE_FROM_BOTTOM }}>
+      <div className="absolute right-[30px] top-[24px]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }}>
         {/* Window highlight */}
         {hl && (
           <div
@@ -164,15 +208,15 @@ function BolusChart({
       </div>
 
       {/* Baseline */}
-      <div className="absolute left-[30px] right-[30px] h-px bg-[#e3e6e9]" style={{ bottom: BASELINE_FROM_BOTTOM }} />
+      <div className="absolute right-[30px] h-px bg-[#e3e6e9]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
 
       {/* Axis + window label */}
-      <p className="absolute left-[30px] bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>00:00</p>
+      <p className="absolute bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: AXIS_L, fontVariationSettings: "'wdth' 100" }}>00:00</p>
       <p className="absolute right-[30px] bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>24:00</p>
       {hl && (
         <p
           className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[21px] whitespace-nowrap"
-          style={{ left: `calc(30px + (100% - 60px) * ${hlCenter / 100})`, fontVariationSettings: "'wdth' 100" }}
+          style={{ left: `calc(${AXIS_L}px + (100% - ${AXIS_L + 30}px) * ${hlCenter / 100})`, fontVariationSettings: "'wdth' 100" }}
         >
           {fmtTime(hl.startMin)} – {endDisplay}
         </p>

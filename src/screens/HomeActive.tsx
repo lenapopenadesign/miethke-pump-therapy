@@ -21,7 +21,7 @@ function ActiveBody() {
       {/* Always show the 24-hour chart for an active therapy — flat when the
           therapy is base-dose only (no windows), with peaks once windows exist. */}
       {baseDose > 0 && (
-        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={sourceIntervals} showNow onHelp={() => navigate('help')} />
+        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={sourceIntervals} unit={medications[0]?.unit ?? 'mg/ml'} showNow onHelp={() => navigate('help')} />
       )}
       <MedSummary
         estDaily={estDaily}

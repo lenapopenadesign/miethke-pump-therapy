@@ -10,7 +10,7 @@ import {
   windowDeliverySpan,
   type Interval,
 } from '../therapy';
-import { BolusBars } from './TherapyHeaderChart';
+import { BolusBars, PerDelAxis } from './TherapyHeaderChart';
 import { HelpBadge } from './WizardParts';
 import { TherapyIcon } from './HomeShell';
 
@@ -41,10 +41,10 @@ function Chevron({ up }: { up?: boolean }) {
 }
 
 /** A single metric: bold 32px value + grey unit, baseline-aligned. */
-function Metric({ value, unit }: { value: string; unit: string }) {
+function Metric({ value, unit, bold = true }: { value: string; unit: string; bold?: boolean }) {
   return (
     <span className="flex items-baseline whitespace-nowrap">
-      <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>{value}</span>
+      <span className={`font-['Roboto',sans-serif] ${bold ? 'font-bold' : 'font-normal'} text-[#00769e] text-[32px] tracking-[0.1px]`} style={wdth}>{value}</span>
       <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px]" style={wdth}>{unit}</span>
     </span>
   );
@@ -56,17 +56,13 @@ function Metric({ value, unit }: { value: string; unit: string }) {
  * default delivery (blank for the default row itself). Mirrors the Customised
  * Delivery cards so the metrics line up the same way on every page.
  */
-export function DeliveryRow({ label, perValue, perUnit, totalValue, totalUnit, delta, bg }: { label: string; perValue: string; perUnit: string; totalValue: string; totalUnit: string; delta?: number | null; bg: string }) {
-  const showDelta = delta != null && delta !== 0;
+export function DeliveryRow({ label, perValue, perUnit, totalValue, totalUnit, bg }: { label: string; perValue: string; perUnit: string; totalValue: string; totalUnit: string; bg: string }) {
   return (
     <div className="grid items-center gap-[24px] [grid-template-columns:220px_1fr]">
       <p className={labelCls}>{label}</p>
-      <div className="rounded-[8px] h-[60px] grid items-center gap-[16px] px-[24px] [grid-template-columns:1fr_1fr_100px]" style={{ background: bg }}>
-        <Metric value={perValue} unit={perUnit} />
+      <div className="rounded-[8px] h-[60px] grid items-center gap-[16px] px-[24px] [grid-template-columns:1fr_1fr]" style={{ background: bg }}>
+        <Metric value={perValue} unit={perUnit} bold={false} />
         <Metric value={totalValue} unit={`${totalUnit} total`} />
-        <span className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] whitespace-nowrap" style={wdth}>
-          {showDelta ? `${delta! > 0 ? '+' : '−'}${Math.abs(delta!)}%` : ''}
-        </span>
       </div>
     </div>
   );
@@ -100,30 +96,33 @@ export function ValueRow({ label, value, unit, bg, delta, note }: { label: strin
  * per-medication breakdown (Total 24 h, Base Dose and one row per dosing window).
  */
 const NOW_MIN = 716; // "11:56" — current-time marker
-const NOW_POS = `calc(24px + (100% - 48px) * ${NOW_MIN / 1440})`;
+const CHART_AXIS_L = 68; // left gutter for the dose-per-delivery labels
+const NOW_POS = `calc(${CHART_AXIS_L}px + (100% - ${CHART_AXIS_L + 24}px) * ${NOW_MIN / 1440})`;
 
 /**
  * The 24-hour bolus chart card, shared by the Therapy detail page and the home
  * therapy teaser so both render at the same height. `showNow` adds the
- * current-time marker.
+ * current-time marker; a rough dose-per-delivery axis sits in the left gutter.
  */
-export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, showNow = false, onHelp }: { baseDose: number; bolusCount: number; maxBoluses: number; windows: Interval[]; showNow?: boolean; onHelp?: () => void }) {
+export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, unit, showNow = false, onHelp }: { baseDose: number; bolusCount: number; maxBoluses: number; windows: Interval[]; unit: string; showNow?: boolean; onHelp?: () => void }) {
   return (
     <div className="relative w-full bg-white border border-[#d9dbde] rounded-[16px]" style={{ height: 250 }}>
       {onHelp && <HelpBadge onClick={onHelp} />}
-      <div className="absolute left-[24px] right-[24px] top-[24px]" style={{ bottom: 48 }}>
+      <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={windows} unit={unit}
+        barMaxH={170} left={CHART_AXIS_L} right={24} baseline={48} labelSize={18} />
+      <div className="absolute right-[24px] top-[24px]" style={{ left: CHART_AXIS_L, bottom: 48 }}>
         <div className="absolute inset-0">
           <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} nominalH={30} maxH={170} minH={10} barWidth={9} />
         </div>
       </div>
-      <div className="absolute left-[24px] right-[24px] h-px bg-[#e3e6e9]" style={{ bottom: 48 }} />
+      <div className="absolute right-[24px] h-px bg-[#e3e6e9]" style={{ left: CHART_AXIS_L, bottom: 48 }} />
       {showNow && (
         <>
           <div className="absolute w-[2px] bg-[#063b66]" style={{ left: NOW_POS, top: 24, bottom: 48 }} />
           <div className="absolute" style={{ left: NOW_POS, top: 14, transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '10px solid #063b66' }} />
         </>
       )}
-      <p className="absolute left-[24px] bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={wdth}>00:00</p>
+      <p className="absolute bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: CHART_AXIS_L, ...wdth }}>00:00</p>
       <p className="absolute right-[24px] bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={wdth}>24:00</p>
     </div>
   );
@@ -135,8 +134,9 @@ export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, showNo
  * chart can stay visible while the medication list scrolls.
  */
 export function TherapyChartCard({ showNow = false, showHeader = true, onHelp }: { showNow?: boolean; showHeader?: boolean; onHelp?: () => void }) {
-  const { baseDose, bolusCount, maxBoluses, intervals } = useTherapy();
+  const { baseDose, bolusCount, maxBoluses, intervals, medications } = useTherapy();
   const windows = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  const unit = medications[0]?.unit ?? 'mg/ml';
   return (
     <div className="flex flex-col gap-[24px]">
       {/* Section header */}
@@ -153,7 +153,7 @@ export function TherapyChartCard({ showNow = false, showHeader = true, onHelp }:
       {/* 24-hour view */}
       <div className="flex flex-col gap-[12px]">
         <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={wdth}>24-hour view</p>
-        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} showNow={showNow} onHelp={onHelp} />
+        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} unit={unit} showNow={showNow} onHelp={onHelp} />
       </div>
     </div>
   );
@@ -230,7 +230,6 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
                     with its increase/decrease vs the base dose. */}
                 {windows.map(w => {
                   const rateUg = i === 0 ? w.dose : coDoseUgDay(w.dose, c0, cm);
-                  const delta = baseDose > 0 ? Math.round((w.dose / baseDose - 1) * 100) : 0;
                   const span = windowDeliverySpan(w.startMin, w.endMin, bolusCount);
                   const totalUg = (rateUg / bolusN) * span.count;
                   const rangeLabel = span.firstMin === span.lastMin
@@ -244,7 +243,6 @@ export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: 
                       perUnit={`${unit}/delivery`}
                       totalValue={doseStringsFor(totalUg, u).perDay}
                       totalUnit={unit}
-                      delta={delta}
                       bg={ROW_BG}
                     />
                   );
