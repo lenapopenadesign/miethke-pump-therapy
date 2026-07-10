@@ -417,7 +417,32 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   // Activation completed: keep the working state and drop the snapshot.
   const commitTherapy = () => { snapshotRef.current = null; setTherapyActive(true); };
 
-  const setBaseDose = (n: number) => setBaseDoseRaw(Math.max(0, n));
+  const setBaseDose = (n: number) => {
+    const next = Math.max(0, n);
+    const prev = baseDose;
+    // Dosing windows are relative adjustments to the default delivery (e.g. a
+    // +60% morning peak). When the base dose changes, scale every window by the
+    // same factor so those proportions — and therefore the chart's shape — are
+    // preserved: the windows grow and shrink in place instead of the whole
+    // diagram re-normalising and flipping when the base crosses a window level.
+    if (prev > 0 && next > 0 && next !== prev) {
+      const f = next / prev;
+      setAllDays(list => list.map(iv => ({ ...iv, dose: Math.round(iv.dose * f) })));
+      // Hold the delivery-frequency slider where the user left it. The maximum
+      // possible deliveries scales with the dose (more volume ⇒ more strokes),
+      // so scale the chosen count by the same factor: the count changes but the
+      // thumb's position on the track does not. (null means "max frequency",
+      // which already tracks the max, so leave it be.)
+      const conc = medications[0] ? concUgPerUl(medications[0]) : 0;
+      const oldMax = maxBolusesPerDay(prev, conc);
+      const newMax = maxBolusesPerDay(next, conc);
+      if (bolusCountRaw != null && oldMax > 0 && newMax > 0) {
+        const scaled = Math.round(bolusCountRaw * (newMax / oldMax));
+        setBolusCountRaw(nearestFrequency(deliveryFrequencyOptions(next, conc), scaled));
+      }
+    }
+    setBaseDoseRaw(next);
+  };
 
   // Derived "representative" weekday + weekend views — used by Review and
   // HomeActive which still toggle by group rather than per day.
