@@ -99,7 +99,7 @@ function doseCells(cell: Cell, unit: string, after: boolean, pct: number | null,
   return (
     <>
       <span className="flex items-baseline whitespace-nowrap min-w-0">
-        <span className={`${FONT} font-bold text-[30px] tracking-[0.1px]`} style={{ color, ...wdth }}>{cell.v.value}</span>
+        <span className={`${FONT} font-normal text-[30px] tracking-[0.1px]`} style={{ color, ...wdth }}>{cell.v.value}</span>
         <span className={`${FONT} font-normal text-[18px] ml-[5px]`} style={{ color: labelColor, ...wdth }}>{unit}</span>
       </span>
       <span className="whitespace-nowrap">
