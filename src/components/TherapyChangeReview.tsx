@@ -90,9 +90,10 @@ function Dash() {
  * to the decimal column) · total-fraction + "total" (left) · % (after only).
  * Splitting the total at its decimal keeps every total's point on one x.
  */
-function doseCells(cell: Cell, unit: string, after: boolean, pct: number | null) {
-  const color = after ? AFTER_COLOR : BEFORE_COLOR;
-  const labelColor = after ? AFTER_COLOR : '#5f8aa0'; // after: labels in dark yellow too
+function doseCells(cell: Cell, unit: string, after: boolean, pct: number | null, changed: boolean) {
+  const gold = after && changed; // only a *changed* after value goes gold; unchanged stays blue
+  const color = gold ? AFTER_COLOR : BEFORE_COLOR;
+  const labelColor = gold ? AFTER_COLOR : '#5f8aa0';
   if (!cell) return (<><span className="flex items-baseline"><Dash /></span><span /><span /></>);
   const [ip, fp] = cell.total ? splitNum(cell.total.value) : ['', ''];
   return (
@@ -135,9 +136,9 @@ function DoseRow({ label, unit, before, after }: { label: string; unit: string; 
   return (
     <div className={GRID}>
       <p className={labelCls}>{label}</p>
-      <Chip bg={ROW_BG} after={false}>{doseCells(before, unit, false, null)}</Chip>
+      <Chip bg={ROW_BG} after={false}>{doseCells(before, unit, false, null, false)}</Chip>
       <span />
-      <Chip bg={changed ? CHANGE_BG : ROW_BG} after={true}>{doseCells(after, unit, true, delta)}</Chip>
+      <Chip bg={changed ? CHANGE_BG : ROW_BG} after={true}>{doseCells(after, unit, true, delta, changed)}</Chip>
       <span className="flex justify-center">{changed && <ChangeIcon />}</span>
     </div>
   );
@@ -150,10 +151,11 @@ type MedHeadData = { name: string; concentration: string; total: Val };
  * up with the totals column below. Concentration is dropped here — the totals sit
  * right after the ~150px per-delivery values, leaving no room for it.
  */
-function medCells(m: MedHeadData | null, unit: string, after: boolean, pct: number | null) {
-  const color = after ? AFTER_COLOR : BEFORE_COLOR;
+function medCells(m: MedHeadData | null, unit: string, after: boolean, pct: number | null, changed: boolean) {
+  const gold = after && changed; // only a *changed* after header goes gold; unchanged stays blue
+  const color = gold ? AFTER_COLOR : BEFORE_COLOR;
   if (!m) return (<><span className="flex items-baseline"><Dash /></span><span /><span /></>);
-  const labelColor = after ? AFTER_COLOR : '#5f8aa0'; // after: labels in dark yellow too
+  const labelColor = gold ? AFTER_COLOR : '#5f8aa0';
   const [ip, fp] = splitNum(m.total.value);
   return (
     <>
@@ -186,9 +188,9 @@ function MedHeaderRow({ before, after, unit, expanded, onToggle }: { before: Med
   return (
     <button onClick={onToggle} className={`${GRID} cursor-pointer text-left w-full`}>
       <p className={labelCls}>Medication</p>
-      <Chip bg={HEAD_BG} after={false}>{medCells(before, unit, false, null)}</Chip>
+      <Chip bg={HEAD_BG} after={false}>{medCells(before, unit, false, null, false)}</Chip>
       <span className="flex justify-center"><ArrowIcon /></span>
-      <Chip bg={changed ? CHANGE_BG : HEAD_BG} after={true}>{medCells(after, unit, true, changed ? totalPct : null)}</Chip>
+      <Chip bg={changed ? CHANGE_BG : HEAD_BG} after={true}>{medCells(after, unit, true, changed ? totalPct : null, changed)}</Chip>
       <span className="flex justify-center"><Chevron up={expanded} /></span>
     </button>
   );

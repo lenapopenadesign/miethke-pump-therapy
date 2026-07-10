@@ -280,9 +280,9 @@ function uid() {
 // -------- Active-therapy seed (the app boots into this) --------
 // A patient already on therapy: an intrathecal pain mix (morphine primary +
 // bupivacaine co-delivered) with a couple of dosing windows around the flat
-// base. Morphine is the primary drug at 1.5 mg/day @ 1 mg/mL:
-//   1500 µg/day ÷ 1 mg/mL (= 1 µg/µL) = 1500 µL/day ÷ 10 µL = 150 boluses.
-const ACTIVE_BASE_DOSE = 1500; // µg/day Morphine (= 1.5 mg/day @ 1 mg/mL)
+// base. Morphine is the primary drug at 1.0 mg/day @ 1 mg/mL:
+//   1000 µg/day ÷ 1 mg/mL (= 1 µg/µL) = 1000 µL/day ÷ 10 µL = 100 boluses.
+const ACTIVE_BASE_DOSE = 1000; // µg/day Morphine (= 1.0 mg/day @ 1 mg/mL)
 const ACTIVE_MEDICATIONS: Medication[] = [
   { id: 'med-morphine', name: 'Morphine', concentration: 1,  unit: 'mg/ml' },
   { id: 'med-baclofen', name: 'Baclofen', concentration: 30, unit: 'mg/ml' },
@@ -291,11 +291,11 @@ const ACTIVE_MEDICATIONS: Medication[] = [
 // schedule applies to every day (no weekday/weekend differentiation). Two dosing
 // periods: a single-delivery morning spike (+60%) and a raised night (+30%). The
 // night crosses midnight (23:00–04:00), so it's stored as two adjacent intervals.
-// Doses are daily-equivalent rates vs the 1500 µg/day base (× 1.6 and × 1.3).
+// Doses are daily-equivalent rates vs the 1000 µg/day base (× 1.6 and × 1.3).
 const ACTIVE_WINDOWS: Interval[] = [
-  { id: 'iv-morning',    label: 'Morning peak', startMin: 360,  endMin: 375,  dose: 2400 }, // 06:00 · one delivery · +60%
-  { id: 'iv-night-early', label: 'Night',       startMin: 0,    endMin: 240,  dose: 1950 }, // 00:00–04:00 · +30%
-  { id: 'iv-night-late',  label: 'Night',       startMin: 1380, endMin: 1440, dose: 1950 }, // 23:00–24:00 · +30%
+  { id: 'iv-morning',    label: 'Morning peak', startMin: 360,  endMin: 375,  dose: 1600 }, // 06:00 · one delivery · +60%
+  { id: 'iv-night-early', label: 'Night',       startMin: 0,    endMin: 240,  dose: 1300 }, // 00:00–04:00 · +30%
+  { id: 'iv-night-late',  label: 'Night',       startMin: 1380, endMin: 1440, dose: 1300 }, // 23:00–24:00 · +30%
 ];
 const ACTIVE_BY_DAY: IntervalsByDay = {
   monday:    ACTIVE_WINDOWS.map(iv => ({ ...iv })),
