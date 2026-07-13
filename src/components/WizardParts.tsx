@@ -14,6 +14,9 @@ import { BolusBars, PerDelAxis } from './TherapyHeaderChart';
 const CARD_H = 214;
 const BASELINE_FROM_BOTTOM = 78; // two label rows below the baseline: window times, then the hour axis
 const AXIS_L = 78; // left gutter for the dose-per-delivery labels
+// The base-dose bar fills this fraction of the plot; the rest is headroom the
+// customised-delivery bars grow into as their dose is raised.
+const BAR_BASE_FRAC = 0.6;
 
 export type Highlight = { startMin: number; endMin: number; label?: string };
 
@@ -44,7 +47,7 @@ export function WizardChart({ highlights = [], onHelp, baseOnly = false, windows
     <div className="relative w-full bg-white rounded-[16px] border border-[#dbe3e8] overflow-hidden shrink-0" style={{ height: CARD_H }}>
       <HelpBadge onClick={onHelp} />
       {/* Rough dose-per-delivery axis */}
-      <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={barWindows} unit={unit}
+      <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={barWindows} unit={unit} baseFrac={BAR_BASE_FRAC}
         barMaxH={CARD_H - BASELINE_FROM_BOTTOM - 40} left={AXIS_L} right={30} baseline={BASELINE_FROM_BOTTOM} labelSize={22} />
       {/* Plot area */}
       <div className="absolute right-[30px] top-[40px]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }}>
@@ -60,7 +63,7 @@ export function WizardChart({ highlights = [], onHelp, baseOnly = false, windows
             />
           );
         })}
-        <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={barWindows} maxH={CARD_H - BASELINE_FROM_BOTTOM - 40} />
+        <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={barWindows} maxH={CARD_H - BASELINE_FROM_BOTTOM - 40} baseFrac={BAR_BASE_FRAC} />
       </div>
       {/* Baseline */}
       <div className="absolute right-[30px] h-px bg-[#e3e6e9]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />

@@ -104,7 +104,7 @@ const PEAK_FRAC = 0.9;
  * Place inside a relative, bottom-anchored box of height `maxH`.
  */
 export function BolusBars({
-  baseDose, bolusCount, windows, maxH = 150, minH = 10, barWidth = 9,
+  baseDose, bolusCount, windows, maxH = 150, minH = 10, barWidth = 9, baseFrac,
 }: {
   baseDose: number;
   bolusCount: number;
@@ -114,15 +114,22 @@ export function BolusBars({
   maxH?: number;
   minH?: number;
   barWidth?: number;
+  // When set, the base-dose bar is a FIXED fraction of maxH (leaving headroom
+  // above) and windows grow into that headroom — so raising one window's dose
+  // grows only its bars instead of renormalising (shrinking) all the others.
+  // When unset, bars normalise to the schedule's peak (fills the chart).
+  baseFrac?: number;
 }) {
   const baseRate = baseDose / 24;
   const n = baseDose > 0 && bolusCount > 0 ? Math.min(bolusCount, MAX_BARS) : 0;
   const maxDoseUg = Math.max(baseDose, ...windows.map(w => w.dose), 0);
-  const top = PEAK_FRAC * maxH;
   const bars = Array.from({ length: n }, (_, i) => {
     const midMin = ((i + 0.5) / n) * 1440;
-    const frac = maxDoseUg > 0 ? (rateAt(midMin, baseRate, windows) * 24) / maxDoseUg : 0;
-    return Math.max(minH, Math.min(maxH, frac * top));
+    const rateDaily = rateAt(midMin, baseRate, windows) * 24; // daily-equivalent µg at this time
+    const h = baseFrac != null
+      ? (baseDose > 0 ? (rateDaily / baseDose) * baseFrac : 0) * maxH // base → baseFrac; windows scale above
+      : (maxDoseUg > 0 ? rateDaily / maxDoseUg : 0) * (PEAK_FRAC * maxH); // normalise to peak
+    return Math.max(minH, Math.min(maxH, h));
   });
   return (
     <div className="absolute inset-0 flex items-end justify-between">
@@ -140,16 +147,18 @@ export function BolusBars({
  * `right` are the plot insets and `baseline` the px from the card bottom.
  */
 export function PerDelAxis({
-  baseDose, bolusCount, windows, unit, barMaxH, left, right, baseline, labelSize = 18,
+  baseDose, bolusCount, windows, unit, barMaxH, left, right, baseline, labelSize = 18, baseFrac,
 }: {
   baseDose: number; bolusCount: number; windows: Interval[]; unit: string; barMaxH: number;
-  left: number; right: number; baseline: number; labelSize?: number;
+  left: number; right: number; baseline: number; labelSize?: number; baseFrac?: number;
 }) {
   const bolusN = Math.max(1, bolusCount);
   const maxDoseUg = Math.max(baseDose, ...windows.map(w => w.dose), 0);
   if (!(maxDoseUg > 0)) return null;
-  const maxPerDelUg = maxDoseUg / bolusN; // highest per-delivery dose in the schedule
-  const top = PEAK_FRAC * barMaxH;        // height the peak delivery reaches
+  // With a fixed base reference the plot top is base ÷ baseFrac (base sits at
+  // baseFrac height, headroom above); otherwise the top is the schedule peak.
+  const maxPerDelUg = baseFrac != null ? (baseDose / baseFrac) / bolusN : maxDoseUg / bolusN;
+  const top = baseFrac != null ? barMaxH : PEAK_FRAC * barMaxH;
   const gap = labelSize + 10;             // min spacing between tick labels
   const fracs = top >= 3 * gap ? [1, 2 / 3, 1 / 3] : top >= 2 * gap ? [1, 1 / 2] : [1];
   const wdth = { fontVariationSettings: "'wdth' 100" } as const;
