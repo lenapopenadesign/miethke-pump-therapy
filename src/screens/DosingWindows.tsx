@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtTime, doseUnitFor, concUgPerUl, coDoseUgDay, doseStringsFor, strokesPerDay, windowDeliverySpan, BOLUS_VOLUME_UL, type Medication, type Interval } from '../therapy';
+import { useTherapy, fmtTime, doseUnitFor, concUgPerUl, coDoseUgDay, doseStringsFor, strokesPerDay, windowDeliverySpan, BOLUS_VOLUME_UL, scopeForDay, type Medication, type Interval, type DayKey, type DayPattern } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { WizardChart, WizardTotalsFooter, SaveButton, type Highlight } from '../components/WizardParts';
+import { ModeToggle, DayGroupToggle, repDay } from '../components/DayToggles';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
 
@@ -34,8 +35,15 @@ function deltaPct(dose: number, base: number): { text: string; up: boolean } | n
 
 export function DosingWindows() {
   const navigate = useNavigate();
-  const { baseDose, bolusCount, intervals, addWindow, updateWindow, removeWindow, medications } = useTherapy();
-  const windows = intervals; // shared schedule (every day identical)
+  const { baseDose, bolusCount, intervalsByDay, dayPattern, setDayPattern, addWindowFor, updateWindowFor, removeWindowFor, syncAllDaysTo, medications } = useTherapy();
+  // Which day-group is being edited/viewed. displayDay is its representative day;
+  // scope is the set of days an edit touches.
+  const [viewDay, setViewDay] = useState<DayKey>('monday');
+  const displayDay = repDay(dayPattern, viewDay);
+  const scope = scopeForDay(dayPattern, viewDay);
+  const windows = intervalsByDay[displayDay];
+  // Switching back to "Same Daily" unifies every day onto the schedule on screen.
+  const onModeChange = (p: DayPattern) => { if (p === 'same') syncAllDaysTo(displayDay); setViewDay('monday'); setDayPattern(p); };
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
 
   // Selectable delivery moments = the delivery frequency chosen on the previous
@@ -158,8 +166,8 @@ export function DosingWindows() {
   const commit = () => {
     if (selStartMin == null || selEndMin == null) return;
     const dose = Math.round(primaryDose);
-    if (editingId) updateWindow(editingId, { startMin: selStartMin, endMin: selEndMin, dose });
-    else addWindow({ label: 'Customised delivery', startMin: selStartMin, endMin: selEndMin, dose });
+    if (editingId) updateWindowFor(scope, editingId, { startMin: selStartMin, endMin: selEndMin, dose });
+    else addWindowFor(scope, { label: 'Customised delivery', startMin: selStartMin, endMin: selEndMin, dose });
     resetEditor();
   };
 
@@ -167,7 +175,7 @@ export function DosingWindows() {
     <WizardShell
       step="windows"
       onBack={() => navigate('base-dose')}
-      pinnedTop={<WizardChart highlights={highlights} onHelp={() => navigate('help')} />}
+      pinnedTop={<WizardChart windowsOverride={windows} highlights={highlights} onHelp={() => navigate('help')} />}
       footer={
         <>
           <WizardTotalsFooter />
@@ -282,7 +290,7 @@ export function DosingWindows() {
             {/* Footer actions */}
             <div className="px-[80px] py-[32px] border-t border-[#e6eef3] shrink-0 flex gap-[20px]">
               {editingId && (
-                <button onClick={() => { removeWindow(editingId); resetEditor(); }} className="flex-1 h-[84px] rounded-[80px] border-2 border-[#c0392b] font-['Roboto',sans-serif] font-bold text-[#c0392b] text-[28px] cursor-pointer" style={{ fontVariationSettings: "'wdth' 100" }}>Delete</button>
+                <button onClick={() => { removeWindowFor(scope, editingId); resetEditor(); }} className="flex-1 h-[84px] rounded-[80px] border-2 border-[#c0392b] font-['Roboto',sans-serif] font-bold text-[#c0392b] text-[28px] cursor-pointer" style={{ fontVariationSettings: "'wdth' 100" }}>Delete</button>
               )}
               <button onClick={resetEditor} className="flex-1 h-[84px] rounded-[80px] border-2 border-[#0094c5] font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[28px] cursor-pointer" style={{ fontVariationSettings: "'wdth' 100" }}>Cancel</button>
               <button onClick={commit} disabled={selCount === 0} className={`flex-[2] h-[84px] rounded-[80px] font-['Roboto',sans-serif] font-bold text-[28px] ${selCount === 0 ? 'bg-[#cbcbcb] text-[#a5a5a5]' : 'bg-[#0094c5] text-white cursor-pointer'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{editingId ? 'Save delivery' : 'Add delivery'}</button>
@@ -298,6 +306,13 @@ export function DosingWindows() {
           <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             Customised Delivery
           </p>
+        </div>
+
+        {/* Day-differentiation: choose the pattern first; for weekday-weekend /
+            per-day, a second toggle opens to pick which day-group to edit. */}
+        <div className="flex flex-col gap-[12px]">
+          <ModeToggle dayPattern={dayPattern} onChange={onModeChange} />
+          <DayGroupToggle dayPattern={dayPattern} viewDay={viewDay} onPick={setViewDay} />
         </div>
 
         {/* Existing windows list */}

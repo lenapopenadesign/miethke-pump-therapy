@@ -212,6 +212,7 @@ function BolusChart({
 
       {/* Axis + window label */}
       <p className="absolute bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: AXIS_L, fontVariationSettings: "'wdth' 100" }}>00:00</p>
+      <p className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: `calc(${AXIS_L}px + (100% - ${AXIS_L + 30}px) * 0.5)`, fontVariationSettings: "'wdth' 100" }}>12:00</p>
       <p className="absolute right-[30px] bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>24:00</p>
       {hl && (
         <p

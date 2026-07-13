@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>B.Braun Miethke — Link Test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;800&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --accent: #0094c5;
+        --ink: #1b2733;
+        --muted: #5b6b7a;
+        --bg: #f4f7f9;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; }
+      body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        min-height: 100%;
+      }
+      .card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(27, 39, 51, 0.08);
+        max-width: 420px;
+        width: 100%;
+        padding: 40px 32px;
+        text-align: center;
+      }
+      .badge {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 24px;
+        border-radius: 50%;
+        background: rgba(0, 148, 197, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .badge svg { width: 38px; height: 38px; stroke: var(--accent); }
+      h1 {
+        font-family: 'Roboto', sans-serif;
+        font-weight: 800;
+        font-size: 24px;
+        margin: 0 0 12px;
+      }
+      p {
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--muted);
+        margin: 0 0 8px;
+      }
+      .brand {
+        margin-top: 28px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      </div>
+      <h1>You're all set</h1>
+      <p>The link opened correctly on your device.</p>
+      <p>You can let the test facilitator know you can see this page.</p>
+      <div class="brand">B.Braun · Miethke</div>
+    </main>
+  </body>
+</html>

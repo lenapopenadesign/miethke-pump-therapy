@@ -10,8 +10,10 @@ import {
   type Interval,
   type Medication,
   type BeforeTherapy,
+  type DayKey,
 } from '../therapy';
 import { TherapyMedBreakdown } from './TherapyBreakdown';
+import { DayGroupToggle, repDay } from './DayToggles';
 
 // Shared styling with the rest of the breakdown so the before/after view reads as
 // the same system — only the "changed" amber highlight + delta are new. Values
@@ -245,18 +247,25 @@ function computeMed(t: TherapyLike, i: number): MedComputed | null {
  * their +/-% change. Falls back to the plain breakdown if there is no snapshot.
  */
 export function TherapyChangeReview() {
-  const { medications, baseDose, bolusCount, intervals, editBefore } = useTherapy();
+  const { medications, baseDose, bolusCount, intervalsByDay, editBefore, dayPattern } = useTherapy();
   // First medication expanded, the rest folded in — matching the therapy detail.
   const [expandedId, setExpandedId] = useState<string | null>(medications[0]?.id ?? null);
-  const before: BeforeTherapy | null = editBefore;
-  if (!before) return <TherapyMedBreakdown />;
+  // When days differ, the day-group toggle picks which day's schedule to compare.
+  const [viewDay, setViewDay] = useState<DayKey>('monday');
+  const beforeSnap: BeforeTherapy | null = editBefore;
+  if (!beforeSnap) return <TherapyMedBreakdown />;
 
-  const after: TherapyLike = { medications, baseDose, bolusCount, intervals };
+  const displayDay = repDay(dayPattern, viewDay);
+  const before: BeforeTherapy = { ...beforeSnap, intervals: beforeSnap.intervalsByDay[displayDay] };
+  const after: TherapyLike = { medications, baseDose, bolusCount, intervals: intervalsByDay[displayDay] };
   const freqBefore: Cell = { v: { value: `${before.bolusCount}`, ug: before.bolusCount }, total: null };
   const freqAfter: Cell = { v: { value: `${bolusCount}`, ug: bolusCount }, total: null };
 
   return (
     <div className="flex flex-col gap-[32px]">
+      {/* Day-group switcher — only when the schedule differs by day. */}
+      <DayGroupToggle dayPattern={dayPattern} viewDay={viewDay} onPick={setViewDay} />
+
       {/* Before / After column captions */}
       <div className={GRID}>
         <span />

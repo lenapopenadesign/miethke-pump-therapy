@@ -27,14 +27,30 @@ const SETUP_STEPS = [
   { key: 'transfer', label: 'Transfer' },
 ];
 
-// Refill prepends the Filling step; the rest of the path matches the edit flow.
-const REFILL_BAR_STEPS = [{ key: 'filling', label: 'Filling' }, ...SETUP_STEPS];
+// Refill flow: Filling + a distinct Medication step, then the delivery steps and
+// Transfer (Figma refill variant 9466:48180). Rendered with the chevron stepper.
+const REFILL_STEPS = [
+  { key: 'filling', label: 'Filling' },
+  { key: 'medication', label: 'Medication' },
+  { key: 'base-dose', label: 'Default Delivery' },
+  { key: 'windows', label: 'Custom Delivery' },
+  { key: 'transfer', label: 'Transfer' },
+];
 
 // Legacy step keys collapse onto the closest current step so old screens don't
-// highlight a missing dot.
+// highlight a missing dot. The edit flow folds Medication into Base Dose.
 function normalizeStep(step: WizardStep): string {
   if (step === 'medication' || step === 'frequency') return 'base-dose';
   if (step === 'intervals' || step === 'delivery') return 'windows';
+  return step;
+}
+
+// Refill keeps Medication as its own step; Review (no dot in the refill stepper)
+// falls back to the Custom Delivery step.
+function normalizeRefillStep(step: WizardStep): string {
+  if (step === 'frequency') return 'base-dose';
+  if (step === 'intervals' || step === 'delivery') return 'windows';
+  if (step === 'review') return 'windows';
   return step;
 }
 
@@ -130,47 +146,21 @@ function ChevronStepper({ activeKey, steps }: { activeKey: string; steps: { key:
   );
 }
 
-/** Refill-flow stepper: equal-width segmented bars with labels below (Figma 8146:52117). */
-function BarStepper({ activeKey, steps }: { activeKey: string; steps: { key: string; label: string }[] }) {
-  const activeIdx = steps.findIndex(s => s.key === activeKey);
-  return (
-    <div className="flex gap-[8px] h-[48px] items-start w-full">
-      {steps.map((s, i) => {
-        const upcoming = i > activeIdx;
-        const active = i === activeIdx;
-        return (
-          <div key={s.key} className="flex-1 min-w-px flex flex-col gap-[4px] h-[48px] items-start">
-            <div className={`h-[8px] w-full rounded-[4px] shrink-0 ${upcoming ? 'bg-[#cbcbcb]' : 'bg-[#0094c5]'}`} />
-            <p
-              className={`font-['Roboto',sans-serif] leading-[34px] text-[29px] tracking-[0.1px] w-full whitespace-nowrap ${upcoming ? 'font-normal text-[#a5a5a5]' : active ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
-              style={{ fontVariationSettings: "'wdth' 100" }}
-            >
-              {s.label}
-            </p>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/** Refill header band: left-aligned title group + segmented-bar stepper. */
+/** Refill header band: "Refill" title group + chevron stepper (Figma 9466:48180). */
 function RefillHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => void }) {
   return (
-    <div className="bg-[#e6f4f9] w-[1200px] shrink-0 flex flex-col gap-[40px] pt-[24px] pb-[16px] px-[40px]">
-      <div className="flex items-center justify-between w-[1120px]">
-        <div className="flex gap-[16px] h-[64px] items-center">
+    <div className="w-[1200px] shrink-0 flex flex-col gap-[8px]">
+      <div className="bg-[#e6f4f9] flex h-[96px] items-center justify-between px-[40px]">
+        <div className="flex gap-[16px] items-center">
           <BackArrow onBack={onBack} />
-          <div className="flex gap-[16px] items-center">
-            <RefillTitleIcon size={64} />
-            <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-              Refill
-            </p>
-          </div>
+          <RefillTitleIcon size={64} />
+          <p className="font-['Roboto',sans-serif] font-extrabold text-[#00769e] text-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            Refill
+          </p>
         </div>
         <Signet />
       </div>
-      <BarStepper activeKey={normalizeStep(step)} steps={REFILL_BAR_STEPS} />
+      <ChevronStepper activeKey={normalizeRefillStep(step)} steps={REFILL_STEPS} />
     </div>
   );
 }

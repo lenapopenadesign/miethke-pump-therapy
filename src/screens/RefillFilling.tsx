@@ -121,7 +121,10 @@ export function RefillFilling() {
       const timers = seq.map((lvl, i) => window.setTimeout(() => setFillLevel(lvl), i * STEP_MS));
       return () => timers.forEach(clearTimeout);
     }
-    setFillLevel(phase === 'filled' || phase === 'done' ? 1 : START_LEVEL);
+    if (phase === 'filled') setFillLevel(1);
+    // 'done' keeps whatever level was reached when the user completed (a partial
+    // refill is allowed — completion isn't gated on reaching 100%).
+    else if (phase !== 'done') setFillLevel(START_LEVEL);
   }, [phase]);
 
   const cancel = () => { setFlowMode('setup'); navigate('home-active'); };
@@ -173,12 +176,12 @@ export function RefillFilling() {
               <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Cancel refill</span>
             </button>
           )}
-          {(phase === 'inserting' || phase === 'draining' || phase === 'filling') && (
+          {(phase === 'inserting' || phase === 'draining') && (
             <button disabled className="h-[88px] w-full rounded-[80px] border-2 border-[#cbcbcb] cursor-not-allowed">
               <span className="font-['Roboto',sans-serif] font-bold text-[#a5a5a5] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Complete refill</span>
             </button>
           )}
-          {phase === 'filled' && (
+          {(phase === 'filling' || phase === 'filled') && (
             <button onClick={() => setPhase('done')} className="h-[88px] w-full rounded-[80px] bg-[#0094c5] cursor-pointer">
               <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Complete refill</span>
             </button>

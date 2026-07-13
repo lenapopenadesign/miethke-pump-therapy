@@ -165,7 +165,17 @@ export type BeforeTherapy = {
   baseDose: number;
   bolusCount: number;
   intervals: Interval[];
+  intervalsByDay: IntervalsByDay;
 };
+
+// The days a window edit touches, given the current day-pattern and the day
+// currently being viewed/edited. 'same' → every day; 'weekday-weekend' → the
+// whole weekday or weekend group; 'per-day' → just that day.
+export function scopeForDay(pattern: DayPattern, day: DayKey): DayKey[] {
+  if (pattern === 'same') return DAY_KEYS;
+  if (pattern === 'weekday-weekend') return WEEKEND_KEYS.includes(day) ? WEEKEND_KEYS : WEEKDAY_KEYS;
+  return [day];
+}
 
 type TherapyState = {
   // Editable medication list. medications[0] is the primary drug (Baclofen) and
@@ -225,6 +235,12 @@ type TherapyState = {
   addWindow: (w: Draft) => string;
   updateWindow: (id: string, patch: Partial<Draft>) => void;
   removeWindow: (id: string) => void;
+  // Scoped variants — edit only the given days (weekday/weekend/per-day support).
+  addWindowFor: (scope: DayKey[], w: Draft) => string;
+  updateWindowFor: (scope: DayKey[], id: string, patch: Partial<Draft>) => void;
+  removeWindowFor: (scope: DayKey[], id: string) => void;
+  // Copy one day's schedule onto every day (used when returning to "Same Daily").
+  syncAllDaysTo: (day: DayKey) => void;
   dayPattern: DayPattern;
   setDayPattern: (p: DayPattern) => void;
   // When true, Review and HomeActive ignore stored intervals and render a
@@ -282,21 +298,15 @@ function uid() {
 // bupivacaine co-delivered) with a couple of dosing windows around the flat
 // base. Morphine is the primary drug at 1.0 mg/day @ 1 mg/mL:
 //   1000 µg/day ÷ 1 mg/mL (= 1 µg/µL) = 1000 µL/day ÷ 10 µL = 100 boluses.
-const ACTIVE_BASE_DOSE = 1000; // µg/day Morphine (= 1.0 mg/day @ 1 mg/mL)
+const ACTIVE_BASE_DOSE = 1500; // µg/day Morphine (= 1.5 mg/day @ 1 mg/mL)
 const ACTIVE_MEDICATIONS: Medication[] = [
   { id: 'med-morphine', name: 'Morphine', concentration: 1,  unit: 'mg/ml' },
   { id: 'med-baclofen', name: 'Baclofen', concentration: 30, unit: 'mg/ml' },
 ];
-// Windows are deltas vs the base; the base fills every uncovered minute. One
-// schedule applies to every day (no weekday/weekend differentiation). Two dosing
-// periods: a single-delivery morning spike (+60%) and a raised night (+30%). The
-// night crosses midnight (23:00–04:00), so it's stored as two adjacent intervals.
-// Doses are daily-equivalent rates vs the 1000 µg/day base (× 1.6 and × 1.3).
-const ACTIVE_WINDOWS: Interval[] = [
-  { id: 'iv-morning',    label: 'Morning peak', startMin: 360,  endMin: 375,  dose: 1600 }, // 06:00 · one delivery · +60%
-  { id: 'iv-night-early', label: 'Night',       startMin: 0,    endMin: 240,  dose: 1300 }, // 00:00–04:00 · +30%
-  { id: 'iv-night-late',  label: 'Night',       startMin: 1380, endMin: 1440, dose: 1300 }, // 23:00–24:00 · +30%
-];
+// Default example: a plain default delivery at the default (max) frequency and no
+// customised delivery windows — a flat 1.5 mg/day. The customised-delivery flow
+// starts from this empty schedule.
+const ACTIVE_WINDOWS: Interval[] = [];
 const ACTIVE_BY_DAY: IntervalsByDay = {
   monday:    ACTIVE_WINDOWS.map(iv => ({ ...iv })),
   tuesday:   ACTIVE_WINDOWS.map(iv => ({ ...iv })),
@@ -473,7 +483,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
     const opts = deliveryFrequencyOptions(s.baseDose, conc0);
     const maxB = opts.length ? opts[opts.length - 1] : 0;
     const bc = s.bolusCountRaw == null ? maxB : (maxB > 0 ? Math.min(s.bolusCountRaw, maxB) : s.bolusCountRaw);
-    return { medications: s.medications, baseDose: s.baseDose, bolusCount: bc, intervals: s.intervalsByDay.monday };
+    return { medications: s.medications, baseDose: s.baseDose, bolusCount: bc, intervals: s.intervalsByDay.monday, intervalsByDay: s.intervalsByDay };
   })();
 
   // -------- Dosing windows (one shared schedule applied to every day) --------
@@ -494,6 +504,30 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
     setAllDays(list => list.map(iv => (iv.id === id ? { ...iv, ...patch } : iv)));
   const removeWindow = (id: string) =>
     setAllDays(list => list.filter(iv => iv.id !== id));
+
+  // Scoped variants: apply an edit to just the listed days.
+  const setDays = (scope: DayKey[], fn: (list: Interval[]) => Interval[]) =>
+    setIntervalsByDay(prev => {
+      const next: IntervalsByDay = { ...prev };
+      for (const day of scope) next[day] = fn(next[day].map(iv => ({ ...iv })));
+      return next;
+    });
+  const addWindowFor = (scope: DayKey[], w: Draft): string => {
+    const id = uid();
+    setDays(scope, list => [...list, { id, ...w }]);
+    return id;
+  };
+  const updateWindowFor = (scope: DayKey[], id: string, patch: Partial<Draft>) =>
+    setDays(scope, list => list.map(iv => (iv.id === id ? { ...iv, ...patch } : iv)));
+  const removeWindowFor = (scope: DayKey[], id: string) =>
+    setDays(scope, list => list.filter(iv => iv.id !== id));
+  const syncAllDaysTo = (day: DayKey) =>
+    setIntervalsByDay(prev => {
+      const src = prev[day].map(iv => ({ ...iv }));
+      const next: IntervalsByDay = { ...prev };
+      for (const d of DAY_KEYS) next[d] = src.map(iv => ({ ...iv }));
+      return next;
+    });
 
   function startAddingInterval(returnTo: ScreenId = 'intervals-populated', scope: DayKey[] = [...WEEKDAY_KEYS]) {
     setEditingId(null);
@@ -565,6 +599,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       strokeStrategy, setStrokeStrategy,
       bolusCount, maxBoluses, freqOptions, setBolusCount,
       addWindow, updateWindow, removeWindow,
+      addWindowFor, updateWindowFor, removeWindowFor, syncAllDaysTo,
       dayPattern, setDayPattern,
       useBaseOnly, setUseBaseOnly,
       flowMode, setFlowMode,

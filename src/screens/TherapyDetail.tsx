@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy } from '../therapy';
+import { useTherapy, type DayKey } from '../therapy';
 import { DetailShell } from '../components/DetailShell';
 import { TherapyIcon } from '../components/HomeShell';
 import { TherapyChartCard, TherapyMedBreakdown } from '../components/TherapyBreakdown';
+import { DayGroupToggle, repDay } from '../components/DayToggles';
 
 const imgClin1 = "/icons/act-clinician-1.svg";
 const imgClin2 = "/icons/act-clinician-2.svg";
@@ -37,7 +39,9 @@ function StopGlyph() {
 
 export function TherapyDetail() {
   const navigate = useNavigate();
-  const { setFlowMode, setTherapyActive, beginEditTherapy } = useTherapy();
+  const { setFlowMode, setTherapyActive, beginEditTherapy, intervalsByDay, dayPattern } = useTherapy();
+  const [viewDay, setViewDay] = useState<DayKey>('monday');
+  const windows = intervalsByDay[repDay(dayPattern, viewDay)];
 
   // Edit Therapy opens the Edit-Therapy decision screen; Edit Medication jumps
   // straight to the medication page (add/remove meds), both snapshotting so a
@@ -51,7 +55,7 @@ export function TherapyDetail() {
     <DetailShell
       icon={<TherapyIcon size={56} />}
       title="Therapy"
-      pinnedTop={<TherapyChartCard showNow showHeader={false} onHelp={() => navigate('help')} />}
+      pinnedTop={<TherapyChartCard showNow showHeader={false} onHelp={() => navigate('help')} windowsOverride={windows} />}
       footer={
         <div className="flex gap-[16px] px-[80px] pt-[24px] pb-[32px]">
           <ActionTile label="Clinician Bolus" onClick={onClinicianBolus}><ClinicianGlyph /></ActionTile>
@@ -61,9 +65,12 @@ export function TherapyDetail() {
         </div>
       }
     >
-      {/* Breakdown accordion — delivery frequency + per-medication rows, each with a
-          Total 24 h line at the bottom of its expanded dropdown. */}
-      <TherapyMedBreakdown />
+      {/* Day-group switcher (only when the schedule differs by day) + the
+          breakdown accordion for the selected day-group. */}
+      <div className="flex flex-col gap-[24px]">
+        <DayGroupToggle dayPattern={dayPattern} viewDay={viewDay} onPick={setViewDay} />
+        <TherapyMedBreakdown windowsOverride={windows} />
+      </div>
     </DetailShell>
   );
 }

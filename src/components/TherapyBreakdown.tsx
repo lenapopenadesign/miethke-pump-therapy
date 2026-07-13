@@ -130,6 +130,7 @@ export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, unit, 
         </>
       )}
       <p className="absolute bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: CHART_AXIS_L, ...wdth }}>00:00</p>
+      <p className="absolute bottom-[14px] -translate-x-1/2 font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: `calc(${CHART_AXIS_L}px + (100% - ${CHART_AXIS_L + 24}px) * 0.5)`, ...wdth }}>12:00</p>
       <p className="absolute right-[24px] bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={wdth}>24:00</p>
     </div>
   );
@@ -140,9 +141,9 @@ export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, unit, 
  * 24-hour bolus chart. Kept separate from the scrolling breakdown below so the
  * chart can stay visible while the medication list scrolls.
  */
-export function TherapyChartCard({ showNow = false, showHeader = true, onHelp }: { showNow?: boolean; showHeader?: boolean; onHelp?: () => void }) {
+export function TherapyChartCard({ showNow = false, showHeader = true, onHelp, windowsOverride }: { showNow?: boolean; showHeader?: boolean; onHelp?: () => void; windowsOverride?: Interval[] }) {
   const { baseDose, bolusCount, maxBoluses, intervals, medications } = useTherapy();
-  const windows = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  const windows = [...(windowsOverride ?? intervals)].sort((a, b) => a.startMin - b.startMin);
   const unit = medications[0]?.unit ?? 'mg/ml';
   return (
     <div className="flex flex-col gap-[24px]">
@@ -171,9 +172,9 @@ export function TherapyChartCard({ showNow = false, showHeader = true, onHelp }:
  * and the per-medication breakdown (Base Dose + one row per dosing window). The
  * first medication is expanded; the others collapse to just their header.
  */
-export function TherapyMedBreakdown({ showFrequency = true }: { showFrequency?: boolean }) {
+export function TherapyMedBreakdown({ showFrequency = true, windowsOverride }: { showFrequency?: boolean; windowsOverride?: Interval[] }) {
   const { baseDose, bolusCount, intervals, medications } = useTherapy();
-  const windows = [...intervals].sort((a, b) => a.startMin - b.startMin);
+  const windows = [...(windowsOverride ?? intervals)].sort((a, b) => a.startMin - b.startMin);
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const minsBetween = bolusCount > 0 ? Math.round(1440 / bolusCount) : 0;
   const bolusN = Math.max(1, bolusCount); // divisor for per-delivery doses

@@ -11,8 +11,8 @@ import {
 import { useRef, type ReactNode } from 'react';
 import { BolusBars, PerDelAxis } from './TherapyHeaderChart';
 
-const CARD_H = 260;
-const BASELINE_FROM_BOTTOM = 52;
+const CARD_H = 256;
+const BASELINE_FROM_BOTTOM = 78; // two label rows below the baseline: window times, then the hour axis
 const AXIS_L = 78; // left gutter for the dose-per-delivery labels
 
 export type Highlight = { startMin: number; endMin: number; label?: string };
@@ -66,6 +66,7 @@ export function WizardChart({ highlights = [], onHelp, baseOnly = false, windows
       <div className="absolute right-[30px] h-px bg-[#e3e6e9]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
       {/* Axis + window labels */}
       <p className="absolute bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: AXIS_L, fontVariationSettings: "'wdth' 100" }}>00:00</p>
+      <p className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: `calc(${AXIS_L}px + (100% - ${AXIS_L + 30}px) * 0.5)`, fontVariationSettings: "'wdth' 100" }}>12:00</p>
       <p className="absolute right-[30px] bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>24:00</p>
       {highlights.map((hl, i) => {
         if (hl.endMin <= hl.startMin) return null;
@@ -74,7 +75,7 @@ export function WizardChart({ highlights = [], onHelp, baseOnly = false, windows
         return (
           <p
             key={i}
-            className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[21px] whitespace-nowrap"
+            className="absolute bottom-[48px] -translate-x-1/2 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[21px] whitespace-nowrap"
             style={{ left: `calc(${AXIS_L}px + (100% - ${AXIS_L + 30}px) * ${center / 100})`, fontVariationSettings: "'wdth' 100" }}
           >
             {hl.label ?? `${fmtTime(hl.startMin)} – ${end}`}
