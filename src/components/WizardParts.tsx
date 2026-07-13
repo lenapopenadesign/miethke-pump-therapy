@@ -11,7 +11,7 @@ import {
 import { useRef, type ReactNode } from 'react';
 import { BolusBars, PerDelAxis } from './TherapyHeaderChart';
 
-const CARD_H = 256;
+const CARD_H = 214;
 const BASELINE_FROM_BOTTOM = 78; // two label rows below the baseline: window times, then the hour axis
 const AXIS_L = 78; // left gutter for the dose-per-delivery labels
 

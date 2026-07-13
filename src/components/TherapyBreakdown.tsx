@@ -104,6 +104,7 @@ export function ValueRow({ label, value, unit, bg, delta, note }: { label: strin
  */
 const NOW_MIN = 716; // "11:56" — current-time marker
 const CHART_AXIS_L = 68; // left gutter for the dose-per-delivery labels
+const BAR_MAX_H = 96; // bar area height — matched to the (shorter) wizard chart bars
 const NOW_POS = `calc(${CHART_AXIS_L}px + (100% - ${CHART_AXIS_L + 24}px) * ${NOW_MIN / 1440})`;
 
 /**
@@ -115,11 +116,13 @@ export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, unit, 
   return (
     <div className="relative w-full bg-white border border-[#d9dbde] rounded-[16px]" style={{ height: 250 }}>
       {onHelp && <HelpBadge onClick={onHelp} />}
+      {/* Shorter bars (to match the wizard chart) but the same 250px card height —
+          the extra space sits as headroom above the bars. */}
       <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={windows} unit={unit}
-        barMaxH={170} left={CHART_AXIS_L} right={24} baseline={48} labelSize={18} />
+        barMaxH={BAR_MAX_H} left={CHART_AXIS_L} right={24} baseline={48} labelSize={18} />
       <div className="absolute right-[24px] top-[24px]" style={{ left: CHART_AXIS_L, bottom: 48 }}>
         <div className="absolute inset-0">
-          <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} nominalH={30} maxH={170} minH={10} barWidth={9} />
+          <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} nominalH={30} maxH={BAR_MAX_H} minH={10} barWidth={9} />
         </div>
       </div>
       <div className="absolute right-[24px] h-px bg-[#e3e6e9]" style={{ left: CHART_AXIS_L, bottom: 48 }} />
