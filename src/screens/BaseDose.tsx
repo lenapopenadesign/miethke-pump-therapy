@@ -21,14 +21,21 @@ function rowDisplay(m: Medication, i: number, baseDose: number, c0: number) {
 
 export function BaseDose() {
   const navigate = useNavigate();
-  const { baseDose, setBaseDose, medications, bolusCount, maxBoluses, freqOptions, setBolusCount, cancelTherapyEdit } = useTherapy();
+  const { baseDose, setBaseDose, medications, bolusCount, maxBoluses, freqOptions, setBolusCount, cancelTherapyEdit, intervalsByDay, clearWindows } = useTherapy();
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const [editingId, setEditingId] = useState<string | undefined>(medications[0]?.id);
   const [draftText, setDraftText] = useState<string | null>(null);
   const ctaEnabled = baseDose > 0;
-  // Reference dose on entry — a >100% jump likely means a decimal slip, so warn.
+  // Reference dose + frequency on entry — a >100% dose jump likely means a decimal
+  // slip, so warn; and any change once customised deliveries exist resets them.
   const [initialBase] = useState(baseDose);
+  const [initialBolus] = useState(bolusCount);
   const bigIncrease = initialBase > 0 && baseDose > initialBase * 2;
+  // Customised deliveries are slot-based, so changing the default delivery or the
+  // delivery frequency invalidates them — warn, and clear them on continue.
+  const hasCustomDeliveries = Object.values(intervalsByDay).some(list => list.length > 0);
+  const baseOrFreqChanged = baseDose !== initialBase || bolusCount !== initialBolus;
+  const willResetCustom = hasCustomDeliveries && baseOrFreqChanged;
 
   // Delivery frequency: the slider snaps through the valid options (divisors of
   // the day's 10 µl stroke count); the gap between deliveries is derived from the
@@ -57,12 +64,24 @@ export function BaseDose() {
         <>
           <WizardTotalsFooter />
           <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
-            <SaveButton enabled={ctaEnabled} label="Next" onClick={() => navigate('windows')} />
+            <SaveButton enabled={ctaEnabled} label="Next" onClick={() => { if (willResetCustom) clearWindows(); navigate('windows'); }} />
           </div>
         </>
       }
     >
       <div className="flex flex-col gap-[40px]">
+        {/* Reset warning — shown once the default delivery or frequency is changed
+            while customised deliveries exist; continuing clears them. */}
+        {willResetCustom && (
+          <div className="bg-[#fdf3d1] rounded-[12px] px-[28px] py-[20px] flex gap-[20px] items-start">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-[2px]"><path d="M12 3L2 20h20L12 3z" stroke="#b3850e" strokeWidth="1.8" strokeLinejoin="round" /><path d="M12 10v4" stroke="#b3850e" strokeWidth="2" strokeLinecap="round" /><circle cx="12" cy="17" r="1.1" fill="#b3850e" /></svg>
+            <div className="flex flex-col gap-[4px]">
+              <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Customised deliveries will be reset</p>
+              <p className="font-['Roboto',sans-serif] font-normal text-[#7a5c0a] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Changing the default delivery or delivery frequency clears your customised deliveries. Tap Next to continue.</p>
+            </div>
+          </div>
+        )}
+
         {/* Base Dose table */}
         <div className="flex flex-col gap-[24px]">
           <div className="flex gap-[16px] items-center">

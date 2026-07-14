@@ -241,6 +241,9 @@ type TherapyState = {
   removeWindowFor: (scope: DayKey[], id: string) => void;
   // Copy one day's schedule onto every day (used when returning to "Same Daily").
   syncAllDaysTo: (day: DayKey) => void;
+  // Drop every customised delivery on every day (used when the base dose or
+  // delivery frequency changes and the windows no longer apply).
+  clearWindows: () => void;
   dayPattern: DayPattern;
   setDayPattern: (p: DayPattern) => void;
   // When true, Review and HomeActive ignore stored intervals and render a
@@ -528,6 +531,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       for (const d of DAY_KEYS) next[d] = src.map(iv => ({ ...iv }));
       return next;
     });
+  const clearWindows = () => setAllDays(() => []);
 
   function startAddingInterval(returnTo: ScreenId = 'intervals-populated', scope: DayKey[] = [...WEEKDAY_KEYS]) {
     setEditingId(null);
@@ -599,7 +603,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       strokeStrategy, setStrokeStrategy,
       bolusCount, maxBoluses, freqOptions, setBolusCount,
       addWindow, updateWindow, removeWindow,
-      addWindowFor, updateWindowFor, removeWindowFor, syncAllDaysTo,
+      addWindowFor, updateWindowFor, removeWindowFor, syncAllDaysTo, clearWindows,
       dayPattern, setDayPattern,
       useBaseOnly, setUseBaseOnly,
       flowMode, setFlowMode,
