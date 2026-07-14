@@ -20,12 +20,16 @@ const BAR_BASE_FRAC = 0.6;
 
 export type Highlight = { startMin: number; endMin: number; label?: string };
 
-/** Small blue-circle "?" help affordance shown in the chart card corner. */
-export function HelpBadge({ onClick }: { onClick?: () => void }) {
+/**
+ * Small blue-circle "?" help affordance. Sits inline next to a page-header title
+ * by default; pass a positioning `className` (e.g. absolute corner) to place it
+ * elsewhere. Click stops propagation so it works inside a clickable header row.
+ */
+export function HelpBadge({ onClick, className = '' }: { onClick?: () => void; className?: string }) {
   return (
     <div
       onClick={onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined}
-      className={`absolute right-[20px] top-[20px] z-10 size-[44px] rounded-full bg-[#0094c5] flex items-center justify-center ${onClick ? 'cursor-pointer' : ''}`}
+      className={`size-[44px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0 ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
       <span className="font-['Roboto',sans-serif] font-bold text-white text-[28px] leading-none" style={{ fontVariationSettings: "'wdth' 100" }}>?</span>
     </div>
@@ -37,7 +41,7 @@ export function HelpBadge({ onClick }: { onClick?: () => void }) {
  * card with teal bolus bars, a "?" help badge, and 00:00 / 24:00 axis labels. One
  * or more `highlights` outline a dosing window with a dashed box + centred label.
  */
-export function WizardChart({ highlights = [], onHelp, baseOnly = false, windowsOverride }: { highlights?: Highlight[]; onHelp?: () => void; baseOnly?: boolean; windowsOverride?: Interval[] }) {
+export function WizardChart({ highlights = [], baseOnly = false, windowsOverride }: { highlights?: Highlight[]; baseOnly?: boolean; windowsOverride?: Interval[] }) {
   const { baseDose, bolusCount, maxBoluses, intervals, medications } = useTherapy();
   // windowsOverride lets the dosing-window editor preview the in-progress dose so
   // the bars grow/shrink live as the +/- stepper changes the value.
@@ -45,7 +49,6 @@ export function WizardChart({ highlights = [], onHelp, baseOnly = false, windows
   const unit = medications[0]?.unit ?? 'mg/ml';
   return (
     <div className="relative w-full bg-white rounded-[16px] border border-[#dbe3e8] overflow-hidden shrink-0" style={{ height: CARD_H }}>
-      <HelpBadge onClick={onHelp} />
       {/* Rough dose-per-delivery axis */}
       <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={barWindows} unit={unit} baseFrac={BAR_BASE_FRAC}
         barMaxH={CARD_H - BASELINE_FROM_BOTTOM - 40} left={AXIS_L} right={30} baseline={BASELINE_FROM_BOTTOM} labelSize={22} />

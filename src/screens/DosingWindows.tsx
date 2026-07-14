@@ -175,7 +175,8 @@ export function DosingWindows() {
     <WizardShell
       step="windows"
       onBack={() => navigate('base-dose')}
-      pinnedTop={<WizardChart windowsOverride={windows} highlights={highlights} onHelp={() => navigate('help')} />}
+      onHelp={() => navigate('help')}
+      pinnedTop={<WizardChart windowsOverride={windows} highlights={highlights} />}
       footer={
         <>
           <WizardTotalsFooter />

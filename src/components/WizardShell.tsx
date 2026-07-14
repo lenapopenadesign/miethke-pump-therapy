@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTherapy } from '../therapy';
+import { HelpBadge } from './WizardParts';
 
 const imgBack = "/icons/01195f3c-ce0c-4269-a4cc-2742bc124f77.svg";
 const imgSignet = "/icons/9f250784-cad4-4195-99ce-4b9dc94364a5.svg";
@@ -147,7 +148,7 @@ function ChevronStepper({ activeKey, steps }: { activeKey: string; steps: { key:
 }
 
 /** Refill header band: "Refill" title group + chevron stepper (Figma 9466:48180). */
-function RefillHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => void }) {
+function RefillHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: () => void; onHelp?: () => void }) {
   return (
     <div className="w-[1200px] shrink-0 flex flex-col gap-[8px]">
       <div className="bg-[#e6f4f9] flex h-[96px] items-center justify-between px-[40px]">
@@ -157,6 +158,7 @@ function RefillHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => vo
           <p className="font-['Roboto',sans-serif] font-extrabold text-[#00769e] text-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Refill
           </p>
+          {onHelp && <HelpBadge onClick={onHelp} />}
         </div>
         <Signet />
       </div>
@@ -166,7 +168,7 @@ function RefillHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => vo
 }
 
 /** Setup header band: left-aligned "Add Therapy" title + chevron stepper (Figma 8409:53071). */
-function SetupHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => void }) {
+function SetupHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: () => void; onHelp?: () => void }) {
   const activeKey = normalizeStep(step);
   const steps = SETUP_STEPS;
   return (
@@ -177,6 +179,7 @@ function SetupHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => voi
           <p className="font-['Roboto',sans-serif] font-extrabold text-[#00769e] text-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Edit Therapy
           </p>
+          {onHelp && <HelpBadge onClick={onHelp} />}
         </div>
         <Signet />
       </div>
@@ -188,6 +191,8 @@ function SetupHeaderBand({ step, onBack }: { step: WizardStep; onBack: () => voi
 type Props = {
   step: WizardStep;
   onBack: () => void;
+  // When set, a "?" help badge sits next to the header title (opens the Help page).
+  onHelp?: () => void;
   children: ReactNode;
   // Optional full-bleed band rendered between the stepper and the padded body.
   banner?: ReactNode;
@@ -213,15 +218,15 @@ type Props = {
  * `banner` is rendered full width under the stepper; screens supply the rest of
  * their body as children — a padded flex column filling the remaining height.
  */
-export function WizardShell({ step, onBack, children, banner, pinnedTop, footer, overlay }: Props) {
+export function WizardShell({ step, onBack, onHelp, children, banner, pinnedTop, footer, overlay }: Props) {
   const { flowMode } = useTherapy();
   const isRefill = flowMode === 'refill';
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] flex flex-col overflow-hidden">
       <div className="bg-[#3b2d7c] h-[35px] w-[1200px] shrink-0" />
       {isRefill
-        ? <RefillHeaderBand step={step} onBack={onBack} />
-        : <SetupHeaderBand step={step} onBack={onBack} />}
+        ? <RefillHeaderBand step={step} onBack={onBack} onHelp={onHelp} />
+        : <SetupHeaderBand step={step} onBack={onBack} onHelp={onHelp} />}
       {banner}
       {/* Pinned top region (e.g. the 24-hour diagram) — stays put while the body scrolls. */}
       {pinnedTop && <div className="shrink-0 w-[1200px] px-[80px] pt-[40px]">{pinnedTop}</div>}

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy, CATHETER, RESERVOIR_ML } from '../therapy';
+import { HelpBadge } from './WizardParts';
 
 // Existing assets in /public/icons/
 const imgImplantOuter = "/icons/34c72d33-da0a-4524-baf8-8740816e1c94.svg";
@@ -309,7 +310,7 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
 
 type TherapyStatus = 'not-active' | 'active' | 'none';
 
-function TherapyHeader({ status }: { status: TherapyStatus }) {
+function TherapyHeader({ status, onHelp }: { status: TherapyStatus; onHelp?: () => void }) {
   return (
     <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
       <div className="content-stretch flex flex-1 gap-[16px] items-center min-w-px relative">
@@ -317,6 +318,7 @@ function TherapyHeader({ status }: { status: TherapyStatus }) {
         <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
           Therapy
         </p>
+        {onHelp && <HelpBadge onClick={onHelp} />}
       </div>
       {status === 'not-active' && (
         <div className="content-stretch flex items-center relative shrink-0">
@@ -495,11 +497,11 @@ type Props = {
   therapyStatus: TherapyStatus;
   therapyBody: ReactNode;
   onTherapyClick?: () => void;
+  // When set, a "?" help badge sits next to the Therapy card title (opens Help).
+  onTherapyHelp?: () => void;
 };
 
-export function HomeShell({ therapyStatus, therapyBody, onTherapyClick }: Props) {
-  const navigate = useNavigate();
-  void navigate; // available for future header buttons
+export function HomeShell({ therapyStatus, therapyBody, onTherapyClick, onTherapyHelp }: Props) {
   const { refillDate, fillFraction } = useTherapy();
   const noTherapy = therapyStatus === 'none';
   return (
@@ -509,7 +511,7 @@ export function HomeShell({ therapyStatus, therapyBody, onTherapyClick }: Props)
         <PatientCard />
         <ImplantCard refillDate={noTherapy ? 'N/A' : refillDate} fillFraction={fillFraction} />
         <div onClick={onTherapyClick} className={`bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] ${onTherapyClick ? 'cursor-pointer' : ''}`}>
-          <TherapyHeader status={therapyStatus} />
+          <TherapyHeader status={therapyStatus} onHelp={onTherapyHelp} />
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start pb-[16px] pt-[8px] px-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
             {therapyBody}
           </div>

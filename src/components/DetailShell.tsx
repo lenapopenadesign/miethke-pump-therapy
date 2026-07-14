@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy } from '../therapy';
 import { BottomNav } from './HomeShell';
+import { HelpBadge } from './WizardParts';
 
 const imgBack = "/icons/01195f3c-ce0c-4269-a4cc-2742bc124f77.svg";
 const imgSignet = "/icons/9f250784-cad4-4195-99ce-4b9dc94364a5.svg";
@@ -10,6 +11,8 @@ type Props = {
   icon: ReactNode;
   title: string;
   headerRight?: ReactNode;
+  // When set, a "?" help badge sits next to the header title (opens the Help page).
+  onHelp?: () => void;
   children: ReactNode;
   /** Region pinned below the header that does NOT scroll (e.g. the 24-hour diagram). */
   pinnedTop?: ReactNode;
@@ -24,7 +27,7 @@ type Props = {
  * body and the shared bottom navigation. Back returns to the home screen that
  * matches the current therapy state (active vs. no-therapy).
  */
-export function DetailShell({ icon, title, headerRight, children, pinnedTop, footer }: Props) {
+export function DetailShell({ icon, title, headerRight, onHelp, children, pinnedTop, footer }: Props) {
   const navigate = useNavigate();
   const { homeScreen } = useTherapy();
   return (
@@ -44,6 +47,7 @@ export function DetailShell({ icon, title, headerRight, children, pinnedTop, foo
           <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] text-[#00769e] text-[44px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             {title}
           </p>
+          {onHelp && <HelpBadge onClick={onHelp} />}
         </div>
         <div className="flex items-center gap-[24px] shrink-0">
           {headerRight}

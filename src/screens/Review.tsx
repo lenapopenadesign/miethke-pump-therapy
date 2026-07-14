@@ -17,6 +17,7 @@ export function Review() {
     <WizardShell
       step="review"
       onBack={() => navigate('windows')}
+      onHelp={() => navigate('help')}
       pinnedTop={
         <div className="flex flex-col gap-[24px]">
           {/* Title */}
@@ -24,7 +25,7 @@ export function Review() {
             <span className="font-bold text-[#00769e] text-[36px]">Review changes for {PATIENT.name} </span>
             <span className="font-normal text-[#667380] text-[26px]">*{PATIENT.dob}, Patient Nr. {PATIENT.id}</span>
           </p>
-          <TherapyChartCard onHelp={() => navigate('help')} />
+          <TherapyChartCard />
         </div>
       }
       footer={

@@ -11,7 +11,6 @@ import {
   type Interval,
 } from '../therapy';
 import { BolusBars, PerDelAxis, HourAxis } from './TherapyHeaderChart';
-import { HelpBadge } from './WizardParts';
 import { TherapyIcon } from './HomeShell';
 
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
@@ -112,10 +111,9 @@ const NOW_POS = `calc(${CHART_AXIS_L}px + (100% - ${CHART_AXIS_L + 24}px) * ${NO
  * therapy teaser so both render at the same height. `showNow` adds the
  * current-time marker; a rough dose-per-delivery axis sits in the left gutter.
  */
-export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, unit, showNow = false, onHelp }: { baseDose: number; bolusCount: number; maxBoluses: number; windows: Interval[]; unit: string; showNow?: boolean; onHelp?: () => void }) {
+export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, unit, showNow = false }: { baseDose: number; bolusCount: number; maxBoluses: number; windows: Interval[]; unit: string; showNow?: boolean }) {
   return (
     <div className="relative w-full bg-white border border-[#d9dbde] rounded-[16px]" style={{ height: 250 }}>
-      {onHelp && <HelpBadge onClick={onHelp} />}
       {/* Shorter bars (to match the wizard chart) but the same 250px card height —
           the extra space sits as headroom above the bars. */}
       <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={windows} unit={unit}
@@ -142,7 +140,7 @@ export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, unit, 
  * 24-hour bolus chart. Kept separate from the scrolling breakdown below so the
  * chart can stay visible while the medication list scrolls.
  */
-export function TherapyChartCard({ showNow = false, showHeader = true, onHelp, windowsOverride }: { showNow?: boolean; showHeader?: boolean; onHelp?: () => void; windowsOverride?: Interval[] }) {
+export function TherapyChartCard({ showNow = false, showHeader = true, windowsOverride }: { showNow?: boolean; showHeader?: boolean; windowsOverride?: Interval[] }) {
   const { baseDose, bolusCount, maxBoluses, intervals, medications } = useTherapy();
   const windows = [...(windowsOverride ?? intervals)].sort((a, b) => a.startMin - b.startMin);
   const unit = medications[0]?.unit ?? 'mg/ml';
@@ -162,7 +160,7 @@ export function TherapyChartCard({ showNow = false, showHeader = true, onHelp, w
       {/* 24-hour view */}
       <div className="flex flex-col gap-[12px]">
         <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={wdth}>24-hour view</p>
-        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} unit={unit} showNow={showNow} onHelp={onHelp} />
+        <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} unit={unit} showNow={showNow} />
       </div>
     </div>
   );
