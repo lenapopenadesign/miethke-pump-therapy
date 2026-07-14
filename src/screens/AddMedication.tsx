@@ -128,7 +128,7 @@ export function AddMedication() {
           className="mt-auto flex gap-[16px] h-[88px] items-center justify-center min-w-[240px] px-[40px] rounded-[80px] w-full bg-[#0094c5] cursor-pointer"
         >
           <p className="font-['Roboto',sans-serif] font-bold leading-[32px] text-white text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-            Save
+            Next
           </p>
         </div>
       </div>

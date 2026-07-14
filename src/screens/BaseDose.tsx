@@ -55,9 +55,9 @@ export function BaseDose() {
       pinnedTop={<WizardChart />}
       footer={
         <>
-          <WizardTotalsFooter baseOnly />
+          <WizardTotalsFooter />
           <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
-            <SaveButton enabled={ctaEnabled} onClick={() => navigate('windows')} />
+            <SaveButton enabled={ctaEnabled} label="Next" onClick={() => navigate('windows')} />
           </div>
         </>
       }

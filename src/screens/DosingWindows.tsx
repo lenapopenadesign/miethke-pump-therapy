@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy, fmtTime, doseUnitFor, concUgPerUl, coDoseUgDay, doseStringsFor, strokesPerDay, windowDeliverySpan, BOLUS_VOLUME_UL, scopeForDay, type Medication, type Interval, type DayKey, type DayPattern } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
-import { WizardChart, WizardTotalsFooter, SaveButton, type Highlight } from '../components/WizardParts';
+import { WizardChart, WizardTotalsFooter, SaveButton } from '../components/WizardParts';
 import { ModeToggle, DayGroupToggle, repDay } from '../components/DayToggles';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
@@ -104,15 +104,6 @@ export function DosingWindows() {
     return { value: d.perDay, unit: `${d.unit}/del` };
   };
 
-  const highlights: Highlight[] = useMemo(() => {
-    // Box spans the coverage edge (startMin..endMin) so it aligns with the raised
-    // bars; the label shows the first–last delivery so it matches the picker.
-    const list: Highlight[] = windows.map(w => ({ startMin: w.startMin, endMin: w.endMin, label: deliveryRangeLabel(w.startMin, w.endMin) }));
-    if (open && selStartMin != null && selEndMin != null) list.push({ startMin: selStartMin, endMin: selEndMin, label: rangeLabel });
-    return list;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [windows, open, selStartMin, selEndMin, rangeLabel]);
-
   // While the editor is open, preview the window being edited at its live dose so
   // the chart bars grow/shrink as the +/- stepper changes the value.
   const previewWindows: Interval[] = useMemo(() => {
@@ -176,12 +167,12 @@ export function DosingWindows() {
       step="windows"
       onBack={() => navigate('base-dose')}
       onHelp={() => navigate('help')}
-      pinnedTop={<WizardChart windowsOverride={windows} highlights={highlights} />}
+      pinnedTop={<WizardChart windowsOverride={windows} />}
       footer={
         <>
           <WizardTotalsFooter />
           <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
-            <SaveButton onClick={() => navigate('review')} />
+            <SaveButton label="Next" onClick={() => navigate('review')} />
           </div>
         </>
       }
@@ -212,8 +203,8 @@ export function DosingWindows() {
 
             {/* Body — stacked: diagram · delivery list · count+sum · dose */}
             <div className="flex-1 min-h-0 overflow-y-auto px-[80px] pt-[8px] pb-[24px] flex flex-col gap-[24px]">
-              {/* 1. Diagram — always on top, highlights the selected deliveries */}
-              <WizardChart windowsOverride={previewWindows} highlights={selStartMin != null && selEndMin != null ? [{ startMin: selStartMin, endMin: selEndMin, label: rangeLabel }] : []} />
+              {/* 1. Diagram — highlights the selected deliveries while adding (no time label). */}
+              <WizardChart windowsOverride={previewWindows} highlights={selStartMin != null && selEndMin != null ? [{ startMin: selStartMin, endMin: selEndMin }] : []} />
 
               {/* 2. Delivery list — check the deliveries to include */}
               <div className="flex flex-col gap-[12px]">

@@ -5,7 +5,6 @@ import {
   doseStringsFor,
   estimatedDailyTotal,
   dailyVolumeUl,
-  fmtTime,
   type Interval,
 } from '../therapy';
 import { useRef, type ReactNode } from 'react';
@@ -70,22 +69,8 @@ export function WizardChart({ highlights = [], baseOnly = false, windowsOverride
       </div>
       {/* Baseline */}
       <div className="absolute right-[30px] h-px bg-[#e3e6e9]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
-      {/* Axis + window labels */}
+      {/* Hour axis (the customised-window time labels are intentionally omitted). */}
       <HourAxis left={AXIS_L} right={30} />
-      {highlights.map((hl, i) => {
-        if (hl.endMin <= hl.startMin) return null;
-        const center = ((hl.startMin + hl.endMin) / 2 / 1440) * 100;
-        const end = hl.endMin >= 1440 ? '24:00' : fmtTime(hl.endMin);
-        return (
-          <p
-            key={i}
-            className="absolute bottom-[48px] -translate-x-1/2 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[21px] whitespace-nowrap"
-            style={{ left: `calc(${AXIS_L}px + (100% - ${AXIS_L + 30}px) * ${center / 100})`, fontVariationSettings: "'wdth' 100" }}
-          >
-            {hl.label ?? `${fmtTime(hl.startMin)} – ${end}`}
-          </p>
-        );
-      })}
     </div>
   );
 }
