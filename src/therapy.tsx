@@ -76,15 +76,19 @@ export function windowDeliverySpan(startMin: number, endMin: number, bolusCount:
  * Valid delivery frequencies (deliveries per day). Each delivery must carry a
  * whole number of 10 µl strokes, so the deliveries-per-day count has to divide
  * the day's total stroke count evenly. Returns every divisor of the stroke
- * count in ascending order — from 1 delivery/day (the whole dose at once) up to
- * one delivery per stroke — with no artificial floor or ceiling.
+ * count in ascending order, floored at MIN_DELIVERIES_PER_DAY (the pump must
+ * deliver at least a few times a day), up to one delivery per stroke.
  */
+export const MIN_DELIVERIES_PER_DAY = 4;
 export function deliveryFrequencyOptions(baseDoseUgDay: number, primaryConcUgPerUl: number): number[] {
   const strokes = strokesPerDay(baseDoseUgDay, primaryConcUgPerUl);
   if (strokes <= 0) return [];
   const divisors: number[] = [];
   for (let d = 1; d <= strokes; d++) if (strokes % d === 0) divisors.push(d);
-  return divisors;
+  const floored = divisors.filter(d => d >= MIN_DELIVERIES_PER_DAY);
+  // If the dose is too small to reach the floor, keep the single highest option
+  // so the frequency control still has a valid value.
+  return floored.length ? floored : divisors.slice(-1);
 }
 
 /** Snap an arbitrary frequency to the nearest valid option (ties → higher). */
