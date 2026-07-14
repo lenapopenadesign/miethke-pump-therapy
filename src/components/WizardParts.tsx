@@ -9,7 +9,7 @@ import {
   type Interval,
 } from '../therapy';
 import { useRef, type ReactNode } from 'react';
-import { BolusBars, PerDelAxis } from './TherapyHeaderChart';
+import { BolusBars, PerDelAxis, HourAxis } from './TherapyHeaderChart';
 
 const CARD_H = 214;
 const BASELINE_FROM_BOTTOM = 78; // two label rows below the baseline: window times, then the hour axis
@@ -68,9 +68,7 @@ export function WizardChart({ highlights = [], onHelp, baseOnly = false, windows
       {/* Baseline */}
       <div className="absolute right-[30px] h-px bg-[#e3e6e9]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
       {/* Axis + window labels */}
-      <p className="absolute bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: AXIS_L, fontVariationSettings: "'wdth' 100" }}>00:00</p>
-      <p className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: `calc(${AXIS_L}px + (100% - ${AXIS_L + 30}px) * 0.5)`, fontVariationSettings: "'wdth' 100" }}>12:00</p>
-      <p className="absolute right-[30px] bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>24:00</p>
+      <HourAxis left={AXIS_L} right={30} />
       {highlights.map((hl, i) => {
         if (hl.endMin <= hl.startMin) return null;
         const center = ((hl.startMin + hl.endMin) / 2 / 1440) * 100;
@@ -209,12 +207,17 @@ export function ReadoutField({ children }: { children: ReactNode }) {
   );
 }
 
-/** Full-width teal CTA pill used at the very bottom of the Edit Therapy steps. */
-export function SaveButton({ enabled = true, label = 'Save', onClick }: { enabled?: boolean; label?: string; onClick?: () => void }) {
+/**
+ * Full-width teal CTA pill used at the very bottom of the Edit Therapy steps.
+ * `enabledBg` overrides the enabled fill (e.g. the Review step turns it green
+ * once the transfer is confirmed).
+ */
+export function SaveButton({ enabled = true, label = 'Save', enabledBg = '#0094c5', onClick }: { enabled?: boolean; label?: string; enabledBg?: string; onClick?: () => void }) {
   return (
     <div
       onClick={() => { if (enabled) onClick?.(); }}
-      className={`flex h-[88px] items-center justify-center px-[40px] rounded-[80px] w-full ${enabled ? 'bg-[#0094c5] cursor-pointer' : 'bg-[#cbcbcb] cursor-not-allowed'}`}
+      className={`flex h-[88px] items-center justify-center px-[40px] rounded-[80px] w-full ${enabled ? 'cursor-pointer' : 'bg-[#cbcbcb] cursor-not-allowed'}`}
+      style={enabled ? { background: enabledBg } : undefined}
     >
       <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[24px] tracking-[0.1px] ${enabled ? 'text-white' : 'text-[#a5a5a5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
         {label}

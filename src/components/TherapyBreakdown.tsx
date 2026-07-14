@@ -10,7 +10,7 @@ import {
   windowDeliverySpan,
   type Interval,
 } from '../therapy';
-import { BolusBars, PerDelAxis } from './TherapyHeaderChart';
+import { BolusBars, PerDelAxis, HourAxis } from './TherapyHeaderChart';
 import { HelpBadge } from './WizardParts';
 import { TherapyIcon } from './HomeShell';
 
@@ -132,9 +132,7 @@ export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, unit, 
           <div className="absolute" style={{ left: NOW_POS, top: 14, transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '10px solid #063b66' }} />
         </>
       )}
-      <p className="absolute bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: CHART_AXIS_L, ...wdth }}>00:00</p>
-      <p className="absolute bottom-[14px] -translate-x-1/2 font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: `calc(${CHART_AXIS_L}px + (100% - ${CHART_AXIS_L + 24}px) * 0.5)`, ...wdth }}>12:00</p>
-      <p className="absolute right-[24px] bottom-[14px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={wdth}>24:00</p>
+      <HourAxis left={CHART_AXIS_L} right={24} bottom={14} />
     </div>
   );
 }

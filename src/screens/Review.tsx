@@ -39,10 +39,10 @@ export function Review() {
                 )}
               </span>
               <p onClick={() => setConfirmed(c => !c)} className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[26px] tracking-[0.1px]" style={wdth}>
-                I confirm that the data is correct and may be transferred.
+                I confirm that the data is correct and is transferred to the pump.
               </p>
             </label>
-            <SaveButton enabled={confirmed} onClick={() => navigate('activate')} />
+            <SaveButton enabled={confirmed} label="Transfer" enabledBg="#24ab5e" onClick={() => navigate('activate')} />
           </div>
         </>
       }

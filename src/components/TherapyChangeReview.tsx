@@ -248,8 +248,8 @@ function computeMed(t: TherapyLike, i: number): MedComputed | null {
  */
 export function TherapyChangeReview() {
   const { medications, baseDose, bolusCount, intervalsByDay, editBefore, dayPattern } = useTherapy();
-  // First medication expanded, the rest folded in — matching the therapy detail.
-  const [expandedId, setExpandedId] = useState<string | null>(medications[0]?.id ?? null);
+  // All medications folded in by default; the clinician expands one to inspect it.
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   // When days differ, the day-group toggle picks which day's schedule to compare.
   const [viewDay, setViewDay] = useState<DayKey>('monday');
   const beforeSnap: BeforeTherapy | null = editBefore;

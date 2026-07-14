@@ -141,10 +141,12 @@ export function BolusBars({
 }
 
 /**
- * A rough dose-per-delivery axis, matched to the normalised bars: the top gridline
- * sits at the schedule's peak delivery (always shown, however high), with 1–2 more
- * gridlines below at proportional doses. `barMaxH` is the bars' `maxH`; `left`/
- * `right` are the plot insets and `baseline` the px from the card bottom.
+ * The dose-per-delivery axis: a single gridline + label marking the *default
+ * delivery* dose (the base dose ÷ one delivery), the reference every bar is
+ * scaled around. The tick sits at exactly the base-dose bar height so windows
+ * read as growing above / shrinking below the default. `barMaxH` is the bars'
+ * `maxH`; `left`/`right` are the plot insets and `baseline` the px from the card
+ * bottom.
  */
 export function PerDelAxis({
   baseDose, bolusCount, windows, unit, barMaxH, left, right, baseline, labelSize = 18, baseFrac,
@@ -154,26 +156,57 @@ export function PerDelAxis({
 }) {
   const bolusN = Math.max(1, bolusCount);
   const maxDoseUg = Math.max(baseDose, ...windows.map(w => w.dose), 0);
-  if (!(maxDoseUg > 0)) return null;
-  // With a fixed base reference the plot top is base ÷ baseFrac (base sits at
-  // baseFrac height, headroom above); otherwise the top is the schedule peak.
-  const maxPerDelUg = baseFrac != null ? (baseDose / baseFrac) / bolusN : maxDoseUg / bolusN;
-  const top = baseFrac != null ? barMaxH : PEAK_FRAC * barMaxH;
-  const gap = labelSize + 10;             // min spacing between tick labels
-  const fracs = top >= 3 * gap ? [1, 2 / 3, 1 / 3] : top >= 2 * gap ? [1, 1 / 2] : [1];
+  if (!(baseDose > 0)) return null;
+  // Height (fraction of barMaxH) of the default-delivery bar — matched exactly to
+  // BolusBars. Fixed-reference mode pins it at baseFrac; peak-normalised mode
+  // scales it against the schedule peak.
+  const baseFracOfMax = baseFrac != null ? baseFrac : (maxDoseUg > 0 ? (baseDose / maxDoseUg) * PEAK_FRAC : 0);
+  const y = baseFracOfMax * barMaxH;
   const wdth = { fontVariationSettings: "'wdth' 100" } as const;
   return (
     <>
       <p className="absolute font-['Roboto',sans-serif] text-[#9ea8b2]" style={{ left: 8, top: 4, fontSize: labelSize, ...wdth }}>
         {doseStringsFor(0, unit).unit}/del
       </p>
-      {fracs.map((f, i) => (
-        <div key={i}>
-          <div className="absolute border-t border-dashed" style={{ left, right, bottom: baseline + f * top, borderColor: '#e6eaed' }} />
-          <p className="absolute text-right font-['Roboto',sans-serif] text-[#9ea8b2]" style={{ left: 0, width: left - 8, bottom: baseline + f * top - Math.round(labelSize * 0.55), fontSize: labelSize, ...wdth }}>
-            {doseStringsFor(maxPerDelUg * f, unit).perDay}
-          </p>
-        </div>
+      <div className="absolute border-t border-dashed" style={{ left, right, bottom: baseline + y, borderColor: '#e6eaed' }} />
+      <p className="absolute text-right font-['Roboto',sans-serif] text-[#9ea8b2]" style={{ left: 0, width: left - 8, bottom: baseline + y - Math.round(labelSize * 0.55), fontSize: labelSize, ...wdth }}>
+        {doseStringsFor(baseDose / bolusN, unit).perDay}
+      </p>
+    </>
+  );
+}
+
+/**
+ * The 24-hour time axis: labels every 6 hours (00:00 · 06:00 · 12:00 · 18:00 ·
+ * 24:00), positioned across a plot inset by `left`/`right`. Shared by every bolus
+ * chart so the axis reads identically everywhere.
+ */
+export function HourAxis({ left, right, labelSize = 22, bottom = 16 }: { left: number; right: number; labelSize?: number; bottom?: number }) {
+  const wdth = { fontVariationSettings: "'wdth' 100" } as const;
+  const ticks = [
+    { f: 0, label: '00:00' },
+    { f: 0.25, label: '06:00' },
+    { f: 0.5, label: '12:00' },
+    { f: 0.75, label: '18:00' },
+    { f: 1, label: '24:00' },
+  ];
+  return (
+    <>
+      {ticks.map(t => (
+        <p
+          key={t.label}
+          className="absolute font-['Roboto',sans-serif] text-[#9ea8b2]"
+          style={{
+            bottom, fontSize: labelSize, ...wdth,
+            ...(t.f === 0
+              ? { left }
+              : t.f === 1
+                ? { right }
+                : { left: `calc(${left}px + (100% - ${left + right}px) * ${t.f})`, transform: 'translateX(-50%)' }),
+          }}
+        >
+          {t.label}
+        </p>
       ))}
     </>
   );
@@ -220,9 +253,7 @@ function BolusChart({
       <div className="absolute right-[30px] h-px bg-[#e3e6e9]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
 
       {/* Axis + window label */}
-      <p className="absolute bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: AXIS_L, fontVariationSettings: "'wdth' 100" }}>00:00</p>
-      <p className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ left: `calc(${AXIS_L}px + (100% - ${AXIS_L + 30}px) * 0.5)`, fontVariationSettings: "'wdth' 100" }}>12:00</p>
-      <p className="absolute right-[30px] bottom-[16px] font-['Roboto',sans-serif] text-[#9ea8b2] text-[22px]" style={{ fontVariationSettings: "'wdth' 100" }}>24:00</p>
+      <HourAxis left={AXIS_L} right={30} />
       {hl && (
         <p
           className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[21px] whitespace-nowrap"
