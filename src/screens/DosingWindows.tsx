@@ -170,7 +170,7 @@ export function DosingWindows() {
       pinnedTop={<WizardChart windowsOverride={windows} />}
       footer={
         <>
-          <WizardTotalsFooter />
+          <WizardTotalsFooter windowsOverride={windows} />
           <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
             <SaveButton label="Next" onClick={() => navigate('review')} />
           </div>

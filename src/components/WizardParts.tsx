@@ -80,9 +80,11 @@ export function WizardChart({ highlights = [], baseOnly = false, windowsOverride
  * steps: delivery count on the left, per-medication daily totals on the right.
  * Full-bleed across the 1200px canvas.
  */
-export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9' }: { baseOnly?: boolean; bg?: string }) {
+export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOverride }: { baseOnly?: boolean; bg?: string; windowsOverride?: Interval[] }) {
   const { baseDose, bolusCount, medications, intervals } = useTherapy();
-  const windows = intervals;
+  // Default to the context's (Monday) schedule; the dosing-window editor passes
+  // the day-group it is showing so the totals always match the chart above.
+  const windows = windowsOverride ?? intervals;
   const primary = medications[0];
   const c0 = primary ? concUgPerUl(primary) : 0;
   const active = baseDose > 0 && c0 > 0;
