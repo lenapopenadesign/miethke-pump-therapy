@@ -53,7 +53,7 @@ export function Activate() {
     return () => clearTimeout(t);
   }, [flowMode, setFlowMode, completeRefill, therapyActive, commitTherapy]);
   return (
-    <WizardShell step="transfer" onBack={() => navigate('review')}>
+    <WizardShell step="transfer" onBack={() => navigate('review')} onHelp={() => navigate('help')}>
       <div className="flex flex-col gap-[40px]">
         <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           Transfer to pump

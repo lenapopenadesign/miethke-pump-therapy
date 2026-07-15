@@ -54,7 +54,7 @@ export function AddMedication() {
   const onBack = () => { if (isRefill) navigate('refill-filling'); else navigate(cancelTherapyEdit()); };
 
   return (
-    <WizardShell step="medication" onBack={onBack}>
+    <WizardShell step="medication" onBack={onBack} onHelp={() => navigate('help')}>
       <div className="flex-1 flex flex-col gap-[24px]">
         {/* Title */}
         <div className="flex gap-[16px] items-center">

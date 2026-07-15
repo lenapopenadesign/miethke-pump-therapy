@@ -137,7 +137,7 @@ export function RefillFilling() {
   const heading = phase === 'ready' ? 'ready to start' : isGreen ? 'needle in port' : 'needle detection deactivated';
 
   return (
-    <WizardShell step="filling" onBack={cancel}>
+    <WizardShell step="filling" onBack={cancel} onHelp={() => navigate('help')}>
       <div className="flex-1 flex flex-col gap-[32px]">
         {phase === 'init' && (
           <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
