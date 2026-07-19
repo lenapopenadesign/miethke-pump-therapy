@@ -19,7 +19,9 @@ export type ScreenId =
   | 'implant-detail'
   | 'therapy-detail'
   | 'actions'
-  | 'refill-filling';
+  | 'refill-filling'
+  | 'refill-same-therapy'
+  | 'refill-alert';
 
 const NavContext = createContext<(to: ScreenId) => void>(() => {});
 

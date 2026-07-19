@@ -259,12 +259,16 @@ type TherapyState = {
   // Filling + Medication steps and the "Refill" chrome; 'setup' is onboarding.
   flowMode: FlowMode;
   setFlowMode: (m: FlowMode) => void;
-  // Reservoir refill bookkeeping. completeRefill() tops the reservoir up and
-  // pushes the next-refill date out by a full-fill interval (~78 days). The fill
-  // level is a physical property — it only changes on refill, NOT when a therapy
-  // is added.
+  // Reservoir refill bookkeeping. The next-refill date is chosen by the clinician
+  // on the Refill Alert step (defaulting to a full-fill interval, ~78 days out),
+  // so completeRefill() only tops the reservoir up. The fill level is a physical
+  // property — it only changes on refill, NOT when a therapy is added.
   refillDate: string;
+  setRefillDate: (d: string) => void;
   fillFraction: number; // 0..1 of the 40 ml reservoir
+  // Reservoir volume (ml) at which the pump raises the low-fill alert.
+  alertLevelMl: number;
+  setAlertLevelMl: (ml: number) => void;
   completeRefill: () => void;
   // Whether a therapy has been set up + activated on the implant. Drives which
   // home screen ("home-active" vs "home-no-therapy") the chrome returns to.
@@ -277,7 +281,7 @@ type TherapyState = {
 export type FlowMode = 'setup' | 'refill';
 
 // Next-refill date `days` from today, formatted dd.mm.yyyy.
-function refillDateInDays(days: number): string {
+export function refillDateInDays(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
   const dd = String(d.getDate()).padStart(2, '0');
@@ -375,7 +379,9 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [flowMode, setFlowMode] = useState<FlowMode>('setup');
   const [refillDate, setRefillDate] = useState('19.08.2026');
   const [fillFraction, setFillFraction] = useState(0.95); // 38 / 40 ml
-  const completeRefill = () => { setRefillDate(refillDateInDays(78)); setFillFraction(1); };
+  const [alertLevelMl, setAlertLevelMl] = useState(4); // 10% of the 40 ml reservoir
+  // The due date is set on the Refill Alert step, so completion only tops up.
+  const completeRefill = () => { setFillFraction(1); };
   const [therapyActive, setTherapyActive] = useState(true);
   const homeScreen: ScreenId = therapyActive ? 'home-active' : 'home-no-therapy';
 
@@ -611,7 +617,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       dayPattern, setDayPattern,
       useBaseOnly, setUseBaseOnly,
       flowMode, setFlowMode,
-      refillDate, fillFraction, completeRefill,
+      refillDate, setRefillDate, fillFraction, alertLevelMl, setAlertLevelMl, completeRefill,
       therapyActive, setTherapyActive, homeScreen,
     }}>
       {children}

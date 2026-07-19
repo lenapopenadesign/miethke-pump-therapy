@@ -17,6 +17,8 @@ import { ImplantDetail } from './screens/ImplantDetail';
 import { TherapyDetail } from './screens/TherapyDetail';
 import { ActionsScreen } from './screens/ActionsScreen';
 import { RefillFilling } from './screens/RefillFilling';
+import { RefillSameTherapy } from './screens/RefillSameTherapy';
+import { RefillAlert } from './screens/RefillAlert';
 import { NavProvider, type ScreenId } from './navigation';
 import { TherapyProvider } from './therapy';
 
@@ -35,6 +37,8 @@ const ORDER: ScreenId[] = [
   'therapy-detail',
   'actions',
   'refill-filling',
+  'refill-same-therapy',
+  'refill-alert',
 ];
 
 // Design canvas dimensions — every screen is authored against this exact size.
@@ -112,6 +116,8 @@ export function App() {
       {screen === 'therapy-detail' && <TherapyDetail />}
       {screen === 'actions' && <ActionsScreen />}
       {screen === 'refill-filling' && <RefillFilling />}
+      {screen === 'refill-same-therapy' && <RefillSameTherapy />}
+      {screen === 'refill-alert' && <RefillAlert />}
     </>
   );
 

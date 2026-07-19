@@ -51,7 +51,9 @@ export function AddMedication() {
   const { medications, addMedication, updateMedication, removeMedication, flowMode, cancelTherapyEdit } = useTherapy();
   const isRefill = flowMode === 'refill';
   // Backing out of setup abandons the draft and restores the committed therapy.
-  const onBack = () => { if (isRefill) navigate('refill-filling'); else navigate(cancelTherapyEdit()); };
+  // In a refill, backing out returns to the "same therapy?" gate; in setup it
+  // abandons the draft and restores the committed therapy.
+  const onBack = () => { if (isRefill) navigate('refill-same-therapy'); else navigate(cancelTherapyEdit()); };
 
   return (
     <WizardShell step="medication" onBack={onBack} onHelp={() => navigate('help')}>

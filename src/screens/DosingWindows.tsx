@@ -35,7 +35,8 @@ function deltaPct(dose: number, base: number): { text: string; up: boolean } | n
 
 export function DosingWindows() {
   const navigate = useNavigate();
-  const { baseDose, bolusCount, intervalsByDay, dayPattern, setDayPattern, addWindowFor, updateWindowFor, removeWindowFor, syncAllDaysTo, medications } = useTherapy();
+  const { baseDose, bolusCount, intervalsByDay, dayPattern, setDayPattern, addWindowFor, updateWindowFor, removeWindowFor, syncAllDaysTo, medications, flowMode } = useTherapy();
+  const isRefill = flowMode === 'refill';
   // Which day-group is being edited/viewed. displayDay is its representative day;
   // scope is the set of days an edit touches.
   const [viewDay, setViewDay] = useState<DayKey>('monday');
@@ -172,7 +173,8 @@ export function DosingWindows() {
         <>
           <WizardTotalsFooter windowsOverride={windows} />
           <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
-            <SaveButton label="Next" onClick={() => navigate('review')} />
+            {/* A refill routes through the Refill Alert step before Review. */}
+            <SaveButton label="Next" onClick={() => navigate(isRefill ? 'refill-alert' : 'review')} />
           </div>
         </>
       }

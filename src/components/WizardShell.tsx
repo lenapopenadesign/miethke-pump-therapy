@@ -12,7 +12,7 @@ const imgRefillPump = "/icons/act-refill-pump-b.svg";
 // these as distinct dots; the refill wizard shows them as a segmented bar.
 // 'intervals'/'delivery' are legacy keys kept so the now-orphaned old screens
 // still render; they map onto the 'windows' step.
-export type WizardStep = 'filling' | 'medication' | 'base-dose' | 'frequency' | 'windows' | 'intervals' | 'delivery' | 'review' | 'transfer';
+export type WizardStep = 'filling' | 'medication' | 'base-dose' | 'frequency' | 'windows' | 'intervals' | 'delivery' | 'refill-alert' | 'review' | 'transfer';
 
 // Retained for back-compat with screens that still pass a `decision` prop; it no
 // longer changes the (now linear) stepper.
@@ -35,6 +35,7 @@ const REFILL_STEPS = [
   { key: 'medication', label: 'Medication' },
   { key: 'base-dose', label: 'Default Delivery' },
   { key: 'windows', label: 'Custom Delivery' },
+  { key: 'refill-alert', label: 'Refill Alert' },
   { key: 'transfer', label: 'Transfer' },
 ];
 
@@ -43,15 +44,17 @@ const REFILL_STEPS = [
 function normalizeStep(step: WizardStep): string {
   if (step === 'medication' || step === 'frequency') return 'base-dose';
   if (step === 'intervals' || step === 'delivery') return 'windows';
+  // The refill-only alert step has no dot in the setup stepper.
+  if (step === 'refill-alert') return 'review';
   return step;
 }
 
 // Refill keeps Medication as its own step; Review (no dot in the refill stepper)
-// falls back to the Custom Delivery step.
+// falls back to the Refill Alert step it follows.
 function normalizeRefillStep(step: WizardStep): string {
   if (step === 'frequency') return 'base-dose';
   if (step === 'intervals' || step === 'delivery') return 'windows';
-  if (step === 'review') return 'windows';
+  if (step === 'review') return 'refill-alert';
   return step;
 }
 

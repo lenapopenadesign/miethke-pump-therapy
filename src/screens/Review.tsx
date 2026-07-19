@@ -4,19 +4,57 @@ import { WizardShell } from '../components/WizardShell';
 import { WizardTotalsFooter, SaveButton } from '../components/WizardParts';
 import { TherapyChartCard } from '../components/TherapyBreakdown';
 import { TherapyChangeReview } from '../components/TherapyChangeReview';
+import { useTherapy } from '../therapy';
 
 // Seed patient (matches the home + patient-detail screens).
 const PATIENT = { name: 'Frida Kenton', dob: '01.04.1984', id: '930230393' };
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
+const FONT = "font-['Roboto',sans-serif]";
+
+/** One label + value line of the Fill level alert summary. */
+function AlertRow({ label, value, unit }: { label: string; value: string; unit?: string }) {
+  return (
+    <div className="grid grid-cols-[138px_1fr] gap-[24px] items-center">
+      <p className={`${FONT} font-bold text-[#00769e] text-[24px] tracking-[0.1px]`} style={wdth}>{label}</p>
+      <div className="bg-[#eef6fb] rounded-[8px] h-[60px] flex items-baseline gap-[8px] px-[24px]">
+        <p className={`${FONT} font-bold text-[#00769e] text-[28px] leading-[60px] tracking-[0.1px]`} style={wdth}>{value}</p>
+        {unit && <p className={`${FONT} font-normal text-[#5f8aa0] text-[22px]`} style={wdth}>{unit}</p>}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Refill-only summary of what was set on the Refill Alert step, so the clinician
+ * confirms the alert threshold and due date alongside the therapy changes.
+ */
+function FillLevelAlertSection() {
+  const { alertLevelMl, refillDate } = useTherapy();
+  return (
+    <div className="flex flex-col gap-[24px] pt-[32px] border-t border-[#0094c5]">
+      <div className="flex gap-[16px] items-center">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3a6 6 0 00-6 6c0 4-1.5 5.5-2 6.5h16c-.5-1-2-2.5-2-6.5a6 6 0 00-6-6z" stroke="#0094c5" strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M10 19a2 2 0 004 0" stroke="#0094c5" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+        <p className={`${FONT} font-bold text-[#00769e] text-[30px] tracking-[0.1px]`} style={wdth}>Fill level alert</p>
+      </div>
+      <AlertRow label="Alert level" value={`${alertLevelMl}`} unit="ml" />
+      <AlertRow label="Refill due by" value={refillDate} />
+    </div>
+  );
+}
 
 export function Review() {
   const navigate = useNavigate();
   const [confirmed, setConfirmed] = useState(false);
+  const { flowMode } = useTherapy();
+  const isRefill = flowMode === 'refill';
 
   return (
     <WizardShell
       step="review"
-      onBack={() => navigate('windows')}
+      onBack={() => navigate(isRefill ? 'refill-alert' : 'windows')}
       onHelp={() => navigate('help')}
       pinnedTop={
         <div className="flex flex-col gap-[24px]">
@@ -49,7 +87,10 @@ export function Review() {
       }
     >
       {/* Scrollable before/after comparison of the committed vs. edited therapy. */}
-      <TherapyChangeReview />
+      <div className="flex flex-col gap-[32px]">
+        <TherapyChangeReview />
+        {isRefill && <FillLevelAlertSection />}
+      </div>
     </WizardShell>
   );
 }
