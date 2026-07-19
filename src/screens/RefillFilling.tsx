@@ -89,7 +89,7 @@ function CheckBadge({ show }: { show: boolean }) {
 
 export function RefillFilling() {
   const navigate = useNavigate();
-  const { flowMode, setFlowMode, setRefillDate } = useTherapy();
+  const { flowMode, setFlowMode, setRefillDate, setFillLevel: commitFillLevel } = useTherapy();
   const [phase, setPhase] = useState<Phase>('init');
   const [barFull, setBarFull] = useState(false);
   const [fillLevel, setFillLevel] = useState(START_LEVEL);
@@ -181,7 +181,7 @@ export function RefillFilling() {
             </button>
           )}
           {(phase === 'filling' || phase === 'filled') && (
-            <button onClick={() => setPhase('done')} className="h-[88px] w-full rounded-[80px] bg-[#0094c5] cursor-pointer">
+            <button onClick={() => { commitFillLevel(fillLevel); setPhase('done'); }} className="h-[88px] w-full rounded-[80px] bg-[#0094c5] cursor-pointer">
               <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Complete refill</span>
             </button>
           )}

@@ -263,6 +263,9 @@ type TherapyState = {
   // fill level is a physical property, so it only changes on refill, NOT when a
   // therapy is added.
   fillFraction: number; // 0..1 of the 40 ml reservoir
+  // Set when the physical fill finishes, so the reservoir reads full from that
+  // moment on rather than when the therapy transfer commits at the end.
+  setFillLevel: (fraction: number) => void;
   // Reservoir volume (ml) at which the pump raises the low-fill alert.
   alertLevelMl: number;
   setAlertLevelMl: (ml: number) => void;
@@ -493,11 +496,8 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const primaryConcForVol = medications[0] ? concUgPerUl(medications[0]) : 0;
   const dailyUgForVol = baseDose > 0 && primaryConcForVol > 0 ? estimatedDailyTotal(baseDose, intervals) : 0;
   const volMlPerDay = dailyUgForVol > 0 ? dailyVolumeUl(dailyUgForVol, primaryConcForVol) / 1000 : 0;
-  // Volume the pump can still deliver before the alert fires. Mid-refill the
-  // reservoir is physically full but `fillFraction` only catches up when the
-  // transfer commits, so project from the level the refill will leave behind.
-  const projectedFill = flowMode === 'refill' ? 1 : fillFraction;
-  const usableMl = Math.max(0, projectedFill * RESERVOIR_ML - alertLevelMl);
+  // Volume the pump can still deliver before the alert fires.
+  const usableMl = Math.max(0, fillFraction * RESERVOIR_ML - alertLevelMl);
   // Round down — the alert fires on the day the level is reached, not after.
   const daysToAlert = volMlPerDay > 0 ? Math.floor(usableMl / volMlPerDay) : null;
   const refillDate = refillDateOverride ?? (daysToAlert != null ? refillDateInDays(daysToAlert) : 'N/A');
@@ -649,7 +649,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       flowMode, setFlowMode,
       refillDate, daysToRefill: daysToAlert, refillDateIsManual: refillDateOverride != null,
       setRefillDate: setRefillDateOverride,
-      fillFraction, alertLevelMl, setAlertLevelMl, completeRefill,
+      fillFraction, setFillLevel: setFillFraction, alertLevelMl, setAlertLevelMl, completeRefill,
       therapyActive, setTherapyActive, homeScreen,
     }}>
       {children}

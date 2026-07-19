@@ -28,6 +28,7 @@ const imgNavInactivePill = "/icons/f7e2f5be-7c5c-48a1-a1bb-4744028ad99c.svg";
 const imgNavHelp = "/icons/d27fa211-b646-4694-a8e2-740d137a7c84.svg";
 const imgNavSettings = "/icons/109674c9-3940-44e4-9672-28139cb9e304.svg";
 const imgNavDisconnect = "/icons/cb04e1a6-33a3-484f-a9d2-9f0910fa9fc3.svg";
+const imgNavNotifications = "/icons/nav-notifications.svg";
 
 // New assets downloaded for the updated home screens
 const imgCathInline = "/icons/f1df5fc9-3123-4343-bf12-b6bacbd170ab.svg";
@@ -427,28 +428,47 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
   );
 }
 
-export function BottomNav() {
+/** Which tab of the bottom navigation is highlighted. */
+export type NavTab = 'overview' | 'notifications' | 'help';
+
+export function BottomNav({ active = 'overview' }: { active?: NavTab } = {}) {
   const navigate = useNavigate();
+  // Active tabs get the filled pill + bold dark-blue label; inactive ones the
+  // plain pill and grey label.
+  const label = (tab: NavTab) =>
+    `font-['Roboto',sans-serif] leading-[24px] overflow-hidden relative shrink-0 text-[20px] text-center tracking-[0.1px] whitespace-nowrap ${
+      active === tab ? 'font-bold text-[#00769e]' : 'font-normal text-[#45483c]'
+    }`;
   return (
     <div className="absolute bg-[#e6f4f9] bottom-0 content-stretch flex h-[120px] items-center justify-center left-0 overflow-x-clip overflow-y-auto px-[16px] py-[8px] w-[1200px]">
       <div className="content-stretch flex flex-1 gap-[16px] items-start justify-center min-w-px relative">
-        {/* Overview (active) */}
+        {/* Overview */}
         <a onClick={() => navigate('home-active')} className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">
-          <div className="bg-[#b2ecff] h-[56px] relative rounded-[24px] shrink-0 w-[80px]">
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgNavOverviewPill} />
+          <div className={`h-[56px] relative rounded-[24px] shrink-0 w-[80px] ${active === 'overview' ? 'bg-[#b2ecff]' : ''}`}>
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={active === 'overview' ? imgNavOverviewPill : imgNavInactivePill} />
             <div className="absolute left-[11.5px] overflow-clip size-[56px] top-0">
               <div className="absolute inset-[12.5%_12.5%_13.25%_12.5%]">
                 <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgNavOverviewIcon} />
               </div>
             </div>
           </div>
-          <p className="font-['Roboto',sans-serif] font-bold leading-[24px] overflow-hidden relative shrink-0 text-[#00769e] text-[20px] text-center tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-            Overview
-          </p>
+          <p className={label('overview')}>Overview</p>
+        </a>
+        {/* Notifications */}
+        <a onClick={() => navigate('notifications')} className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[133px] cursor-pointer">
+          <div className={`h-[56px] relative rounded-[24px] shrink-0 w-[64px] ${active === 'notifications' ? 'bg-[#b2ecff]' : ''}`}>
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgNavInactivePill} />
+            <div className="absolute left-[3.5px] overflow-clip size-[56px] top-0">
+              <div className="absolute inset-[5%_12.5%]">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgNavNotifications} />
+              </div>
+            </div>
+          </div>
+          <p className={label('notifications')}>Notifications</p>
         </a>
         {/* Help */}
         <a onClick={() => navigate('help')} className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">
-          <div className="h-[56px] relative shrink-0 w-[64px]">
+          <div className={`h-[56px] relative rounded-[24px] shrink-0 w-[64px] ${active === 'help' ? 'bg-[#b2ecff]' : ''}`}>
             <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgNavInactivePill} />
             <div className="absolute left-[3.5px] overflow-clip size-[56px] top-0">
               <div className="absolute inset-[2.5%_0_0_2.5%]">
@@ -456,9 +476,7 @@ export function BottomNav() {
               </div>
             </div>
           </div>
-          <p className="font-['Roboto',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-            Help
-          </p>
+          <p className={label('help')}>Help</p>
         </a>
         {/* Settings */}
         <a className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">

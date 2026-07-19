@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy } from '../therapy';
-import { BottomNav } from './HomeShell';
+import { BottomNav, type NavTab } from './HomeShell';
 import { HelpBadge } from './WizardParts';
 
 const imgBack = "/icons/01195f3c-ce0c-4269-a4cc-2742bc124f77.svg";
@@ -18,6 +18,8 @@ type Props = {
   pinnedTop?: ReactNode;
   /** Full-bleed pinned footer rendered above the bottom navigation. */
   footer?: ReactNode;
+  /** Which bottom-navigation tab this screen belongs to. */
+  navTab?: NavTab;
 };
 
 /**
@@ -27,7 +29,7 @@ type Props = {
  * body and the shared bottom navigation. Back returns to the home screen that
  * matches the current therapy state (active vs. no-therapy).
  */
-export function DetailShell({ icon, title, headerRight, onHelp, children, pinnedTop, footer }: Props) {
+export function DetailShell({ icon, title, headerRight, onHelp, children, pinnedTop, footer, navTab }: Props) {
   const navigate = useNavigate();
   const { homeScreen } = useTherapy();
   return (
@@ -66,7 +68,7 @@ export function DetailShell({ icon, title, headerRight, onHelp, children, pinned
       {footer && <div className="shrink-0 w-[1200px]">{footer}</div>}
       {/* Spacer reserving room for the absolutely-positioned BottomNav. */}
       <div className="h-[120px] shrink-0" />
-      <BottomNav />
+      <BottomNav active={navTab} />
     </div>
   );
 }
