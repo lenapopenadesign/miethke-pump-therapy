@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTherapy } from '../therapy';
+import { useNavigate, type ScreenId } from '../navigation';
 import { HelpBadge } from './WizardParts';
 
 const imgBack = "/icons/01195f3c-ce0c-4269-a4cc-2742bc124f77.svg";
@@ -38,6 +39,27 @@ const REFILL_STEPS = [
   { key: 'refill-alert', label: 'Refill Alert' },
   { key: 'transfer', label: 'Transfer' },
 ];
+
+// Screen each stepper segment jumps to when clicked. Only steps already
+// completed are clickable (see ChevronStepper), so these are always safe to
+// re-enter — 'transfer' is the last step and therefore never "done".
+const SETUP_STEP_SCREEN: Record<string, ScreenId> = {
+  'base-dose': 'base-dose',
+  windows: 'windows',
+  review: 'review',
+  transfer: 'activate',
+};
+
+// In a refill the Medication step is entered through the "same therapy?" gate,
+// so that — not the medication form — is where clicking it returns you.
+const REFILL_STEP_SCREEN: Record<string, ScreenId> = {
+  filling: 'refill-filling',
+  medication: 'refill-same-therapy',
+  'base-dose': 'base-dose',
+  windows: 'windows',
+  'refill-alert': 'refill-alert',
+  transfer: 'activate',
+};
 
 // Legacy step keys collapse onto the closest current step so old screens don't
 // highlight a missing dot. The edit flow folds Medication into Base Dose.
@@ -107,7 +129,7 @@ function Check() {
  */
 const CHEV = 18; // px depth of the arrow point / left notch
 const CHEV_GAP = 8; // px white separator left between interlocking arrows
-function ChevronStepper({ activeKey, steps }: { activeKey: string; steps: { key: string; label: string }[] }) {
+function ChevronStepper({ activeKey, steps, onPick }: { activeKey: string; steps: { key: string; label: string }[]; onPick: (key: string) => void }) {
   const activeIdx = steps.findIndex(s => s.key === activeKey);
   return (
     <div className="flex h-[76px] w-[1200px]">
@@ -115,6 +137,9 @@ function ChevronStepper({ activeKey, steps }: { activeKey: string; steps: { key:
         const first = i === 0;
         const last = i === steps.length - 1;
         const state = i < activeIdx ? 'done' : i === activeIdx ? 'active' : 'upcoming';
+        // Completed steps are re-entrant; the current and upcoming ones aren't
+        // (jumping ahead would skip the input the later steps depend on).
+        const clickable = state === 'done';
         const clip = first
           ? `polygon(0 0, calc(100% - ${CHEV}px) 0, 100% 50%, calc(100% - ${CHEV}px) 100%, 0 100%)`
           : last
@@ -123,7 +148,8 @@ function ChevronStepper({ activeKey, steps }: { activeKey: string; steps: { key:
         return (
           <div
             key={s.key}
-            className="flex-1 min-w-px h-[76px] flex items-center gap-[8px] pr-[6px]"
+            onClick={clickable ? () => onPick(s.key) : undefined}
+            className={`flex-1 min-w-px h-[76px] flex items-center gap-[8px] pr-[6px] ${clickable ? 'cursor-pointer' : ''}`}
             // Overlap each arrow's point into the next one's notch, leaving only a
             // thin CHEV_GAP separator (so the arrows read as a tight breadcrumb).
             style={{ background: state === 'upcoming' ? '#f0f0f0' : '#d1eaf8', clipPath: clip, paddingLeft: first ? 28 : 12 + CHEV, marginLeft: first ? 0 : -(CHEV - CHEV_GAP) }}
@@ -152,6 +178,7 @@ function ChevronStepper({ activeKey, steps }: { activeKey: string; steps: { key:
 
 /** Refill header band: "Refill" title group + chevron stepper (Figma 9466:48180). */
 function RefillHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: () => void; onHelp?: () => void }) {
+  const navigate = useNavigate();
   return (
     <div className="w-[1200px] shrink-0 flex flex-col gap-[8px]">
       <div className="bg-[#e6f4f9] flex h-[96px] items-center justify-between px-[40px]">
@@ -165,13 +192,18 @@ function RefillHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: 
         </div>
         <Signet />
       </div>
-      <ChevronStepper activeKey={normalizeRefillStep(step)} steps={REFILL_STEPS} />
+      <ChevronStepper
+        activeKey={normalizeRefillStep(step)}
+        steps={REFILL_STEPS}
+        onPick={key => navigate(REFILL_STEP_SCREEN[key])}
+      />
     </div>
   );
 }
 
 /** Setup header band: left-aligned "Add Therapy" title + chevron stepper (Figma 8409:53071). */
 function SetupHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: () => void; onHelp?: () => void }) {
+  const navigate = useNavigate();
   const activeKey = normalizeStep(step);
   const steps = SETUP_STEPS;
   return (
@@ -186,7 +218,11 @@ function SetupHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: (
         </div>
         <Signet />
       </div>
-      <ChevronStepper activeKey={activeKey} steps={steps} />
+      <ChevronStepper
+        activeKey={activeKey}
+        steps={steps}
+        onPick={key => navigate(SETUP_STEP_SCREEN[key])}
+      />
     </div>
   );
 }

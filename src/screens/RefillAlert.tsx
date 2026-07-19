@@ -6,6 +6,8 @@ import { WizardTotalsFooter, SaveButton } from '../components/WizardParts';
 import { DatePickerSheet } from '../components/DatePickerSheet';
 import { PUMP_BODY, PUMP_PORT, PUMP_W, PUMP_H, RES_CX, RES_CY, RES_R } from '../components/pumpPaths';
 
+const imgEditPencil = "/icons/edit-pencil.svg";
+
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 const FONT = "font-['Roboto',sans-serif]";
 const BLUE = '#0094c5';
@@ -81,15 +83,6 @@ function StepButton({ label, onClick, disabled }: { label: string; onClick: () =
         {label}
       </span>
     </button>
-  );
-}
-
-function EditPen() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <path d="M4 20h4l10-10-4-4L4 16v4z" stroke="#0094c5" strokeWidth="1.8" strokeLinejoin="round" />
-      <path d="M14 6l4 4" stroke="#0094c5" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
   );
 }
 
@@ -182,9 +175,11 @@ export function RefillAlert() {
                 <p className={`${FONT} font-extrabold text-[#00769e] text-[32px] whitespace-nowrap`} style={wdth}>{refillDate}</p>
               </div>
             </div>
-            <button onClick={() => setPickerOpen(true)} className="size-[40px] cursor-pointer" aria-label="Edit refill date">
-              <EditPen />
-            </button>
+            <img
+              alt="Edit refill date" src={imgEditPencil}
+              onClick={() => setPickerOpen(true)}
+              className="size-[40px] shrink-0 block cursor-pointer"
+            />
           </div>
 
           {refillDateIsManual ? (
