@@ -259,16 +259,23 @@ type TherapyState = {
   // Filling + Medication steps and the "Refill" chrome; 'setup' is onboarding.
   flowMode: FlowMode;
   setFlowMode: (m: FlowMode) => void;
-  // Reservoir refill bookkeeping. The next-refill date is chosen by the clinician
-  // on the Refill Alert step (defaulting to a full-fill interval, ~78 days out),
-  // so completeRefill() only tops the reservoir up. The fill level is a physical
-  // property — it only changes on refill, NOT when a therapy is added.
-  refillDate: string;
-  setRefillDate: (d: string) => void;
+  // Reservoir refill bookkeeping. completeRefill() tops the reservoir up; the
+  // fill level is a physical property, so it only changes on refill, NOT when a
+  // therapy is added.
   fillFraction: number; // 0..1 of the 40 ml reservoir
   // Reservoir volume (ml) at which the pump raises the low-fill alert.
   alertLevelMl: number;
   setAlertLevelMl: (ml: number) => void;
+  // When the reservoir is projected to hit `alertLevelMl` at the therapy's
+  // current consumption rate, dd.mm.yyyy ('N/A' with no therapy running).
+  refillDate: string;
+  // Days from today until that date — null when there's nothing being delivered.
+  daysToRefill: number | null;
+  // True when `refillDate` is a hand-picked date rather than the calculated one.
+  refillDateIsManual: boolean;
+  // Override the derived date with a hand-picked one; pass null to go back to
+  // the calculated date. Changing the alert level or therapy also resets it.
+  setRefillDate: (d: string | null) => void;
   completeRefill: () => void;
   // Whether a therapy has been set up + activated on the implant. Drives which
   // home screen ("home-active" vs "home-no-therapy") the chrome returns to.
@@ -377,10 +384,14 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [previewIntervalId, setPreviewIntervalId] = useState<string | null>(null);
   const [useBaseOnly, setUseBaseOnly] = useState(false);
   const [flowMode, setFlowMode] = useState<FlowMode>('setup');
-  const [refillDate, setRefillDate] = useState('19.08.2026');
   const [fillFraction, setFillFraction] = useState(0.95); // 38 / 40 ml
-  const [alertLevelMl, setAlertLevelMl] = useState(4); // 10% of the 40 ml reservoir
-  // The due date is set on the Refill Alert step, so completion only tops up.
+  const [alertLevelMl, setAlertLevelMlRaw] = useState(4); // 10% of the 40 ml reservoir
+  // The due date is normally derived from the therapy's consumption rate (see
+  // `refillDate` below); this holds a date the clinician picked by hand instead.
+  const [refillDateOverride, setRefillDateOverride] = useState<string | null>(null);
+  // Retuning the alert level re-derives the due date, dropping any manual pick.
+  const setAlertLevelMl = (ml: number) => { setAlertLevelMlRaw(ml); setRefillDateOverride(null); };
+  // The reservoir is topped up; the due date follows from the new fill level.
   const completeRefill = () => { setFillFraction(1); };
   const [therapyActive, setTherapyActive] = useState(true);
   const homeScreen: ScreenId = therapyActive ? 'home-active' : 'home-no-therapy';
@@ -471,6 +482,25 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   // HomeActive which still toggle by group rather than per day.
   const intervals = intervalsByDay.monday;
   const weekendIntervals = intervalsByDay.saturday;
+
+  // -------- Next refill due date --------
+  // The pump raises its low-fill alert when the reservoir drops to
+  // `alertLevelMl`, so the refill is due once the therapy has consumed the
+  // volume above that threshold. Consumption is the daily delivered volume of
+  // the reservoir mixture — the same figure the wizard footer shows as
+  // "x ml / day". A hand-picked date (the pen on the Refill Alert step) wins
+  // until the alert level or the therapy changes.
+  const primaryConcForVol = medications[0] ? concUgPerUl(medications[0]) : 0;
+  const dailyUgForVol = baseDose > 0 && primaryConcForVol > 0 ? estimatedDailyTotal(baseDose, intervals) : 0;
+  const volMlPerDay = dailyUgForVol > 0 ? dailyVolumeUl(dailyUgForVol, primaryConcForVol) / 1000 : 0;
+  // Volume the pump can still deliver before the alert fires. Mid-refill the
+  // reservoir is physically full but `fillFraction` only catches up when the
+  // transfer commits, so project from the level the refill will leave behind.
+  const projectedFill = flowMode === 'refill' ? 1 : fillFraction;
+  const usableMl = Math.max(0, projectedFill * RESERVOIR_ML - alertLevelMl);
+  // Round down — the alert fires on the day the level is reached, not after.
+  const daysToAlert = volMlPerDay > 0 ? Math.floor(usableMl / volMlPerDay) : null;
+  const refillDate = refillDateOverride ?? (daysToAlert != null ? refillDateInDays(daysToAlert) : 'N/A');
 
   // -------- Bolus frequency --------
   const primaryConc = medications[0] ? concUgPerUl(medications[0]) : 0;
@@ -617,7 +647,9 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       dayPattern, setDayPattern,
       useBaseOnly, setUseBaseOnly,
       flowMode, setFlowMode,
-      refillDate, setRefillDate, fillFraction, alertLevelMl, setAlertLevelMl, completeRefill,
+      refillDate, daysToRefill: daysToAlert, refillDateIsManual: refillDateOverride != null,
+      setRefillDate: setRefillDateOverride,
+      fillFraction, alertLevelMl, setAlertLevelMl, completeRefill,
       therapyActive, setTherapyActive, homeScreen,
     }}>
       {children}

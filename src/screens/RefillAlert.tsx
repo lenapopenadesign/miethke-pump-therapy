@@ -101,7 +101,7 @@ function EditPen() {
  */
 export function RefillAlert() {
   const navigate = useNavigate();
-  const { alertLevelMl, setAlertLevelMl, refillDate, setRefillDate } = useTherapy();
+  const { alertLevelMl, setAlertLevelMl, refillDate, setRefillDate, daysToRefill, refillDateIsManual } = useTherapy();
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const clamp = (ml: number) => Math.min(MAX_ALERT_ML, Math.max(MIN_ALERT_ML, ml));
@@ -187,9 +187,20 @@ export function RefillAlert() {
             </button>
           </div>
 
-          <p className={`${FONT} font-normal text-[#6b7880] text-[22px]`} style={wdth}>
-            Calculated from the current delivery rate — plan the refill before this date.
-          </p>
+          {refillDateIsManual ? (
+            <p className={`${FONT} font-normal text-[#6b7880] text-[22px]`} style={wdth}>
+              Set by hand — plan the refill before this date.{' '}
+              <span onClick={() => setRefillDate(null)} className="text-[#0094c5] font-bold cursor-pointer underline">
+                Use the calculated date
+              </span>
+            </p>
+          ) : (
+            <p className={`${FONT} font-normal text-[#6b7880] text-[22px]`} style={wdth}>
+              {daysToRefill != null
+                ? `Calculated from the current delivery rate — the reservoir reaches ${alertLevelMl} ml in about ${daysToRefill} days. Plan the refill before this date.`
+                : 'No delivery running — set a therapy to calculate the refill date.'}
+            </p>
+          )}
         </div>
       </div>
     </WizardShell>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, RESERVOIR_ML, refillDateInDays } from '../therapy';
+import { useTherapy, RESERVOIR_ML } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { PUMP_BODY, PUMP_PORT, RES_CX, RES_CY, RES_R } from '../components/pumpPaths';
 
@@ -97,9 +97,9 @@ export function RefillFilling() {
   // Ensure refill chrome even if reached directly (e.g. dev jump-list).
   useEffect(() => { if (flowMode !== 'refill') setFlowMode('refill'); }, [flowMode, setFlowMode]);
 
-  // Starting a refill proposes the next due date a full-fill interval out; the
-  // Refill Alert step shows it and lets the clinician override it.
-  useEffect(() => { setRefillDate(refillDateInDays(78)); }, [setRefillDate]);
+  // A new refill drops any hand-picked due date from the previous one, so the
+  // Refill Alert step opens on the freshly calculated date.
+  useEffect(() => { setRefillDate(null); }, [setRefillDate]);
 
   // Drive the auto-advancing phases.
   useEffect(() => {
