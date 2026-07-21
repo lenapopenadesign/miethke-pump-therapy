@@ -192,7 +192,7 @@ export function RefillAlert() {
           ) : (
             <p className={`${FONT} font-normal text-[#6b7880] text-[22px]`} style={wdth}>
               {daysToRefill != null
-                ? `Calculated from the current delivery rate — the reservoir reaches ${alertLevelMl} ml in about ${daysToRefill} days. Plan the refill before this date.`
+                ? 'Calculated from the current delivery rate — plan the refill before this date.'
                 : 'No delivery running — set a therapy to calculate the refill date.'}
             </p>
           )}
