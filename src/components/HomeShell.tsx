@@ -464,7 +464,7 @@ export function BottomNav({ active = 'overview' }: { active?: NavTab } = {}) {
               </div>
             </div>
           </div>
-          <p className={label('notifications')}>Notifications</p>
+          <p className={label('notifications')}>Logs</p>
         </a>
         {/* Help */}
         <a onClick={() => navigate('help')} className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">
