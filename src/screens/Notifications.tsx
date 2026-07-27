@@ -15,32 +15,23 @@ const FONT = "font-['Roboto',sans-serif]";
  * stand apart from the flat, resolved history rows below them.
  */
 
-type Tone = 'critical' | 'warning' | 'success' | 'patient' | 'routine';
 type Severity = 'critical' | 'warning' | 'routine';
 type CategoryKey = 'therapy' | 'refill' | 'device' | 'admin';
 type Source = 'Patient' | 'System';
 
-/** Dot colour per tone. */
-const TONE: Record<Tone, string> = {
-  critical: '#e5484d',
-  warning: '#e8a400',
-  success: '#24ab5e',
-  patient: '#0094c5',
-  routine: '#9ea8b2',
+/** Colour is reserved for severity — matched to the dialogue status icons. */
+const SEVERITY_COLOR: Record<Severity, string> = {
+  critical: '#e5484d', // red error circle
+  warning: '#e8a400',  // amber warning triangle
+  routine: '#0094c5',  // blue info circle
 };
 
-/** Soft background used by an ongoing card of each tone. */
-const TINT: Record<Tone, string> = {
+/** Soft background used by an ongoing card, keyed by severity. */
+const TINT: Record<Severity, string> = {
   critical: '#fdecee',
   warning: '#fdf3d1',
-  success: '#e7f6ee',
-  patient: '#e6f4f9',
-  routine: '#f1f2f4',
+  routine: '#e6f4f9',
 };
-
-/** The three severity chips group the five dot tones. */
-const severityOf = (t: Tone): Severity =>
-  t === 'critical' ? 'critical' : t === 'warning' ? 'warning' : 'routine';
 
 const CATEGORY_LABEL: Record<CategoryKey, string> = {
   therapy: 'Therapy & bolus',
@@ -54,7 +45,7 @@ type LogEvent = {
   date: string;
   time: string;
   daysAgo: number;
-  tone: Tone;
+  severity: Severity;
   category: CategoryKey;
   source: Source;
   title: string;
@@ -73,7 +64,7 @@ const EVENTS: LogEvent[] = [
   {
     id: 'silenced',
     date: '22.07.2026', time: '09:52', daysAgo: 2,
-    tone: 'patient', category: 'device', source: 'Patient',
+    severity: 'warning', category: 'device', source: 'Patient',
     title: 'User silenced an active audible alarm',
     detail: 'The audible alarm was muted on the device. The condition that raised it has not yet cleared, so the alert stays active until the reservoir is refilled.',
     ongoing: true, status: 'Muted — condition still active',
@@ -81,7 +72,7 @@ const EVENTS: LogEvent[] = [
   {
     id: 'low-reservoir',
     date: '22.07.2026', time: '09:41', daysAgo: 2,
-    tone: 'warning', category: 'refill', source: 'System',
+    severity: 'warning', category: 'refill', source: 'System',
     title: 'Non-critical alarm – Low reservoir',
     detail: 'Reservoir reached the configured alert level. A refill is recommended before the next session.',
     ongoing: true, status: 'Active — refill recommended',
@@ -89,7 +80,7 @@ const EVENTS: LogEvent[] = [
   {
     id: 'phys-bolus',
     date: '21.07.2026', time: '18:40', daysAgo: 3,
-    tone: 'success', category: 'therapy', source: 'Patient',
+    severity: 'routine', category: 'therapy', source: 'Patient',
     title: 'Physician bolus completed',
     detail: 'Clinician-initiated bolus of 0.05 ml was delivered successfully.',
     status: 'Resolved · 18:40',
@@ -97,21 +88,21 @@ const EVENTS: LogEvent[] = [
   {
     id: 'pat-bolus-req',
     date: '21.07.2026', time: '18:12', daysAgo: 3,
-    tone: 'patient', category: 'therapy', source: 'Patient',
+    severity: 'routine', category: 'therapy', source: 'Patient',
     title: 'Patient bolus request',
     detail: 'Patient requested an on-demand bolus from the handset. Request was accepted and queued.',
   },
   {
     id: 'prog-3-5',
     date: '21.07.2026', time: '09:12', daysAgo: 3,
-    tone: 'routine', category: 'admin', source: 'System',
+    severity: 'routine', category: 'admin', source: 'System',
     title: 'Programming step (3-5)',
     detail: 'Therapy programming sequence — step 3 of 5 recorded.',
   },
   {
     id: 'next-refill',
     date: '21.07.2026', time: '09:10', daysAgo: 3,
-    tone: 'warning', category: 'refill', source: 'System',
+    severity: 'warning', category: 'refill', source: 'System',
     title: 'Non-critical alarm – Next refill date',
     detail: 'A reminder was generated for the upcoming scheduled refill.',
     status: 'Acknowledged · 09:15',
@@ -119,7 +110,7 @@ const EVENTS: LogEvent[] = [
   {
     id: 'telemetry',
     date: '12.07.2026', time: '14:05', daysAgo: 12,
-    tone: 'success', category: 'device', source: 'System',
+    severity: 'routine', category: 'device', source: 'System',
     title: 'Telemetry recovery occurred',
     detail: 'The wireless link to the pump was re-established after a brief interruption.',
     status: 'Resolved · 14:05',
@@ -127,7 +118,7 @@ const EVENTS: LogEvent[] = [
   {
     id: 'handshake',
     date: '12.07.2026', time: '13:58', daysAgo: 12,
-    tone: 'critical', category: 'device', source: 'System',
+    severity: 'critical', category: 'device', source: 'System',
     title: 'Critical alarm – Infusion handshake error',
     detail: 'The pump reported a handshake error during an infusion cycle. The session was halted and later recovered once telemetry returned.',
     status: 'Resolved · 14:05',
@@ -135,21 +126,21 @@ const EVENTS: LogEvent[] = [
   {
     id: 'prog-7-7',
     date: '08.07.2026', time: '11:30', daysAgo: 16,
-    tone: 'routine', category: 'admin', source: 'System',
+    severity: 'routine', category: 'admin', source: 'System',
     title: 'Programming step (7-7)',
     detail: 'Therapy programming sequence — final step 7 of 7 recorded.',
   },
   {
     id: 'status-cleared',
     date: '08.07.2026', time: '11:28', daysAgo: 16,
-    tone: 'routine', category: 'admin', source: 'System',
+    severity: 'routine', category: 'admin', source: 'System',
     title: 'Event status cleared',
     detail: 'Outstanding event flags were reset by the clinician.',
   },
   {
     id: 'infusion-hist-cleared',
     date: '08.07.2026', time: '11:27', daysAgo: 16,
-    tone: 'warning', category: 'admin', source: 'System',
+    severity: 'warning', category: 'admin', source: 'System',
     title: 'Non-critical alarm – Infusion history cleared',
     detail: 'Stored infusion history was cleared from the device memory.',
     status: 'Acknowledged · 11:27',
@@ -157,21 +148,21 @@ const EVENTS: LogEvent[] = [
   {
     id: 'counters-cleared',
     date: '30.06.2026', time: '16:44', daysAgo: 24,
-    tone: 'routine', category: 'admin', source: 'System',
+    severity: 'routine', category: 'admin', source: 'System',
     title: 'Patient activation event counters cleared',
     detail: 'Patient activation counters were reset to zero.',
   },
   {
     id: 'log-cleared',
     date: '30.06.2026', time: '16:40', daysAgo: 24,
-    tone: 'routine', category: 'admin', source: 'System',
+    severity: 'routine', category: 'admin', source: 'System',
     title: 'System event log cleared',
     detail: 'The full system event log was cleared from the device.',
   },
   {
     id: 'pat-bolus-done',
     date: '24.06.2026', time: '08:15', daysAgo: 30,
-    tone: 'success', category: 'therapy', source: 'Patient',
+    severity: 'routine', category: 'therapy', source: 'Patient',
     title: 'Patient bolus completed',
     detail: 'Patient-requested bolus of 0.02 ml was delivered successfully.',
     status: 'Resolved · 08:15',
@@ -180,31 +171,75 @@ const EVENTS: LogEvent[] = [
 
 /* ── Filter definitions ────────────────────────────────────────────────── */
 
-const SEVERITY_CHIPS: { key: Severity | 'all'; label: string; dot?: string }[] = [
+const SEVERITY_CHIPS: { key: Severity | 'all'; label: string }[] = [
   { key: 'all', label: 'All' },
-  { key: 'critical', label: 'Critical', dot: TONE.critical },
-  { key: 'warning', label: 'Warnings', dot: TONE.warning },
-  { key: 'routine', label: 'Routine', dot: TONE.routine },
+  { key: 'critical', label: 'Critical' },
+  { key: 'warning', label: 'Warnings' },
+  { key: 'routine', label: 'Routine' },
 ];
 
 const CATEGORY_CHIPS: { key: CategoryKey | 'all'; label: string }[] = [
-  { key: 'all', label: 'All categories' },
+  { key: 'all', label: 'All' },
   { key: 'therapy', label: 'Therapy & bolus' },
   { key: 'refill', label: 'Refill & reservoir' },
   { key: 'device', label: 'Device & connection' },
   { key: 'admin', label: 'Admin' },
 ];
 
-const RANGES = [
-  { label: 'Last 7 days', days: 7 },
-  { label: 'Last 30 days', days: 30 },
-  { label: 'Last 90 days', days: 90 },
-  { label: 'All time', days: Infinity },
-] as const;
+/**
+ * The device only retains events since it last established a connection, so the
+ * log is bounded by this date rather than by a user-chosen time range.
+ */
+const CONNECTED_SINCE = '24.06.2026';
 
 /* ── Small pieces ──────────────────────────────────────────────────────── */
 
-function SeverityChip({ label, active, dot, onClick }: { label: string; active: boolean; dot?: string; onClick: () => void }) {
+/** Small uppercase caption naming a filter axis. */
+function FilterLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className={`${FONT} font-bold text-[#6b7880] text-[22px] leading-[26px] tracking-[1px] uppercase`} style={wdth}>
+      {children}
+    </p>
+  );
+}
+
+/**
+ * Status glyph mirroring the dialogue icons (Figma 5181:174414): a red error
+ * circle, an amber warning triangle, or a blue info circle — used wherever a
+ * log entry's severity is shown.
+ */
+function SeverityIcon({ severity, size = 30 }: { severity: Severity; size?: number }) {
+  const color = SEVERITY_COLOR[severity];
+  const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none' } as const;
+  if (severity === 'warning') {
+    return (
+      <svg {...common} className="shrink-0" aria-label="Warning">
+        <path d="M12 2.8 22.4 20.6a1.6 1.6 0 0 1-1.4 2.4H3a1.6 1.6 0 0 1-1.4-2.4Z" fill={color} />
+        <rect x="10.7" y="8.4" width="2.6" height="7" rx="1.3" fill="#fff" />
+        <circle cx="12" cy="18.6" r="1.5" fill="#fff" />
+      </svg>
+    );
+  }
+  if (severity === 'critical') {
+    return (
+      <svg {...common} className="shrink-0" aria-label="Critical">
+        <circle cx="12" cy="12" r="11" fill={color} />
+        <rect x="10.6" y="5.4" width="2.8" height="8.6" rx="1.4" fill="#fff" />
+        <circle cx="12" cy="17.6" r="1.7" fill="#fff" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...common} className="shrink-0" aria-label="Info">
+      <circle cx="12" cy="12" r="11" fill={color} />
+      <circle cx="12" cy="7" r="1.7" fill="#fff" />
+      <rect x="10.6" y="10" width="2.8" height="8" rx="1.4" fill="#fff" />
+    </svg>
+  );
+}
+
+/** One chip style shared by both filter rows, so their states read identically. */
+function FilterChip({ label, active, dot, icon, onClick }: { label: string; active: boolean; dot?: string; icon?: React.ReactNode; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
@@ -212,39 +247,22 @@ function SeverityChip({ label, active, dot, onClick }: { label: string; active: 
         active ? 'bg-[#0094c5]' : 'bg-white border-2 border-[#b2d6e2]'
       }`}
     >
-      {dot && <span className="size-[14px] rounded-full shrink-0" style={{ backgroundColor: dot }} />}
-      <span className={`${FONT} font-bold text-[22px] leading-[28px] tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#00769e]'}`} style={wdth}>
+      {icon ?? (dot && <span className="size-[16px] rounded-full shrink-0" style={{ backgroundColor: dot }} />)}
+      <span className={`${FONT} font-bold text-[24px] leading-[30px] tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#00769e]'}`} style={wdth}>
         {label}
       </span>
     </button>
   );
 }
 
-function CategoryChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`h-[44px] px-[20px] rounded-[22px] flex items-center justify-center cursor-pointer shrink-0 ${
-        active ? 'bg-[#e6f4f9]' : 'bg-white border-2 border-[#b2d6e2]'
-      }`}
-    >
-      <span className={`${FONT} font-bold text-[#00769e] text-[20px] leading-[26px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
-        {label}
-      </span>
-    </button>
-  );
-}
-
-function SourceBadge({ source }: { source: Source }) {
-  const patient = source === 'Patient';
+/** Neutral area chip — colour stays reserved for the severity dot. */
+function CategoryBadge({ category }: { category: CategoryKey }) {
   return (
     <span
-      className={`${FONT} font-normal text-[18px] leading-[24px] tracking-[0.1px] whitespace-nowrap rounded-[14px] px-[16px] py-[4px] shrink-0 ${
-        patient ? 'bg-[#e6f4f9] text-[#00769e]' : 'bg-[#f4f5f6] text-[#45483c]'
-      }`}
+      className={`${FONT} font-medium text-[#45483c] text-[22px] leading-[26px] tracking-[0.1px] whitespace-nowrap rounded-[16px] px-[18px] py-[6px] bg-[#eef1f4] shrink-0`}
       style={wdth}
     >
-      {source}
+      {CATEGORY_LABEL[category]}
     </span>
   );
 }
@@ -264,11 +282,11 @@ function Chevron({ open, color = '#9ea8b2' }: { open: boolean; color?: string })
 function EventDetail({ event, extra }: { event: LogEvent; extra?: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-[16px] pt-[16px]">
-      <p className={`${FONT} font-normal text-[#6b7880] text-[22px] leading-[32px] tracking-[0.1px]`} style={wdth}>
+      <p className={`${FONT} font-normal text-[#6b7880] text-[24px] leading-[34px] tracking-[0.1px]`} style={wdth}>
         {event.detail}
       </p>
-      <p className={`${FONT} font-normal text-[#9ea8b2] text-[19px] leading-[26px] tracking-[0.1px]`} style={wdth}>
-        {CATEGORY_LABEL[event.category]} · {event.source}
+      <p className={`${FONT} font-normal text-[#9ea8b2] text-[22px] leading-[28px] tracking-[0.1px]`} style={wdth}>
+        {event.source}
         {event.status && !event.ongoing ? ` · ${event.status}` : ''}
       </p>
       {extra}
@@ -279,25 +297,18 @@ function EventDetail({ event, extra }: { event: LogEvent; extra?: React.ReactNod
 /* ── Ongoing card (still-valid alerts) ─────────────────────────────────── */
 
 function OngoingCard({ event, open, onToggle, actions }: { event: LogEvent; open: boolean; onToggle: () => void; actions?: React.ReactNode }) {
-  const color = TONE[event.tone];
+  const color = SEVERITY_COLOR[event.severity];
   return (
-    <div className="rounded-[24px] w-full overflow-hidden flex" style={{ backgroundColor: TINT[event.tone] }}>
+    <div className="rounded-[24px] w-full overflow-hidden flex" style={{ backgroundColor: TINT[event.severity] }}>
       <div className="w-[8px] shrink-0" style={{ backgroundColor: color }} />
       <div className="flex-1 min-w-px p-[24px]">
         <button onClick={onToggle} className="flex gap-[20px] items-start w-full text-left cursor-pointer">
-          <span className="size-[20px] rounded-full shrink-0 mt-[6px]" style={{ backgroundColor: color }} />
-          <div className="flex-1 min-w-px flex flex-col gap-[12px]">
-            <div className="flex items-center gap-[16px] flex-wrap">
-              <p className={`${FONT} font-bold text-[#45483c] text-[28px] leading-[32px] tracking-[0.1px]`} style={wdth}>
-                {event.title}
-              </p>
-              {/* Ongoing pill with a pulsing dot */}
-              <span className="flex items-center gap-[8px] rounded-full border-2 px-[14px] py-[4px] bg-white/70 shrink-0" style={{ borderColor: color }}>
-                <span className="size-[10px] rounded-full animate-pulse" style={{ backgroundColor: color }} />
-                <span className={`${FONT} font-bold text-[18px] leading-[22px] tracking-[0.1px]`} style={{ ...wdth, color }}>Ongoing</span>
-              </span>
-            </div>
-            <p className={`${FONT} font-normal text-[#6b7880] text-[20px] leading-[28px] tracking-[0.1px]`} style={wdth}>
+          <SeverityIcon severity={event.severity} size={40} />
+          <div className="flex-1 min-w-px flex flex-col gap-[12px] pt-[2px]">
+            <p className={`${FONT} font-bold text-[#45483c] text-[30px] leading-[36px] tracking-[0.1px]`} style={wdth}>
+              {event.title}
+            </p>
+            <p className={`${FONT} font-normal text-[#6b7880] text-[22px] leading-[30px] tracking-[0.1px]`} style={wdth}>
               {event.date} {event.time} · {event.status}
             </p>
           </div>
@@ -314,19 +325,19 @@ function OngoingCard({ event, open, onToggle, actions }: { event: LogEvent; open
 function HistoryRow({ event, open, onToggle }: { event: LogEvent; open: boolean; onToggle: () => void }) {
   return (
     <div className="border-b border-[#e3e5e8] w-full">
-      <button onClick={onToggle} className="flex gap-[24px] items-center w-full py-[14px] text-left cursor-pointer">
-        <p className={`${FONT} font-normal text-[#9ea8b2] text-[20px] leading-[28px] tracking-[0.1px] w-[210px] shrink-0`} style={wdth}>
+      <button onClick={onToggle} className="flex gap-[24px] items-center w-full py-[16px] text-left cursor-pointer">
+        <p className={`${FONT} font-normal text-[#9ea8b2] text-[22px] leading-[28px] tracking-[0.1px] w-[220px] shrink-0`} style={wdth}>
           {event.date}&nbsp;&nbsp;{event.time}
         </p>
-        <span className="size-[12px] rounded-full shrink-0" style={{ backgroundColor: TONE[event.tone] }} />
-        <p className={`${FONT} font-bold text-[#45483c] text-[22px] leading-[28px] tracking-[0.1px] flex-1 min-w-px`} style={wdth}>
+        <SeverityIcon severity={event.severity} size={32} />
+        <p className={`${FONT} font-bold text-[#45483c] text-[26px] leading-[32px] tracking-[0.1px] flex-1 min-w-px`} style={wdth}>
           {event.title}
         </p>
-        <SourceBadge source={event.source} />
+        <CategoryBadge category={event.category} />
         <Chevron open={open} />
       </button>
       {open && (
-        <div className="pl-[234px] pb-[20px] pr-[44px]">
+        <div className="pl-[300px] pb-[20px] pr-[44px]">
           <EventDetail event={event} />
         </div>
       )}
@@ -347,10 +358,8 @@ export function Notifications() {
 
   const [severity, setSeverity] = useState<Severity | 'all'>('all');
   const [category, setCategory] = useState<CategoryKey | 'all'>('all');
-  const [rangeIdx, setRangeIdx] = useState(1); // Last 30 days
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const range = RANGES[rangeIdx];
   const alertPct = Math.round((alertLevelMl / RESERVOIR_ML) * 100);
 
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
@@ -369,9 +378,8 @@ export function Notifications() {
   ), [alertLevelMl, alertPct, daysToRefill]);
 
   const visible = events.filter(e =>
-    (severity === 'all' || severityOf(e.tone) === severity) &&
-    (category === 'all' || e.category === category) &&
-    e.daysAgo <= range.days,
+    (severity === 'all' || e.severity === severity) &&
+    (category === 'all' || e.category === category),
   );
   const ongoing = visible.filter(e => e.ongoing);
   const history = visible.filter(e => !e.ongoing);
@@ -383,53 +391,60 @@ export function Notifications() {
       navTab="notifications"
       icon={<img alt="" src={imgBell} className="size-[56px] shrink-0 block" />}
       title="Logs"
+      headerRight={
+        <div className="flex flex-col gap-[4px] items-end text-right">
+          <p className={`${FONT} font-bold text-[#45483c] text-[26px] leading-[32px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
+            {visible.length} {visible.length === 1 ? 'event' : 'events'}
+          </p>
+          <p className={`${FONT} font-normal text-[#9ea8b2] text-[22px] leading-[28px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
+            Logs since last connection on {CONNECTED_SINCE}
+          </p>
+        </div>
+      }
     >
-      <div className="flex flex-col gap-[24px] items-start w-full">
-        {/* Severity filter + time range */}
-        <div className="flex items-center justify-between w-full gap-[16px]">
-          <div className="flex gap-[16px] items-center">
-            {SEVERITY_CHIPS.map(c => (
-              <SeverityChip
-                key={c.key}
-                label={c.label}
-                dot={c.dot}
-                active={severity === c.key}
-                onClick={() => setSeverity(c.key)}
-              />
-            ))}
+      <div className="flex flex-col gap-[32px] items-start w-full">
+        {/* ── Filters ──────────────────────────────────────────────── */}
+        <div className="w-full flex flex-col gap-[20px]">
+          <div className="flex flex-col gap-[12px]">
+            <FilterLabel>Severity</FilterLabel>
+            <div className="flex gap-[16px] items-center flex-wrap">
+              {SEVERITY_CHIPS.map(c => {
+                const active = severity === c.key;
+                return (
+                  <FilterChip
+                    key={c.key}
+                    label={c.label}
+                    // Colour icon as a legend on inactive chips; the solid fill marks the active one.
+                    icon={c.key !== 'all' && !active ? <SeverityIcon severity={c.key} size={26} /> : undefined}
+                    active={active}
+                    onClick={() => setSeverity(c.key)}
+                  />
+                );
+              })}
+            </div>
           </div>
-          <button
-            onClick={() => setRangeIdx(i => (i + 1) % RANGES.length)}
-            className="h-[56px] px-[24px] rounded-[28px] flex gap-[10px] items-center justify-center cursor-pointer shrink-0 bg-white border-2 border-[#b2d6e2]"
-          >
-            <span className={`${FONT} font-bold text-[#00769e] text-[22px] leading-[28px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
-              {range.label}
-            </span>
-            <Chevron open={false} color="#00769e" />
-          </button>
+
+          <div className="flex flex-col gap-[12px]">
+            <FilterLabel>Category</FilterLabel>
+            <div className="flex gap-[16px] items-center flex-wrap">
+              {CATEGORY_CHIPS.map(c => (
+                <FilterChip
+                  key={c.key}
+                  label={c.label}
+                  active={category === c.key}
+                  onClick={() => setCategory(c.key)}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Category filter */}
-        <div className="flex gap-[12px] items-center w-full flex-wrap">
-          {CATEGORY_CHIPS.map(c => (
-            <CategoryChip
-              key={c.key}
-              label={c.label}
-              active={category === c.key}
-              onClick={() => setCategory(c.key)}
-            />
-          ))}
-        </div>
-
-        {/* Count + sync line */}
-        <p className={`${FONT} font-normal text-[#9ea8b2] text-[20px] leading-[28px] tracking-[0.1px] w-full`} style={wdth}>
-          {visible.length} {visible.length === 1 ? 'event' : 'events'} · Last synchronized: Today, 09:41
-        </p>
-
+        {/* ── Log entries — set apart from the filters by a hairline ── */}
+        <div className="w-full border-t border-[#e3e5e8] pt-[32px] flex flex-col gap-[24px]">
         {/* Ongoing — still-valid alerts, visually distinct from history */}
         {ongoing.length > 0 && (
           <div className="flex flex-col gap-[16px] w-full">
-            <p className={`${FONT} font-bold text-[#6b7880] text-[22px] leading-[28px] tracking-[0.1px]`} style={wdth}>
+            <p className={`${FONT} font-bold text-[#6b7880] text-[24px] leading-[30px] tracking-[0.1px]`} style={wdth}>
               Active now
             </p>
             {ongoing.map(e => (
@@ -440,11 +455,11 @@ export function Notifications() {
                 onToggle={() => toggle(e.id)}
                 actions={e.id === 'low-reservoir' ? (
                   <div className="flex gap-[16px] items-center flex-wrap pt-[4px]">
-                    <button onClick={adjustAlert} className="h-[64px] px-[24px] rounded-[36px] border-[3px] border-[#0094c5] bg-transparent cursor-pointer">
-                      <span className={`${FONT} font-bold text-[#0094c5] text-[22px] leading-[28px] tracking-[0.1px]`} style={wdth}>Adjust alert level</span>
+                    <button onClick={adjustAlert} className="h-[68px] px-[28px] rounded-[36px] border-[3px] border-[#0094c5] bg-transparent cursor-pointer">
+                      <span className={`${FONT} font-bold text-[#0094c5] text-[24px] leading-[30px] tracking-[0.1px]`} style={wdth}>Adjust alert level</span>
                     </button>
-                    <button onClick={startRefill} className="h-[64px] px-[24px] rounded-[36px] bg-[#0094c5] cursor-pointer">
-                      <span className={`${FONT} font-bold text-white text-[22px] leading-[28px] tracking-[0.1px]`} style={wdth}>Start refill</span>
+                    <button onClick={startRefill} className="h-[68px] px-[28px] rounded-[36px] bg-[#0094c5] cursor-pointer">
+                      <span className={`${FONT} font-bold text-white text-[24px] leading-[30px] tracking-[0.1px]`} style={wdth}>Start refill</span>
                     </button>
                   </div>
                 ) : undefined}
@@ -457,7 +472,7 @@ export function Notifications() {
         {history.length > 0 && (
           <div className="flex flex-col w-full">
             {ongoing.length > 0 && (
-              <p className={`${FONT} font-bold text-[#6b7880] text-[22px] leading-[28px] tracking-[0.1px] mb-[8px]`} style={wdth}>
+              <p className={`${FONT} font-bold text-[#6b7880] text-[24px] leading-[30px] tracking-[0.1px] mb-[8px]`} style={wdth}>
                 History
               </p>
             )}
@@ -472,6 +487,7 @@ export function Notifications() {
             No events match these filters.
           </p>
         )}
+        </div>
       </div>
     </DetailShell>
   );
