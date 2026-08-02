@@ -111,6 +111,13 @@ export function maxBolusesPerDay(baseDoseUgDay: number, primaryConcUgPerUl: numb
 // catheter. The implant detail page and the home implant card both read these so
 // the values can never drift apart.
 export const RESERVOIR_ML = 40;
+// Below 2 ml the pump can no longer guarantee it delivers what was programmed,
+// so the low-reservoir alarm cannot be parked under it.
+export const MIN_ALERT_ML = 2;
+export const MAX_ALERT_ML = RESERVOIR_ML / 2;
+// A refill booked on the day the alarm fires is no plan at all — the patient
+// has to be got in, so every refill sits at least a week ahead of the alert.
+export const REFILL_MIN_LEAD_DAYS = 7;
 export const CATHETER = {
   brand: 'B.Braun',
   originalLengthCm: 43,
@@ -270,15 +277,36 @@ type TherapyState = {
   alertLevelMl: number;
   setAlertLevelMl: (ml: number) => void;
   // When the reservoir is projected to hit `alertLevelMl` at the therapy's
-  // current consumption rate, dd.mm.yyyy ('N/A' with no therapy running).
+  // current consumption rate, dd.mm.yyyy ('N/A' with no therapy running). This
+  // is a physical projection, not a plan — it is never editable.
+  alertDate: string;
+  // Days from today until the alert fires — null with nothing being delivered.
+  daysToAlert: number | null;
+  // When the reservoir is projected to run dry, dd.mm.yyyy — the far end of the
+  // depletion chart. Also a projection, never a plan.
+  emptyDate: string;
+  daysToEmpty: number | null;
+  // Volume the therapy draws from the reservoir each day (ml/day), 0 when idle.
+  volMlPerDay: number;
+  // Volume in the reservoir today, i.e. the high end of that projection.
+  fillMl: number;
+  // The planned refill, dd.mm.yyyy. Either hand-picked, or `refillLeadWeeks`
+  // ahead of `alertDate`, or — with neither set — the alert date itself.
   refillDate: string;
-  // Days from today until that date — null when there's nothing being delivered.
+  // Days from today until the planned refill — null with no therapy running.
   daysToRefill: number | null;
-  // True when `refillDate` is a hand-picked date rather than the calculated one.
+  // True when `refillDate` is a hand-picked date rather than a derived one.
   refillDateIsManual: boolean;
   // Override the derived date with a hand-picked one; pass null to go back to
-  // the calculated date. Changing the alert level or therapy also resets it.
+  // the derived date. Changing the alert level or therapy also resets it.
   setRefillDate: (d: string | null) => void;
+  // How many weeks ahead of the alert date the refill is planned. Being
+  // relative, it survives a change to the alert level — the date just moves.
+  refillLeadWeeks: number | null;
+  setRefillLeadWeeks: (w: number | null) => void;
+  // Days the planned refill sits ahead of the alert, however it was set — the
+  // buffer the Refill Date step reports. Null with no therapy running.
+  refillLeadDays: number | null;
   completeRefill: () => void;
   // Whether a therapy has been set up + activated on the implant. Drives which
   // home screen ("home-active" vs "home-no-therapy") the chrome returns to.
@@ -297,6 +325,19 @@ export function refillDateInDays(days: number): string {
   const dd = String(d.getDate()).padStart(2, '0');
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   return `${dd}.${mm}.${d.getFullYear()}`;
+}
+
+// Whole days from today to a dd.mm.yyyy date — negative once it is in the past,
+// null if the string isn't a date. Both ends are floored to midnight so the
+// result counts calendar days rather than elapsed hours.
+export function daysUntil(date: string): number | null {
+  const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(date);
+  if (!m) return null;
+  const target = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  const today = new Date();
+  target.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  return Math.round((target.getTime() - today.getTime()) / 86_400_000);
 }
 
 const TherapyContext = createContext<TherapyState | null>(null);
@@ -389,10 +430,25 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [flowMode, setFlowMode] = useState<FlowMode>('setup');
   const [fillFraction, setFillFraction] = useState(0.95); // 38 / 40 ml
   const [alertLevelMl, setAlertLevelMlRaw] = useState(4); // 10% of the 40 ml reservoir
-  // The due date is normally derived from the therapy's consumption rate (see
-  // `refillDate` below); this holds a date the clinician picked by hand instead.
+  // The refill date is normally derived (see `refillDate` below); this holds a
+  // date the clinician picked from the calendar instead.
   const [refillDateOverride, setRefillDateOverride] = useState<string | null>(null);
-  // Retuning the alert level re-derives the due date, dropping any manual pick.
+  // ...or, in the other direction, a lead time: refill this many weeks before
+  // the reservoir reaches the alert level. One week is the floor, so the plan
+  // can never land on the day the alarm fires; the default sits a week clear of
+  // that floor so the lead can be stepped either way on arrival.
+  const [refillLeadWeeks, setRefillLeadWeeksRaw] = useState<number | null>(2);
+  // The two ways of setting the date are exclusive — picking one clears the other.
+  const setRefillDate = (d: string | null) => {
+    setRefillDateOverride(d);
+    if (d != null) setRefillLeadWeeksRaw(null);
+  };
+  const setRefillLeadWeeks = (w: number | null) => {
+    setRefillLeadWeeksRaw(w);
+    if (w != null) setRefillDateOverride(null);
+  };
+  // Retuning the alert level moves the projection, so a hand-picked date no
+  // longer means what it did. A lead time is relative and survives untouched.
   const setAlertLevelMl = (ml: number) => { setAlertLevelMlRaw(ml); setRefillDateOverride(null); };
   // The reservoir is topped up; the due date follows from the new fill level.
   const completeRefill = () => { setFillFraction(1); };
@@ -486,21 +542,38 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const intervals = intervalsByDay.monday;
   const weekendIntervals = intervalsByDay.saturday;
 
-  // -------- Next refill due date --------
+  // -------- Alert projection and planned refill --------
   // The pump raises its low-fill alert when the reservoir drops to
-  // `alertLevelMl`, so the refill is due once the therapy has consumed the
-  // volume above that threshold. Consumption is the daily delivered volume of
-  // the reservoir mixture — the same figure the wizard footer shows as
-  // "x ml / day". A hand-picked date (the pen on the Refill Alert step) wins
-  // until the alert level or the therapy changes.
+  // `alertLevelMl`, so the alert fires once the therapy has consumed the volume
+  // above that threshold. Consumption is the daily delivered volume of the
+  // reservoir mixture — the same figure the wizard footer shows as "x ml / day".
+  // That projection is physics and is never edited; the *refill* is the plan
+  // laid on top of it, either a lead time or a hand-picked date.
   const primaryConcForVol = medications[0] ? concUgPerUl(medications[0]) : 0;
   const dailyUgForVol = baseDose > 0 && primaryConcForVol > 0 ? estimatedDailyTotal(baseDose, intervals) : 0;
   const volMlPerDay = dailyUgForVol > 0 ? dailyVolumeUl(dailyUgForVol, primaryConcForVol) / 1000 : 0;
+  const fillMl = fillFraction * RESERVOIR_ML;
   // Volume the pump can still deliver before the alert fires.
-  const usableMl = Math.max(0, fillFraction * RESERVOIR_ML - alertLevelMl);
+  const usableMl = Math.max(0, fillMl - alertLevelMl);
   // Round down — the alert fires on the day the level is reached, not after.
   const daysToAlert = volMlPerDay > 0 ? Math.floor(usableMl / volMlPerDay) : null;
-  const refillDate = refillDateOverride ?? (daysToAlert != null ? refillDateInDays(daysToAlert) : 'N/A');
+  const alertDate = daysToAlert != null ? refillDateInDays(daysToAlert) : 'N/A';
+  // Past the alert the pump keeps delivering until the reservoir is dry.
+  const daysToEmpty = volMlPerDay > 0 ? Math.floor(fillMl / volMlPerDay) : null;
+  const emptyDate = daysToEmpty != null ? refillDateInDays(daysToEmpty) : 'N/A';
+  // A hand-picked date wins outright; otherwise pull the refill `refillLeadWeeks`
+  // ahead of the alert. Either way the refill has to clear the alarm by a week,
+  // so there is always room to get the patient in — and it can never fall in the
+  // past, which would leave the plan pointing at a day that has already gone.
+  const latestRefillDays = daysToAlert != null ? daysToAlert - REFILL_MIN_LEAD_DAYS : null;
+  const daysToRefill = refillDateOverride != null
+    ? daysUntil(refillDateOverride)
+    : latestRefillDays != null
+      ? Math.max(0, Math.min(latestRefillDays, daysToAlert! - (refillLeadWeeks ?? 1) * 7))
+      : null;
+  const refillDate = refillDateOverride
+    ?? (daysToRefill != null ? refillDateInDays(daysToRefill) : 'N/A');
+  const refillLeadDays = daysToAlert != null && daysToRefill != null ? daysToAlert - daysToRefill : null;
 
   // -------- Bolus frequency --------
   const primaryConc = medications[0] ? concUgPerUl(medications[0]) : 0;
@@ -647,8 +720,9 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       dayPattern, setDayPattern,
       useBaseOnly, setUseBaseOnly,
       flowMode, setFlowMode,
-      refillDate, daysToRefill: daysToAlert, refillDateIsManual: refillDateOverride != null,
-      setRefillDate: setRefillDateOverride,
+      alertDate, daysToAlert, emptyDate, daysToEmpty, volMlPerDay, fillMl,
+      refillDate, daysToRefill, refillDateIsManual: refillDateOverride != null,
+      setRefillDate, refillLeadWeeks, setRefillLeadWeeks, refillLeadDays,
       fillFraction, setFillLevel: setFillFraction, alertLevelMl, setAlertLevelMl, completeRefill,
       therapyActive, setTherapyActive, homeScreen,
     }}>

@@ -35,6 +35,18 @@ export function HelpBadge({ onClick, className = '' }: { onClick?: () => void; c
   );
 }
 
+/** Smaller "i" sibling of {@link HelpBadge}, set beside a step's title. */
+export function InfoBadge({ onClick }: { onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className={`size-[36px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0 ${onClick ? 'cursor-pointer' : ''}`}
+    >
+      <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] leading-none" style={{ fontVariationSettings: "'wdth' 100" }}>i</span>
+    </div>
+  );
+}
+
 /**
  * The redesigned 24-hour chart card (Edit Therapy flow): a white, subtly bordered
  * card with teal bolus bars, a "?" help badge, and 00:00 / 24:00 axis labels. One
@@ -194,6 +206,27 @@ export function ReadoutField({ children }: { children: ReactNode }) {
     <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[24px] w-full">
       <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{children}</p>
     </div>
+  );
+}
+
+/**
+ * Round − / + button flanking a numeric readout. Shared by the refill steps so
+ * the alert-level and lead-time steppers are the same control.
+ */
+export function StepButton({ label, onClick, disabled }: { label: string; onClick: () => void; disabled: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`size-[64px] rounded-[32px] flex items-center justify-center shrink-0 ${disabled ? 'bg-[#e8eef2] cursor-not-allowed' : 'bg-[#cce4f1] cursor-pointer'}`}
+    >
+      <span
+        className={`font-['Roboto',sans-serif] font-extrabold text-[40px] ${disabled ? 'text-[#a5a5a5]' : 'text-[#00769e]'}`}
+        style={{ fontVariationSettings: "'wdth' 100" }}
+      >
+        {label}
+      </span>
+    </button>
   );
 }
 

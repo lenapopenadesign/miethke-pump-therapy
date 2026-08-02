@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy, RESERVOIR_ML } from '../therapy';
 import { DetailShell } from '../components/DetailShell';
@@ -49,11 +49,19 @@ type LogEvent = {
   category: CategoryKey;
   source: Source;
   title: string;
-  detail: string;
+  /** Full description, revealed when a history row is opened. */
+  detail?: string;
   /** Present while the condition is still valid; also drives the card styling. */
   ongoing?: boolean;
   /** Short status shown on ongoing cards / resolved history rows. */
   status?: string;
+  /**
+   * The single line an ongoing card carries under its headline. Ongoing alerts
+   * say what to do rather than restate themselves, so they get their own copy
+   * instead of the `detail` a history row expands to; without one the card
+   * falls back to the timestamp and status.
+   */
+  summary?: string;
 };
 
 /**
@@ -66,15 +74,16 @@ const EVENTS: LogEvent[] = [
     date: '22.07.2026', time: '09:52', daysAgo: 2,
     severity: 'warning', category: 'device', source: 'Patient',
     title: 'User silenced an active audible alarm',
-    detail: 'The audible alarm was muted on the device. The condition that raised it has not yet cleared, so the alert stays active until the reservoir is refilled.',
     ongoing: true, status: 'Muted — condition still active',
   },
   {
     id: 'low-reservoir',
     date: '22.07.2026', time: '09:41', daysAgo: 2,
     severity: 'warning', category: 'refill', source: 'System',
-    title: 'Non-critical alarm – Low reservoir',
-    detail: 'Reservoir reached the configured alert level. A refill is recommended before the next session.',
+    // Headline and summary are both restated against the live reservoir in
+    // {@link Notifications}; these are the shape of them.
+    title: 'Reservoir reached alert level',
+    summary: 'Refill recommended before the next session.',
     ongoing: true, status: 'Active — refill recommended',
   },
   {
@@ -178,12 +187,17 @@ const SEVERITY_CHIPS: { key: Severity | 'all'; label: string }[] = [
   { key: 'routine', label: 'Routine' },
 ];
 
-const CATEGORY_CHIPS: { key: CategoryKey | 'all'; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'therapy', label: 'Therapy & bolus' },
-  { key: 'refill', label: 'Refill & reservoir' },
-  { key: 'device', label: 'Device & connection' },
-  { key: 'admin', label: 'Admin' },
+/**
+ * The chips filter by coarser groups than the badges name: a clinician looks for
+ * "anything about the pump", not for the exact log category the device recorded.
+ * `match` is the set of categories a group covers — between them the three
+ * groups cover all four, so every event stays reachable.
+ */
+const CATEGORY_CHIPS: { key: string; label: string; match: CategoryKey[] }[] = [
+  { key: 'all', label: 'All', match: [] },
+  { key: 'therapy', label: 'Therapy', match: ['therapy'] },
+  { key: 'pump', label: 'Pump & Catheter', match: ['refill'] },
+  { key: 'tech', label: 'Tech & Status', match: ['device', 'admin'] },
 ];
 
 /**
@@ -267,19 +281,54 @@ function CategoryBadge({ category }: { category: CategoryKey }) {
   );
 }
 
+/** Disclosure chevron: points into the row at rest, down once it is open. */
 function Chevron({ open, color = '#9ea8b2' }: { open: boolean; color?: string }) {
   return (
     <svg
       width="20" height="20" viewBox="0 0 20 20" fill="none"
-      className={`shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+      className={`shrink-0 transition-transform duration-200 ${open ? 'rotate-90' : ''}`}
     >
-      <path d="M5 7.5L10 12.5L15 7.5" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7.5 5L12.5 10L7.5 15" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-/** Shared expanded body: description, meta line, and any extra actions. */
-function EventDetail({ event, extra }: { event: LogEvent; extra?: React.ReactNode }) {
+/**
+ * The pill button used across this page — the design system's `.button_master`
+ * at its 72px size, filled for the primary action and outlined otherwise.
+ */
+function PillButton({ label, onClick, primary, icon }: { label: string; onClick: () => void; primary?: boolean; icon?: ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`h-[72px] min-w-[240px] px-[24px] rounded-[40px] flex gap-[16px] items-center justify-center cursor-pointer shrink-0 ${
+        primary ? 'bg-[#0094c5]' : 'border-[3px] border-[#0094c5]'
+      }`}
+    >
+      {icon}
+      <span
+        className={`${FONT} font-bold text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap ${primary ? 'text-white' : 'text-[#0094c5]'}`}
+        style={wdth}
+      >
+        {label}
+      </span>
+    </button>
+  );
+}
+
+/** Arrow rising out of a tray — the export glyph on the toolbar button. */
+function ExportIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="shrink-0">
+      <path d="M12 3.5v11" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+      <path d="M7.5 8L12 3.5L16.5 8" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 15v4.5a1.5 1.5 0 0 0 1.5 1.5h13a1.5 1.5 0 0 0 1.5-1.5V15" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Body revealed when a history row is opened: description and meta line. */
+function EventDetail({ event }: { event: LogEvent }) {
   return (
     <div className="flex flex-col gap-[16px] pt-[16px]">
       <p className={`${FONT} font-normal text-[#6b7880] text-[24px] leading-[34px] tracking-[0.1px]`} style={wdth}>
@@ -287,35 +336,38 @@ function EventDetail({ event, extra }: { event: LogEvent; extra?: React.ReactNod
       </p>
       <p className={`${FONT} font-normal text-[#9ea8b2] text-[22px] leading-[28px] tracking-[0.1px]`} style={wdth}>
         {event.source}
-        {event.status && !event.ongoing ? ` · ${event.status}` : ''}
+        {event.status ? ` · ${event.status}` : ''}
       </p>
-      {extra}
     </div>
   );
 }
 
 /* ── Ongoing card (still-valid alerts) ─────────────────────────────────── */
 
-function OngoingCard({ event, open, onToggle, actions }: { event: LogEvent; open: boolean; onToggle: () => void; actions?: React.ReactNode }) {
-  const color = SEVERITY_COLOR[event.severity];
+/**
+ * A still-valid alert, drawn as the design system's `dialogue_long` card: a
+ * tinted panel carrying the severity icon, the headline, one line of context
+ * and — where the alert can be acted on — its actions, all in view at once.
+ * There is nothing held back, so unlike a history row it has no chevron.
+ */
+function OngoingCard({ event, actions }: { event: LogEvent; actions?: ReactNode }) {
   return (
-    <div className="rounded-[24px] w-full overflow-hidden flex" style={{ backgroundColor: TINT[event.severity] }}>
-      <div className="w-[8px] shrink-0" style={{ backgroundColor: color }} />
-      <div className="flex-1 min-w-px p-[24px]">
-        <button onClick={onToggle} className="flex gap-[20px] items-start w-full text-left cursor-pointer">
-          <SeverityIcon severity={event.severity} size={40} />
-          <div className="flex-1 min-w-px flex flex-col gap-[12px] pt-[2px]">
-            <p className={`${FONT} font-bold text-[#45483c] text-[30px] leading-[36px] tracking-[0.1px]`} style={wdth}>
-              {event.title}
-            </p>
-            <p className={`${FONT} font-normal text-[#6b7880] text-[22px] leading-[30px] tracking-[0.1px]`} style={wdth}>
-              {event.date} {event.time} · {event.status}
-            </p>
-          </div>
-          <Chevron open={open} color={color} />
-        </button>
-        {open && <EventDetail event={event} extra={actions} />}
+    <div
+      className="rounded-[24px] w-full p-[24px] flex flex-col gap-[16px] overflow-hidden"
+      style={{ backgroundColor: TINT[event.severity] }}
+    >
+      <div className="flex gap-[24px] items-start w-full">
+        <SeverityIcon severity={event.severity} size={40} />
+        <div className="flex-1 min-w-px flex flex-col gap-[24px] justify-center pt-[8px]">
+          <p className={`${FONT} font-bold text-[#45483c] text-[28px] leading-[32px] tracking-[0.1px]`} style={wdth}>
+            {event.title}
+          </p>
+          <p className={`${FONT} font-normal text-[#45483c] text-[24px] leading-[32px] tracking-[0.1px]`} style={wdth}>
+            {event.summary ?? `${event.date} ${event.time} · ${event.status}`}
+          </p>
+        </div>
       </div>
+      {actions && <div className="flex gap-[24px] items-start justify-end w-full">{actions}</div>}
     </div>
   );
 }
@@ -354,13 +406,16 @@ function HistoryRow({ event, open, onToggle }: { event: LogEvent; open: boolean;
  */
 export function Notifications() {
   const navigate = useNavigate();
-  const { alertLevelMl, daysToRefill, setFlowMode } = useTherapy();
+  const { alertLevelMl, volMlPerDay, setFlowMode } = useTherapy();
 
   const [severity, setSeverity] = useState<Severity | 'all'>('all');
-  const [category, setCategory] = useState<CategoryKey | 'all'>('all');
+  const [category, setCategory] = useState('all');
   const [openId, setOpenId] = useState<string | null>(null);
 
   const alertPct = Math.round((alertLevelMl / RESERVOIR_ML) * 100);
+  // The alarm has already fired, so what is left to run down is the volume below
+  // the alert level — that, not the time to the alert, is "estimated empty".
+  const daysToEmpty = volMlPerDay > 0 ? Math.floor(alertLevelMl / volMlPerDay) : null;
 
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   // The alert level lives on the Refill Alert step of the refill wizard.
@@ -371,20 +426,37 @@ export function Notifications() {
     e.id === 'low-reservoir'
       ? {
           ...e,
-          title: `Non-critical alarm – Reservoir at alert level (${alertLevelMl} ml · ${alertPct} %)`,
-          detail: `Reservoir reached the configured alert level of ${alertLevelMl} ml (${alertPct} %). A refill is recommended before the next session.${daysToRefill != null ? ` At the current rate the therapy lasts ≈ ${daysToRefill} days.` : ''}`,
+          title: `Reservoir reached alert level — ${alertLevelMl} ml (${alertPct} %)`,
+          summary: `Refill recommended before the next session.${daysToEmpty != null ? ` Estimated empty in ~${daysToEmpty} days.` : ''}`,
         }
       : e,
-  ), [alertLevelMl, alertPct, daysToRefill]);
+  ), [alertLevelMl, alertPct, daysToEmpty]);
 
+  const categoryMatch = CATEGORY_CHIPS.find(c => c.key === category)?.match ?? [];
   const visible = events.filter(e =>
     (severity === 'all' || e.severity === severity) &&
-    (category === 'all' || e.category === category),
+    (category === 'all' || categoryMatch.includes(e.category)),
   );
   const ongoing = visible.filter(e => e.ongoing);
   const history = visible.filter(e => !e.ongoing);
 
   const toggle = (id: string) => setOpenId(cur => (cur === id ? null : id));
+
+  // Export hands back exactly what is on screen — filters and all — as a CSV to
+  // file with the patient's record.
+  const exportLogs = () => {
+    const rows = [
+      ['Date', 'Time', 'Severity', 'Category', 'Source', 'Event', 'Status'],
+      ...visible.map(e => [e.date, e.time, e.severity, CATEGORY_LABEL[e.category], e.source, e.title, e.status ?? '']),
+    ];
+    const csv = rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pump-logs.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <DetailShell
@@ -403,40 +475,44 @@ export function Notifications() {
       }
     >
       <div className="flex flex-col gap-[32px] items-start w-full">
-        {/* ── Filters ──────────────────────────────────────────────── */}
-        <div className="w-full flex flex-col gap-[20px]">
-          <div className="flex flex-col gap-[12px]">
-            <FilterLabel>Severity</FilterLabel>
-            <div className="flex gap-[16px] items-center flex-wrap">
-              {SEVERITY_CHIPS.map(c => {
-                const active = severity === c.key;
-                return (
+        {/* ── Filter toolbar — the two filter axes, export pinned right ── */}
+        <div className="w-full flex gap-[40px] items-start">
+          <div className="flex-1 min-w-px flex flex-col gap-[20px]">
+            <div className="flex flex-col gap-[12px]">
+              <FilterLabel>Severity</FilterLabel>
+              <div className="flex gap-[16px] items-center flex-wrap">
+                {SEVERITY_CHIPS.map(c => {
+                  const active = severity === c.key;
+                  return (
+                    <FilterChip
+                      key={c.key}
+                      label={c.label}
+                      // Colour icon as a legend on inactive chips; the solid fill marks the active one.
+                      icon={c.key !== 'all' && !active ? <SeverityIcon severity={c.key} size={26} /> : undefined}
+                      active={active}
+                      onClick={() => setSeverity(c.key)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-[12px]">
+              <FilterLabel>Category</FilterLabel>
+              <div className="flex gap-[16px] items-center flex-wrap">
+                {CATEGORY_CHIPS.map(c => (
                   <FilterChip
                     key={c.key}
                     label={c.label}
-                    // Colour icon as a legend on inactive chips; the solid fill marks the active one.
-                    icon={c.key !== 'all' && !active ? <SeverityIcon severity={c.key} size={26} /> : undefined}
-                    active={active}
-                    onClick={() => setSeverity(c.key)}
+                    active={category === c.key}
+                    onClick={() => setCategory(c.key)}
                   />
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-[12px]">
-            <FilterLabel>Category</FilterLabel>
-            <div className="flex gap-[16px] items-center flex-wrap">
-              {CATEGORY_CHIPS.map(c => (
-                <FilterChip
-                  key={c.key}
-                  label={c.label}
-                  active={category === c.key}
-                  onClick={() => setCategory(c.key)}
-                />
-              ))}
-            </div>
-          </div>
+          <PillButton label="Export logs" primary icon={<ExportIcon />} onClick={exportLogs} />
         </div>
 
         {/* ── Log entries — set apart from the filters by a hairline ── */}
@@ -451,17 +527,11 @@ export function Notifications() {
               <OngoingCard
                 key={e.id}
                 event={e}
-                open={openId === e.id}
-                onToggle={() => toggle(e.id)}
                 actions={e.id === 'low-reservoir' ? (
-                  <div className="flex gap-[16px] items-center flex-wrap pt-[4px]">
-                    <button onClick={adjustAlert} className="h-[68px] px-[28px] rounded-[36px] border-[3px] border-[#0094c5] bg-transparent cursor-pointer">
-                      <span className={`${FONT} font-bold text-[#0094c5] text-[24px] leading-[30px] tracking-[0.1px]`} style={wdth}>Adjust alert level</span>
-                    </button>
-                    <button onClick={startRefill} className="h-[68px] px-[28px] rounded-[36px] bg-[#0094c5] cursor-pointer">
-                      <span className={`${FONT} font-bold text-white text-[24px] leading-[30px] tracking-[0.1px]`} style={wdth}>Start refill</span>
-                    </button>
-                  </div>
+                  <>
+                    <PillButton label="Adjust threshold" onClick={adjustAlert} />
+                    <PillButton label="Start refill" primary onClick={startRefill} />
+                  </>
                 ) : undefined}
               />
             ))}

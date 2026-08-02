@@ -19,6 +19,7 @@ import { ActionsScreen } from './screens/ActionsScreen';
 import { RefillFilling } from './screens/RefillFilling';
 import { RefillSameTherapy } from './screens/RefillSameTherapy';
 import { RefillAlert } from './screens/RefillAlert';
+import { RefillDate } from './screens/RefillDate';
 import { Notifications } from './screens/Notifications';
 import { NavProvider, type ScreenId } from './navigation';
 import { TherapyProvider } from './therapy';
@@ -40,6 +41,7 @@ const ORDER: ScreenId[] = [
   'refill-filling',
   'refill-same-therapy',
   'refill-alert',
+  'refill-date',
   'notifications',
 ];
 
@@ -120,6 +122,7 @@ export function App() {
       {screen === 'refill-filling' && <RefillFilling />}
       {screen === 'refill-same-therapy' && <RefillSameTherapy />}
       {screen === 'refill-alert' && <RefillAlert />}
+      {screen === 'refill-date' && <RefillDate />}
       {screen === 'notifications' && <Notifications />}
     </>
   );

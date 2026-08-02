@@ -25,8 +25,11 @@ function AlertRow({ label, value, unit }: { label: string; value: string; unit?:
 }
 
 /**
- * Refill-only summary of what was set on the Refill Alert step, so the clinician
- * confirms the alert threshold and due date alongside the therapy changes.
+ * Refill-only summary of the Refill Alert and Refill Date steps, so the
+ * clinician confirms the threshold and the refill they planned against it
+ * alongside the therapy changes. The date the alert is projected to fire is
+ * left to those steps — it is a consequence of the two settings here, not a
+ * third thing to confirm.
  */
 function FillLevelAlertSection() {
   const { alertLevelMl, refillDate } = useTherapy();

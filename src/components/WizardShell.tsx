@@ -13,7 +13,7 @@ const imgRefillPump = "/icons/act-refill-pump-b.svg";
 // these as distinct dots; the refill wizard shows them as a segmented bar.
 // 'intervals'/'delivery' are legacy keys kept so the now-orphaned old screens
 // still render; they map onto the 'windows' step.
-export type WizardStep = 'filling' | 'medication' | 'base-dose' | 'frequency' | 'windows' | 'intervals' | 'delivery' | 'refill-alert' | 'review' | 'transfer';
+export type WizardStep = 'filling' | 'medication' | 'base-dose' | 'frequency' | 'windows' | 'intervals' | 'delivery' | 'refill-alert' | 'refill-date' | 'review' | 'transfer';
 
 // Retained for back-compat with screens that still pass a `decision` prop; it no
 // longer changes the (now linear) stepper.
@@ -31,13 +31,18 @@ const SETUP_STEPS = [
 
 // Refill flow: Filling + a distinct Medication step, then the delivery steps and
 // Transfer (Figma refill variant 9466:48180). Rendered with the chevron stepper.
+// Seven steps across 1200px leaves each label very little room, so the two-word
+// ones are broken over two lines and `basis` hands each segment only the width
+// its longest line needs. That buys back the space "Medication" — one long word
+// that cannot break — was being clipped for.
 const REFILL_STEPS = [
-  { key: 'filling', label: 'Filling' },
-  { key: 'medication', label: 'Medication' },
-  { key: 'base-dose', label: 'Default Delivery' },
-  { key: 'windows', label: 'Custom Delivery' },
-  { key: 'refill-alert', label: 'Refill Alert' },
-  { key: 'transfer', label: 'Transfer' },
+  { key: 'filling', label: 'Filling', basis: 62 },
+  { key: 'medication', label: 'Medication', basis: 100 },
+  { key: 'base-dose', label: 'Default\nDelivery', basis: 74 },
+  { key: 'windows', label: 'Custom\nDelivery', basis: 74 },
+  { key: 'refill-alert', label: 'Refill\nAlert', basis: 58 },
+  { key: 'refill-date', label: 'Refill\nDate', basis: 58 },
+  { key: 'transfer', label: 'Transfer', basis: 74 },
 ];
 
 // Screen each stepper segment jumps to when clicked. Only steps already
@@ -58,6 +63,7 @@ const REFILL_STEP_SCREEN: Record<string, ScreenId> = {
   'base-dose': 'base-dose',
   windows: 'windows',
   'refill-alert': 'refill-alert',
+  'refill-date': 'refill-date',
   transfer: 'activate',
 };
 
@@ -66,17 +72,17 @@ const REFILL_STEP_SCREEN: Record<string, ScreenId> = {
 function normalizeStep(step: WizardStep): string {
   if (step === 'medication' || step === 'frequency') return 'base-dose';
   if (step === 'intervals' || step === 'delivery') return 'windows';
-  // The refill-only alert step has no dot in the setup stepper.
-  if (step === 'refill-alert') return 'review';
+  // The refill-only alert/date steps have no dot in the setup stepper.
+  if (step === 'refill-alert' || step === 'refill-date') return 'review';
   return step;
 }
 
 // Refill keeps Medication as its own step; Review (no dot in the refill stepper)
-// falls back to the Refill Alert step it follows.
+// falls back to the Refill Date step it follows.
 function normalizeRefillStep(step: WizardStep): string {
   if (step === 'frequency') return 'base-dose';
   if (step === 'intervals' || step === 'delivery') return 'windows';
-  if (step === 'review') return 'refill-alert';
+  if (step === 'review') return 'refill-date';
   return step;
 }
 
@@ -129,7 +135,9 @@ function Check() {
  */
 const CHEV = 18; // px depth of the arrow point / left notch
 const CHEV_GAP = 8; // px white separator left between interlocking arrows
-function ChevronStepper({ activeKey, steps, onPick }: { activeKey: string; steps: { key: string; label: string }[]; onPick: (key: string) => void }) {
+// Everything in a segment other than its label: notch padding, gap, radio, tail.
+const SEG_CHROME = 84;
+function ChevronStepper({ activeKey, steps, onPick }: { activeKey: string; steps: { key: string; label: string; basis?: number }[]; onPick: (key: string) => void }) {
   const activeIdx = steps.findIndex(s => s.key === activeKey);
   return (
     <div className="flex h-[76px] w-[1200px]">
@@ -149,10 +157,17 @@ function ChevronStepper({ activeKey, steps, onPick }: { activeKey: string; steps
           <div
             key={s.key}
             onClick={clickable ? () => onPick(s.key) : undefined}
-            className={`flex-1 min-w-px h-[76px] flex items-center gap-[8px] pr-[6px] ${clickable ? 'cursor-pointer' : ''}`}
+            className={`min-w-px h-[76px] flex items-center gap-[8px] pr-[6px] ${clickable ? 'cursor-pointer' : ''}`}
             // Overlap each arrow's point into the next one's notch, leaving only a
             // thin CHEV_GAP separator (so the arrows read as a tight breadcrumb).
-            style={{ background: state === 'upcoming' ? '#f0f0f0' : '#d1eaf8', clipPath: clip, paddingLeft: first ? 28 : 12 + CHEV, marginLeft: first ? 0 : -(CHEV - CHEV_GAP) }}
+            // Steps without a `basis` just share the row equally, as before.
+            style={{
+              flex: s.basis != null ? `1 1 ${s.basis + SEG_CHROME}px` : '1 1 0%',
+              background: state === 'upcoming' ? '#f0f0f0' : '#d1eaf8',
+              clipPath: clip,
+              paddingLeft: first ? 28 : 12 + CHEV,
+              marginLeft: first ? 0 : -(CHEV - CHEV_GAP),
+            }}
           >
             {state === 'done' ? (
               <div className="size-[40px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0"><Check /></div>
@@ -164,7 +179,7 @@ function ChevronStepper({ activeKey, steps, onPick }: { activeKey: string; steps
               <div className="size-[40px] rounded-full border-2 border-[#cdd5da] bg-white shrink-0" />
             )}
             <p
-              className={`flex-1 min-w-px font-['Roboto',sans-serif] leading-[22px] text-[20px] tracking-[0.1px] ${state === 'upcoming' ? 'font-normal text-[#a5a5a5]' : state === 'active' ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
+              className={`flex-1 min-w-px whitespace-pre-line font-['Roboto',sans-serif] leading-[22px] text-[20px] tracking-[0.1px] ${state === 'upcoming' ? 'font-normal text-[#a5a5a5]' : state === 'active' ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
               style={{ fontVariationSettings: "'wdth' 100" }}
             >
               {s.label}

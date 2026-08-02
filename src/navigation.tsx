@@ -22,6 +22,7 @@ export type ScreenId =
   | 'refill-filling'
   | 'refill-same-therapy'
   | 'refill-alert'
+  | 'refill-date'
   | 'notifications';
 
 const NavContext = createContext<(to: ScreenId) => void>(() => {});
