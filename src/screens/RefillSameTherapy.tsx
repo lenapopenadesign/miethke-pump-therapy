@@ -8,7 +8,7 @@ import { TherapyChartCard, TherapyMedBreakdown } from '../components/TherapyBrea
  * completes (Figma 9688:48532). The clinician sees the therapy currently on the
  * pump and either carries it over untouched ("No change" → skip ahead to the
  * refill alert) or steps through Medication · Default Delivery · Custom Delivery
- * to adjust it ("Change"), which lands on the same refill-alert step afterwards.
+ * to adjust it ("Change"), which lands on the same refill-date step afterwards.
  */
 export function RefillSameTherapy() {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export function RefillSameTherapy() {
         {/* Decision CTAs — right-aligned pill pair per Figma. */}
         <div className="mt-auto pt-[40px] flex gap-[40px] items-center justify-end">
           <button
-            onClick={() => navigate('refill-alert')}
+            onClick={() => navigate('refill-date')}
             className="h-[88px] min-w-[240px] px-[40px] rounded-[80px] bg-[#0094c5] cursor-pointer"
           >
             <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] leading-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>

@@ -1,5 +1,5 @@
 import { RESERVOIR_ML } from '../therapy';
-import { PUMP_BODY, PUMP_PORT, PUMP_W, PUMP_H, RES_CX, RES_CY, RES_R } from './pumpPaths';
+import { DIAG_PUMP_OUTLINE, DIAG_PUMP_RING, DIAG_PUMP_VALVE, DIAG_RES_CX, DIAG_RES_CY, DIAG_RES_R } from './pumpPaths';
 
 const FONT = 'Roboto, sans-serif';
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
@@ -9,39 +9,42 @@ const BLUE_DARK = '#00769e';
 const RED = '#cc5457';
 const RED_LIGHT = '#f7d7d5';
 const GREY = '#a5a5a5';
-const GREY_TEXT = '#6f7470';
-const TIE = '#daddd7';
-const WATERMARK = '#f0f0f0';
+const GREY_TEXT = '#45483c';
+const TIE = '#cbcbcb';
 
-/* ── Geometry (Figma 10076:139147 — a 1033 × 416 block) ─────────────────────
+/* ── Geometry (Figma 10231:53556 — a 1040 × 419 block) ─────────────────────
  * Both axes are linear in volume: the reservoir drains at a constant rate, so
  * "how much is left" and "how long until it is gone" are the same number read
  * two ways. That is what lets the chart place a date without being handed one.
  */
-const W = 1033;
-const H = 416;
-const X_TODAY = 176; // the day the reservoir holds `fillMl`
-const X_EMPTY = 876; // the day it reaches zero
-const Y_FULL = 113;  // RESERVOIR_ML
-const Y_ZERO = 299;  // 0 ml
-const TIE_X0 = 24, TIE_X1 = 923;   // dotted level lines run past the plot
-const AXIS_X0 = 154, AXIS_X1 = 933;
-const TICK_Y = 329;  // where every marker line ends
-const NAME_Y = 356, DATE_Y = 388;  // text baselines under the axis
+const W = 1040;
+const H = 419;
+const X_TODAY = 193; // the day the reservoir holds `fillMl`
+const X_EMPTY = 970; // the day it reaches zero
+const Y_FULL = 80;   // RESERVOIR_ML
+const Y_ZERO = 288;  // 0 ml
+const TIE_X0 = 24, TIE_X1 = 1022;   // dashed level lines run past the plot
+const AXIS_X0 = 170.5, AXIS_X1 = 1037.5, AXIS_Y = 285.5;
+const RULE_W = 5;
+const RULE_Y = 321;  // where every marker rule ends
+const NAME_Y = 353, DATE_Y = 390;  // text baselines under the axis
+// The "Today" rule is decorative: it rises clear of the fill line rather than
+// standing for a level of its own.
+const TODAY_RULE_TOP = 57;
+const CHIP_H = 40;
 
-// The watermark is the pump itself, sized so its reservoir interior lands on
-// the value axis: a level then reads across the pump and the chart as one line.
-const GAUGE_CX = X_TODAY;
-const GAUGE_CY = (Y_FULL + Y_ZERO) / 2;
-const GAUGE_R = (Y_ZERO - Y_FULL) / 2;
-const PUMP_SCALE = GAUGE_R / RES_R;
+// The pump is drawn at the size the diagram was authored at, so its reservoir
+// interior already straddles the value axis: a level reads across the pump and
+// the chart as one line. Right of "Today" it is washed out, letting the plot —
+// which starts there — sit on top of it cleanly.
+const FADE_W = 150;
 
 // Two markers a couple of days apart would collide. Their labels are nudged
 // apart by at least this much — the lines themselves always stay truthful.
-const MIN_LABEL_GAP = 104;
+const MIN_LABEL_GAP = 100;
 
 /**
- * Volumes to one decimal, dropping a trailing ".0" — so a pill and the sentence
+ * Volumes to one decimal, dropping a trailing ".0" — so a chip and the sentence
  * under the chart never disagree about the same number.
  */
 export function formatMl(ml: number) {
@@ -49,14 +52,14 @@ export function formatMl(ml: number) {
 }
 
 /** Rounded tag naming the volume at a marker, centred on it. */
-function Pill({ x, y, label, fill, stroke }: { x: number; y: number; label: string; fill: string; stroke?: string }) {
-  // Digits are the widest character in a volume, so sizing off the count with a
-  // digit's advance never comes out too narrow.
-  const w = label.length * 12.5 + 30;
+function Chip({ x, y, label, fill }: { x: number; y: number; label: string; fill: string }) {
+  // 20px bold digits are the widest character in a volume, so sizing off the
+  // count with a digit's advance never comes out too narrow.
+  const w = label.length * 11 + 36;
   return (
     <g>
-      <rect x={x - w / 2} y={y - 20} width={w} height={40} rx={20} fill={fill} stroke={stroke} strokeWidth={stroke ? 1 : 0} />
-      <text x={x} y={y + 8} textAnchor="middle" fontFamily={FONT} fontWeight={700} fontSize={22} fill="#fff" style={wdth}>
+      <rect x={x - w / 2} y={y - CHIP_H / 2} width={w} height={CHIP_H} rx={CHIP_H / 2} fill={fill} />
+      <text x={x} y={y + 7} textAnchor="middle" fontFamily={FONT} fontWeight={700} fontSize={20} letterSpacing={0.1} fill="#fff" style={wdth}>
         {label}
       </text>
     </g>
@@ -66,6 +69,15 @@ function Pill({ x, y, label, fill, stroke }: { x: number; y: number; label: stri
 /** Dashed rule marking one volume, running the width of the block. */
 function LevelTie({ y }: { y: number }) {
   return <line x1={TIE_X0} y1={y} x2={TIE_X1} y2={y} stroke={TIE} strokeWidth={2} strokeDasharray="5 7" />;
+}
+
+/**
+ * Vertical stalk under a marker. It starts at the level the marker stands for —
+ * or just below the chip covering it — and always ends on the label row, so the
+ * four markers share one baseline no matter how far apart their levels are.
+ */
+function Rule({ x, top, fill }: { x: number; top: number; fill: string }) {
+  return <rect x={x - RULE_W / 2} y={top} width={RULE_W} height={Math.max(0, RULE_Y - top)} rx={RULE_W / 2} fill={fill} />;
 }
 
 type Props = {
@@ -106,19 +118,19 @@ export function DepletionChart({ fillMl, alertMl, todayLabel, alertLabel, emptyL
   const yRefill = refillMl != null ? yFor(refillMl) : 0;
   const xRefill = refillMl != null ? xFor(refillMl) : 0;
 
-  // Left to right, so the nudge below can walk them in order. "Empty" is left
-  // out: it always ends the axis, so its label is set beside its line instead of
-  // under it, which is what keeps the alert label near where it belongs.
+  // Left to right, so the nudge below can walk them in order.
   const marks = [
-    { x: X_TODAY, name: 'Today', date: todayLabel, color: GREY_TEXT, bold: false, big: false },
+    { key: 'today', x: X_TODAY, name: 'Today', date: todayLabel, color: GREY_TEXT, nameBold: false, dateBold: false },
     ...(refill && refillMl != null
-      ? [{ x: xRefill, name: 'Refill', date: refill.label, color: BLUE_DARK, bold: true, big: true }]
+      ? [{ key: 'refill', x: xRefill, name: 'Refill', date: refill.label, color: BLUE_DARK, nameBold: true, dateBold: true }]
       : []),
-    { x: xAlert, name: 'Alert', date: alertLabel, color: RED, bold: true, big: false },
+    { key: 'alert', x: xAlert, name: 'Alert', date: alertLabel, color: RED, nameBold: true, dateBold: false },
+    { key: 'empty', x: X_EMPTY, name: 'Empty', date: emptyLabel, color: GREY_TEXT, nameBold: false, dateBold: false },
   ];
+  // Keep the rightmost label inside the block, then let each label to the left
+  // give way in turn.
   const labelX = marks.map(m => m.x);
-  // Clear the "Empty" block first, then let each label to the left give way.
-  labelX[labelX.length - 1] = Math.min(labelX[labelX.length - 1], X_EMPTY - 32);
+  labelX[labelX.length - 1] = Math.min(labelX[labelX.length - 1], W - 70);
   for (let i = labelX.length - 2; i >= 0; i--) {
     labelX[i] = Math.min(labelX[i], labelX[i + 1] - MIN_LABEL_GAP);
   }
@@ -126,33 +138,26 @@ export function DepletionChart({ fillMl, alertMl, todayLabel, alertLabel, emptyL
   return (
     <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} fill="none" className="shrink-0">
       <defs>
-        {/* Only the half of the reservoir left of "Today" is drawn — the other
-            half would sit under the plot and tint it twice. */}
         <clipPath id="depletionGauge">
-          <path d={`M${GAUGE_CX},${GAUGE_CY - GAUGE_R} A${GAUGE_R},${GAUGE_R} 0 0 0 ${GAUGE_CX},${GAUGE_CY + GAUGE_R} Z`} />
+          <circle cx={DIAG_RES_CX} cy={DIAG_RES_CY} r={DIAG_RES_R} />
         </clipPath>
       </defs>
 
-      {/* The pump, ghosted behind the plot */}
-      <svg
-        x={GAUGE_CX - RES_CX * PUMP_SCALE}
-        y={GAUGE_CY - RES_CY * PUMP_SCALE}
-        width={PUMP_W * PUMP_SCALE}
-        height={PUMP_H * PUMP_SCALE}
-        viewBox={`0 0 ${PUMP_W} ${PUMP_H}`}
-      >
-        <path d={PUMP_BODY} fill={WATERMARK} />
-        <path d={PUMP_PORT} fill={WATERMARK} />
-      </svg>
-
-      {/* The same levels inside the pump's reservoir, so the two read as one */}
+      {/* The reservoir, filled to the same levels as the plot beside it */}
       <g clipPath="url(#depletionGauge)">
-        <rect x={GAUGE_CX - GAUGE_R} y={yFill} width={GAUGE_R} height={Y_ZERO - yFill} fill={BLUE} fillOpacity={0.4} />
+        <rect x={DIAG_RES_CX - DIAG_RES_R} y={yFill} width={DIAG_RES_R * 2} height={Y_ZERO - yFill} fill={BLUE} fillOpacity={0.4} />
         {refillMl != null && (
-          <rect x={GAUGE_CX - GAUGE_R} y={yRefill} width={GAUGE_R} height={yAlert - yRefill} fill={BLUE} fillOpacity={0.5} />
+          <rect x={DIAG_RES_CX - DIAG_RES_R} y={yRefill} width={DIAG_RES_R * 2} height={Math.max(0, yAlert - yRefill)} fill={BLUE} fillOpacity={0.5} />
         )}
-        <rect x={GAUGE_CX - GAUGE_R} y={yAlert} width={GAUGE_R} height={Y_ZERO - yAlert} fill={RED_LIGHT} />
+        <rect x={DIAG_RES_CX - DIAG_RES_R} y={yAlert} width={DIAG_RES_R * 2} height={Y_ZERO - yAlert} fill={RED_LIGHT} />
       </g>
+
+      {/* The pump around it — wall, reservoir ring and fill port */}
+      <path d={DIAG_PUMP_OUTLINE} fill={BLUE} />
+      <path d={DIAG_PUMP_RING} fill={BLUE} fillRule="evenodd" clipRule="evenodd" />
+      <path d={DIAG_PUMP_VALVE} fill={BLUE} />
+      {/* …washed out from "Today" rightwards, where the plot takes over */}
+      <rect x={X_TODAY} y={0} width={FADE_W} height={H} fill="#fff" fillOpacity={0.75} />
 
       {/* Volume remaining, day by day */}
       <polygon points={`${X_TODAY},${yFill} ${X_EMPTY},${Y_ZERO} ${X_TODAY},${Y_ZERO}`} fill={BLUE} fillOpacity={0.4} />
@@ -176,43 +181,36 @@ export function DepletionChart({ fillMl, alertMl, todayLabel, alertLabel, emptyL
       {refillMl != null && <LevelTie y={yRefill} />}
       <LevelTie y={yAlert} />
 
-      <line x1={X_TODAY} y1={yFill} x2={X_EMPTY} y2={Y_ZERO} stroke={BLUE} strokeWidth={5} strokeLinecap="round" />
-      <line x1={AXIS_X0} y1={Y_ZERO} x2={AXIS_X1} y2={Y_ZERO} stroke={GREY} strokeWidth={5} />
+      <line x1={AXIS_X0} y1={AXIS_Y} x2={AXIS_X1} y2={AXIS_Y} stroke={GREY} strokeWidth={5} strokeLinecap="round" />
+      <line x1={X_TODAY} y1={yFill} x2={X_EMPTY} y2={Y_ZERO} stroke={BLUE} strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
 
-      {/* Marker lines — each rises from the axis to the level it stands for */}
-      <line x1={X_TODAY} y1={Y_FULL - 22} x2={X_TODAY} y2={TICK_Y} stroke={GREY} strokeWidth={5} />
-      {refillMl != null && <line x1={xRefill} y1={yRefill} x2={xRefill} y2={TICK_Y} stroke={BLUE_DARK} strokeWidth={5} />}
-      <line x1={xAlert} y1={yAlert} x2={xAlert} y2={TICK_Y} stroke={RED} strokeWidth={5} />
-      <line x1={X_EMPTY} y1={Y_ZERO + 2} x2={X_EMPTY} y2={TICK_Y} stroke={GREY} strokeWidth={5} />
+      {/* Marker rules — each drops from the level it stands for to the labels */}
+      <Rule x={X_TODAY} top={TODAY_RULE_TOP} fill={GREY} />
+      {refillMl != null && <Rule x={xRefill} top={yRefill + CHIP_H / 2} fill={BLUE} />}
+      <Rule x={xAlert} top={yAlert + CHIP_H / 2} fill={RED} />
+      <Rule x={X_EMPTY} top={Y_ZERO + 2} fill={GREY} />
 
       {refillMl != null && (
-        <Pill x={xRefill} y={yRefill} label={`${formatMl(refillMl)} ml`} fill={BLUE_DARK} />
+        <Chip x={xRefill} y={yRefill} label={`${formatMl(refillMl)} ml`} fill={BLUE_DARK} />
       )}
-      <Pill x={xAlert} y={yAlert} label={`${alertMl} ml`} fill={RED} stroke={BLUE_DARK} />
+      <Chip x={xAlert} y={yAlert} label={`${formatMl(alertMl)} ml`} fill={RED} />
 
       {marks.map((m, i) => (
-        <g key={m.name}>
+        <g key={m.key}>
           <text
             x={labelX[i]} y={NAME_Y} textAnchor="middle"
-            fontFamily={FONT} fontWeight={m.bold ? 700 : 400} fontSize={22} fill={m.color} style={wdth}
+            fontFamily={FONT} fontWeight={m.nameBold ? 700 : 400} fontSize={24} letterSpacing={0.1} fill={m.color} style={wdth}
           >
             {m.name}
           </text>
           <text
-            x={labelX[i]} y={m.big ? DATE_Y + 2 : DATE_Y} textAnchor="middle"
-            fontFamily={FONT} fontWeight={m.big ? 700 : 400} fontSize={m.big ? 26 : 22} fill={m.color} style={wdth}
+            x={labelX[i]} y={DATE_Y} textAnchor="middle"
+            fontFamily={FONT} fontWeight={m.dateBold ? 700 : 400} fontSize={24} letterSpacing={0.1} fill={m.color} style={wdth}
           >
             {m.date}
           </text>
         </g>
       ))}
-
-      <text x={X_EMPTY + 12} y={NAME_Y} fontFamily={FONT} fontWeight={400} fontSize={22} fill={GREY_TEXT} style={wdth}>
-        Empty
-      </text>
-      <text x={X_EMPTY + 12} y={DATE_Y} fontFamily={FONT} fontWeight={400} fontSize={22} fill={GREY_TEXT} style={wdth}>
-        {emptyLabel}
-      </text>
     </svg>
   );
 }

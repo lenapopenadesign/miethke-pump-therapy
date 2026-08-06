@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, RESERVOIR_ML, REFILL_MIN_LEAD_DAYS } from '../therapy';
+import { useTherapy, REFILL_MIN_LEAD_DAYS, MIN_ALERT_ML, MAX_ALERT_ML } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
-import { WizardTotalsFooter, SaveButton, StepButton, InfoBadge } from '../components/WizardParts';
+import { WizardTotalsFooter, SaveButton, StepButton, ToggleSwitch, Explainer } from '../components/WizardParts';
 import { DatePickerSheet } from '../components/DatePickerSheet';
-import { DepletionChart, formatMl } from '../components/DepletionChart';
+import { DepletionChart } from '../components/DepletionChart';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
 
@@ -20,22 +20,75 @@ function shortDate(date: string) {
   return date.length === 10 ? date.slice(0, 5) : '—';
 }
 
+/** Section heading: 56px glyph + title, optionally with an `i` badge. */
+function SectionTitle({ icon, children, onInfo }: { icon: React.ReactNode; children: React.ReactNode; onInfo?: () => void }) {
+  return (
+    <div className="flex gap-[16px] items-center">
+      {icon}
+      <p className={`${FONT} font-bold text-[#00769e] text-[36px] leading-[40px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
+        {children}
+      </p>
+      {onInfo && (
+        <div
+          onClick={onInfo}
+          className="size-[36px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0 cursor-pointer"
+        >
+          <span className={`${FONT} font-bold text-white text-[24px] leading-none`} style={wdth}>i</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Label on the left, controls on the right — the row shape both fields share. */
+function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex gap-[26px] items-center pl-[56px]">
+      <p className={`${FONT} font-extrabold text-[#00769e] text-[30px] flex-1 min-w-px`} style={wdth}>{label}</p>
+      {children}
+    </div>
+  );
+}
+
+/** − / value / + at the fixed width the two steppers on this step share. */
+function Stepper({ value, unit, minusDisabled, plusDisabled, onMinus, onPlus }: {
+  value: string; unit: string; minusDisabled: boolean; plusDisabled: boolean; onMinus: () => void; onPlus: () => void;
+}) {
+  return (
+    <div className="flex gap-[16px] items-center shrink-0">
+      <StepButton label="−" disabled={minusDisabled} onClick={onMinus} />
+      <div className="bg-white border-2 border-[#6b7885] rounded-[8px] h-[76px] w-[427px] flex gap-[8px] items-center px-[16px]">
+        <p className={`${FONT} font-extrabold text-[#80878c] text-[36px]`} style={wdth}>{value}</p>
+        <p className={`${FONT} font-normal text-[#8c99a6] text-[24px] flex-1`} style={wdth}>{unit}</p>
+      </div>
+      <StepButton label="+" disabled={plusDisabled} onClick={onPlus} />
+    </div>
+  );
+}
+
 /**
- * Refill · "Refill Date" step (Figma 10021:40841). The alert level set on the
- * previous step fixes *when the pump will complain*; this step plans *when the
- * patient comes in*, which is a scheduling decision and so the clinician's to
- * make. The chart is the one from that step with the refill drawn onto it, and
- * the shaded span between the two is what the step really sets: the buffer —
- * never less than a week — between the refill and the alarm. Either control
- * writes the same date: step the lead in weeks, or pick the day outright.
+ * Refill · "Refill Date" step (Figma 10189:168958). The one scheduling decision
+ * of the refill flow: which day the patient comes in. The chart is the whole
+ * argument for it — the reservoir drains at the therapy's own rate, so the day
+ * the pump will complain and the day it runs dry are both projections, and what
+ * the step really sets is the buffer left between the refill and the alarm.
+ * Either control writes the same date: step the lead in weeks, or pick the day
+ * outright.
+ *
+ * The alert level the projections hang off is normally left alone, so it lives
+ * behind a toggle at the foot of the step rather than on a step of its own
+ * (it had one until the two were merged). Raising it pulls every projection —
+ * and with it the refill — forward, which the chart shows as it happens.
  */
 export function RefillDate() {
   const navigate = useNavigate();
   const {
-    alertLevelMl, alertDate, daysToAlert, emptyDate, volMlPerDay, fillMl,
+    alertLevelMl, setAlertLevelMl, alertDate, daysToAlert, emptyDate, volMlPerDay, fillMl,
     refillDate, daysToRefill, refillLeadDays, setRefillDate, setRefillLeadWeeks,
   } = useTherapy();
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
 
   const noTherapy = daysToAlert == null;
 
@@ -43,21 +96,18 @@ export function RefillDate() {
   // than today — which caps how far the lead can be stepped out.
   const maxLead = noTherapy ? 0 : Math.floor(daysToAlert / 7);
   const leadDays = refillLeadDays ?? 0;
-  // Stepping works in whole weeks; a hand-picked day rarely lands on one, so the
-  // read-out switches to days rather than rounding the clinician's date away.
-  const leadIsWeeks = leadDays % 7 === 0;
-  const leadValue = leadIsWeeks ? leadDays / 7 : leadDays;
-  const leadUnit = leadIsWeeks ? (leadValue === 1 ? 'week' : 'weeks') : 'days';
   const stepLead = (deltaWeeks: number) => {
     const weeks = Math.floor(leadDays / 7) + deltaWeeks;
     setRefillLeadWeeks(Math.max(1, Math.min(MAX_LEAD_WEEKS, maxLead, weeks)));
   };
 
-  // Reservoir left on the planned day, at the current consumption rate.
+  const clampAlert = (ml: number) => Math.min(MAX_ALERT_ML, Math.max(MIN_ALERT_ML, ml));
+
+  // Reservoir left on the planned day, at the current consumption rate — the
+  // volume the chart chips the refill marker with.
   const levelAtRefill = daysToRefill != null
     ? Math.max(0, fillMl - volMlPerDay * daysToRefill)
     : fillMl;
-  const pctAtRefill = Math.round((levelAtRefill / RESERVOIR_ML) * 100);
   // A hand-picked date can eat into the week of headroom, or land past the
   // alarm entirely; the chart shows it and the note below says so.
   const isTooLate = !noTherapy && leadDays < REFILL_MIN_LEAD_DAYS;
@@ -65,7 +115,7 @@ export function RefillDate() {
   return (
     <WizardShell
       step="refill-date"
-      onBack={() => navigate('refill-alert')}
+      onBack={() => navigate('refill-same-therapy')}
       onHelp={() => navigate('help')}
       footer={
         <>
@@ -84,76 +134,105 @@ export function RefillDate() {
       )}
     >
       <div className="flex-1 flex flex-col gap-[80px]">
-        {/* Title */}
-        <div className="flex gap-[16px] items-center">
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="5" width="18" height="16" rx="2.5" stroke="#0094c5" strokeWidth="1.6" />
-            <path d="M3 10h18" stroke="#0094c5" strokeWidth="1.6" />
-            <path d="M8 3v4M16 3v4" stroke="#0094c5" strokeWidth="1.6" strokeLinecap="round" />
-          </svg>
-          <p className={`${FONT} font-bold text-[#00769e] text-[36px] leading-[40px] tracking-[0.1px]`} style={wdth}>
-            Set refill date
-          </p>
-          <InfoBadge onClick={() => navigate('help')} />
-        </div>
+        {/* The refill date, and the two ways of setting it */}
+        <div className="flex flex-col gap-[40px]">
+          <SectionTitle
+            icon={
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" className="shrink-0">
+                <rect x="3" y="5" width="18" height="16" rx="2.5" stroke="#0094c5" strokeWidth="1.6" />
+                <path d="M3 10h18" stroke="#0094c5" strokeWidth="1.6" />
+                <path d="M8 3v4M16 3v4" stroke="#0094c5" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+            }
+          >
+            Set the refill date
+          </SectionTitle>
 
-        <DepletionChart
-          fillMl={fillMl}
-          alertMl={alertLevelMl}
-          todayLabel={new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-          alertLabel={shortDate(alertDate)}
-          emptyLabel={shortDate(emptyDate)}
-          refill={noTherapy ? null : { ml: levelAtRefill, label: shortDate(refillDate) }}
-        />
+          <DepletionChart
+            fillMl={fillMl}
+            alertMl={alertLevelMl}
+            todayLabel={new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+            alertLabel={shortDate(alertDate)}
+            emptyLabel={shortDate(emptyDate)}
+            refill={noTherapy ? null : { ml: levelAtRefill, label: shortDate(refillDate) }}
+          />
 
-        {/* Controls — the lead and the date are two views of one setting */}
-        <div className="flex flex-col gap-[26px]">
-          {/* Label, stepper, "on" and the date have to share 1040px — the gaps
-              are as wide as that allows without wrapping the label. */}
-          <div className="flex gap-[24px] items-center">
-            <p className={`${FONT} font-extrabold text-[#00769e] text-[30px] w-[320px] shrink-0`} style={wdth}>
-              Refill ahead of the alert
-            </p>
-            <div className="flex gap-[16px] items-center">
-              <StepButton label="−" disabled={noTherapy || leadDays <= REFILL_MIN_LEAD_DAYS} onClick={() => stepLead(-1)} />
-              <div className="bg-white border-2 border-[#6b7885] rounded-[8px] h-[76px] w-[169px] flex gap-[8px] items-center px-[16px]">
-                <p className={`${FONT} font-extrabold text-[#00769e] text-[36px]`} style={wdth}>{leadValue}</p>
-                <p className={`${FONT} font-normal text-[#8c99a6] text-[24px] flex-1`} style={wdth}>{leadUnit}</p>
-              </div>
-              <StepButton label="+" disabled={noTherapy || leadDays >= Math.min(MAX_LEAD_WEEKS * 7, maxLead * 7)} onClick={() => stepLead(1)} />
-            </div>
+          {/* The lead and the date are two views of one setting */}
+          <FieldRow label="Refill ahead of the alert">
+            <Stepper
+              value={`${leadDays}`}
+              unit="days"
+              minusDisabled={noTherapy || leadDays <= REFILL_MIN_LEAD_DAYS}
+              plusDisabled={noTherapy || leadDays >= Math.min(MAX_LEAD_WEEKS * 7, maxLead * 7)}
+              onMinus={() => stepLead(-1)}
+              onPlus={() => stepLead(1)}
+            />
+          </FieldRow>
 
-            <p className={`${FONT} font-extrabold text-[#00769e] text-[30px] shrink-0`} style={wdth}>on</p>
-            <div className="flex gap-[24px] items-center">
+          <FieldRow label="Refill date on">
+            <div className="flex gap-[16px] items-center shrink-0">
               <div
                 onClick={() => setPickerOpen(true)}
-                className="bg-[#e6f4f9] rounded-[8px] h-[76px] w-[210px] flex items-center pl-[24px] cursor-pointer"
+                className="bg-[#e6f4f9] rounded-[8px] h-[76px] w-[427px] flex items-center pl-[24px] cursor-pointer"
               >
                 <p className={`${FONT} font-extrabold text-[#00769e] text-[32px] whitespace-nowrap`} style={wdth}>{refillDate}</p>
               </div>
-              <img
-                alt="Pick the refill date" src={imgEditPencil}
-                onClick={() => setPickerOpen(true)}
-                className="size-[40px] shrink-0 block cursor-pointer"
-              />
+              <div onClick={() => setPickerOpen(true)} className="w-[64px] flex justify-center cursor-pointer shrink-0">
+                <img alt="Pick the refill date" src={imgEditPencil} className="size-[40px] block" />
+              </div>
             </div>
-          </div>
+          </FieldRow>
 
           {noTherapy ? (
-            <p className={`${FONT} font-normal text-[#6b7880] text-[24px] leading-[32px] tracking-[0.1px]`} style={wdth}>
+            <p className={`${FONT} font-normal text-[#6b7880] text-[24px] leading-[32px] tracking-[0.1px] pl-[56px]`} style={wdth}>
               No delivery running — set a therapy to plan the refill against the alert date.
             </p>
           ) : isTooLate ? (
-            <p className={`${FONT} font-normal text-[#cc5457] text-[24px] leading-[32px] tracking-[0.1px]`} style={wdth}>
+            <p className={`${FONT} font-normal text-[#cc5457] text-[24px] leading-[32px] tracking-[0.1px] pl-[56px]`} style={wdth}>
               This leaves under a week before the alert level is reached on {alertDate}.{' '}
               <span onClick={() => setRefillLeadWeeks(1)} className="text-[#0094c5] font-bold cursor-pointer underline">
                 Move it a week ahead
               </span>
             </p>
-          ) : (
-            <p className={`${FONT} font-normal text-[#6b7880] text-[24px] leading-[32px] tracking-[0.1px]`} style={wdth}>
-              Alert level is reached on {alertDate}. Refilling {leadDays} days earlier leaves {formatMl(levelAtRefill)} ml ({pctAtRefill} %) in the reservoir.
-            </p>
+          ) : null}
+        </div>
+
+        {/* The threshold those projections hang off — normally left alone */}
+        <div className="flex flex-col gap-[40px]">
+          <div className="flex items-center justify-between pr-[16px]">
+            <SectionTitle
+              icon={
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" className="shrink-0">
+                  <path d="M12 3a6 6 0 00-6 6c0 4-1.5 5.5-2 6.5h16c-.5-1-2-2.5-2-6.5a6 6 0 00-6-6z" stroke="#0094c5" strokeWidth="1.6" strokeLinejoin="round" />
+                  <path d="M10 19a2 2 0 004 0" stroke="#0094c5" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              }
+              onInfo={() => setInfoOpen(o => !o)}
+            >
+              Adjust alert level
+            </SectionTitle>
+            <ToggleSwitch on={alertOpen} onChange={setAlertOpen} label="Adjust alert level" />
+          </div>
+
+          {infoOpen && (
+            <Explainer title="What is the refill alert level?">
+              The lowest amount of medication that should be in the pump before it is refilled.
+              When the fill levels drops to this level, the pump starts beeping and the app will
+              remind you to refill.
+            </Explainer>
+          )}
+
+          {alertOpen && (
+            <FieldRow label="Alert level of your pump">
+              <Stepper
+                value={`${alertLevelMl}`}
+                unit="ml"
+                minusDisabled={alertLevelMl <= MIN_ALERT_ML}
+                plusDisabled={alertLevelMl >= MAX_ALERT_ML}
+                onMinus={() => setAlertLevelMl(clampAlert(alertLevelMl - 1))}
+                onPlus={() => setAlertLevelMl(clampAlert(alertLevelMl + 1))}
+              />
+            </FieldRow>
           )}
         </div>
       </div>

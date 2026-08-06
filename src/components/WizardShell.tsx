@@ -13,7 +13,7 @@ const imgRefillPump = "/icons/act-refill-pump-b.svg";
 // these as distinct dots; the refill wizard shows them as a segmented bar.
 // 'intervals'/'delivery' are legacy keys kept so the now-orphaned old screens
 // still render; they map onto the 'windows' step.
-export type WizardStep = 'filling' | 'medication' | 'base-dose' | 'frequency' | 'windows' | 'intervals' | 'delivery' | 'refill-alert' | 'refill-date' | 'review' | 'transfer';
+export type WizardStep = 'filling' | 'medication' | 'base-dose' | 'frequency' | 'windows' | 'intervals' | 'delivery' | 'refill-date' | 'review' | 'transfer';
 
 // Retained for back-compat with screens that still pass a `decision` prop; it no
 // longer changes the (now linear) stepper.
@@ -30,19 +30,18 @@ const SETUP_STEPS = [
 ];
 
 // Refill flow: Filling + a distinct Medication step, then the delivery steps and
-// Transfer (Figma refill variant 9466:48180). Rendered with the chevron stepper.
-// Seven steps across 1200px leaves each label very little room, so the two-word
-// ones are broken over two lines and `basis` hands each segment only the width
-// its longest line needs. That buys back the space "Medication" — one long word
-// that cannot break — was being clipped for.
+// Transfer (Figma refill variant 10189:168958). Rendered with the chevron
+// stepper. Six steps split 1200px evenly with room to spare, so — unlike the
+// seven-step version this replaced, which needed a per-segment `basis` to stop
+// "Medication" being clipped — the two-word labels only have to break over two
+// lines.
 const REFILL_STEPS = [
-  { key: 'filling', label: 'Filling', basis: 62 },
-  { key: 'medication', label: 'Medication', basis: 100 },
-  { key: 'base-dose', label: 'Default\nDelivery', basis: 74 },
-  { key: 'windows', label: 'Custom\nDelivery', basis: 74 },
-  { key: 'refill-alert', label: 'Refill\nAlert', basis: 58 },
-  { key: 'refill-date', label: 'Refill\nDate', basis: 58 },
-  { key: 'transfer', label: 'Transfer', basis: 74 },
+  { key: 'filling', label: 'Filling' },
+  { key: 'medication', label: 'Medication' },
+  { key: 'base-dose', label: 'Default\nDelivery' },
+  { key: 'windows', label: 'Custom\nDelivery' },
+  { key: 'refill-date', label: 'Refill\nDate' },
+  { key: 'transfer', label: 'Transfer' },
 ];
 
 // Screen each stepper segment jumps to when clicked. Only steps already
@@ -62,7 +61,6 @@ const REFILL_STEP_SCREEN: Record<string, ScreenId> = {
   medication: 'refill-same-therapy',
   'base-dose': 'base-dose',
   windows: 'windows',
-  'refill-alert': 'refill-alert',
   'refill-date': 'refill-date',
   transfer: 'activate',
 };
@@ -72,8 +70,8 @@ const REFILL_STEP_SCREEN: Record<string, ScreenId> = {
 function normalizeStep(step: WizardStep): string {
   if (step === 'medication' || step === 'frequency') return 'base-dose';
   if (step === 'intervals' || step === 'delivery') return 'windows';
-  // The refill-only alert/date steps have no dot in the setup stepper.
-  if (step === 'refill-alert' || step === 'refill-date') return 'review';
+  // The refill-only date step has no dot in the setup stepper.
+  if (step === 'refill-date') return 'review';
   return step;
 }
 

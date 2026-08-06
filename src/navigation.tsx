@@ -21,7 +21,6 @@ export type ScreenId =
   | 'actions'
   | 'refill-filling'
   | 'refill-same-therapy'
-  | 'refill-alert'
   | 'refill-date'
   | 'notifications';
 

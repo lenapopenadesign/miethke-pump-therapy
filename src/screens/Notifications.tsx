@@ -419,7 +419,7 @@ export function Notifications() {
 
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   // The alert level lives on the Refill Alert step of the refill wizard.
-  const adjustAlert = () => { setFlowMode('refill'); navigate('refill-alert'); };
+  const adjustAlert = () => { setFlowMode('refill'); navigate('refill-date'); };
 
   // Splice the live reservoir figures into the seeded low-reservoir alert.
   const events = useMemo<LogEvent[]>(() => EVENTS.map(e =>

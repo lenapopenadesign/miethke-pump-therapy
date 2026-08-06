@@ -25,7 +25,7 @@ function AlertRow({ label, value, unit }: { label: string; value: string; unit?:
 }
 
 /**
- * Refill-only summary of the Refill Alert and Refill Date steps, so the
+ * Refill-only summary of the Refill Date step, so the
  * clinician confirms the threshold and the refill they planned against it
  * alongside the therapy changes. The date the alert is projected to fire is
  * left to those steps — it is a consequence of the two settings here, not a
@@ -57,7 +57,7 @@ export function Review() {
   return (
     <WizardShell
       step="review"
-      onBack={() => navigate(isRefill ? 'refill-alert' : 'windows')}
+      onBack={() => navigate(isRefill ? 'refill-date' : 'windows')}
       onHelp={() => navigate('help')}
       pinnedTop={
         <div className="flex flex-col gap-[24px]">

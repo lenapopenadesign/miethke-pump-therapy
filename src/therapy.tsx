@@ -429,7 +429,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const [useBaseOnly, setUseBaseOnly] = useState(false);
   const [flowMode, setFlowMode] = useState<FlowMode>('setup');
   const [fillFraction, setFillFraction] = useState(0.95); // 38 / 40 ml
-  const [alertLevelMl, setAlertLevelMlRaw] = useState(4); // 10% of the 40 ml reservoir
+  const [alertLevelMl, setAlertLevelMlRaw] = useState(2); // 5% of the 40 ml reservoir
   // The refill date is normally derived (see `refillDate` below); this holds a
   // date the clinician picked from the calendar instead.
   const [refillDateOverride, setRefillDateOverride] = useState<string | null>(null);

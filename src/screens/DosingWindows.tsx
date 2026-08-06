@@ -174,7 +174,7 @@ export function DosingWindows() {
           <WizardTotalsFooter windowsOverride={windows} />
           <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
             {/* A refill routes through the Refill Alert step before Review. */}
-            <SaveButton label="Next" onClick={() => navigate(isRefill ? 'refill-alert' : 'review')} />
+            <SaveButton label="Next" onClick={() => navigate(isRefill ? 'refill-date' : 'review')} />
           </div>
         </>
       }

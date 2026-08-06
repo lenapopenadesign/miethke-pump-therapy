@@ -48,6 +48,47 @@ export function InfoBadge({ onClick }: { onClick?: () => void }) {
 }
 
 /**
+ * Track-and-thumb switch used to reveal an optional section of a step (Figma
+ * 10218:53206). Off is a hollow track, so a row of them reads as "nothing here
+ * is set" at a glance rather than as a row of live controls.
+ */
+export function ToggleSwitch({ on, onChange, label }: { on: boolean; onChange: (on: boolean) => void; label?: string }) {
+  return (
+    <button
+      role="switch"
+      aria-checked={on}
+      aria-label={label}
+      onClick={() => onChange(!on)}
+      className={`relative h-[40px] w-[65px] rounded-[32px] shrink-0 cursor-pointer border-2 ${on ? 'bg-[#0094c5] border-[#0094c5]' : 'bg-white border-[#cbcbcb]'}`}
+    >
+      <span
+        className={`absolute top-1/2 -translate-y-1/2 size-[30px] rounded-full ${on ? 'right-[4px] bg-white' : 'left-[4px] bg-[#a5a5a5]'}`}
+      />
+    </button>
+  );
+}
+
+/**
+ * Grey panel answering one "what is this?" question, opened from the `i` badge
+ * beside the setting it explains. It sits in the flow rather than floating over
+ * it, so opening it never covers the control the reader is asking about.
+ */
+export function Explainer({ title, children }: { title: string; children: ReactNode }) {
+  const wdth = { fontVariationSettings: "'wdth' 100" } as const;
+  return (
+    <div className="bg-[#f3f5f7] rounded-[16px] flex gap-[20px] items-start px-[28px] py-[26px]">
+      <div className="size-[36px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0">
+        <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] leading-none" style={wdth}>i</span>
+      </div>
+      <div className="flex flex-col gap-[8px] flex-1 min-w-px">
+        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] leading-[32px] tracking-[0.1px]" style={wdth}>{title}</p>
+        <p className="font-['Roboto',sans-serif] font-normal text-[#6b7880] text-[24px] leading-[32px] tracking-[0.1px]" style={wdth}>{children}</p>
+      </div>
+    </div>
+  );
+}
+
+/**
  * The redesigned 24-hour chart card (Edit Therapy flow): a white, subtly bordered
  * card with teal bolus bars, a "?" help badge, and 00:00 / 24:00 axis labels. One
  * or more `highlights` outline a dosing window with a dashed box + centred label.
