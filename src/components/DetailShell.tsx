@@ -20,6 +20,11 @@ type Props = {
   footer?: ReactNode;
   /** Which bottom-navigation tab this screen belongs to. */
   navTab?: NavTab;
+  /**
+   * Layer drawn over the whole screen — header, body, navigation and all — and
+   * clipped to it. Used for modal sheets and their scrim.
+   */
+  overlay?: ReactNode;
 };
 
 /**
@@ -29,7 +34,7 @@ type Props = {
  * body and the shared bottom navigation. Back returns to the home screen that
  * matches the current therapy state (active vs. no-therapy).
  */
-export function DetailShell({ icon, title, headerRight, onHelp, children, pinnedTop, footer, navTab }: Props) {
+export function DetailShell({ icon, title, headerRight, onHelp, children, pinnedTop, footer, navTab, overlay }: Props) {
   const navigate = useNavigate();
   const { homeScreen } = useTherapy();
   return (
@@ -69,6 +74,8 @@ export function DetailShell({ icon, title, headerRight, onHelp, children, pinned
       {/* Spacer reserving room for the absolutely-positioned BottomNav. */}
       <div className="h-[120px] shrink-0" />
       <BottomNav active={navTab} />
+      {/* Full-canvas overlay (modal sheets) — clipped to the shell. */}
+      {overlay && <div className="absolute inset-0 z-50">{overlay}</div>}
     </div>
   );
 }
