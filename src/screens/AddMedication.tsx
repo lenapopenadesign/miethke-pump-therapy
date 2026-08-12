@@ -43,8 +43,10 @@ function TrashIcon() {
   );
 }
 
-const fieldLabel = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px] mb-[8px]";
-const fieldBox = "h-[76px] bg-white border-2 border-[#6b7785] rounded-[8px] px-[20px] flex items-center font-['Roboto',sans-serif] text-[#1a1a1a] text-[32px] tracking-[0.1px] w-full outline-none focus:border-[#0094c5]";
+// These rows are plain <input>/<select> elements rather than the Field wrapper,
+// so they carry the Input_Master chrome (2377:6255) as classes instead.
+const fieldLabel = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] leading-[24px] tracking-[0.1px] px-[16px] pb-[6px]";
+const fieldBox = "h-[72px] bg-white border border-[#a5a5a5] rounded-[8px] px-[16px] flex items-center font-['Roboto',sans-serif] font-bold text-[#45483c] text-[36px] tracking-[0.1px] w-full outline-none focus:border-[#00769e] placeholder:font-normal placeholder:text-[#a5a5a5]";
 
 export function AddMedication() {
   const navigate = useNavigate();

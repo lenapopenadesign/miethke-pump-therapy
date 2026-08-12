@@ -357,16 +357,18 @@ function uid() {
 
 // -------- Active-therapy seed (the app boots into this) --------
 // A patient already on therapy: an intrathecal pain mix (morphine primary +
-// bupivacaine co-delivered) with a couple of dosing windows around the flat
-// base. Morphine is the primary drug at 1.0 mg/day @ 1 mg/mL:
-//   1000 µg/day ÷ 1 mg/mL (= 1 µg/µL) = 1000 µL/day ÷ 10 µL = 100 boluses.
-const ACTIVE_BASE_DOSE = 1500; // µg/day Morphine (= 1.5 mg/day @ 1 mg/mL)
+// baclofen co-delivered) on a flat default delivery. Morphine is the primary
+// drug at 0.5 mg/day @ 1 mg/mL:
+//   500 µg/day ÷ 1 mg/mL (= 1 µg/µL) = 500 µL/day ÷ 10 µL = 50 strokes, so the
+//   frequency options are the divisors of 50 and the default (highest) is 50
+//   deliveries/day — one 10 µl stroke each, 0.010 mg of morphine per delivery.
+const ACTIVE_BASE_DOSE = 500; // µg/day Morphine (= 0.5 mg/day @ 1 mg/mL)
 const ACTIVE_MEDICATIONS: Medication[] = [
   { id: 'med-morphine', name: 'Morphine', concentration: 1,  unit: 'mg/ml' },
   { id: 'med-baclofen', name: 'Baclofen', concentration: 30, unit: 'mg/ml' },
 ];
 // Default example: a plain default delivery at the default (max) frequency and no
-// customised delivery windows — a flat 1.5 mg/day. The customised-delivery flow
+// customised delivery windows — a flat 0.5 mg/day. The customised-delivery flow
 // starts from this empty schedule.
 const ACTIVE_WINDOWS: Interval[] = [];
 const ACTIVE_BY_DAY: IntervalsByDay = {
@@ -804,6 +806,20 @@ export function doseStrings(ugDay: number): { unit: string; perDay: string; perH
   const div = useMg ? 1000 : 1;
   const fmt = (v: number) => (useMg ? v.toFixed(2) : v >= 100 ? Math.round(v).toString() : v.toFixed(1));
   return { unit: useMg ? 'mg' : 'µg', perDay: fmt(ugDay / div), perHour: fmt(ugDay / 24 / div) };
+}
+
+/**
+ * A customised delivery's dose as a signed change against the default delivery:
+ * "+100%" for twice the default, "−50%" for half. Reads the same in both
+ * directions, which a share-of-default figure does not — 50% has to be decoded
+ * as a reduction, −50% says so. Null when there is no default to compare
+ * against, or when the dose matches it: "0%" on an unchanged row is noise.
+ */
+export function pctVsDefault(dose: number, base: number): string | null {
+  if (base <= 0) return null;
+  const pct = Math.round((dose / base - 1) * 100);
+  if (pct === 0) return null;
+  return `${pct > 0 ? '+' : '−'}${Math.abs(pct)}%`;
 }
 
 // Color tier for a dose relative to base dose.

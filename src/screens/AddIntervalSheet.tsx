@@ -5,6 +5,7 @@ import {
 } from '../therapy';
 import { useEffect, useState, type ReactNode } from 'react';
 import { BaseDoseChart } from '../components/BaseDoseChart';
+import { fieldValueCls } from '../components/Field';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
 
@@ -45,7 +46,7 @@ function TimeField({ value, onChange }: { value: number; onChange: (min: number)
   }, [value, focused]);
 
   return (
-    <div className="bg-white border-2 border-[#6b7785] rounded-[12px] h-[80px] flex items-center px-[20px] focus-within:border-[#0094c5]">
+    <div className="bg-white border border-[#a5a5a5] rounded-[8px] h-[72px] flex items-center px-[16px] focus-within:border-[#00769e]">
       <input
         type="text"
         inputMode="numeric"
@@ -63,7 +64,7 @@ function TimeField({ value, onChange }: { value: number; onChange: (min: number)
           if (min !== null) onChange(min);
           setText(fmtTime(min ?? value));
         }}
-        className="flex-1 font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] tracking-[0.1px] bg-transparent outline-none border-0 p-0"
+        className={`flex-1 bg-transparent outline-none border-0 p-0 ${fieldValueCls}`}
         style={{ fontVariationSettings: "'wdth' 100" }}
       />
     </div>
@@ -186,13 +187,13 @@ export function AddIntervalSheetWhen() {
         <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           Label
         </p>
-        <div className="bg-white border-2 border-[#6b7785] rounded-[12px] h-[80px] flex items-center px-[20px] focus-within:border-[#0094c5]">
+        <div className="bg-white border border-[#a5a5a5] rounded-[8px] h-[72px] flex items-center px-[16px] focus-within:border-[#00769e]">
           <input
             type="text"
             value={draft.label}
             onChange={e => setDraft({ ...draft, label: e.target.value })}
             placeholder='e.g. "Morning peak", "Physio", "Wind-down"'
-            className="flex-1 font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] tracking-[0.1px] bg-transparent outline-none border-0 p-0 placeholder:font-normal placeholder:text-[#9ea8b2]"
+            className={`flex-1 bg-transparent outline-none border-0 p-0 placeholder:text-[#a5a5a5] ${fieldValueCls}`}
             style={{ fontVariationSettings: "'wdth' 100" }}
           />
         </div>
@@ -300,7 +301,7 @@ export function AddIntervalSheetDose() {
             <span className="text-[#9ea8b2] text-[26px]"> {conc(0)}</span>
           </p>
         </div>
-        <div className="bg-white border-2 border-[#6b7785] rounded-[8px] h-[76px] w-[300px] flex items-center px-[20px] gap-[8px] focus-within:border-[#0094c5]">
+        <div className="bg-white border border-[#a5a5a5] rounded-[8px] h-[72px] w-[300px] flex items-center px-[16px] gap-[8px] focus-within:border-[#00769e]">
           <input
             type="text"
             inputMode="decimal"
@@ -311,7 +312,7 @@ export function AddIntervalSheetDose() {
               const ugH = (isNaN(v) ? 0 : v) * primaryDiv; // displayed unit/h → µg/h
               setDraft({ ...draft, dose: Math.max(0, Math.min(2000, Math.round(ugH * 24))) });
             }}
-            className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#1a1a1a] text-[40px] tracking-[0.1px] bg-transparent outline-none border-0 p-0 text-left"
+            className={`flex-1 min-w-px bg-transparent outline-none border-0 p-0 text-left ${fieldValueCls}`}
             style={{ fontVariationSettings: "'wdth' 100" }}
           />
           <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{primaryDose.unit}/h</span>

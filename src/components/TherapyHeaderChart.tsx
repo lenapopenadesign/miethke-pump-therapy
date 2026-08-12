@@ -103,8 +103,16 @@ const PEAK_FRAC = 0.9;
  * read as taller runs and the profile fills the chart at any delivery frequency.
  * Place inside a relative, bottom-anchored box of height `maxH`.
  */
+// Selection palette of the pickable chart (sampled from Figma 10482:169938):
+// the picked run in solid mid-blue, everything else pale, and the band behind
+// them in the light fill the rest of the app uses for read-only values.
+export const SELECTED_BAR = '#4295c5';
+export const UNSELECTED_BAR = '#c6deea';
+export const SELECTION_BAND = '#e6f4f9';
+
 export function BolusBars({
   baseDose, bolusCount, windows, maxH = 150, minH = 10, barWidth = 9, baseFrac,
+  slotAligned = false, selMin = null, selMax = null,
 }: {
   baseDose: number;
   bolusCount: number;
@@ -119,9 +127,17 @@ export function BolusBars({
   // grows only its bars instead of renormalising (shrinking) all the others.
   // When unset, bars normalise to the schedule's peak (fills the chart).
   baseFrac?: number;
+  // Selection mode (the customised-delivery editor): draw exactly one bar per
+  // delivery, centred in the slot that delivery owns, so a tap on a slot always
+  // lands on the bar it selects. Bars in [selMin, selMax] are the picked ones.
+  slotAligned?: boolean;
+  selMin?: number | null;
+  selMax?: number | null;
 }) {
   const baseRate = baseDose / 24;
-  const n = baseDose > 0 && bolusCount > 0 ? Math.min(bolusCount, MAX_BARS) : 0;
+  // Slot-aligned mode can't cap the bar count: dropping bars would break the
+  // 1:1 match between what is drawn and what a tap selects.
+  const n = baseDose > 0 && bolusCount > 0 ? (slotAligned ? bolusCount : Math.min(bolusCount, MAX_BARS)) : 0;
   const maxDoseUg = Math.max(baseDose, ...windows.map(w => w.dose), 0);
   const bars = Array.from({ length: n }, (_, i) => {
     const midMin = ((i + 0.5) / n) * 1440;
@@ -131,6 +147,35 @@ export function BolusBars({
       : (maxDoseUg > 0 ? rateDaily / maxDoseUg : 0) * (PEAK_FRAC * maxH); // normalise to peak
     return Math.max(minH, Math.min(maxH, h));
   });
+
+  if (slotAligned) {
+    const slotPct = 100 / Math.max(1, n);
+    const hasSel = selMin != null && selMax != null;
+    return (
+      <div className="absolute inset-0">
+        {bars.map((h, i) => {
+          const selected = hasSel && i >= selMin! && i <= selMax!;
+          return (
+            <div
+              key={i}
+              className="absolute bottom-0 rounded-[3px] -translate-x-1/2"
+              style={{
+                left: `${(i + 0.5) * slotPct}%`,
+                // Never wider than the slot itself, so dense schedules stay readable.
+                width: `clamp(2px, ${(slotPct * 0.62).toFixed(4)}%, ${barWidth}px)`,
+                height: h,
+                // Until anything is picked the schedule reads at full strength;
+                // once it is, the run stands out against pale unpicked bars
+                // (Figma 10482:169938).
+                background: !hasSel ? '#0094c5' : selected ? SELECTED_BAR : UNSELECTED_BAR,
+              }}
+            />
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div className="absolute inset-0 flex items-end justify-between">
       {bars.map((h, i) => (

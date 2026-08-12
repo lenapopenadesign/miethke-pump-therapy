@@ -125,6 +125,15 @@ function Check() {
   );
 }
 
+/** Marks a step the flow passed without using — the "nothing set here" sibling of {@link Check}. */
+function Dash() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+      <path d="M5 11h12" stroke="#8c99a6" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /**
  * Setup-flow stepper: a chevron / breadcrumb row (Figma 8409:53071). Each step is
  * a right-pointing arrow segment with a radio circle + label. Done & active steps
@@ -135,17 +144,25 @@ const CHEV = 18; // px depth of the arrow point / left notch
 const CHEV_GAP = 8; // px white separator left between interlocking arrows
 // Everything in a segment other than its label: notch padding, gap, radio, tail.
 const SEG_CHROME = 84;
-function ChevronStepper({ activeKey, steps, onPick }: { activeKey: string; steps: { key: string; label: string; basis?: number }[]; onPick: (key: string) => void }) {
+function ChevronStepper({ activeKey, steps, skippedKeys = [], onPick }: { activeKey: string; steps: { key: string; label: string; basis?: number }[]; skippedKeys?: string[]; onPick: (key: string) => void }) {
   const activeIdx = steps.findIndex(s => s.key === activeKey);
   return (
     <div className="flex h-[76px] w-[1200px]">
       {steps.map((s, i) => {
         const first = i === 0;
         const last = i === steps.length - 1;
-        const state = i < activeIdx ? 'done' : i === activeIdx ? 'active' : 'upcoming';
-        // Completed steps are re-entrant; the current and upcoming ones aren't
-        // (jumping ahead would skip the input the later steps depend on).
-        const clickable = state === 'done';
+        const behind = i < activeIdx;
+        // A step the flow moved past without anything being set reads as
+        // "skipped": grey like an upcoming step, but marked with a dash rather
+        // than an empty circle so it's clear it was passed, not pending.
+        const state = behind
+          ? (skippedKeys.includes(s.key) ? 'skipped' : 'done')
+          : i === activeIdx ? 'active' : 'upcoming';
+        // Steps already behind the flow are re-entrant — including skipped ones,
+        // which is the way back if the reader wants them after all. The current
+        // and upcoming ones aren't (jumping ahead would skip the input the later
+        // steps depend on).
+        const clickable = behind;
         const clip = first
           ? `polygon(0 0, calc(100% - ${CHEV}px) 0, 100% 50%, calc(100% - ${CHEV}px) 100%, 0 100%)`
           : last
@@ -161,7 +178,7 @@ function ChevronStepper({ activeKey, steps, onPick }: { activeKey: string; steps
             // Steps without a `basis` just share the row equally, as before.
             style={{
               flex: s.basis != null ? `1 1 ${s.basis + SEG_CHROME}px` : '1 1 0%',
-              background: state === 'upcoming' ? '#f0f0f0' : '#d1eaf8',
+              background: state === 'upcoming' || state === 'skipped' ? '#f0f0f0' : '#d1eaf8',
               clipPath: clip,
               paddingLeft: first ? 28 : 12 + CHEV,
               marginLeft: first ? 0 : -(CHEV - CHEV_GAP),
@@ -169,6 +186,8 @@ function ChevronStepper({ activeKey, steps, onPick }: { activeKey: string; steps
           >
             {state === 'done' ? (
               <div className="size-[40px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0"><Check /></div>
+            ) : state === 'skipped' ? (
+              <div className="size-[40px] rounded-full border-2 border-[#cdd5da] bg-white flex items-center justify-center shrink-0"><Dash /></div>
             ) : state === 'active' ? (
               <div className="size-[40px] rounded-full border-[3px] border-[#0094c5] bg-white flex items-center justify-center shrink-0">
                 <div className="size-[18px] rounded-full bg-[#0094c5]" />
@@ -177,7 +196,7 @@ function ChevronStepper({ activeKey, steps, onPick }: { activeKey: string; steps
               <div className="size-[40px] rounded-full border-2 border-[#cdd5da] bg-white shrink-0" />
             )}
             <p
-              className={`flex-1 min-w-px whitespace-pre-line font-['Roboto',sans-serif] leading-[22px] text-[20px] tracking-[0.1px] ${state === 'upcoming' ? 'font-normal text-[#a5a5a5]' : state === 'active' ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
+              className={`flex-1 min-w-px whitespace-pre-line font-['Roboto',sans-serif] leading-[22px] text-[20px] tracking-[0.1px] ${state === 'upcoming' ? 'font-normal text-[#a5a5a5]' : state === 'skipped' ? 'font-normal text-[#8c99a6]' : state === 'active' ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
               style={{ fontVariationSettings: "'wdth' 100" }}
             >
               {s.label}
@@ -189,9 +208,22 @@ function ChevronStepper({ activeKey, steps, onPick }: { activeKey: string; steps
   );
 }
 
+/**
+ * Steps the flow can legitimately pass without visiting. Customised Delivery is
+ * optional — the Default Delivery step reaches Review directly — so once the
+ * flow is past it with no customised deliveries set, its segment is marked
+ * skipped rather than done.
+ */
+function useSkippedSteps(): string[] {
+  const { intervalsByDay } = useTherapy();
+  const hasCustom = Object.values(intervalsByDay).some(list => list.length > 0);
+  return hasCustom ? [] : ['windows'];
+}
+
 /** Refill header band: "Refill" title group + chevron stepper (Figma 9466:48180). */
 function RefillHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: () => void; onHelp?: () => void }) {
   const navigate = useNavigate();
+  const skipped = useSkippedSteps();
   return (
     <div className="w-[1200px] shrink-0 flex flex-col gap-[8px]">
       <div className="bg-[#e6f4f9] flex h-[96px] items-center justify-between px-[40px]">
@@ -208,6 +240,7 @@ function RefillHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: 
       <ChevronStepper
         activeKey={normalizeRefillStep(step)}
         steps={REFILL_STEPS}
+        skippedKeys={skipped}
         onPick={key => navigate(REFILL_STEP_SCREEN[key])}
       />
     </div>
@@ -219,6 +252,7 @@ function SetupHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: (
   const navigate = useNavigate();
   const activeKey = normalizeStep(step);
   const steps = SETUP_STEPS;
+  const skipped = useSkippedSteps();
   return (
     <div className="w-[1200px] shrink-0 flex flex-col gap-[8px]">
       <div className="bg-[#e6f4f9] flex h-[96px] items-center justify-between px-[40px]">
@@ -234,6 +268,7 @@ function SetupHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: (
       <ChevronStepper
         activeKey={activeKey}
         steps={steps}
+        skippedKeys={skipped}
         onPick={key => navigate(SETUP_STEP_SCREEN[key])}
       />
     </div>

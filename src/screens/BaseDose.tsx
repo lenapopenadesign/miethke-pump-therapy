@@ -6,7 +6,8 @@ import {
 } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { MedicationIcon } from '../components/MedicationIcon';
-import { WizardChart, WizardTotalsFooter, SaveButton, RangeSlider, DeliveryIcon, ReadoutField } from '../components/WizardParts';
+import { WizardChart, WizardTotalsFooter, SaveButton, RangeSlider, DeliveryIcon, ReadoutField, WindowsIcon, ArrowForward, SectionHeader, InfoBadge, Explainer, WarningBanner } from '../components/WizardParts';
+import { Field, fieldUnitCls, fieldValueCls } from '../components/Field';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
 
@@ -25,12 +26,18 @@ export function BaseDose() {
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const [editingId, setEditingId] = useState<string | undefined>(medications[0]?.id);
   const [draftText, setDraftText] = useState<string | null>(null);
+  const [showCustomInfo, setShowCustomInfo] = useState(false);
   const ctaEnabled = baseDose > 0;
   // Reference dose + frequency on entry — a >100% dose jump likely means a decimal
   // slip, so warn; and any change once customised deliveries exist resets them.
   const [initialBase] = useState(baseDose);
   const [initialBolus] = useState(bolusCount);
   const bigIncrease = initialBase > 0 && baseDose > initialBase * 2;
+  const increasePct = initialBase > 0 ? Math.round((baseDose / initialBase - 1) * 100) : 0;
+  // Dismissing records the dose it was dismissed at, so raising the dose further
+  // brings the caution back rather than leaving it gone for the rest of the edit.
+  const [warnDismissedAt, setWarnDismissedAt] = useState<number | null>(null);
+  const showBigIncrease = bigIncrease && (warnDismissedAt == null || baseDose > warnDismissedAt);
   // Customised deliveries are slot-based, so changing the default delivery or the
   // delivery frequency invalidates them — warn, and clear them on continue.
   const hasCustomDeliveries = Object.values(intervalsByDay).some(list => list.length > 0);
@@ -52,6 +59,11 @@ export function BaseDose() {
     setBaseDose(Math.max(0, Math.min(20000, Math.round(primary))));
   };
 
+  // Leaving this step in either direction settles the customised deliveries the
+  // new default/frequency invalidated, so Review and the Customised Delivery
+  // step never disagree about what is still set.
+  const leaveTo = (to: 'windows' | 'review') => { if (willResetCustom) clearWindows(); navigate(to); };
+
   return (
     <WizardShell
       step="base-dose"
@@ -64,7 +76,9 @@ export function BaseDose() {
         <>
           <WizardTotalsFooter />
           <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
-            <SaveButton enabled={ctaEnabled} label="Next" onClick={() => { if (willResetCustom) clearWindows(); navigate('windows'); }} />
+            {/* Next goes straight to Review — Customised Delivery is optional and
+                is reached from the "Customise deliveries" button above. */}
+            <SaveButton enabled={ctaEnabled} label="Next" onClick={() => leaveTo('review')} />
           </div>
         </>
       }
@@ -72,33 +86,25 @@ export function BaseDose() {
       <div className="flex flex-col gap-[40px]">
         {/* Reset warning — shown once the default delivery or frequency is changed
             while customised deliveries exist; continuing clears them. */}
+        {/* A consequence, not a judgement call — so no dismiss cross. */}
         {willResetCustom && (
-          <div className="bg-[#fdf3d1] rounded-[12px] px-[28px] py-[20px] flex gap-[20px] items-start">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-[2px]"><path d="M12 3L2 20h20L12 3z" stroke="#b3850e" strokeWidth="1.8" strokeLinejoin="round" /><path d="M12 10v4" stroke="#b3850e" strokeWidth="2" strokeLinecap="round" /><circle cx="12" cy="17" r="1.1" fill="#b3850e" /></svg>
-            <div className="flex flex-col gap-[4px]">
-              <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Customised deliveries will be reset</p>
-              <p className="font-['Roboto',sans-serif] font-normal text-[#7a5c0a] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Changing the default delivery or delivery frequency clears your customised deliveries. Tap Next to continue.</p>
-            </div>
-          </div>
+          <WarningBanner title="Customised deliveries will be reset">
+            Changing the default delivery or delivery frequency clears your customised deliveries.
+            Tap Next to continue.
+          </WarningBanner>
         )}
 
         {/* Base Dose table */}
         <div className="flex flex-col gap-[24px]">
-          <div className="flex gap-[16px] items-center">
-            <MedicationIcon size={48} />
-            <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-              Default delivery
-            </p>
-          </div>
+          <SectionHeader icon={<MedicationIcon size={48} />} title="Default delivery" />
 
-          {bigIncrease && (
-            <div className="bg-[#fdf3d1] rounded-[12px] px-[28px] py-[20px] flex gap-[20px] items-start">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-[2px]"><path d="M12 3L2 20h20L12 3z" stroke="#b3850e" strokeWidth="1.8" strokeLinejoin="round" /><path d="M12 10v4" stroke="#b3850e" strokeWidth="2" strokeLinecap="round" /><circle cx="12" cy="17" r="1.1" fill="#b3850e" /></svg>
-              <div className="flex flex-col gap-[4px]">
-                <p className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[26px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Large dose increase &gt; 100%</p>
-                <p className="font-['Roboto',sans-serif] font-normal text-[#7a5c0a] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Please double-check for a decimal slip — e.g. 80 instead of 8 mcg/d.</p>
-              </div>
-            </div>
+          {showBigIncrease && (
+            <WarningBanner
+              title={`Large dose increase (+${increasePct}%)`}
+              onDismiss={() => setWarnDismissedAt(baseDose)}
+            >
+              Please double-check for a decimal slip. You can keep this value if it’s intended.
+            </WarningBanner>
           )}
 
           <div className="grid items-center gap-x-[16px] gap-y-[20px] [grid-template-columns:260px_1fr_1fr_56px]">
@@ -120,7 +126,7 @@ export function BaseDose() {
                   </p>
 
                   {editing ? (
-                    <div className="bg-white border-2 border-[#6b7785] rounded-[8px] h-[72px] flex items-center pl-[20px] pr-[16px] gap-[8px] focus-within:border-[#0094c5]">
+                    <Field>
                       <input
                         type="text" inputMode="decimal" pattern="[0-9]*\.?[0-9]*"
                         autoFocus
@@ -133,12 +139,12 @@ export function BaseDose() {
                           applyEditDaily(m, i, (isNaN(v) ? 0 : v) * d.div);
                         }}
                         onBlur={() => setDraftText(null)}
-                        className="flex-1 min-w-px font-bold text-[#45483c] text-[40px] leading-[52px] bg-transparent outline-none border-0 p-0 placeholder:font-normal placeholder:text-[#9ea8b2] placeholder:text-[28px]"
+                        className={`flex-1 min-w-px bg-transparent outline-none border-0 p-0 placeholder:text-[#a5a5a5] ${fieldValueCls}`}
                         placeholder="0"
                         style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
                       />
-                      <span className="font-['Roboto',sans-serif] font-normal text-[#a5a5a5] text-[28px] text-right" style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/d</span>
-                    </div>
+                      <span className={fieldUnitCls} style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/d</span>
+                    </Field>
                   ) : (
                     <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[20px]">
                       <p className="font-['Roboto',sans-serif] text-[#00769e] text-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
@@ -168,13 +174,8 @@ export function BaseDose() {
         </div>
 
         {/* Delivery Frequency */}
-        <div className={`flex flex-col gap-[28px] mt-[36px] ${freqValid ? '' : 'opacity-40 pointer-events-none'}`}>
-          <div className="flex gap-[16px] items-center">
-            <DeliveryIcon size={44} />
-            <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-              Delivery Frequency
-            </p>
-          </div>
+        <div className={`flex flex-col gap-[28px] mt-[68px] ${freqValid ? '' : 'opacity-40 pointer-events-none'}`}>
+          <SectionHeader icon={<DeliveryIcon size={44} />} title="Delivery Frequency" />
 
           <div className="flex flex-col gap-[8px]">
             <RangeSlider min={sliderMin} max={Math.max(sliderMin, maxBoluses)} value={bolusCount} steps={freqOptions} disabled={!freqValid} onChange={setBolusCount} />
@@ -190,6 +191,32 @@ export function BaseDose() {
             <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Delivery time gap</p>
             <ReadoutField>{freqValid ? `~ ${gapMin} min` : '--'}</ReadoutField>
           </div>
+        </div>
+
+        {/* Customised Delivery — the optional branch of the flow. The section is
+            a title and one button: Next continues straight to Review, so this is
+            the only way into the Customised Delivery step (Figma 10457:169671). */}
+        <div className="flex flex-col gap-[20px] mt-[48px]">
+          <div className="flex gap-[24px] items-center">
+            <SectionHeader icon={<WindowsIcon size={44} />} title="Customised Delivery" className="flex-1 min-w-px">
+              <InfoBadge onClick={() => setShowCustomInfo(v => !v)} />
+            </SectionHeader>
+            <button
+              onClick={() => leaveTo('windows')}
+              className="flex gap-[16px] h-[88px] items-center justify-center px-[42px] rounded-[80px] border-2 border-[#0094c5] cursor-pointer shrink-0"
+            >
+              <ArrowForward />
+              <span className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[28px] leading-[42px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                Customise deliveries
+              </span>
+            </button>
+          </div>
+          {showCustomInfo && (
+            <Explainer title="What is a customised delivery?">
+              A customised delivery raises or lowers the dose for a stretch of the day — for
+              example more overnight — while every other delivery keeps the default dose.
+            </Explainer>
+          )}
         </div>
       </div>
     </WizardShell>

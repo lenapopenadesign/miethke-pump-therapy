@@ -5,10 +5,11 @@ import {
   doseStringsFor,
   estimatedDailyTotal,
   dailyVolumeUl,
+  fmtTime,
   type Interval,
 } from '../therapy';
 import { useRef, type ReactNode } from 'react';
-import { BolusBars, PerDelAxis, HourAxis } from './TherapyHeaderChart';
+import { BolusBars, PerDelAxis, HourAxis, SELECTED_BAR, SELECTION_BAND } from './TherapyHeaderChart';
 
 const CARD_H = 214;
 const BASELINE_FROM_BOTTOM = 78; // two label rows below the baseline: window times, then the hour axis
@@ -17,7 +18,52 @@ const AXIS_L = 78; // left gutter for the dose-per-delivery labels
 // customised-delivery bars grow into as their dose is raised.
 const BAR_BASE_FRAC = 0.6;
 
-export type Highlight = { startMin: number; endMin: number; label?: string };
+/**
+ * Makes a {@link WizardChart} pickable: the plot is divided into `slotCount`
+ * columns, one per delivery, and `selMin`/`selMax` mark the run currently
+ * chosen. Dragging anywhere across the plot sweeps a new run; dragging either
+ * handle moves that end while the other stays put. The chart owns the gesture
+ * but no state — it reports the range and draws what it is told, so it and the
+ * From / To fields can never disagree.
+ */
+export type SlotSelection = {
+  slotCount: number;
+  selMin: number | null;
+  selMax: number | null;
+  onRange: (min: number, max: number) => void;
+};
+
+/**
+ * Grab handle on an edge of the selection band (Figma 10482:169938): a rounded
+ * blue pill with a three-dot grip. The pill is deliberately slim, so it sits in
+ * a much larger invisible target — a 14px-wide control would be unusable.
+ */
+function SelectionHandle({ leftPct, label, onDown, onMove, onUp }: {
+  leftPct: number;
+  label: string;
+  onDown: (e: React.PointerEvent) => void;
+  onMove: (e: React.PointerEvent) => void;
+  onUp: () => void;
+}) {
+  return (
+    <div
+      role="slider"
+      aria-label={label}
+      onPointerDown={onDown}
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+      onPointerCancel={onUp}
+      className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[64px] h-[130px] flex items-center justify-center cursor-ew-resize touch-none z-10"
+      style={{ left: `${leftPct}%` }}
+    >
+      <div className="w-[14px] h-[64px] rounded-full flex flex-col items-center justify-center gap-[6px]" style={{ background: SELECTED_BAR }}>
+        <span className="size-[4px] rounded-full bg-white/70" />
+        <span className="size-[4px] rounded-full bg-white/70" />
+        <span className="size-[4px] rounded-full bg-white/70" />
+      </div>
+    </div>
+  );
+}
 
 /**
  * Small blue-circle "?" help affordance. Sits inline next to a page-header title
@@ -68,6 +114,38 @@ export function ToggleSwitch({ on, onChange, label }: { on: boolean; onChange: (
   );
 }
 
+const imgWarningTriangle = "/icons/warning-triangle.svg";
+// A plus glyph; turned 45° it is the dismiss cross (Figma 10482:169939).
+const imgCloseCross = "/icons/close-x.svg";
+// A plus rotated 45° spans √2 × its side, so this is the side length that makes
+// the finished cross exactly 40px across.
+const CROSS_SIDE = 40 / Math.SQRT2;
+
+/**
+ * Amber caution panel (Figma 10482:169939) — a value the pump would accept but a
+ * clinician should look at twice. Pass `onDismiss` to give it a cross; leave it
+ * off for notices that state a consequence rather than ask for a second look.
+ */
+export function WarningBanner({ title, children, onDismiss }: { title: string; children: ReactNode; onDismiss?: () => void }) {
+  const wdth = { fontVariationSettings: "'wdth' 100" } as const;
+  return (
+    <div className="bg-[#fdf3d1] rounded-[24px] p-[24px] flex gap-[24px] items-start w-full">
+      <img alt="" src={imgWarningTriangle} className="w-[41px] h-[40px] block shrink-0" />
+      <div className="flex-1 min-w-px flex flex-col gap-[24px] pt-[8px]">
+        <div className="flex gap-[24px] items-start">
+          <p className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] leading-[32px] tracking-[0.1px]" style={wdth}>{title}</p>
+          {onDismiss && (
+            <button onClick={onDismiss} aria-label="Dismiss warning" className="size-[40px] shrink-0 flex items-center justify-center cursor-pointer">
+              <img alt="" src={imgCloseCross} className="block rotate-45" style={{ width: CROSS_SIDE, height: CROSS_SIDE }} />
+            </button>
+          )}
+        </div>
+        <p className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[24px] leading-[32px] tracking-[0.1px]" style={wdth}>{children}</p>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Grey panel answering one "what is this?" question, opened from the `i` badge
  * beside the setting it explains. It sits in the flow rather than floating over
@@ -93,32 +171,106 @@ export function Explainer({ title, children }: { title: string; children: ReactN
  * card with teal bolus bars, a "?" help badge, and 00:00 / 24:00 axis labels. One
  * or more `highlights` outline a dosing window with a dashed box + centred label.
  */
-export function WizardChart({ highlights = [], baseOnly = false, windowsOverride }: { highlights?: Highlight[]; baseOnly?: boolean; windowsOverride?: Interval[] }) {
+export function WizardChart({ baseOnly = false, windowsOverride, selection, height }: { baseOnly?: boolean; windowsOverride?: Interval[]; selection?: SlotSelection; height?: number }) {
   const { baseDose, bolusCount, maxBoluses, intervals, medications } = useTherapy();
   // windowsOverride lets the dosing-window editor preview the in-progress dose so
   // the bars grow/shrink live as the +/- stepper changes the value.
   const barWindows = baseOnly ? [] : (windowsOverride ?? intervals);
   const unit = medications[0]?.unit ?? 'mg/ml';
+  // The pickable chart is given more room so the bars are a comfortable target.
+  const cardH = height ?? CARD_H;
+  const barMaxH = cardH - BASELINE_FROM_BOTTOM - 40;
+
+  // --- Selection gesture -----------------------------------------------------
+  // One model covers both ways of picking: a sweep across the plot anchors on
+  // the delivery it started from, and a handle drag anchors on the opposite end
+  // of the run. Everything after that is "extend from the anchor to the pointer".
+  const plotRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<number | null>(null);
+  const slotCount = selection?.slotCount ?? 0;
+  const slotAt = (clientX: number) => {
+    const el = plotRef.current;
+    if (!el || slotCount === 0) return 0;
+    const r = el.getBoundingClientRect();
+    // A ratio, so the canvas' CSS scale cancels out.
+    const ratio = r.width > 0 ? (clientX - r.left) / r.width : 0;
+    return Math.max(0, Math.min(slotCount - 1, Math.floor(ratio * slotCount)));
+  };
+  const extend = (to: number) => {
+    const a = anchorRef.current;
+    if (a == null) return;
+    selection?.onRange(Math.min(a, to), Math.max(a, to));
+  };
+  const beginDrag = (e: React.PointerEvent, anchor: number, to: number) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    anchorRef.current = anchor;
+    selection?.onRange(Math.min(anchor, to), Math.max(anchor, to));
+  };
+  const onDragMove = (e: React.PointerEvent) => {
+    if (anchorRef.current == null) return;
+    extend(slotAt(e.clientX));
+  };
+  const endDrag = () => { anchorRef.current = null; };
+
+  const selMin = selection?.selMin ?? null;
+  const selMax = selection?.selMax ?? null;
+  const hasSel = selection != null && selMin != null && selMax != null;
+
   return (
-    <div className="relative w-full bg-white rounded-[16px] border border-[#dbe3e8] overflow-hidden shrink-0" style={{ height: CARD_H }}>
+    <div className="relative w-full bg-white rounded-[16px] border border-[#dbe3e8] overflow-hidden shrink-0" style={{ height: cardH }}>
       {/* Rough dose-per-delivery axis */}
       <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={barWindows} unit={unit} baseFrac={BAR_BASE_FRAC}
-        barMaxH={CARD_H - BASELINE_FROM_BOTTOM - 40} left={AXIS_L} right={30} baseline={BASELINE_FROM_BOTTOM} labelSize={22} />
+        barMaxH={barMaxH} left={AXIS_L} right={30} baseline={BASELINE_FROM_BOTTOM} labelSize={22} />
       {/* Plot area */}
-      <div className="absolute right-[30px] top-[40px]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }}>
-        {highlights.map((hl, i) => {
-          if (hl.endMin <= hl.startMin) return null;
-          const left = (hl.startMin / 1440) * 100;
-          const width = ((hl.endMin - hl.startMin) / 1440) * 100;
-          return (
-            <div
-              key={i}
-              className="absolute top-[-16px] bottom-0 rounded-[6px] border-2 border-dashed border-[#0094c5]"
-              style={{ left: `${left}%`, width: `${width}%`, background: 'rgba(0,148,197,0.10)' }}
+      <div ref={plotRef} className="absolute right-[30px] top-[40px]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }}>
+        {/* Selection band — a plain light fill hugging the picked slots, drawn
+            under the bars so it reads as ground rather than a box around them. */}
+        {hasSel && (
+          <div
+            className="absolute top-[-16px] bottom-0 rounded-[4px]"
+            style={{
+              left: `${(selMin! / slotCount) * 100}%`,
+              width: `${((selMax! - selMin! + 1) / slotCount) * 100}%`,
+              background: SELECTION_BAND,
+            }}
+          />
+        )}
+        <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={barWindows} maxH={barMaxH} baseFrac={BAR_BASE_FRAC}
+          slotAligned={!!selection} selMin={selMin} selMax={selMax} />
+
+        {/* Drag surface — sweeps a run. Reaches above the tallest bar and below
+            the baseline so a delivery stays grabbable at any frequency, and sits
+            over the bars, which are not interactive themselves. */}
+        {selection && (
+          <div
+            className="absolute inset-x-0 top-[-16px] bottom-[-30px] cursor-ew-resize touch-none"
+            onPointerDown={e => { const i = slotAt(e.clientX); beginDrag(e, i, i); }}
+            onPointerMove={onDragMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+          />
+        )}
+
+        {/* Handles — each anchors on the opposite end, so dragging one moves
+            only its own edge. */}
+        {hasSel && (
+          <>
+            <SelectionHandle
+              leftPct={(selMin! / slotCount) * 100}
+              label={`First delivery, ${fmtTime(Math.round((selMin! * 1440) / slotCount))}`}
+              onDown={e => beginDrag(e, selMax!, selMin!)}
+              onMove={onDragMove}
+              onUp={endDrag}
             />
-          );
-        })}
-        <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={barWindows} maxH={CARD_H - BASELINE_FROM_BOTTOM - 40} baseFrac={BAR_BASE_FRAC} />
+            <SelectionHandle
+              leftPct={((selMax! + 1) / slotCount) * 100}
+              label={`Last delivery, ${fmtTime(Math.round((selMax! * 1440) / slotCount))}`}
+              onDown={e => beginDrag(e, selMin!, selMax!)}
+              onMove={onDragMove}
+              onUp={endDrag}
+            />
+          </>
+        )}
       </div>
       {/* Baseline */}
       <div className="absolute right-[30px] h-px bg-[#e3e6e9]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
@@ -133,7 +285,7 @@ export function WizardChart({ highlights = [], baseOnly = false, windowsOverride
  * steps: delivery count on the left, per-medication daily totals on the right.
  * Full-bleed across the 1200px canvas.
  */
-export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOverride }: { baseOnly?: boolean; bg?: string; windowsOverride?: Interval[] }) {
+export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOverride, deltaFrom }: { baseOnly?: boolean; bg?: string; windowsOverride?: Interval[]; deltaFrom?: Interval[] }) {
   const { baseDose, bolusCount, medications, intervals } = useTherapy();
   // Default to the context's (Monday) schedule; the dosing-window editor passes
   // the day-group it is showing so the totals always match the chart above.
@@ -149,6 +301,20 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOv
   const medTotal = (m: typeof medications[number], i: number) =>
     active ? doseStringsFor(medUgDay(m, i), m.unit).perDay : '--';
   const medUnit = (m: typeof medications[number]) => `${doseStringsFor(0, m.unit).unit}/d`;
+
+  // What the edit in progress adds to the day, shown beside the total it lands
+  // in — the editor passes the schedule as it stands without that edit. Answers
+  // "how much is this costing me" without a separate line to reconcile.
+  const baselinePrimaryUg = deltaFrom && active && !baseOnly ? estimatedDailyTotal(baseDose, deltaFrom) : null;
+  const medDelta = (m: typeof medications[number], i: number) => {
+    if (baselinePrimaryUg == null) return null;
+    const before = i === 0 ? baselinePrimaryUg : coDoseUgDay(baselinePrimaryUg, c0, concUgPerUl(m));
+    const diff = medUgDay(m, i) - before;
+    const d = doseStringsFor(Math.abs(diff), m.unit);
+    // Below the unit's own resolution there is nothing to report.
+    if (parseFloat(d.perDay) === 0) return null;
+    return `${diff > 0 ? '+' : '−'}${d.perDay} ${d.unit}`;
+  };
 
   // Daily delivered volume of the reservoir mixture (µl → ml), fixed by the dose
   // regardless of how it's split into deliveries. Trim trailing zeros (1.50→1.5).
@@ -184,12 +350,56 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOv
               <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]">{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
               <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[32px] tracking-[0.1px] ml-[16px]">{m.concentration} {m.unit}</span>
             </p>
-            <p className="text-right whitespace-nowrap" style={wdth}>
-              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]">{medTotal(m, i)}</span> <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px]">{medUnit(m)}</span>
+            {/* The day's total per medication is what the footer is for, so it
+                is set a size above the name and concentration beside it — and,
+                while an edit is open, what that edit contributes to it. */}
+            <p className="flex items-baseline justify-end gap-[24px] whitespace-nowrap" style={wdth}>
+              {medDelta(m, i) && (
+                <span className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] tracking-[0.1px]">{medDelta(m, i)}</span>
+              )}
+              <span>
+                <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[44px] leading-[52px] tracking-[0.1px]">{medTotal(m, i)}</span> <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[26px]">{medUnit(m)}</span>
+              </span>
             </p>
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Icon + bold teal title naming a section of a step (Figma 10482:169916 /
+ * 10482:169922). Every block that opens with a heading uses this, so the steps
+ * and the sheets that sit over them read at the same level. `children` are laid
+ * out after the title — a badge beside it, or an `ml-auto` note pushed right.
+ */
+export function SectionHeader({ icon, title, children, className = '' }: { icon: ReactNode; title: string; children?: ReactNode; className?: string }) {
+  return (
+    <div className={`flex gap-[16px] items-center ${className}`}>
+      {icon}
+      <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+        {title}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+/** Bar-chart glyph titling the Customised Delivery section, on either step. */
+export function WindowsIcon({ size = 44 }: { size?: number }) {
+  return <img src="/icons/windows-bars.svg" alt="" style={{ width: size, height: size }} className="block shrink-0" />;
+}
+
+/**
+ * Forward arrow on the "Customise deliveries" button. The exported glyph is a
+ * wide 40 × 25 arrow, so it is drawn at that ratio inside the 40px icon box
+ * rather than stretched to fill it.
+ */
+export function ArrowForward({ size = 40 }: { size?: number }) {
+  return (
+    <div className="relative shrink-0 overflow-clip" style={{ width: size, height: size }}>
+      <img src="/icons/arrow-forward.svg" alt="" className="absolute left-0 block" style={{ width: size, height: size * 0.6239, top: size * 0.2 }} />
     </div>
   );
 }
@@ -254,11 +464,12 @@ export function ReadoutField({ children }: { children: ReactNode }) {
  * Round − / + button flanking a numeric readout. Shared by the refill steps so
  * the alert-level and lead-time steppers are the same control.
  */
-export function StepButton({ label, onClick, disabled }: { label: string; onClick: () => void; disabled: boolean }) {
+export function StepButton({ label, onClick, disabled, ariaLabel }: { label: string; onClick: () => void; disabled: boolean; ariaLabel?: string }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
+      aria-label={ariaLabel}
       className={`size-[64px] rounded-[32px] flex items-center justify-center shrink-0 ${disabled ? 'bg-[#e8eef2] cursor-not-allowed' : 'bg-[#cce4f1] cursor-pointer'}`}
     >
       <span

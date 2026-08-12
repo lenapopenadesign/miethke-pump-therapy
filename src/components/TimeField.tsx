@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fmtTime } from '../therapy';
+import { Field, fieldValueCls } from './Field';
 
 /* Parse a partial time entry into minutes. Accepts "9", "9:3", "09:30", "0930",
    "930" etc. Returns null while the entry isn't yet a usable time. */
@@ -36,7 +37,7 @@ export function TimeField({ value, onChange, width = 130 }: { value: number; onC
   }, [value, focused]);
 
   return (
-    <div className="bg-white border-2 border-[#6b7785] rounded-[12px] h-[72px] flex items-center px-[18px] focus-within:border-[#0094c5]" style={{ width }}>
+    <Field className="shrink-0" style={{ width }}>
       <input
         type="text"
         inputMode="numeric"
@@ -54,9 +55,9 @@ export function TimeField({ value, onChange, width = 130 }: { value: number; onC
           if (min !== null) onChange(min);
           setText(fmtTime(min ?? value));
         }}
-        className="w-full font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] tracking-[0.1px] bg-transparent outline-none border-0 p-0"
-        style={{ fontVariationSettings: "'wdth' 100" }}
+        className={`w-full bg-transparent outline-none border-0 p-0 ${fieldValueCls}`}
+        style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
       />
-    </div>
+    </Field>
   );
 }

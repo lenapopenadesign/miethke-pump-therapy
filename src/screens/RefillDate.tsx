@@ -3,6 +3,7 @@ import { useNavigate } from '../navigation';
 import { useTherapy, REFILL_MIN_LEAD_DAYS, MIN_ALERT_ML, MAX_ALERT_ML } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { WizardTotalsFooter, SaveButton, StepButton, ToggleSwitch, Explainer } from '../components/WizardParts';
+import { Field, fieldValueCls, fieldUnitCls } from '../components/Field';
 import { DatePickerSheet } from '../components/DatePickerSheet';
 import { DepletionChart } from '../components/DepletionChart';
 
@@ -57,10 +58,10 @@ function Stepper({ value, unit, minusDisabled, plusDisabled, onMinus, onPlus }: 
   return (
     <div className="flex gap-[16px] items-center shrink-0">
       <StepButton label="−" disabled={minusDisabled} onClick={onMinus} />
-      <div className="bg-white border-2 border-[#6b7885] rounded-[8px] h-[76px] w-[427px] flex gap-[8px] items-center px-[16px]">
-        <p className={`${FONT} font-extrabold text-[#80878c] text-[36px]`} style={wdth}>{value}</p>
-        <p className={`${FONT} font-normal text-[#8c99a6] text-[24px] flex-1`} style={wdth}>{unit}</p>
-      </div>
+      <Field style={{ width: 427 }}>
+        <p className={fieldValueCls} style={wdth}>{value}</p>
+        <p className={`${fieldUnitCls} flex-1`} style={wdth}>{unit}</p>
+      </Field>
       <StepButton label="+" disabled={plusDisabled} onClick={onPlus} />
     </div>
   );
