@@ -300,12 +300,11 @@ export function DosingWindows() {
                 </div>
               </div>
 
-              {/* 3. Dose — only once there is something to dose. Showing it
-                     dimmed from the start put the busiest view in front of the
-                     reader before they had done anything; revealing it also makes
-                     the order of the two decisions self-evident. */}
-              {selCount > 0 && (
-              <div className="flex flex-col gap-[20px]">
+              {/* 3. Dose — present from the start but dimmed until there is
+                     something to dose, so the second decision is visible as a
+                     next step without competing with the first. The extra top
+                     margin keeps it clearly apart from the times above. */}
+              <div className={`flex flex-col gap-[20px] mt-[24px] transition-opacity ${selCount === 0 ? 'opacity-40 pointer-events-none' : ''}`}>
                 <SectionHeader icon={<MedicationIcon size={48} />} title="Adjust the dose" />
                 <div className="flex flex-col gap-[20px]">
                 {/* Captions sit over the columns they name, on the same grid. */}
@@ -372,7 +371,6 @@ export function DosingWindows() {
                   </div>
                 )}
               </div>
-              )}
             </div>
 
             {/* Footer — the running 24-hour totals the change feeds into, then the actions. */}
