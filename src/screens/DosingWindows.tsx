@@ -14,17 +14,17 @@ const imgEditPencil = "/icons/edit-pencil.svg";
  * the field track of ROW_GRID below — Tailwind only sees class names it can read
  * in the source, so that grid has to spell the number out rather than build it.
  */
-const FIELD_W = 340;
+const FIELD_W = 380;
 /**
  * Gap between the From and To menus, set so the To menu occupies exactly the
- * dose field's column: 340 + 24 = 364 = 268 + 16 + 64 + 16. The two therefore
+ * dose field's column: 380 + 24 = 404 = 308 + 16 + 64 + 16. The two therefore
  * share a left edge and a right edge, and the From / To pair ends where the dose
  * field ends.
  */
 const TIMES_GAP = 24;
 
 /** The dose rows: label · − · field · + · figure, the field track one FIELD_W. */
-const ROW_GRID = '[grid-template-columns:268px_64px_340px_64px_240px]';
+const ROW_GRID = '[grid-template-columns:308px_64px_380px_64px_160px]';
 
 /**
  * Dev aid, alongside App.tsx's `#raw=`: `#sheet=add` opens the add-delivery
@@ -285,7 +285,7 @@ export function DosingWindows() {
                     right-aligns on the same line the CHANGE figures do. */}
                 <div
                   className="grid items-center"
-                  style={{ gridTemplateColumns: `${FIELD_W}px ${FIELD_W}px 1fr`, columnGap: TIMES_GAP, rowGap: 10 }}
+                  style={{ gridTemplateColumns: `${FIELD_W}px ${FIELD_W}px 1fr`, columnGap: TIMES_GAP, rowGap: 2 }}
                 >
                   <FieldLabel>From</FieldLabel>
                   <FieldLabel>To</FieldLabel>
@@ -306,7 +306,9 @@ export function DosingWindows() {
                      margin keeps it clearly apart from the times above. */}
               <div className={`flex flex-col gap-[20px] mt-[24px] transition-opacity ${selCount === 0 ? 'opacity-40 pointer-events-none' : ''}`}>
                 <SectionHeader icon={<MedicationIcon size={48} />} title="Adjust the dose" />
-                <div className="flex flex-col gap-[20px]">
+                {/* Tight, so the column labels read as belonging to the fields
+                    below rather than floating between the heading and them. */}
+                <div className="flex flex-col gap-[4px]">
                 {/* Labels sit over the columns they name, on the same grid. */}
                 <div className={`grid items-baseline gap-[16px] ${ROW_GRID}`}>
                   <span />
@@ -315,6 +317,7 @@ export function DosingWindows() {
                   <span />
                   <span />
                 </div>
+                <div className="flex flex-col gap-[20px]">
                 {medications.map((m, i) => {
                   const editing = i === refIndex;
                   const pd = perDelivery(primaryDose, m, i);
@@ -356,6 +359,7 @@ export function DosingWindows() {
                     </div>
                   );
                 })}
+                </div>
                 </div>
 
                 {/* Sits under the control that caused it, so the value and the

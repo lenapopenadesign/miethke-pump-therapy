@@ -107,7 +107,9 @@ export function BaseDose() {
             </WarningBanner>
           )}
 
-          <div className="grid items-center gap-x-[16px] gap-y-[20px] [grid-template-columns:260px_1fr_1fr_56px]">
+          {/* A tight row gap keeps the column headers on their fields; the rows
+              themselves are 72px tall, so they stay legible without more. */}
+          <div className="grid items-center gap-x-[16px] gap-y-[12px] [grid-template-columns:260px_1fr_1fr_56px]">
             {/* Column headers above the value fields */}
             <span />
             <FieldLabel>Default delivery per day</FieldLabel>

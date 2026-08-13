@@ -26,7 +26,9 @@ export const fieldUnitCls = `${FONT} font-normal text-[#a5a5a5] text-[24px] trac
 export const fieldLabelCls = `${FONT} font-bold text-[#00769e] text-[24px] leading-[28px] tracking-[0.1px]`;
 
 export function FieldLabel({ className = '', children }: { className?: string; children: ReactNode }) {
-  return <p className={`${fieldLabelCls} pb-[8px] ${className}`} style={wdth}>{children}</p>;
+  // Sits tight to the field it names, so the two read as one control rather
+  // than as a caption floating above a box.
+  return <p className={`${fieldLabelCls} pb-[4px] ${className}`} style={wdth}>{children}</p>;
 }
 
 /**
@@ -140,7 +142,7 @@ function OptionCheck() {
 
 export type SelectOption = { value: number; label: string };
 
-const OPTION_H = 76;
+const OPTION_H = 88;
 
 /** Nearest ancestor that would clip an overflowing menu. */
 function clippingParent(el: HTMLElement | null): HTMLElement | null {
@@ -241,7 +243,7 @@ export function SelectField({
               style={{ height: OPTION_H }}
             >
               <span
-                className={`${FONT} text-[28px] tracking-[0.1px] whitespace-nowrap ${o.value === value ? 'font-bold text-[#00769e]' : 'font-normal text-[#45483c]'}`}
+                className={`${FONT} text-[32px] tracking-[0.1px] whitespace-nowrap ${o.value === value ? 'font-bold text-[#00769e]' : 'font-normal text-[#45483c]'}`}
                 style={wdth}
               >
                 {o.label}
