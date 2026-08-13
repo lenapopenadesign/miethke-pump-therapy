@@ -7,7 +7,7 @@ import {
 import { WizardShell } from '../components/WizardShell';
 import { MedicationIcon } from '../components/MedicationIcon';
 import { WizardChart, WizardTotalsFooter, SaveButton, RangeSlider, DeliveryIcon, ReadoutField, WindowsIcon, ArrowForward, SectionHeader, InfoBadge, Explainer, WarningBanner } from '../components/WizardParts';
-import { Field, fieldUnitCls, fieldValueCls } from '../components/Field';
+import { Field, FieldLabel, fieldUnitCls, fieldValueCls } from '../components/Field';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
 
@@ -110,8 +110,8 @@ export function BaseDose() {
           <div className="grid items-center gap-x-[16px] gap-y-[20px] [grid-template-columns:260px_1fr_1fr_56px]">
             {/* Column headers above the value fields */}
             <span />
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] leading-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Default delivery per day</p>
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] leading-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Dose per delivery</p>
+            <FieldLabel>Default delivery per day</FieldLabel>
+            <FieldLabel>Dose per delivery</FieldLabel>
             <span />
 
             {medications.map((m, i) => {

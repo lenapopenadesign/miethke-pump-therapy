@@ -4,7 +4,7 @@ import { useTherapy, fmtTime, concUgPerUl, coDoseUgDay, doseStringsFor, strokesP
 import { WizardShell } from '../components/WizardShell';
 import { WizardChart, WizardTotalsFooter, SaveButton, WindowsIcon, SectionHeader, StepButton, WarningBanner } from '../components/WizardParts';
 import { MedicationIcon } from '../components/MedicationIcon';
-import { Caption, Field, Readout, SelectField, fieldValueCls, fieldUnitCls } from '../components/Field';
+import { Field, FieldLabel, Readout, SelectField, fieldValueCls, fieldUnitCls } from '../components/Field';
 import { ModeToggle, DayGroupToggle, repDay } from '../components/DayToggles';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
@@ -287,8 +287,8 @@ export function DosingWindows() {
                   className="grid items-center"
                   style={{ gridTemplateColumns: `${FIELD_W}px ${FIELD_W}px 1fr`, columnGap: TIMES_GAP, rowGap: 10 }}
                 >
-                  <Caption>From</Caption>
-                  <Caption>To</Caption>
+                  <FieldLabel>From</FieldLabel>
+                  <FieldLabel>To</FieldLabel>
                   <span />
                   <SelectField name="First delivery" value={minSlot} options={slotOptions} onChange={pickFrom} />
                   <SelectField name="Last delivery" value={maxSlot} options={toOptions} onChange={pickTo} />
@@ -307,11 +307,11 @@ export function DosingWindows() {
               <div className={`flex flex-col gap-[20px] mt-[24px] transition-opacity ${selCount === 0 ? 'opacity-40 pointer-events-none' : ''}`}>
                 <SectionHeader icon={<MedicationIcon size={48} />} title="Adjust the dose" />
                 <div className="flex flex-col gap-[20px]">
-                {/* Captions sit over the columns they name, on the same grid. */}
+                {/* Labels sit over the columns they name, on the same grid. */}
                 <div className={`grid items-baseline gap-[16px] ${ROW_GRID}`}>
                   <span />
                   <span />
-                  <Caption className="whitespace-nowrap">Per delivery</Caption>
+                  <FieldLabel className="whitespace-nowrap">Per delivery</FieldLabel>
                   <span />
                   <span />
                 </div>

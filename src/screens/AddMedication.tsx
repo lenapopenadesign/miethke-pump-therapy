@@ -3,6 +3,7 @@ import { useNavigate } from '../navigation';
 import { useTherapy } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { MedicationIcon } from '../components/MedicationIcon';
+import { fieldLabelCls } from '../components/Field';
 
 const UNITS = ['mg/ml', 'µg/ml'];
 
@@ -45,7 +46,7 @@ function TrashIcon() {
 
 // These rows are plain <input>/<select> elements rather than the Field wrapper,
 // so they carry the Input_Master chrome (2377:6255) as classes instead.
-const fieldLabel = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[20px] leading-[24px] tracking-[0.1px] px-[16px] pb-[6px]";
+const fieldLabel = `${fieldLabelCls} pb-[8px]`;
 const fieldBox = "h-[72px] bg-white border border-[#a5a5a5] rounded-[8px] px-[16px] flex items-center font-['Roboto',sans-serif] font-bold text-[#45483c] text-[36px] tracking-[0.1px] w-full outline-none focus:border-[#00769e] placeholder:font-normal placeholder:text-[#a5a5a5]";
 
 export function AddMedication() {

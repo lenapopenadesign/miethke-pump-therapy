@@ -17,21 +17,16 @@ export const fieldValueCls = `${fieldValueType} text-[#45483c]`;
 export const fieldPlaceholderCls = `${fieldValueType} text-[#a5a5a5]`;
 /** The grey unit that trails a value ("mg/d", "mg/del"). */
 export const fieldUnitCls = `${FONT} font-normal text-[#a5a5a5] text-[24px] tracking-[0.1px] whitespace-nowrap`;
-/** Uppercase grey caption naming a field or a group of them. */
-export const captionCls = `${FONT} font-extrabold text-[#8c99a6] text-[22px] tracking-[1px] uppercase`;
+/**
+ * The label above a field — bold teal, sentence case, flush with the field's
+ * left edge. One definition for the whole app, so the Default Delivery table,
+ * the medication rows and the customised-delivery sheet all name their fields
+ * the same way.
+ */
+export const fieldLabelCls = `${FONT} font-bold text-[#00769e] text-[24px] leading-[28px] tracking-[0.1px]`;
 
-/** Uppercase caption above a field or a section of them. */
-export function Caption({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <p className={`${captionCls} ${className}`} style={wdth}>{children}</p>;
-}
-
-/** Bold teal caption sitting directly above a field (Input_Master's own label). */
-export function FieldLabel({ children }: { children: ReactNode }) {
-  return (
-    <p className={`${FONT} font-bold text-[#00769e] text-[20px] leading-[24px] tracking-[0.1px] px-[16px] pb-[6px]`} style={wdth}>
-      {children}
-    </p>
-  );
+export function FieldLabel({ className = '', children }: { className?: string; children: ReactNode }) {
+  return <p className={`${fieldLabelCls} pb-[8px] ${className}`} style={wdth}>{children}</p>;
 }
 
 /**
