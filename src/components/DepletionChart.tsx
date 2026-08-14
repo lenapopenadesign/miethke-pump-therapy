@@ -41,7 +41,11 @@ const FADE_W = 150;
 
 // Two markers a couple of days apart would collide. Their labels are nudged
 // apart by at least this much — the lines themselves always stay truthful.
-const MIN_LABEL_GAP = 100;
+// Sized to the widest label pair ("Empty" over "02.11"), so the gap is what
+// separates them rather than a round number that costs more room than it needs.
+const MIN_LABEL_GAP = 70;
+// Furthest a label can be centred and still sit inside the block.
+const LABEL_EDGE = W - 40;
 
 /**
  * Volumes to one decimal, dropping a trailing ".0" — so a chip and the sentence
@@ -127,11 +131,18 @@ export function DepletionChart({ fillMl, alertMl, todayLabel, alertLabel, emptyL
     { key: 'alert', x: xAlert, name: 'Alert', date: alertLabel, color: RED, nameBold: true, dateBold: false },
     { key: 'empty', x: X_EMPTY, name: 'Empty', date: emptyLabel, color: GREY_TEXT, nameBold: false, dateBold: false },
   ];
-  // Keep the rightmost label inside the block, then let each label to the left
-  // give way in turn.
+  // The alert is the marker the whole plan is read against, so it is the one
+  // that keeps its own line and the labels either side give way around it:
+  // "Empty" slides right towards the edge of the block, and everything to the
+  // left walks left in turn. (Anchoring on the rightmost marker instead would
+  // push the alert label off its red rule whenever the two fall close together,
+  // which is exactly when it matters most.)
   const labelX = marks.map(m => m.x);
-  labelX[labelX.length - 1] = Math.min(labelX[labelX.length - 1], W - 70);
-  for (let i = labelX.length - 2; i >= 0; i--) {
+  const iAlert = marks.findIndex(m => m.key === 'alert');
+  for (let i = iAlert + 1; i < labelX.length; i++) {
+    labelX[i] = Math.min(LABEL_EDGE, Math.max(labelX[i], labelX[i - 1] + MIN_LABEL_GAP));
+  }
+  for (let i = iAlert - 1; i >= 0; i--) {
     labelX[i] = Math.min(labelX[i], labelX[i + 1] - MIN_LABEL_GAP);
   }
 

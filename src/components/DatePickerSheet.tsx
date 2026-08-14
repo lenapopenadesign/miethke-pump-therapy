@@ -7,11 +7,15 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 // Monday-first, matching the European date format the app uses throughout.
 const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
+/** Parse a dd.mm.yyyy string, or null if it isn't one (the app uses 'N/A'). */
+function tryParseDate(s: string | undefined): Date | null {
+  const m = s ? /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s) : null;
+  return m ? new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])) : null;
+}
+
 /** Parse a dd.mm.yyyy string; falls back to today if it isn't well-formed. */
 export function parseDate(s: string): Date {
-  const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s);
-  if (!m) return new Date();
-  return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  return tryParseDate(s) ?? new Date();
 }
 
 /** Format a Date as dd.mm.yyyy — the app's canonical date string. */
@@ -42,14 +46,22 @@ export function DatePickerSheet({
   value,
   onPick,
   onClose,
+  alertDate,
   title = 'Refill due by',
 }: {
   value: string;
   onPick: (d: string) => void;
   onClose: () => void;
+  /**
+   * dd.mm.yyyy the pump is projected to reach its alert level. Marked in the
+   * grid in the alert red, so the day the refill is being planned against is
+   * visible while picking rather than something to remember from the chart.
+   */
+  alertDate?: string;
   title?: string;
 }) {
   const selected = parseDate(value);
+  const alert = tryParseDate(alertDate);
   // The month the grid is showing — starts on the selected date's month.
   const [cursor, setCursor] = useState(() => new Date(selected.getFullYear(), selected.getMonth(), 1));
   const today = new Date();
@@ -110,16 +122,25 @@ export function DatePickerSheet({
             const date = new Date(year, month, day);
             const isSel = sameDay(date, selected);
             const isToday = sameDay(date, today);
+            // The pick wins the cell if it lands on the alert day — what the
+            // clinician just chose outranks what they chose it against.
+            const isAlert = alert != null && sameDay(date, alert);
             return (
               <button
                 key={day}
                 onClick={() => { onPick(formatDate(date)); onClose(); }}
+                aria-label={isAlert ? `${day} — alert level reached` : undefined}
                 className={`h-[76px] rounded-[8px] flex items-center justify-center cursor-pointer ${
-                  isSel ? 'bg-[#0094c5]' : isToday ? 'bg-[#e6f4f9] border-2 border-[#0094c5]' : 'bg-[#eef6fb]'
+                  isSel ? 'bg-[#0094c5]'
+                    : isAlert ? 'bg-[rgba(204,84,87,0.2)]'
+                    : isToday ? 'bg-[#e6f4f9] border-2 border-[#0094c5]'
+                    : 'bg-[#eef6fb]'
                 }`}
               >
                 <span
-                  className={`${FONT} text-[28px] tracking-[0.1px] ${isSel ? 'font-extrabold text-white' : 'font-bold text-[#00769e]'}`}
+                  className={`${FONT} text-[28px] tracking-[0.1px] ${
+                    isSel ? 'font-extrabold text-white' : isAlert ? 'font-bold text-[#cc5457]' : 'font-bold text-[#00769e]'
+                  }`}
                   style={wdth}
                 >
                   {day}

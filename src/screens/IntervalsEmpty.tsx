@@ -22,7 +22,7 @@ const DAY_PATTERNS: { key: DayPattern; label: string }[] = [
 export function IntervalsEmpty() {
   const navigate = useNavigate();
   const { startAddingInterval, dayPattern, setDayPattern, setUseBaseOnly, baseDose, medications } = useTherapy();
-  const base = doseStringsFor(baseDose, medications[0]?.unit ?? 'µg/ml');
+  const base = doseStringsFor(baseDose, medications[0]?.unit ?? 'mcg/ml');
   const onAdd = () => { startAddingInterval('intervals-empty'); navigate('add-interval-when'); };
   const onSkip = () => { setUseBaseOnly(true); navigate('regular-therapy'); };
 

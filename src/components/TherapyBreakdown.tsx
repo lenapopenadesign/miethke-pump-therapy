@@ -40,7 +40,7 @@ function Chevron({ up }: { up?: boolean }) {
 }
 
 // Fixed value slot for the totals so their values (right-aligned) and their
-// labels ("mg/day"/"mg total") all land on the same x.
+// labels ("mg/24h"/"mg total") all land on the same x.
 const TOTAL_VAL_W = '88px';
 
 /** A single metric: bold 32px value + grey unit, baseline-aligned. `slotW` puts
@@ -59,6 +59,10 @@ function Metric({ value, unit, bold = true, slotW }: { value: string; unit: stri
  * three aligned columns — dose per delivery, delivery total, and the +/-% vs the
  * default delivery (blank for the default row itself). Mirrors the Customised
  * Delivery cards so the metrics line up the same way on every page.
+ *
+ * `totalUnit` is the finished label, not just the mass unit: the default row
+ * spans the day and reads "mg/24h", while a window row covers only its own hours
+ * and stays "mg total".
  */
 export function DeliveryRow({ label, perValue, perUnit, totalValue, totalUnit, bg }: { label: string; perValue: string; perUnit: string; totalValue: string; totalUnit: string; bg: string }) {
   return (
@@ -67,7 +71,7 @@ export function DeliveryRow({ label, perValue, perUnit, totalValue, totalUnit, b
       {/* Same 3-column template as the medication header so the totals align. */}
       <div className="rounded-[8px] h-[60px] grid items-center gap-[16px] px-[24px] [grid-template-columns:1fr_1fr_100px]" style={{ background: bg }}>
         <Metric value={perValue} unit={perUnit} bold={false} />
-        <Metric value={totalValue} unit={`${totalUnit} total`} slotW={TOTAL_VAL_W} />
+        <Metric value={totalValue} unit={totalUnit} slotW={TOTAL_VAL_W} />
         <span />
       </div>
     </div>
@@ -216,7 +220,7 @@ export function TherapyMedBreakdown({ showFrequency = true, windowsOverride }: {
                   <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] whitespace-nowrap" style={wdth}>{m.concentration} {m.unit}</span>
                 </span>
                 {/* Total 24 h value — aligned with the per-window total column below. */}
-                <Metric value={doseStringsFor(totalUg, u).perDay} unit={`${unit}/day`} slotW={TOTAL_VAL_W} />
+                <Metric value={doseStringsFor(totalUg, u).perDay} unit={`${unit}/24h`} slotW={TOTAL_VAL_W} />
                 <span className="flex justify-end"><Chevron up={expanded} /></span>
               </div>
             </button>
@@ -230,7 +234,7 @@ export function TherapyMedBreakdown({ showFrequency = true, windowsOverride }: {
                   perValue={doseStringsFor(baseUg / bolusN, u).perDay}
                   perUnit={`${unit}/delivery`}
                   totalValue={doseStringsFor((baseUg / bolusN) * defaultDeliveryCount, u).perDay}
-                  totalUnit={unit}
+                  totalUnit={`${unit}/24h`}
                   bg={ROW_BG}
                 />
                 {/* Each window: the dose delivered in a single delivery during it,
@@ -249,7 +253,7 @@ export function TherapyMedBreakdown({ showFrequency = true, windowsOverride }: {
                       perValue={doseStringsFor(rateUg / bolusN, u).perDay}
                       perUnit={`${unit}/delivery`}
                       totalValue={doseStringsFor(totalUg, u).perDay}
-                      totalUnit={unit}
+                      totalUnit={`${unit} total`}
                       bg={ROW_BG}
                     />
                   );

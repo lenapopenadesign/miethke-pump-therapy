@@ -2,19 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy, REFILL_MIN_LEAD_DAYS, MIN_ALERT_ML, MAX_ALERT_ML } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
-import { WizardTotalsFooter, SaveButton, StepButton, ToggleSwitch, Explainer } from '../components/WizardParts';
-import { Field, fieldValueCls, fieldUnitCls } from '../components/Field';
+import { WizardTotalsFooter, SaveButton, StepButton, ToggleSwitch, Explainer, CalendarIcon } from '../components/WizardParts';
+import { Field, Readout, fieldValueCls, fieldUnitCls, readoutUnitCls, readoutValueCls } from '../components/Field';
 import { DatePickerSheet } from '../components/DatePickerSheet';
 import { DepletionChart } from '../components/DepletionChart';
 
-const imgEditPencil = "/icons/edit-pencil.svg";
-
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 const FONT = "font-['Roboto',sans-serif]";
-
-// A refill more than three months ahead of the alarm says more about a stalled
-// therapy than about planning, so the stepper stops there.
-const MAX_LEAD_WEEKS = 12;
 
 /** dd.mm — the short form the chart puts under a projected marker. */
 function shortDate(date: string) {
@@ -93,14 +87,9 @@ export function RefillDate() {
 
   const noTherapy = daysToAlert == null;
 
-  // The refill can be no later than a week before the alarm, and no earlier
-  // than today — which caps how far the lead can be stepped out.
-  const maxLead = noTherapy ? 0 : Math.floor(daysToAlert / 7);
+  // How much headroom the chosen date leaves before the alarm. Derived from the
+  // date rather than set alongside it, so the two can never disagree.
   const leadDays = refillLeadDays ?? 0;
-  const stepLead = (deltaWeeks: number) => {
-    const weeks = Math.floor(leadDays / 7) + deltaWeeks;
-    setRefillLeadWeeks(Math.max(1, Math.min(MAX_LEAD_WEEKS, maxLead, weeks)));
-  };
 
   const clampAlert = (ml: number) => Math.min(MAX_ALERT_ML, Math.max(MIN_ALERT_ML, ml));
 
@@ -130,6 +119,7 @@ export function RefillDate() {
         <DatePickerSheet
           value={refillDate}
           onPick={setRefillDate}
+          alertDate={noTherapy ? undefined : alertDate}
           onClose={() => setPickerOpen(false)}
         />
       )}
@@ -137,17 +127,7 @@ export function RefillDate() {
       <div className="flex-1 flex flex-col gap-[80px]">
         {/* The refill date, and the two ways of setting it */}
         <div className="flex flex-col gap-[40px]">
-          <SectionTitle
-            icon={
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" className="shrink-0">
-                <rect x="3" y="5" width="18" height="16" rx="2.5" stroke="#0094c5" strokeWidth="1.6" />
-                <path d="M3 10h18" stroke="#0094c5" strokeWidth="1.6" />
-                <path d="M8 3v4M16 3v4" stroke="#0094c5" strokeWidth="1.6" strokeLinecap="round" />
-              </svg>
-            }
-          >
-            Set the refill date
-          </SectionTitle>
+          <SectionTitle icon={<CalendarIcon size={56} />}>Set the refill date</SectionTitle>
 
           <DepletionChart
             fillMl={fillMl}
@@ -158,30 +138,26 @@ export function RefillDate() {
             refill={noTherapy ? null : { ml: levelAtRefill, label: shortDate(refillDate) }}
           />
 
-          {/* The lead and the date are two views of one setting */}
-          <FieldRow label="Refill ahead of the alert">
-            <Stepper
-              value={`${leadDays}`}
-              unit="days"
-              minusDisabled={noTherapy || leadDays <= REFILL_MIN_LEAD_DAYS}
-              plusDisabled={noTherapy || leadDays >= Math.min(MAX_LEAD_WEEKS * 7, maxLead * 7)}
-              onMinus={() => stepLead(-1)}
-              onPlus={() => stepLead(1)}
-            />
+          {/* The date is the decision — a white field, picked from the calendar.
+              The lead follows from it, so it reads as a derived light blue
+              readout below rather than as a second control to reconcile. */}
+          <FieldRow label="Refill date on">
+            <button
+              onClick={() => setPickerOpen(true)}
+              aria-label="Pick the refill date"
+              className="cursor-pointer text-left shrink-0"
+            >
+              <Field style={{ width: 427 }}>
+                <p className={fieldValueCls} style={wdth}>{refillDate}</p>
+              </Field>
+            </button>
           </FieldRow>
 
-          <FieldRow label="Refill date on">
-            <div className="flex gap-[16px] items-center shrink-0">
-              <div
-                onClick={() => setPickerOpen(true)}
-                className="bg-[#e6f4f9] rounded-[8px] h-[76px] w-[427px] flex items-center pl-[24px] cursor-pointer"
-              >
-                <p className={`${FONT} font-extrabold text-[#00769e] text-[32px] whitespace-nowrap`} style={wdth}>{refillDate}</p>
-              </div>
-              <div onClick={() => setPickerOpen(true)} className="w-[64px] flex justify-center cursor-pointer shrink-0">
-                <img alt="Pick the refill date" src={imgEditPencil} className="size-[40px] block" />
-              </div>
-            </div>
+          <FieldRow label="Days ahead of the alert">
+            <Readout className="w-[427px] shrink-0">
+              <span className={readoutValueCls} style={wdth}>{noTherapy ? '--' : leadDays}</span>
+              <span className={readoutUnitCls} style={wdth}>days</span>
+            </Readout>
           </FieldRow>
 
           {noTherapy ? (

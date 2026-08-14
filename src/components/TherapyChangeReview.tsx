@@ -7,6 +7,7 @@ import {
   estimatedDailyTotal,
   windowDeliverySpan,
   fmtTime,
+  splitNum,
   type Interval,
   type Medication,
   type BeforeTherapy,
@@ -29,13 +30,20 @@ const GOLD = '#b3850e';
 
 // Outer row: label · before chip · arrow · after chip · change-icon/chevron. The
 // after column is a touch wider than the before column so its % never gets cut.
-const GRID = 'grid items-center gap-[8px] [grid-template-columns:138px_0.9fr_24px_1.1fr_32px]';
+// The label column is sized to "Medication", the longest one that has to stay on
+// a single line, and no wider — the chips need the rest.
+const GRID = 'grid items-center gap-[8px] [grid-template-columns:120px_0.95fr_24px_1.1fr_32px]';
 // Inside every chip: main (per-delivery / med name) · total integer · total
 // fraction + word · % — split at the decimal so the totals line up in a column.
 // The before chip carries no %, so its trailing column is minimal; the after chip
 // gives the % a wide slot so 2–3 digit changes fit.
-const CHIP_BEFORE = 'rounded-[8px] h-[60px] grid items-baseline content-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_152px_16px]';
-const CHIP_AFTER = 'rounded-[8px] h-[60px] grid items-baseline content-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_152px_78px]';
+//
+// The totals column has to hold INT_W + FRAC_W + the trailing unit, and units run
+// as long as "mcg/24h" (179px all told). Anything narrower pushes the unit under
+// the % beside it, so the column is sized to that worst case and the main column
+// — which never needs more than ~135px, for "0.010 mg/del" — gives up the room.
+const CHIP_BEFORE = 'rounded-[8px] h-[60px] grid items-baseline content-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_184px_16px]';
+const CHIP_AFTER = 'rounded-[8px] h-[60px] grid items-baseline content-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_184px_78px]';
 // Right-aligned integer box + fixed fraction box: the decimal point lands on one
 // x (digits stay joined, "1.6") AND the trailing label ("total"/"mg/day") always
 // starts on the same x, since the fraction slot is a constant width.
@@ -44,12 +52,6 @@ const FRAC_W = '64px';
 
 const BEFORE_COLOR = '#00769e';
 const AFTER_COLOR = GOLD; // dark yellow — the whole "after" section reads in this
-
-// Split a number string at the decimal point: "1.2"→["1","2"], "105"→["105",""].
-function splitNum(s: string): [string, string] {
-  const i = s.indexOf('.');
-  return i === -1 ? [s, ''] : [s.slice(0, i), s.slice(i + 1)];
-}
 
 type Val = { value: string; ug: number };
 type Cell = { v: Val; total: Val | null } | null;
@@ -295,7 +297,7 @@ export function TherapyChangeReview() {
         return (
           <div key={m.id} className="flex flex-col gap-[12px]">
             <MedHeaderRow
-              unit={`${aMed.unitLabel}/d`}
+              unit={`${aMed.unitLabel}/24h`}
               before={bMed ? { name: bMed.name, concentration: bMed.concentration, total: bMed.total24h } : null}
               after={{ name: aMed.name, concentration: aMed.concentration, total: aMed.total24h }}
               expanded={expandedId === m.id}

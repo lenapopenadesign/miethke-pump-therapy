@@ -39,7 +39,7 @@ export function MedSummary({
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const bolusN = Math.max(1, bolusCount ?? 1);
   const co = (ug: number, m: Medication, i: number) => (i === 0 ? ug : coDoseUgDay(ug, c0, concUgPerUl(m)));
-  const perDay = (ug: number, unit: string) => ({ value: doseStringsFor(ug, unit).perDay, unit: `${doseStringsFor(0, unit).unit}/d` });
+  const perDay = (ug: number, unit: string) => ({ value: doseStringsFor(ug, unit).perDay, unit: `${doseStringsFor(0, unit).unit}/24h` });
   const perDel = (ug: number, unit: string) => ({ value: doseStringsFor(ug / bolusN, unit).perDay, unit: `${doseStringsFor(0, unit).unit}/del` });
 
   const showBase = baseDose != null;

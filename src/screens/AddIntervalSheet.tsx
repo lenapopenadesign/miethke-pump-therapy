@@ -168,7 +168,7 @@ function SheetFooter({
 export function AddIntervalSheetWhen() {
   const navigate = useNavigate();
   const { baseDose, draft, setDraft, intervals, editingId, removeInterval, sheetReturnTo, medications } = useTherapy();
-  const primaryUnit = medications[0]?.unit ?? 'µg/ml';
+  const primaryUnit = medications[0]?.unit ?? 'mcg/ml';
   const cancelTarget = (sheetReturnTo === 'intervals-populated' && intervals.length === 0)
     ? 'intervals-empty'
     : sheetReturnTo;
@@ -240,7 +240,7 @@ export function AddIntervalSheetDose() {
   // Interval dose stored as µg/day; UI works in µg/h. Step = 1 µg/h ≈ 24 µg/day.
   const pctDelta = baseDose > 0 ? Math.round(((draft.dose - baseDose) / baseDose) * 100) : 0;
   const primaryConc = medications[0] ? concUgPerUl(medications[0]) : 1;
-  const primaryUnit = medications[0]?.unit ?? 'µg/ml';
+  const primaryUnit = medications[0]?.unit ?? 'mcg/ml';
   const primaryDiv = doseUnitFor(primaryUnit).div; // µg per displayed unit
   const primaryDose = doseStringsFor(draft.dose, primaryUnit);
   const coMeds = medications.slice(1);
@@ -354,7 +354,7 @@ function DerivedRow({
 }: {
   label: string;
   concentration: string;
-  unit: string;         // co-med concentration unit (drives mg vs µg display)
+  unit: string;         // co-med concentration unit (drives mg vs mcg display)
   ugDay: number;        // co-med dose at the primary's interval rate (µg/day)
   lengthFraction: number; // interval length as a fraction of the day
   top: number;

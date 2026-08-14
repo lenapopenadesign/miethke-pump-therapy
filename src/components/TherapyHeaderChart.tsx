@@ -30,7 +30,7 @@ export function TherapyTotalsBand() {
   const medTotal = (m: typeof medications[number], i: number) =>
     active ? doseStringsFor(medUgDay(m, i), m.unit).perDay : '--';
   const medUnit = (m: typeof medications[number]) =>
-    `${doseStringsFor(0, m.unit).unit}/day`;
+    `${doseStringsFor(0, m.unit).unit}/24h`;
 
   return (
     <div className="w-full bg-[#00769e] flex items-start justify-between px-[80px] pt-[28px] pb-[24px]">

@@ -6,10 +6,12 @@ import {
   estimatedDailyTotal,
   dailyVolumeUl,
   fmtTime,
+  splitNum,
   type Interval,
 } from '../therapy';
-import { useRef, type ReactNode } from 'react';
+import { Fragment, useRef, type ReactNode } from 'react';
 import { BolusBars, PerDelAxis, HourAxis, SELECTED_BAR, SELECTION_BAND } from './TherapyHeaderChart';
+import { readoutValueCls } from './Field';
 
 const CARD_H = 214;
 const BASELINE_FROM_BOTTOM = 78; // two label rows below the baseline: window times, then the hour axis
@@ -300,7 +302,7 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOv
     i === 0 ? primaryDailyUg : coDoseUgDay(primaryDailyUg, c0, concUgPerUl(m));
   const medTotal = (m: typeof medications[number], i: number) =>
     active ? doseStringsFor(medUgDay(m, i), m.unit).perDay : '--';
-  const medUnit = (m: typeof medications[number]) => `${doseStringsFor(0, m.unit).unit}/d`;
+  const medUnit = (m: typeof medications[number]) => `${doseStringsFor(0, m.unit).unit}/24h`;
 
   // What the edit in progress adds to the day, shown beside the total it lands
   // in — the editor passes the schedule as it stands without that edit. Answers
@@ -319,7 +321,7 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOv
   // Daily delivered volume of the reservoir mixture (µl → ml), fixed by the dose
   // regardless of how it's split into deliveries. Trim trailing zeros (1.50→1.5).
   const volMlDay = active ? dailyVolumeUl(primaryDailyUg, c0) / 1000 : 0;
-  const volLabel = `${(Math.round(volMlDay * 100) / 100).toString()} ml / day`;
+  const volLabel = `${(Math.round(volMlDay * 100) / 100).toString()} ml / 24h`;
 
   const wdth = { fontVariationSettings: "'wdth' 100" } as const;
   return (
@@ -329,12 +331,12 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOv
         <div className="flex items-center gap-[12px]">
           <div className="border-2 border-[#0094c5] rounded-[40px] px-[26px] py-[8px]">
             <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>
-              {active && bolusCount > 0 ? `${bolusCount} deliveries / day` : '— deliveries / day'}
+              {active && bolusCount > 0 ? `${bolusCount} deliveries / 24h` : '— deliveries / 24h'}
             </span>
           </div>
           <div className="border-2 border-[#0094c5] rounded-[40px] px-[26px] py-[8px]">
             <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>
-              {active ? volLabel : '— ml / day'}
+              {active ? volLabel : '— ml / 24h'}
             </span>
           </div>
         </div>
@@ -342,10 +344,18 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOv
           <span className="font-['Roboto',sans-serif] font-bold text-white text-[32px] tracking-[0.1px]" style={wdth}>Total per 24 h</span>
         </div>
       </div>
-      {/* Compact per-medication daily totals: name · concentration · value */}
-      <div className="flex flex-col gap-[2px]">
-        {medications.map((m, i) => (
-          <div key={m.id} className="flex items-baseline justify-between gap-[24px]">
+      {/* Compact per-medication daily totals: name · concentration · value.
+          One grid for every medication rather than a row each, so the columns
+          size themselves to the widest entry: the totals' decimal points land on
+          a single x and the units end flush right, whatever the digits do. The
+          integer and fraction sit in adjacent columns with no gap between them,
+          so "15.0" still reads as one number. */}
+      <div className="grid items-baseline gap-y-[2px] [grid-template-columns:1fr_auto_auto_auto_auto]">
+        {medications.map((m, i) => {
+          const [ip, fp] = splitNum(medTotal(m, i));
+          const delta = medDelta(m, i);
+          return (
+          <Fragment key={m.id}>
             <p className="whitespace-nowrap" style={wdth}>
               <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]">{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
               <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[32px] tracking-[0.1px] ml-[16px]">{m.concentration} {m.unit}</span>
@@ -353,16 +363,13 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOv
             {/* The day's total per medication is what the footer is for, so it
                 is set a size above the name and concentration beside it — and,
                 while an edit is open, what that edit contributes to it. */}
-            <p className="flex items-baseline justify-end gap-[24px] whitespace-nowrap" style={wdth}>
-              {medDelta(m, i) && (
-                <span className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] tracking-[0.1px]">{medDelta(m, i)}</span>
-              )}
-              <span>
-                <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[44px] leading-[52px] tracking-[0.1px]">{medTotal(m, i)}</span> <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[26px]">{medUnit(m)}</span>
-              </span>
-            </p>
-          </div>
-        ))}
+            <span className={`font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] tracking-[0.1px] whitespace-nowrap ${delta ? 'px-[24px]' : ''}`} style={wdth}>{delta}</span>
+            <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[44px] leading-[52px] tracking-[0.1px] text-right" style={wdth}>{ip}</span>
+            <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[44px] leading-[52px] tracking-[0.1px]" style={wdth}>{fp && `.${fp}`}</span>
+            <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[26px] text-right ml-[10px]" style={wdth}>{medUnit(m)}</span>
+          </Fragment>
+          );
+        })}
       </div>
     </div>
   );
@@ -400,6 +407,24 @@ export function ArrowForward({ size = 40 }: { size?: number }) {
   return (
     <div className="relative shrink-0 overflow-clip" style={{ width: size, height: size }}>
       <img src="/icons/arrow-forward.svg" alt="" className="absolute left-0 block" style={{ width: size, height: size * 0.6239, top: size * 0.2 }} />
+    </div>
+  );
+}
+
+/**
+ * Calendar glyph titling the Refill Date step and its Review section (Figma
+ * "calendar" icon, 2340:27709). The exported glyph is 27 × 28 and Figma insets
+ * it 17.5%/15% inside its icon box, so it is drawn at that ratio rather than
+ * stretched to fill the box.
+ */
+export function CalendarIcon({ size = 56 }: { size?: number }) {
+  return (
+    <div className="relative shrink-0 overflow-clip" style={{ width: size, height: size }}>
+      <img
+        src="/icons/step-refill-date.svg" alt=""
+        className="absolute block"
+        style={{ width: size * 0.675, height: size * 0.7, left: size * 0.175, top: size * 0.15 }}
+      />
     </div>
   );
 }
@@ -455,7 +480,7 @@ export function RangeSlider({ min, max, value, disabled, steps, onChange }: { mi
 export function ReadoutField({ children }: { children: ReactNode }) {
   return (
     <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[24px] w-full">
-      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{children}</p>
+      <p className={readoutValueCls} style={{ fontVariationSettings: "'wdth' 100" }}>{children}</p>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { WizardShell } from '../components/WizardShell';
 import { MedicationIcon } from '../components/MedicationIcon';
 import { fieldLabelCls } from '../components/Field';
 
-const UNITS = ['mg/ml', 'µg/ml'];
+const UNITS = ['mg/ml', 'mcg/ml'];
 
 /**
  * Decimal concentration input. Keeps a local text buffer while editing so

@@ -7,7 +7,7 @@ import {
 import { WizardShell } from '../components/WizardShell';
 import { MedicationIcon } from '../components/MedicationIcon';
 import { WizardChart, WizardTotalsFooter, SaveButton, RangeSlider, DeliveryIcon, ReadoutField, WindowsIcon, ArrowForward, SectionHeader, InfoBadge, Explainer, WarningBanner } from '../components/WizardParts';
-import { Field, FieldLabel, fieldUnitCls, fieldValueCls } from '../components/Field';
+import { Field, FieldLabel, Readout, fieldUnitCls, fieldValueCls, readoutUnitCls, readoutValueCls } from '../components/Field';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
 
@@ -145,22 +145,20 @@ export function BaseDose() {
                         placeholder="0"
                         style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
                       />
-                      <span className={fieldUnitCls} style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/d</span>
+                      <span className={fieldUnitCls} style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/24h</span>
                     </Field>
                   ) : (
-                    <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[20px]">
-                      <p className="font-['Roboto',sans-serif] text-[#00769e] text-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                        <span className="font-bold">{d.perDay || '--'}</span> <span className="font-normal text-[#5f8aa0]">{d.unit}/d</span>
-                      </p>
-                    </div>
+                    <Readout>
+                      <span className={readoutValueCls} style={{ fontVariationSettings: "'wdth' 100" }}>{d.perDay || '--'}</span>
+                      <span className={readoutUnitCls} style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/24h</span>
+                    </Readout>
                   )}
 
                   {/* Dose per delivery — derived from the daily dose ÷ delivery frequency */}
-                  <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[20px]">
-                    <p className="font-['Roboto',sans-serif] text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                      <span className="font-bold">{perDelivery ? `~ ${perDelivery}` : '--'}</span> <span className="font-normal text-[#5f8aa0]">{d.unit}</span>
-                    </p>
-                  </div>
+                  <Readout>
+                    <span className={readoutValueCls} style={{ fontVariationSettings: "'wdth' 100" }}>{perDelivery ? `~ ${perDelivery}` : '--'}</span>
+                    <span className={readoutUnitCls} style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/del</span>
+                  </Readout>
 
                   {editing ? <span /> : (
                     <img

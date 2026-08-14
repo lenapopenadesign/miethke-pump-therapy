@@ -15,8 +15,18 @@ const fieldValueType = `${FONT} font-bold text-[36px] tracking-[0.1px]`;
 export const fieldValueCls = `${fieldValueType} text-[#45483c]`;
 /** The same type, greyed — an empty field, or one showing a placeholder. */
 export const fieldPlaceholderCls = `${fieldValueType} text-[#a5a5a5]`;
-/** The grey unit that trails a value ("mg/d", "mg/del"). */
+/** The grey unit that trails a value ("mg/24h", "mg/del"). */
 export const fieldUnitCls = `${FONT} font-normal text-[#a5a5a5] text-[24px] tracking-[0.1px] whitespace-nowrap`;
+
+// One definition of how a derived value reads inside a {@link Readout} — the
+// light blue box. The Default Delivery table and the Customised Delivery rows
+// show the same kind of number, so they state it at the same two sizes: the
+// value a size below an editable field's (it is read, not typed into), and the
+// unit a size below the value again, in the quieter blue-grey.
+/** Value typography inside a {@link Readout}. */
+export const readoutValueCls = `${FONT} font-bold text-[#00769e] text-[32px] tracking-[0.1px] whitespace-nowrap`;
+/** The unit trailing a {@link Readout} value. */
+export const readoutUnitCls = `${FONT} font-normal text-[#5f8aa0] text-[24px] tracking-[0.1px] whitespace-nowrap`;
 /**
  * The label above a field — bold teal, sentence case, flush with the field's
  * left edge. One definition for the whole app, so the Default Delivery table,

@@ -4,7 +4,7 @@ import { useTherapy, fmtTime, concUgPerUl, coDoseUgDay, doseStringsFor, strokesP
 import { WizardShell } from '../components/WizardShell';
 import { WizardChart, WizardTotalsFooter, SaveButton, WindowsIcon, SectionHeader, StepButton, WarningBanner } from '../components/WizardParts';
 import { MedicationIcon } from '../components/MedicationIcon';
-import { Field, FieldLabel, Readout, SelectField, fieldValueCls, fieldUnitCls } from '../components/Field';
+import { Field, FieldLabel, Readout, SelectField, fieldValueCls, fieldUnitCls, readoutUnitCls, readoutValueCls } from '../components/Field';
 import { ModeToggle, DayGroupToggle, repDay } from '../components/DayToggles';
 
 const imgEditPencil = "/icons/edit-pencil.svg";
@@ -340,8 +340,8 @@ export function DosingWindows() {
                         </Field>
                       ) : (
                         <Readout>
-                          <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px]" style={{ fontVariationSettings: "'wdth' 100" }}>{pd.value}</span>
-                          <span className="font-['Roboto',sans-serif] font-normal text-[#5e8aa1] text-[24px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{pd.unit}</span>
+                          <span className={readoutValueCls} style={{ fontVariationSettings: "'wdth' 100" }}>{pd.value}</span>
+                          <span className={readoutUnitCls} style={{ fontVariationSettings: "'wdth' 100" }}>{pd.unit}</span>
                         </Readout>
                       )}
 

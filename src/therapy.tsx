@@ -365,7 +365,7 @@ function uid() {
 const ACTIVE_BASE_DOSE = 500; // µg/day Morphine (= 0.5 mg/day @ 1 mg/mL)
 const ACTIVE_MEDICATIONS: Medication[] = [
   { id: 'med-morphine', name: 'Morphine', concentration: 1,  unit: 'mg/ml' },
-  { id: 'med-baclofen', name: 'Baclofen', concentration: 30, unit: 'mg/ml' },
+  { id: 'med-baclofen', name: 'Baclofen', concentration: 30, unit: 'mcg/ml' },
 ];
 // Default example: a plain default delivery at the default (max) frequency and no
 // customised delivery windows — a flat 0.5 mg/day. The customised-delivery flow
@@ -436,10 +436,11 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   // date the clinician picked from the calendar instead.
   const [refillDateOverride, setRefillDateOverride] = useState<string | null>(null);
   // ...or, in the other direction, a lead time: refill this many weeks before
-  // the reservoir reaches the alert level. One week is the floor, so the plan
-  // can never land on the day the alarm fires; the default sits a week clear of
-  // that floor so the lead can be stepped either way on arrival.
-  const [refillLeadWeeks, setRefillLeadWeeksRaw] = useState<number | null>(2);
+  // the reservoir reaches the alert level. One week is both the floor — so the
+  // plan can never land on the day the alarm fires — and the default: the step
+  // opens on the latest date that still clears the alarm, and the clinician
+  // moves it earlier from there.
+  const [refillLeadWeeks, setRefillLeadWeeksRaw] = useState<number | null>(1);
   // The two ways of setting the date are exclusive — picking one clears the other.
   const setRefillDate = (d: string | null) => {
     setRefillDateOverride(d);
@@ -745,12 +746,12 @@ export const hourlyUg = (dailyUg: number) => dailyUg / 24;
 
 /**
  * A medication's concentration in canonical µg/µL (= µg per microlitre).
- * 1 mg/mL = 1 µg/µL; 1 µg/mL = 0.001 µg/µL. Use this whenever concentrations of
- * different medications are compared, since the reservoir mixes mg/mL and µg/mL
+ * 1 mg/mL = 1 µg/µL; 1 mcg/mL = 0.001 µg/µL. Use this whenever concentrations of
+ * different medications are compared, since the reservoir mixes mg/mL and mcg/mL
  * agents and raw values are not directly comparable.
  */
 export function concUgPerUl(m: Medication): number {
-  return m.unit.includes('µg') ? m.concentration / 1000 : m.concentration;
+  return m.unit.includes('mcg') ? m.concentration / 1000 : m.concentration;
 }
 
 /**
@@ -766,24 +767,32 @@ export function coDoseUgDay(primaryUgDay: number, primaryConc: number, medConc: 
 }
 
 /**
- * The mass-unit family ('mg' or 'µg') implied by a medication's concentration
- * unit. A drug dosed at mg/ml is reported in mg; one at µg/ml is reported in µg.
- * `div` converts an internal µg amount into that unit.
+ * The mass-unit family ('mg' or 'mcg') implied by a medication's concentration
+ * unit. A drug dosed at mg/ml is reported in mg; one at mcg/ml is reported in
+ * mcg. `div` converts an internal µg amount into that unit.
  */
-export function doseUnitFor(concUnit: string): { unit: 'mg' | 'µg'; div: number } {
-  return concUnit.includes('µg') ? { unit: 'µg', div: 1 } : { unit: 'mg', div: 1000 };
+export function doseUnitFor(concUnit: string): { unit: 'mg' | 'mcg'; div: number } {
+  return concUnit.includes('mcg') ? { unit: 'mcg', div: 1 } : { unit: 'mg', div: 1000 };
 }
 
-// Adaptive formatter: integer-ish above 100, more decimals as the value shrinks
-// (mg doses are numerically tiny). Keeps ~3 significant figures.
+// Every dose reads to two decimal places, whatever its magnitude. The same dose
+// is quoted in several places at once — the default-delivery table, the
+// per-delivery columns, the 24 h totals, the review's before/after — and a fixed
+// precision is what makes those read as one number rather than as several
+// roundings of it. Doses only; volumes, counts and times format themselves.
 export function fmtDose(v: number): string {
-  if (!isFinite(v) || v === 0) return '0';
-  const a = Math.abs(v);
-  if (a >= 100) return Math.round(v).toString();
-  if (a >= 1) return v.toFixed(1);
-  if (a >= 0.1) return v.toFixed(2);
-  if (a >= 0.01) return v.toFixed(3);
-  return v.toFixed(4);
+  if (!isFinite(v)) return '0.00';
+  return v.toFixed(2);
+}
+
+/**
+ * Split a formatted number at its decimal point: "1.2"→["1","2"], "105"→["105",""].
+ * Screens that stack doses in a column render the two halves in separate cells so
+ * every decimal point lands on one x, however many digits precede it.
+ */
+export function splitNum(s: string): [string, string] {
+  const i = s.indexOf('.');
+  return i === -1 ? [s, ''] : [s.slice(0, i), s.slice(i + 1)];
 }
 
 /**
@@ -805,7 +814,7 @@ export function doseStrings(ugDay: number): { unit: string; perDay: string; perH
   const useMg = ugDay >= 1000;
   const div = useMg ? 1000 : 1;
   const fmt = (v: number) => (useMg ? v.toFixed(2) : v >= 100 ? Math.round(v).toString() : v.toFixed(1));
-  return { unit: useMg ? 'mg' : 'µg', perDay: fmt(ugDay / div), perHour: fmt(ugDay / 24 / div) };
+  return { unit: useMg ? 'mg' : 'mcg', perDay: fmt(ugDay / div), perHour: fmt(ugDay / 24 / div) };
 }
 
 /**

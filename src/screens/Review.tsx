@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from '../navigation';
 import { WizardShell } from '../components/WizardShell';
-import { WizardTotalsFooter, SaveButton } from '../components/WizardParts';
+import { WizardTotalsFooter, SaveButton, CalendarIcon } from '../components/WizardParts';
 import { TherapyChartCard } from '../components/TherapyBreakdown';
 import { TherapyChangeReview } from '../components/TherapyChangeReview';
 import { useTherapy } from '../therapy';
@@ -11,13 +11,13 @@ const PATIENT = { name: 'Frida Kenton', dob: '01.04.1984', id: '930230393' };
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 const FONT = "font-['Roboto',sans-serif]";
 
-/** One label + value line of the Fill level alert summary. */
-function AlertRow({ label, value, unit }: { label: string; value: string; unit?: string }) {
+/** One label + value line of a refill summary section (Figma 5194:58141). */
+function SummaryRow({ label, value, unit }: { label: string; value: string; unit?: string }) {
   return (
-    <div className="grid grid-cols-[138px_1fr] gap-[24px] items-center">
+    <div className="grid grid-cols-[213px_1fr] gap-[16px] items-center">
       <p className={`${FONT} font-bold text-[#00769e] text-[24px] tracking-[0.1px]`} style={wdth}>{label}</p>
-      <div className="bg-[#eef6fb] rounded-[8px] h-[60px] flex items-baseline gap-[8px] px-[24px]">
-        <p className={`${FONT} font-bold text-[#00769e] text-[28px] leading-[60px] tracking-[0.1px]`} style={wdth}>{value}</p>
+      <div className="bg-[#e6f4f9] rounded-[8px] h-[60px] flex items-baseline gap-[8px] px-[24px]">
+        <p className={`${FONT} font-extrabold text-[#00769e] text-[32px] leading-[60px] tracking-[0.1px]`} style={wdth}>{value}</p>
         {unit && <p className={`${FONT} font-normal text-[#5f8aa0] text-[22px]`} style={wdth}>{unit}</p>}
       </div>
     </div>
@@ -25,25 +25,21 @@ function AlertRow({ label, value, unit }: { label: string; value: string; unit?:
 }
 
 /**
- * Refill-only summary of the Refill Date step, so the
- * clinician confirms the threshold and the refill they planned against it
- * alongside the therapy changes. The date the alert is projected to fire is
- * left to those steps — it is a consequence of the two settings here, not a
- * third thing to confirm.
+ * Refill-only summary of the Refill Date step (Figma 9718:48194), so the day the
+ * patient is being booked in for is confirmed alongside the therapy changes.
+ * Only the date: the alert level behind it is a threshold the step leaves alone
+ * unless asked, and the projected alarm date is a consequence of the two rather
+ * than a third thing to sign off.
  */
-function FillLevelAlertSection() {
-  const { alertLevelMl, refillDate } = useTherapy();
+function RefillDateSection() {
+  const { refillDate } = useTherapy();
   return (
     <div className="flex flex-col gap-[24px] pt-[32px] border-t border-[#0094c5]">
       <div className="flex gap-[16px] items-center">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-          <path d="M12 3a6 6 0 00-6 6c0 4-1.5 5.5-2 6.5h16c-.5-1-2-2.5-2-6.5a6 6 0 00-6-6z" stroke="#0094c5" strokeWidth="1.6" strokeLinejoin="round" />
-          <path d="M10 19a2 2 0 004 0" stroke="#0094c5" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-        <p className={`${FONT} font-bold text-[#00769e] text-[30px] tracking-[0.1px]`} style={wdth}>Fill level alert</p>
+        <CalendarIcon size={40} />
+        <p className={`${FONT} font-bold text-[#00769e] text-[32px] leading-[48px] tracking-[0.1px]`} style={wdth}>Refill date</p>
       </div>
-      <AlertRow label="Alert level" value={`${alertLevelMl}`} unit="ml" />
-      <AlertRow label="Refill due by" value={refillDate} />
+      <SummaryRow label="Scheduled for" value={refillDate} />
     </div>
   );
 }
@@ -92,7 +88,7 @@ export function Review() {
       {/* Scrollable before/after comparison of the committed vs. edited therapy. */}
       <div className="flex flex-col gap-[32px]">
         <TherapyChangeReview />
-        {isRefill && <FillLevelAlertSection />}
+        {isRefill && <RefillDateSection />}
       </div>
     </WizardShell>
   );

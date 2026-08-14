@@ -57,7 +57,7 @@ export function RegularTherapy() {
   const selectedIdx = STROKE_OPTIONS.findIndex(o => o.bundle === strokeStrategy);
   const selected = STROKE_OPTIONS[selectedIdx >= 0 ? selectedIdx : 0];
   const plan = deliveryPlan(baseDose, selected.intervalMin);
-  const { unit, div } = doseUnitFor(medications[0]?.unit ?? 'µg/ml');
+  const { unit, div } = doseUnitFor(medications[0]?.unit ?? 'mcg/ml');
   const perDeliveryStr = fmtDose(plan.dosePerDelivery / div);
 
   return (
@@ -96,7 +96,7 @@ export function RegularTherapy() {
               baseDose={baseDose}
             />
             <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-              {Math.round(plan.deliveriesPerDay)} deliveries/day
+              {Math.round(plan.deliveriesPerDay)} deliveries/24h
             </p>
           </div>
 

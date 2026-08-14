@@ -69,7 +69,7 @@ export function IntervalsPopulated() {
   const onAdd = () => { startAddingInterval('intervals-populated', scope); navigate('add-interval-when'); };
   const onEdit = (id: string) => { startEditingInterval(id, 'intervals-populated', scope); navigate('add-interval-when'); };
   const ordered = [...activeSet].sort((a, b) => a.startMin - b.startMin);
-  const primaryUnit = medications[0]?.unit ?? 'µg/ml';
+  const primaryUnit = medications[0]?.unit ?? 'mcg/ml';
   const estDaily = estimatedDailyTotal(baseDose, activeSet);
   const chipDefs = dayPattern === 'per-day' ? PER_DAY_CHIPS : WEEKDAY_WEEKEND_CHIPS;
 
