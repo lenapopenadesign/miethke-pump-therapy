@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtDose, doseUnitFor, concUgPerUl, coDoseUgDay, BOLUS_VOLUME_UL } from '../therapy';
+import { useTherapy, fmtPerDelivery, doseUnitFor, concUgPerUl, coDoseUgDay, BOLUS_VOLUME_UL } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { TherapyHeaderChart } from '../components/TherapyHeaderChart';
 
@@ -35,10 +35,10 @@ function RangeSlider({ min, max, value, disabled, steps, onChange }: { min: numb
       onPointerMove={e => { if (disabled) return; if (!e.currentTarget.hasPointerCapture(e.pointerId)) return; setFromX(e.clientX); }}
       className={`relative w-full h-[44px] flex items-center select-none touch-none ${disabled ? '' : 'cursor-pointer'}`}
     >
-      <div className="absolute left-0 right-0 h-[12px] rounded-full bg-[#cfe6f1]" />
-      <div className="absolute left-0 h-[12px] rounded-full bg-[#0094c5]" style={{ width: `${pct * 100}%` }} />
+      <div className="absolute left-0 right-0 h-[12px] rounded-full bg-[#e9f7f2]" />
+      <div className="absolute left-0 h-[12px] rounded-full bg-[#0b786a]" style={{ width: `${pct * 100}%` }} />
       <div
-        className="absolute size-[44px] rounded-full bg-[#0094c5] border-4 border-white -translate-x-1/2"
+        className="absolute size-[44px] rounded-full bg-[#0b786a] border-4 border-white -translate-x-1/2"
         style={{ left: `${pct * 100}%`, boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}
       />
     </div>
@@ -47,7 +47,7 @@ function RangeSlider({ min, max, value, disabled, steps, onChange }: { min: numb
 
 function SyringeIcon() {
   return (
-    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0094c5" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0b786a" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="m18 2 4 4" />
       <path d="m17 7 3-3" />
       <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5" />
@@ -61,15 +61,15 @@ function SyringeIcon() {
 /** A read-out tile listing a value per medication (e.g. the bolus dose). */
 function MultiDoseCard({ label, rows, highlight }: { label: string; rows: { name: string; value: string; unit: string }[]; highlight?: boolean }) {
   return (
-    <div className={`flex-1 rounded-[16px] px-[24px] py-[20px] flex flex-col gap-[10px] ${highlight ? 'bg-[#d1eaf8]' : 'bg-[#e6f4f9]'}`}>
-      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
+    <div className={`flex-1 rounded-[16px] px-[24px] py-[20px] flex flex-col gap-[10px] ${highlight ? 'bg-[#e9f7f2]' : 'bg-[#f5fcf9]'}`}>
+      <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
       <div className="flex flex-col gap-[10px]">
         {rows.map(r => (
           <div key={r.name} className="flex flex-col whitespace-nowrap">
-            <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.name}</span>
+            <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[20px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.name}</span>
             <span>
-              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.value}</span>
-              <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[20px] ml-[4px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.unit}</span>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[30px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.value}</span>
+              <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[20px] ml-[4px]" style={{ fontVariationSettings: "'wdth' 100" }}>{r.unit}</span>
             </span>
           </div>
         ))}
@@ -81,11 +81,11 @@ function MultiDoseCard({ label, rows, highlight }: { label: string; rows: { name
 /** A read-out tile: label on top, big value + small unit below. */
 function StatCard({ label, value, unit, highlight }: { label: string; value: string; unit: string; highlight?: boolean }) {
   return (
-    <div className={`flex-1 rounded-[16px] px-[24px] py-[20px] flex flex-col gap-[8px] ${highlight ? 'bg-[#d1eaf8]' : 'bg-[#e6f4f9]'}`}>
-      <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
+    <div className={`flex-1 rounded-[16px] px-[24px] py-[20px] flex flex-col gap-[8px] ${highlight ? 'bg-[#e9f7f2]' : 'bg-[#f5fcf9]'}`}>
+      <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[22px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
       <p className="font-['Roboto',sans-serif] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-        <span className="font-bold text-[#00769e] text-[40px]">{value}</span>{' '}
-        <span className="font-normal text-[#5f8aa0] text-[24px]">{unit}</span>
+        <span className="font-bold text-[#096657] text-[40px]">{value}</span>{' '}
+        <span className="font-normal text-[#596d68] text-[24px]">{unit}</span>
       </p>
     </div>
   );
@@ -105,7 +105,7 @@ export function BolusFrequency() {
     const ugDay = i === 0 ? baseDose : coDoseUgDay(baseDose, c0, concUgPerUl(m));
     const perBolusUg = bolusCount > 0 ? ugDay / bolusCount : 0;
     const u = doseUnitFor(m.unit);
-    return { name: m.name || (i === 0 ? 'Primary' : 'Medication'), value: valid ? fmtDose(perBolusUg / u.div) : '--', unit: `${u.unit}/bolus` };
+    return { name: m.name || (i === 0 ? 'Primary' : 'Medication'), value: valid ? fmtPerDelivery(perBolusUg / u.div, u.unit) : '--', unit: `${u.unit}/bolus` };
   });
 
   return (
@@ -115,7 +115,7 @@ export function BolusFrequency() {
           {/* Title */}
           <div className="flex gap-[16px] items-center">
             <SyringeIcon />
-            <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#096657] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
               Bolus Frequency
             </p>
           </div>
@@ -124,8 +124,8 @@ export function BolusFrequency() {
           <div className="flex flex-col gap-[16px]">
             <RangeSlider min={sliderMin} max={Math.max(sliderMin, maxBoluses)} value={bolusCount} steps={freqOptions} disabled={!valid} onChange={setBolusCount} />
             <div className="flex justify-between">
-              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{valid ? sliderMin : '--'}</span>
-              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{valid ? maxBoluses : '--'}</span>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{valid ? sliderMin : '--'}</span>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{valid ? maxBoluses : '--'}</span>
             </div>
           </div>
 
@@ -141,9 +141,9 @@ export function BolusFrequency() {
         {/* Save CTA */}
         <div
           onClick={() => { if (valid) navigate('windows'); }}
-          className={`mt-auto flex h-[88px] items-center justify-center px-[40px] rounded-[80px] w-full ${valid ? 'bg-[#0094c5] cursor-pointer' : 'bg-[#cbcbcb] cursor-not-allowed'}`}
+          className={`mt-auto flex h-[88px] items-center justify-center px-[40px] rounded-[80px] w-full ${valid ? 'bg-[#0b786a] cursor-pointer' : 'bg-[#cedfd9] cursor-not-allowed'}`}
         >
-          <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[24px] tracking-[0.1px] ${valid ? 'text-white' : 'text-[#a5a5a5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[24px] tracking-[0.1px] ${valid ? 'text-white' : 'text-[#9db3ad]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
             Save
           </p>
         </div>

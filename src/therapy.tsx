@@ -58,6 +58,31 @@ export function strokesPerDay(baseDoseUgDay: number, primaryConcUgPerUl: number)
 }
 
 /**
+ * The dose the pump can actually deliver over 24 h for a programmed dose.
+ *
+ * Two constraints stack: the pump moves whole 10 µl strokes, and every delivery
+ * must carry the same whole number of them. So the day's stroke count is snapped
+ * to the nearest multiple of the delivery count — a dose programmed at 0.49 mg
+ * over 50 deliveries is delivered as 0.50 mg (50 strokes, one per delivery).
+ *
+ * The Default Delivery step shows this beside the programmed value so the
+ * clinician sees what the pump will really do before transferring.
+ */
+export function achievableDoseUgDay(
+  baseDoseUgDay: number,
+  primaryConcUgPerUl: number,
+  bolusCount: number,
+): number {
+  if (primaryConcUgPerUl <= 0 || baseDoseUgDay <= 0) return 0;
+  const n = Math.max(1, bolusCount);
+  const rawStrokes = dailyVolumeUl(baseDoseUgDay, primaryConcUgPerUl) / BOLUS_VOLUME_UL;
+  // At least one stroke per delivery, so the frequency the clinician picked is
+  // always honoured even for a dose that rounds down to nothing.
+  const strokes = Math.max(n, Math.round(rawStrokes / n) * n);
+  return strokes * BOLUS_VOLUME_UL * primaryConcUgPerUl;
+}
+
+/**
  * Snap a window [startMin, endMin) onto the delivery grid implied by bolusCount
  * (n evenly-spaced deliveries/day). Returns the first and last *actual* delivery
  * time the window covers, and how many deliveries that is. endMin is the exclusive
@@ -308,6 +333,14 @@ type TherapyState = {
   // buffer the Refill Date step reports. Null with no therapy running.
   refillLeadDays: number | null;
   completeRefill: () => void;
+  // Refill branch picked at the "same medication?" gate. 'same' re-confirms the
+  // delivery steps; 'different' adds the Medication step and a bridge bolus.
+  refillBranch: RefillBranch;
+  setRefillBranch: (b: RefillBranch) => void;
+  // When the bridge bolus started by a medication-change refill ends (epoch ms),
+  // or null when none is running. Set on transfer.
+  bridgeBolusUntil: number | null;
+  startBridgeBolus: () => void;
   // Whether a therapy has been set up + activated on the implant. Drives which
   // home screen ("home-active" vs "home-no-therapy") the chrome returns to.
   therapyActive: boolean;
@@ -318,22 +351,41 @@ type TherapyState = {
 
 export type FlowMode = 'setup' | 'refill';
 
-// Next-refill date `days` from today, formatted dd.mm.yyyy.
+// Short month names for the app's canonical date string.
+export const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Format a Date as `19 Aug 2026` — the app's canonical date string. The final
+ * design spells the month out so a date can never be read day-first or
+ * month-first by mistake.
+ */
+export type RefillBranch = 'same' | 'different' | null;
+
+// Bridge bolus run after a medication change: keeps delivering the old
+// medication until the new one reaches the catheter tip (Figma 11103:191450).
+export const BRIDGE_BOLUS = { volumeMl: 0.16, minutes: 6 * 60 };
+
+export function formatDate(d: Date): string {
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${dd} ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// Next-refill date `days` from today, as a canonical date string.
 export function refillDateInDays(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  return `${dd}.${mm}.${d.getFullYear()}`;
+  return formatDate(d);
 }
 
-// Whole days from today to a dd.mm.yyyy date — negative once it is in the past,
-// null if the string isn't a date. Both ends are floored to midnight so the
-// result counts calendar days rather than elapsed hours.
+// Whole days from today to a canonical `19 Aug 2026` date — negative once it is
+// in the past, null if the string isn't a date. Both ends are floored to
+// midnight so the result counts calendar days rather than elapsed hours.
 export function daysUntil(date: string): number | null {
-  const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(date);
+  const m = /^(\d{2}) ([A-Za-z]{3}) (\d{4})$/.exec(date);
   if (!m) return null;
-  const target = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  const month = MONTHS_SHORT.indexOf(m[2]);
+  if (month < 0) return null;
+  const target = new Date(Number(m[3]), month, Number(m[1]));
   const today = new Date();
   target.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
@@ -365,7 +417,7 @@ function uid() {
 const ACTIVE_BASE_DOSE = 500; // µg/day Morphine (= 0.5 mg/day @ 1 mg/mL)
 const ACTIVE_MEDICATIONS: Medication[] = [
   { id: 'med-morphine', name: 'Morphine', concentration: 1,  unit: 'mg/ml' },
-  { id: 'med-baclofen', name: 'Baclofen', concentration: 30, unit: 'mcg/ml' },
+  { id: 'med-baclofen', name: 'Baclofen', concentration: 500, unit: 'mcg/ml' },
 ];
 // Default example: a plain default delivery at the default (max) frequency and no
 // customised delivery windows — a flat 0.5 mg/day. The customised-delivery flow
@@ -455,6 +507,9 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const setAlertLevelMl = (ml: number) => { setAlertLevelMlRaw(ml); setRefillDateOverride(null); };
   // The reservoir is topped up; the due date follows from the new fill level.
   const completeRefill = () => { setFillFraction(1); };
+  const [refillBranch, setRefillBranch] = useState<RefillBranch>(null);
+  const [bridgeBolusUntil, setBridgeBolusUntil] = useState<number | null>(null);
+  const startBridgeBolus = () => setBridgeBolusUntil(Date.now() + BRIDGE_BOLUS.minutes * 60_000);
   const [therapyActive, setTherapyActive] = useState(true);
   const homeScreen: ScreenId = therapyActive ? 'home-active' : 'home-no-therapy';
 
@@ -727,6 +782,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       refillDate, daysToRefill, refillDateIsManual: refillDateOverride != null,
       setRefillDate, refillLeadWeeks, setRefillLeadWeeks, refillLeadDays,
       fillFraction, setFillLevel: setFillFraction, alertLevelMl, setAlertLevelMl, completeRefill,
+      refillBranch, setRefillBranch, bridgeBolusUntil, startBridgeBolus,
       therapyActive, setTherapyActive, homeScreen,
     }}>
       {children}
@@ -803,7 +859,26 @@ export function splitNum(s: string): [string, string] {
 export function doseStringsFor(ugDay: number, concUnit: string): { unit: string; perDay: string; perHour: string } {
   const { unit, div } = doseUnitFor(concUnit);
   const perDayVal = ugDay / div;
-  return { unit, perDay: fmtDose(perDayVal), perHour: fmtDose(perDayVal / 24) };
+  return { unit, perDay: fmtDailyDose(perDayVal, unit), perHour: fmtDose(perDayVal / 24) };
+}
+
+/**
+ * A daily total in its mass unit. Microgram doses are whole numbers — a tenth of
+ * a microgram a day is below anything the pump can act on — while milligram
+ * doses keep two decimals (0.50 mg/24h).
+ */
+export function fmtDailyDose(v: number, unit: string): string {
+  if (!isFinite(v)) return unit === 'mcg' ? '0' : '0.00';
+  return unit === 'mcg' ? String(Math.round(v)) : v.toFixed(2);
+}
+
+/**
+ * A single delivery's dose — roughly a fiftieth of the day, so it needs one more
+ * decimal than the daily total to stay readable (0.010 mg/del, 5.0 mcg/del).
+ */
+export function fmtPerDelivery(v: number, unit: string): string {
+  if (!isFinite(v)) return unit === 'mcg' ? '0.0' : '0.000';
+  return unit === 'mcg' ? v.toFixed(1) : v.toFixed(3);
 }
 
 /**
@@ -834,10 +909,10 @@ export function pctVsDefault(dose: number, base: number): string | null {
 // Color tier for a dose relative to base dose.
 export function doseColor(dose: number, base: number): string {
   const r = dose / base;
-  if (r < 0.7) return '#8cc7e8';   // light
-  if (r < 0.9) return '#4da6d6';   // medium-light
-  if (r < 1.3) return '#0b7fa8';   // normal teal
-  return '#055273';                // dark navy
+  if (r < 0.7) return '#a7e5d7';   // light
+  if (r < 0.9) return '#62dec2';   // medium-light
+  if (r < 1.3) return '#188d7b';   // normal teal
+  return '#096657';                // dark navy
 }
 
 /** Human-readable delivery interval, e.g. "28 minutes", "2 h 4 min", "4 seconds". */

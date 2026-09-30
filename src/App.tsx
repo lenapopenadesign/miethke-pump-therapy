@@ -181,7 +181,7 @@ export function App() {
                   onClick={() => setScreen(s)}
                   style={{
                     fontWeight: s === screen ? 'bold' : 'normal',
-                    background: s === screen ? '#0094c5' : 'white',
+                    background: s === screen ? '#0b786a' : 'white',
                     color: s === screen ? 'white' : 'black',
                     border: '1px solid #ccc',
                     padding: '4px 8px',

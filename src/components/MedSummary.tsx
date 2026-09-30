@@ -1,20 +1,20 @@
 import { coDoseUgDay, concUgPerUl, doseStringsFor, type Medication } from '../therapy';
 
 // Match the Review page's bars: medium-blue medication header, light value bars.
-const HEAD_BG = '#c4e1ef';
-const VAL_BG = '#d8ecf7';
+const HEAD_BG = '#d9f0e8';
+const VAL_BG = '#e9f7f2';
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 
 function ValueBar({ value, unit }: { value: string; unit: string }) {
   return (
     <div className="rounded-[8px] h-[60px] flex items-baseline px-[20px]" style={{ background: VAL_BG }}>
-      <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px] self-center" style={wdth}>{value}</span>
-      <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px] self-center" style={wdth}>{unit}</span>
+      <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px] self-center" style={wdth}>{value}</span>
+      <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[22px] ml-[8px] self-center" style={wdth}>{unit}</span>
     </div>
   );
 }
 
-const hdr = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] tracking-[1px] pb-[2px] pl-[4px]";
+const hdr = "font-['Roboto',sans-serif] font-bold text-[#096657] text-[22px] tracking-[1px] pb-[2px] pl-[4px]";
 
 /**
  * The per-medication 24h summary used on the Home (active) and Intervals screens.
@@ -69,8 +69,8 @@ export function MedSummary({
       {rows.map(r => (
         <div key={r.med.id} className="grid gap-[12px] items-center" style={{ gridTemplateColumns }}>
           <div className="rounded-[8px] h-[60px] flex items-baseline px-[20px]" style={{ background: HEAD_BG }}>
-            <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] self-center" style={wdth}>{r.med.name}</span>
-            <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[10px] self-center" style={wdth}>{r.med.concentration} {r.med.unit}</span>
+            <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[28px] tracking-[0.1px] self-center" style={wdth}>{r.med.name}</span>
+            <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[22px] ml-[10px] self-center" style={wdth}>{r.med.concentration} {r.med.unit}</span>
           </div>
           {r.base && <ValueBar value={r.base.value} unit={r.base.unit} />}
           {r.total && <ValueBar value={r.total.value} unit={r.total.unit} />}

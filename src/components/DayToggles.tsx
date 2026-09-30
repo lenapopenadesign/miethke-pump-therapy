@@ -5,7 +5,7 @@ import {
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 
 const MODES: { key: DayPattern; label: string }[] = [
-  { key: 'same',            label: 'Same Daily' },
+  { key: 'same',            label: 'Daily' },
   { key: 'weekday-weekend', label: 'Weekday / Weekend' },
   { key: 'per-day',         label: 'Different every day' },
 ];
@@ -28,13 +28,13 @@ const PER_DAY_CHIPS: { key: DayKey; label: string }[] = [
 function Segmented<T extends string>({ options, isActive, onPick, size = 26 }:
   { options: { key: T; label: string }[]; isActive: (k: T) => boolean; onPick: (k: T) => void; size?: number }) {
   return (
-    <div className="flex gap-[6px] p-[4px] rounded-[12px] bg-white border border-[#d9dbde]">
+    <div className="flex gap-[6px] p-[4px] rounded-[12px] bg-white border border-[#cedfd9]">
       {options.map(o => {
         const active = isActive(o.key);
         return (
           <div key={o.key} onClick={() => onPick(o.key)}
-            className={`flex-1 flex items-center justify-center py-[14px] rounded-[8px] cursor-pointer select-none ${active ? 'bg-[#0094c5]' : ''}`}>
-            <p className={`font-['Roboto',sans-serif] font-bold tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#667380]'}`}
+            className={`flex-1 flex items-center justify-center py-[14px] rounded-[8px] cursor-pointer select-none ${active ? 'bg-[#0b786a]' : ''}`}>
+            <p className={`font-['Roboto',sans-serif] font-bold tracking-[0.1px] whitespace-nowrap ${active ? 'text-white' : 'text-[#596d68]'}`}
                style={{ ...wdth, fontSize: size }}>{o.label}</p>
           </div>
         );
@@ -43,7 +43,7 @@ function Segmented<T extends string>({ options, isActive, onPick, size = 26 }:
   );
 }
 
-/** Mode selector: Same Daily / Weekday-Weekend / Different every day. */
+/** Mode selector: Daily / Weekday-Weekend / Different every day. */
 export function ModeToggle({ dayPattern, onChange }: { dayPattern: DayPattern; onChange: (p: DayPattern) => void }) {
   return <Segmented options={MODES} isActive={k => dayPattern === k} onPick={onChange} />;
 }

@@ -12,11 +12,11 @@ export const FIELD_H = 72;
 // has to read at arm's length.
 const fieldValueType = `${FONT} font-bold text-[36px] tracking-[0.1px]`;
 /** Value typography inside a field: Roboto Regular on the dark grey ink. */
-export const fieldValueCls = `${fieldValueType} text-[#45483c]`;
+export const fieldValueCls = `${fieldValueType} text-[#183d38]`;
 /** The same type, greyed — an empty field, or one showing a placeholder. */
-export const fieldPlaceholderCls = `${fieldValueType} text-[#a5a5a5]`;
+export const fieldPlaceholderCls = `${fieldValueType} text-[#9db3ad]`;
 /** The grey unit that trails a value ("mg/24h", "mg/del"). */
-export const fieldUnitCls = `${FONT} font-normal text-[#a5a5a5] text-[24px] tracking-[0.1px] whitespace-nowrap`;
+export const fieldUnitCls = `${FONT} font-normal text-[#9db3ad] text-[24px] tracking-[0.1px] whitespace-nowrap`;
 
 // One definition of how a derived value reads inside a {@link Readout} — the
 // light blue box. The Default Delivery table and the Customised Delivery rows
@@ -24,16 +24,16 @@ export const fieldUnitCls = `${FONT} font-normal text-[#a5a5a5] text-[24px] trac
 // value a size below an editable field's (it is read, not typed into), and the
 // unit a size below the value again, in the quieter blue-grey.
 /** Value typography inside a {@link Readout}. */
-export const readoutValueCls = `${FONT} font-bold text-[#00769e] text-[32px] tracking-[0.1px] whitespace-nowrap`;
+export const readoutValueCls = `${FONT} font-bold text-[#096657] text-[32px] tracking-[0.1px] whitespace-nowrap`;
 /** The unit trailing a {@link Readout} value. */
-export const readoutUnitCls = `${FONT} font-normal text-[#5f8aa0] text-[24px] tracking-[0.1px] whitespace-nowrap`;
+export const readoutUnitCls = `${FONT} font-normal text-[#596d68] text-[24px] tracking-[0.1px] whitespace-nowrap`;
 /**
  * The label above a field — bold teal, sentence case, flush with the field's
  * left edge. One definition for the whole app, so the Default Delivery table,
  * the medication rows and the customised-delivery sheet all name their fields
  * the same way.
  */
-export const fieldLabelCls = `${FONT} font-bold text-[#00769e] text-[24px] leading-[28px] tracking-[0.1px]`;
+export const fieldLabelCls = `${FONT} font-bold text-[#096657] text-[24px] leading-[28px] tracking-[0.1px]`;
 
 export function FieldLabel({ className = '', children }: { className?: string; children: ReactNode }) {
   // Sits tight to the field it names, so the two read as one control rather
@@ -67,7 +67,7 @@ export function Field({ label, children, trailing, active = false, className = '
       {label != null && <FieldLabel>{label}</FieldLabel>}
       <div
         className={`bg-white border rounded-[8px] flex items-center gap-[8px] pl-[16px] ${trailing ? 'pr-[8px]' : 'pr-[16px]'} ${
-          active ? 'border-[#00769e]' : 'border-[#a5a5a5] focus-within:border-[#00769e]'
+          active ? 'border-[#096657]' : 'border-[#9db3ad] focus-within:border-[#096657]'
         }`}
         style={{ height: FIELD_H }}
       >
@@ -109,7 +109,7 @@ export function TextField({
         onBlur={onBlur}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`flex-1 min-w-px bg-transparent outline-none border-0 p-0 placeholder:text-[#a5a5a5] ${inputClassName || fieldValueCls}`}
+        className={`flex-1 min-w-px bg-transparent outline-none border-0 p-0 placeholder:text-[#9db3ad] ${inputClassName || fieldValueCls}`}
         style={{ fontFamily: 'Roboto, sans-serif', ...wdth }}
       />
       {unit != null && <span className={unitClassName || fieldUnitCls} style={wdth}>{unit}</span>}
@@ -125,7 +125,7 @@ export function TextField({
 export function Readout({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={`bg-[#e6f4f9] rounded-[8px] flex items-center gap-[8px] px-[20px] min-w-0 ${className}`}
+      className={`bg-[#f5fcf9] rounded-[8px] flex items-center gap-[8px] px-[20px] min-w-0 ${className}`}
       style={{ height: FIELD_H }}
     >
       {children}
@@ -137,7 +137,7 @@ export function Readout({ children, className = '' }: { children: ReactNode; cla
 function Caret({ open }: { open: boolean }) {
   return (
     <svg width="26" height="14" viewBox="0 0 24 12" fill="none" className={`shrink-0 mr-[8px] transition-transform duration-150 ${open ? 'rotate-180' : ''}`}>
-      <path d="M2 2L12 10L22 2" stroke="#6b7885" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2 2L12 10L22 2" stroke="#596d68" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -145,7 +145,7 @@ function Caret({ open }: { open: boolean }) {
 function OptionCheck() {
   return (
     <svg width="20" height="16" viewBox="0 0 20 16" fill="none" className="shrink-0">
-      <path d="M2 8.5L7 13.5L18 2.5" stroke="#0094c5" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2 8.5L7 13.5L18 2.5" stroke="#0b786a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -241,7 +241,7 @@ export function SelectField({
       {open && (
         <div
           ref={menuRef}
-          className="absolute left-0 right-0 top-[calc(100%+8px)] z-40 bg-white border border-[#a5a5a5] rounded-[8px] overflow-y-auto shadow-[0px_12px_32px_0px_rgba(0,0,0,0.16)]"
+          className="absolute left-0 right-0 top-[calc(100%+8px)] z-40 bg-white border border-[#9db3ad] rounded-[8px] overflow-y-auto shadow-[0px_12px_32px_0px_rgba(0,0,0,0.16)]"
           style={{ maxHeight: maxH }}
         >
           {options.map((o, i) => (
@@ -249,11 +249,11 @@ export function SelectField({
               key={o.value}
               type="button"
               onClick={() => { onChange(o.value); setOpen(false); }}
-              className={`w-full px-[28px] flex items-center justify-between gap-[16px] cursor-pointer ${i > 0 ? 'border-t-2 border-[#e6f4f9]' : ''} ${o.value === value ? 'bg-[#e6f4f9]' : 'bg-white'}`}
+              className={`w-full px-[28px] flex items-center justify-between gap-[16px] cursor-pointer ${i > 0 ? 'border-t-2 border-[#f5fcf9]' : ''} ${o.value === value ? 'bg-[#f5fcf9]' : 'bg-white'}`}
               style={{ height: OPTION_H }}
             >
               <span
-                className={`${FONT} text-[32px] tracking-[0.1px] whitespace-nowrap ${o.value === value ? 'font-bold text-[#00769e]' : 'font-normal text-[#45483c]'}`}
+                className={`${FONT} text-[32px] tracking-[0.1px] whitespace-nowrap ${o.value === value ? 'font-bold text-[#096657]' : 'font-normal text-[#183d38]'}`}
                 style={wdth}
               >
                 {o.label}

@@ -39,7 +39,7 @@ function TrashIcon() {
   return (
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
       <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6M10 11v6M14 11v6"
-        stroke="#0094c5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        stroke="#0b786a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -47,16 +47,14 @@ function TrashIcon() {
 // These rows are plain <input>/<select> elements rather than the Field wrapper,
 // so they carry the Input_Master chrome (2377:6255) as classes instead.
 const fieldLabel = `${fieldLabelCls} pb-[8px]`;
-const fieldBox = "h-[72px] bg-white border border-[#a5a5a5] rounded-[8px] px-[16px] flex items-center font-['Roboto',sans-serif] font-bold text-[#45483c] text-[36px] tracking-[0.1px] w-full outline-none focus:border-[#00769e] placeholder:font-normal placeholder:text-[#a5a5a5]";
+const fieldBox = "h-[72px] bg-white border border-[#9db3ad] rounded-[8px] px-[16px] flex items-center font-['Roboto',sans-serif] font-bold text-[#183d38] text-[36px] tracking-[0.1px] w-full outline-none focus:border-[#096657] placeholder:font-normal placeholder:text-[#9db3ad]";
 
 export function AddMedication() {
   const navigate = useNavigate();
-  const { medications, addMedication, updateMedication, removeMedication, flowMode, cancelTherapyEdit } = useTherapy();
-  const isRefill = flowMode === 'refill';
-  // Backing out of setup abandons the draft and restores the committed therapy.
-  // In a refill, backing out returns to the "same therapy?" gate; in setup it
-  // abandons the draft and restores the committed therapy.
-  const onBack = () => { if (isRefill) navigate('refill-same-therapy'); else navigate(cancelTherapyEdit()); };
+  const { medications, addMedication, updateMedication, removeMedication, cancelTherapyEdit } = useTherapy();
+  // Backing out abandons the draft and restores the committed therapy; in a
+  // refill that lands back on the "same medication?" gate the edit began from.
+  const onBack = () => navigate(cancelTherapyEdit());
 
   return (
     <WizardShell step="medication" onBack={onBack} onHelp={() => navigate('help')}>
@@ -64,7 +62,7 @@ export function AddMedication() {
         {/* Title */}
         <div className="flex gap-[16px] items-center">
           <MedicationIcon size={48} />
-          <p className="font-['Roboto',sans-serif] font-extrabold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-extrabold leading-[40px] text-[#096657] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             Medication
           </p>
         </div>
@@ -101,7 +99,7 @@ export function AddMedication() {
                     {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                   </select>
                   <svg className="absolute right-[16px] top-1/2 -translate-y-1/2 pointer-events-none" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M6 9l6 6 6-6" stroke="#5f7388" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M6 9l6 6 6-6" stroke="#596d68" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
               </div>
@@ -119,10 +117,10 @@ export function AddMedication() {
         {/* Add medication */}
         <button
           onClick={addMedication}
-          className="self-start flex gap-[16px] h-[88px] items-center justify-center px-[40px] rounded-[80px] border-2 border-[#0094c5] cursor-pointer"
+          className="self-start flex gap-[16px] h-[88px] items-center justify-center px-[40px] rounded-[80px] border-2 border-[#0b786a] cursor-pointer"
         >
-          <span className="text-[#0094c5] text-[40px] leading-none">+</span>
-          <span className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <span className="text-[#0b786a] text-[40px] leading-none">+</span>
+          <span className="font-['Roboto',sans-serif] font-bold text-[#0b786a] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Add medication
           </span>
         </button>
@@ -130,7 +128,7 @@ export function AddMedication() {
         {/* Save CTA */}
         <div
           onClick={() => navigate('base-dose')}
-          className="mt-auto flex gap-[16px] h-[88px] items-center justify-center min-w-[240px] px-[40px] rounded-[80px] w-full bg-[#0094c5] cursor-pointer"
+          className="mt-auto flex gap-[16px] h-[88px] items-center justify-center min-w-[240px] px-[40px] rounded-[80px] w-full bg-[#0b786a] cursor-pointer"
         >
           <p className="font-['Roboto',sans-serif] font-bold leading-[32px] text-white text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Next

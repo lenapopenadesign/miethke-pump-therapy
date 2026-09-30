@@ -1,12 +1,12 @@
 import { useNavigate } from '../navigation';
-import { useTherapy, STROKE_OPTIONS, deliveryPlan, doseUnitFor, fmtDose, fmtInterval, type StrokeStrategy } from '../therapy';
+import { useTherapy, STROKE_OPTIONS, deliveryPlan, doseUnitFor, fmtPerDelivery, fmtInterval, type StrokeStrategy } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 
 function DeliveryIcon() {
   return (
     <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-      <path d="M6 8v24M34 8v24" stroke="#0094c5" strokeWidth="3" strokeLinecap="round" />
-      <path d="M12 20h16M14 15l-5 5 5 5M26 15l5 5-5 5" stroke="#0094c5" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 8v24M34 8v24" stroke="#0b786a" strokeWidth="3" strokeLinecap="round" />
+      <path d="M12 20h16M14 15l-5 5 5 5M26 15l5 5-5 5" stroke="#0b786a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -35,16 +35,16 @@ function DeliveryDiagram({ deliveriesPerDay, dosePerDelivery, baseDose }:
       {/* delivery ticks */}
       {Array.from({ length: n }).map((_, i) => {
         const x = LEFT + ((i + 0.5) / n) * plotW - barW / 2;
-        return <rect key={i} x={x} y={BASE - barH} width={barW} height={barH} rx={Math.min(2, barW / 2)} fill="#0094c5" />;
+        return <rect key={i} x={x} y={BASE - barH} width={barW} height={barH} rx={Math.min(2, barW / 2)} fill="#0b786a" />;
       })}
       {/* baseline */}
-      <line x1={LEFT} y1={BASE} x2={W - RIGHT} y2={BASE} stroke="#b6d8e6" strokeWidth="1.5" />
+      <line x1={LEFT} y1={BASE} x2={W - RIGHT} y2={BASE} stroke="#cedfd9" strokeWidth="1.5" />
       {/* time axis labels (first/last anchored inward so they don't clip) */}
       {times.map((t, i) => {
         const last = times.length - 1;
         const anchor = i === 0 ? 'start' : i === last ? 'end' : 'middle';
         return (
-          <text key={t} x={LEFT + (i / last) * plotW} y={BASE + 34} textAnchor={anchor} fontFamily="Roboto, sans-serif" fontSize="22" fill="#7e95a3">{t}</text>
+          <text key={t} x={LEFT + (i / last) * plotW} y={BASE + 34} textAnchor={anchor} fontFamily="Roboto, sans-serif" fontSize="22" fill="#596d68">{t}</text>
         );
       })}
     </svg>
@@ -58,7 +58,7 @@ export function RegularTherapy() {
   const selected = STROKE_OPTIONS[selectedIdx >= 0 ? selectedIdx : 0];
   const plan = deliveryPlan(baseDose, selected.intervalMin);
   const { unit, div } = doseUnitFor(medications[0]?.unit ?? 'mcg/ml');
-  const perDeliveryStr = fmtDose(plan.dosePerDelivery / div);
+  const perDeliveryStr = fmtPerDelivery(plan.dosePerDelivery / div, unit);
 
   return (
     <WizardShell step="delivery" onBack={() => navigate('intervals-empty')}>
@@ -67,25 +67,25 @@ export function RegularTherapy() {
           {/* Title */}
           <div className="flex items-center gap-[16px] py-[20px]">
             <DeliveryIcon />
-            <p className="font-['Roboto',sans-serif] font-extrabold leading-[48px] text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-extrabold leading-[48px] text-[#096657] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
               Delivery frequency
             </p>
-            <div className="bg-[#0094c5] h-[36px] px-[16px] rounded-[18px] flex items-center shrink-0">
+            <div className="bg-[#0b786a] h-[36px] px-[16px] rounded-[18px] flex items-center shrink-0">
               <p className="font-['Roboto',sans-serif] font-bold text-[16px] text-white tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>optional</p>
             </div>
           </div>
 
           {/* Combined card: heading + per-stroke value + delivery diagram */}
-          <div className="w-full border-2 border-[#0094c5] rounded-[16px] bg-[#e6f4f9] px-[32px] py-[28px] flex flex-col gap-[20px]">
+          <div className="w-full border-2 border-[#0b786a] rounded-[16px] bg-[#f5fcf9] px-[32px] py-[28px] flex flex-col gap-[20px]">
             <div className="flex items-baseline justify-between gap-[16px]">
-              <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                 {selected.label} · every {fmtInterval(plan.intervalMin)}
               </p>
               <div className="flex items-baseline gap-[10px] shrink-0">
-                <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   Per delivery
                 </p>
-                <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   {perDeliveryStr} {unit}
                 </p>
               </div>
@@ -95,14 +95,14 @@ export function RegularTherapy() {
               dosePerDelivery={plan.dosePerDelivery}
               baseDose={baseDose}
             />
-            <p className="font-['Roboto',sans-serif] font-normal text-[#667380] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
               {Math.round(plan.deliveriesPerDay)} deliveries/24h
             </p>
           </div>
 
           {/* 5-dot slider */}
           <div className="relative w-full h-[60px]">
-            <div className="absolute left-[24px] right-[24px] top-[27px] h-[6px] bg-[#d9dbde] rounded-[3px]" />
+            <div className="absolute left-[24px] right-[24px] top-[27px] h-[6px] bg-[#cedfd9] rounded-[3px]" />
             <div className="absolute inset-0 flex items-center justify-between px-[0px]">
               {STROKE_OPTIONS.map((opt, i) => {
                 const active = i === selectedIdx;
@@ -110,7 +110,7 @@ export function RegularTherapy() {
                   <div
                     key={opt.bundle}
                     onClick={() => setStrokeStrategy(opt.bundle as StrokeStrategy)}
-                    className={`size-[48px] rounded-full cursor-pointer border-2 ${active ? 'bg-[#0094c5] border-[#0094c5]' : 'bg-white border-[#d9dbde]'}`}
+                    className={`size-[48px] rounded-full cursor-pointer border-2 ${active ? 'bg-[#0b786a] border-[#0b786a]' : 'bg-white border-[#cedfd9]'}`}
                     title={opt.label}
                   />
                 );
@@ -122,7 +122,7 @@ export function RegularTherapy() {
         {/* Continue CTA */}
         <div
           onClick={() => navigate('review')}
-          className="mt-auto flex h-[88px] items-center justify-center px-[40px] rounded-[80px] w-full bg-[#0094c5] cursor-pointer"
+          className="mt-auto flex h-[88px] items-center justify-center px-[40px] rounded-[80px] w-full bg-[#0b786a] cursor-pointer"
         >
           <p className="font-['Roboto',sans-serif] font-bold leading-[32px] text-white text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Continue to review

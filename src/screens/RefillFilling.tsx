@@ -30,8 +30,8 @@ const START_LEVEL = 0.25; // 10/40 ml — matches the implant card before refill
 const DRAIN_SEQ = [0.25, 0.19, 0.19, 0.125, 0.125, 0.06, 0.06, 0];
 const FILL_SEQ = [0, 0.12, 0.12, 0.32, 0.32, 0.55, 0.55, 0.78, 0.78, 1];
 
-const GREEN = '#24ab5e';
-const BLUE = '#0094c5';
+const GREEN = '#23ab5e';
+const BLUE = '#0b786a';
 
 // Pointed refill needle (viewBox 22×291.5 — bar with a tapered tip).
 const NEEDLE_PATH = "M21.9999 267.5L21.9999 0L0 0L0 267.5L10.9999 291.5L21.9999 267.5Z";
@@ -79,9 +79,10 @@ function GraphicBox({ fill, color, needle }: { fill: number; color: string; need
 
 function CheckBadge({ show }: { show: boolean }) {
   return (
-    <div className="absolute left-[40px] top-[48px] size-[150px] rounded-full bg-[#24ab5e] flex items-center justify-center transition-opacity duration-[600ms]" style={{ opacity: show ? 1 : 0 }}>
-      <svg width="84" height="84" viewBox="0 0 22 22" fill="none">
-        <path d="M4 11.5L9 16L18 6" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    // Figma 6163:46074: 400px success icon at (40, 44), its disc ≈336px.
+    <div className="absolute left-[72px] top-[76px] size-[336px] rounded-full bg-[#23ab5e] flex items-center justify-center transition-opacity duration-[600ms]" style={{ opacity: show ? 1 : 0 }}>
+      <svg width="248" height="248" viewBox="0 0 22 22" fill="none">
+        <path d="M4 11.5L9 16L18 6" stroke="white" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
   );
@@ -89,7 +90,7 @@ function CheckBadge({ show }: { show: boolean }) {
 
 export function RefillFilling() {
   const navigate = useNavigate();
-  const { flowMode, setFlowMode, setRefillDate, setFillLevel: commitFillLevel } = useTherapy();
+  const { flowMode, setFlowMode, setRefillDate, setFillLevel: commitFillLevel, setRefillBranch } = useTherapy();
   const [phase, setPhase] = useState<Phase>('init');
   const [barFull, setBarFull] = useState(false);
   const [fillLevel, setFillLevel] = useState(START_LEVEL);
@@ -100,6 +101,8 @@ export function RefillFilling() {
   // A new refill drops any hand-picked due date from the previous one, so the
   // Refill Alert step opens on the freshly calculated date.
   useEffect(() => { setRefillDate(null); }, [setRefillDate]);
+  // The medication question hasn't been answered yet for this refill.
+  useEffect(() => { setRefillBranch(null); }, [setRefillBranch]);
 
   // Drive the auto-advancing phases.
   useEffect(() => {
@@ -130,7 +133,7 @@ export function RefillFilling() {
 
   const isGreen = phase === 'inserting' || phase === 'draining' || phase === 'filling' || phase === 'filled';
   const color = isGreen ? GREEN : BLUE;
-  const cardBg = isGreen ? 'bg-[#d0f6e4]' : 'bg-[#e6f4f9]';
+  const cardBg = isGreen ? 'bg-[#e9f7ef]' : 'bg-[#f5fcf9]';
   const needle: 'search' | 'in' | 'up' = phase === 'ready' ? 'search' : phase === 'done' ? 'up' : 'in';
   const fillMl = Math.round(fillLevel * RESERVOIR_ML);
   const heading = phase === 'ready' ? 'ready to start' : isGreen ? 'needle in port' : 'needle detection deactivated';
@@ -139,14 +142,14 @@ export function RefillFilling() {
     <WizardShell step="filling" onBack={cancel} onHelp={() => navigate('help')}>
       <div className="flex-1 flex flex-col gap-[32px]">
         {phase === 'init' && (
-          <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
             Initializing refill
           </p>
         )}
 
         {phase === 'init' ? (
-          <div className="border-2 border-[#65d8fe] rounded-[76px] p-[3px] w-full">
-            <div className="h-[24px] rounded-[72px] transition-all duration-[1500ms] ease-out" style={{ width: barFull ? '100%' : '4%', backgroundImage: 'linear-gradient(90deg, #00769e 0%, #65d8fe 100%)' }} />
+          <div className="border-2 border-[#62dec2] rounded-[76px] p-[3px] w-full">
+            <div className="h-[24px] rounded-[72px] transition-all duration-[1500ms] ease-out" style={{ width: barFull ? '100%' : '4%', backgroundImage: 'linear-gradient(90deg, #096657 0%, #62dec2 100%)' }} />
           </div>
         ) : (
           <div className={`relative w-full rounded-[24px] ${cardBg} transition-colors duration-[600ms] flex flex-col items-center px-[40px] pt-[40px] pb-[40px]`}>
@@ -171,22 +174,22 @@ export function RefillFilling() {
         {/* Action button — full width */}
         <div className="mt-auto w-full">
           {(phase === 'init' || phase === 'ready') && (
-            <button onClick={cancel} className="h-[88px] w-full rounded-[80px] bg-[#0094c5] cursor-pointer">
+            <button onClick={cancel} className="h-[88px] w-full rounded-[80px] bg-[#0b786a] cursor-pointer">
               <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Cancel refill</span>
             </button>
           )}
           {(phase === 'inserting' || phase === 'draining') && (
-            <button disabled className="h-[88px] w-full rounded-[80px] border-2 border-[#cbcbcb] cursor-not-allowed">
-              <span className="font-['Roboto',sans-serif] font-bold text-[#a5a5a5] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Complete refill</span>
+            <button disabled className="h-[88px] w-full rounded-[80px] border-2 border-[#cedfd9] cursor-not-allowed">
+              <span className="font-['Roboto',sans-serif] font-bold text-[#9db3ad] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Complete refill</span>
             </button>
           )}
           {(phase === 'filling' || phase === 'filled') && (
-            <button onClick={() => { commitFillLevel(fillLevel); setPhase('done'); }} className="h-[88px] w-full rounded-[80px] bg-[#0094c5] cursor-pointer">
+            <button onClick={() => { commitFillLevel(fillLevel); setPhase('done'); }} className="h-[88px] w-full rounded-[80px] bg-[#0b786a] cursor-pointer">
               <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Complete refill</span>
             </button>
           )}
           {phase === 'done' && (
-            <button onClick={() => navigate('refill-same-therapy')} className="h-[88px] w-full rounded-[80px] bg-[#0094c5] cursor-pointer">
+            <button onClick={() => navigate('refill-same-therapy')} className="h-[88px] w-full rounded-[80px] bg-[#0b786a] cursor-pointer">
               <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Next</span>
             </button>
           )}

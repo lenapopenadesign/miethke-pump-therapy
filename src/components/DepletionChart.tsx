@@ -4,13 +4,13 @@ import { DIAG_PUMP_OUTLINE, DIAG_PUMP_RING, DIAG_PUMP_VALVE, DIAG_RES_CX, DIAG_R
 const FONT = 'Roboto, sans-serif';
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 
-const BLUE = '#0094c5';
-const BLUE_DARK = '#00769e';
+const BLUE = '#0b786a';
+const BLUE_DARK = '#096657';
 const RED = '#cc5457';
 const RED_LIGHT = '#f7d7d5';
-const GREY = '#a5a5a5';
-const GREY_TEXT = '#45483c';
-const TIE = '#cbcbcb';
+const GREY = '#9db3ad';
+const GREY_TEXT = '#183d38';
+const TIE = '#cedfd9';
 
 /* ── Geometry (Figma 10231:53556 — a 1040 × 419 block) ─────────────────────
  * Both axes are linear in volume: the reservoir drains at a constant rate, so
@@ -41,9 +41,9 @@ const FADE_W = 150;
 
 // Two markers a couple of days apart would collide. Their labels are nudged
 // apart by at least this much — the lines themselves always stay truthful.
-// Sized to the widest label pair ("Empty" over "02.11"), so the gap is what
+// Sized to the widest label pair ("Empty" over "02 Nov"), so the gap is what
 // separates them rather than a round number that costs more room than it needs.
-const MIN_LABEL_GAP = 70;
+const MIN_LABEL_GAP = 92;
 // Furthest a label can be centred and still sit inside the block.
 const LABEL_EDGE = W - 40;
 
@@ -142,7 +142,12 @@ export function DepletionChart({ fillMl, alertMl, todayLabel, alertLabel, emptyL
   for (let i = iAlert + 1; i < labelX.length; i++) {
     labelX[i] = Math.min(LABEL_EDGE, Math.max(labelX[i], labelX[i - 1] + MIN_LABEL_GAP));
   }
-  for (let i = iAlert - 1; i >= 0; i--) {
+  // The block's right edge is a hard stop, so once the labels right of the alert
+  // are clamped against it they can no longer open the gap themselves. Walk back
+  // from the rightmost one and push everything — the alert included — left until
+  // every pair clears. Giving the alert its exact position matters less than two
+  // dates being readable at all.
+  for (let i = labelX.length - 2; i >= 0; i--) {
     labelX[i] = Math.min(labelX[i], labelX[i + 1] - MIN_LABEL_GAP);
   }
 

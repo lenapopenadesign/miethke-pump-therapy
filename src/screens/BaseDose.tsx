@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from '../navigation';
 import {
-  useTherapy, coDoseUgDay, concUgPerUl, doseStringsFor, doseUnitFor, fmtDose,
+  useTherapy, achievableDoseUgDay, coDoseUgDay, concUgPerUl, doseStringsFor, doseUnitFor,
+  fmtDailyDose, fmtPerDelivery,
   type Medication,
 } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
@@ -22,11 +23,12 @@ function rowDisplay(m: Medication, i: number, baseDose: number, c0: number) {
 
 export function BaseDose() {
   const navigate = useNavigate();
-  const { baseDose, setBaseDose, medications, bolusCount, maxBoluses, freqOptions, setBolusCount, cancelTherapyEdit, intervalsByDay, clearWindows } = useTherapy();
+  const { baseDose, setBaseDose, medications, bolusCount, maxBoluses, freqOptions, setBolusCount, cancelTherapyEdit, intervalsByDay, clearWindows, flowMode, refillBranch } = useTherapy();
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
   const [editingId, setEditingId] = useState<string | undefined>(medications[0]?.id);
   const [draftText, setDraftText] = useState<string | null>(null);
   const [showCustomInfo, setShowCustomInfo] = useState(false);
+  const [showDefaultInfo, setShowDefaultInfo] = useState(false);
   const ctaEnabled = baseDose > 0;
   // Reference dose + frequency on entry — a >100% dose jump likely means a decimal
   // slip, so warn; and any change once customised deliveries exist resets them.
@@ -69,13 +71,17 @@ export function BaseDose() {
       step="base-dose"
       // Backing out of the editing steps abandons the edit: restore the therapy
       // that was in place before, so returning home shows the original teaser.
-      onBack={() => { const to = cancelTherapyEdit(); navigate(to); }}
+      // A medication-change refill steps back to the Medication form instead.
+      onBack={() => {
+        if (flowMode === 'refill' && refillBranch === 'different') navigate('add-medication');
+        else navigate(cancelTherapyEdit());
+      }}
       onHelp={() => navigate('help')}
       pinnedTop={<WizardChart />}
       footer={
         <>
           <WizardTotalsFooter />
-          <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
+          <div className="bg-[#f5fcf9] px-[80px] pt-[24px] pb-[40px]">
             {/* Next goes straight to Review — Customised Delivery is optional and
                 is reached from the "Customise deliveries" button above. */}
             <SaveButton enabled={ctaEnabled} label="Next" onClick={() => leaveTo('review')} />
@@ -96,7 +102,16 @@ export function BaseDose() {
 
         {/* Base Dose table */}
         <div className="flex flex-col gap-[24px]">
-          <SectionHeader icon={<MedicationIcon size={48} />} title="Default delivery" />
+          <SectionHeader icon={<MedicationIcon size={48} />} title="Default delivery">
+            <InfoBadge onClick={() => setShowDefaultInfo(v => !v)} />
+          </SectionHeader>
+          {showDefaultInfo && (
+            <Explainer title="Programmed vs achievable">
+              The pump delivers in whole 10 µl strokes, and every delivery carries the same
+              number of them. The achievable dose is the programmed one rounded to what that
+              allows — it is what the pump will actually deliver over 24 hours.
+            </Explainer>
+          )}
 
           {showBigIncrease && (
             <WarningBanner
@@ -109,21 +124,27 @@ export function BaseDose() {
 
           {/* A tight row gap keeps the column headers on their fields; the rows
               themselves are 72px tall, so they stay legible without more. */}
-          <div className="grid items-center gap-x-[16px] gap-y-[12px] [grid-template-columns:260px_1fr_1fr_56px]">
+          <div className="grid items-center gap-x-[16px] gap-y-[12px] [grid-template-columns:230px_1fr_1fr_1fr_56px]">
             {/* Column headers above the value fields */}
             <span />
-            <FieldLabel>Default delivery per day</FieldLabel>
+            <FieldLabel>Programmed 24h</FieldLabel>
+            <FieldLabel>Achievable 24h</FieldLabel>
             <FieldLabel>Dose per delivery</FieldLabel>
             <span />
 
             {medications.map((m, i) => {
               const d = rowDisplay(m, i, baseDose, c0);
               const editing = m.id === editingId;
-              // Dose per delivery = daily dose / delivery frequency, in the med's unit.
-              const perDelivery = baseDose > 0 ? fmtDose((d.ug / Math.max(1, bolusCount)) / d.div) : '';
+              // What the pump can really deliver for the programmed dose, and the
+              // per-delivery slice of it. Both follow from the achievable total, so
+              // the three columns always multiply out.
+              const achievablePrimaryUg = achievableDoseUgDay(baseDose, c0, bolusCount);
+              const achievableUg = i === 0 ? achievablePrimaryUg : coDoseUgDay(achievablePrimaryUg, c0, concUgPerUl(m));
+              const achievable = baseDose > 0 ? fmtDailyDose(achievableUg / d.div, d.unit) : '';
+              const perDelivery = baseDose > 0 ? fmtPerDelivery((achievableUg / Math.max(1, bolusCount)) / d.div, d.unit) : '';
               return (
                 <div key={m.id} className="contents">
-                  <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] leading-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                  <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[28px] leading-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                     {m.name || (i === 0 ? 'Primary' : 'Medication')}
                   </p>
 
@@ -141,7 +162,7 @@ export function BaseDose() {
                           applyEditDaily(m, i, (isNaN(v) ? 0 : v) * d.div);
                         }}
                         onBlur={() => setDraftText(null)}
-                        className={`flex-1 min-w-px bg-transparent outline-none border-0 p-0 placeholder:text-[#a5a5a5] ${fieldValueCls}`}
+                        className={`flex-1 min-w-px bg-transparent outline-none border-0 p-0 placeholder:text-[#9db3ad] ${fieldValueCls}`}
                         placeholder="0"
                         style={{ fontFamily: 'Roboto, sans-serif', fontVariationSettings: "'wdth' 100" }}
                       />
@@ -154,7 +175,13 @@ export function BaseDose() {
                     </Readout>
                   )}
 
-                  {/* Dose per delivery — derived from the daily dose ÷ delivery frequency */}
+                  {/* Achievable 24 h — the programmed dose quantised to whole strokes */}
+                  <Readout>
+                    <span className={readoutValueCls} style={{ fontVariationSettings: "'wdth' 100" }}>{achievable || '--'}</span>
+                    <span className={readoutUnitCls} style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/24h</span>
+                  </Readout>
+
+                  {/* Dose per delivery — the achievable day split across deliveries */}
                   <Readout>
                     <span className={readoutValueCls} style={{ fontVariationSettings: "'wdth' 100" }}>{perDelivery ? `~ ${perDelivery}` : '--'}</span>
                     <span className={readoutUnitCls} style={{ fontVariationSettings: "'wdth' 100" }}>{d.unit}/del</span>
@@ -180,15 +207,15 @@ export function BaseDose() {
           <div className="flex flex-col gap-[8px]">
             <RangeSlider min={sliderMin} max={Math.max(sliderMin, maxBoluses)} value={bolusCount} steps={freqOptions} disabled={!freqValid} onChange={setBolusCount} />
             <div className="flex justify-between">
-              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{freqValid ? sliderMin : '--'}</span>
-              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{freqValid ? maxBoluses : '--'}</span>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{freqValid ? sliderMin : '--'}</span>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{freqValid ? maxBoluses : '--'}</span>
             </div>
           </div>
 
           <div className="grid items-center gap-x-[16px] gap-y-[16px] [grid-template-columns:260px_1fr]">
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Deliveries</p>
+            <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Deliveries</p>
             <ReadoutField>{freqValid ? bolusCount : '--'}</ReadoutField>
-            <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Delivery time gap</p>
+            <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>Delivery time gap</p>
             <ReadoutField>{freqValid ? `~ ${gapMin} min` : '--'}</ReadoutField>
           </div>
         </div>
@@ -203,10 +230,10 @@ export function BaseDose() {
             </SectionHeader>
             <button
               onClick={() => leaveTo('windows')}
-              className="flex gap-[16px] h-[88px] items-center justify-center px-[42px] rounded-[80px] border-2 border-[#0094c5] cursor-pointer shrink-0"
+              className="flex gap-[16px] h-[88px] items-center justify-center px-[42px] rounded-[80px] border-2 border-[#0b786a] cursor-pointer shrink-0"
             >
               <ArrowForward />
-              <span className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[28px] leading-[42px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#0b786a] text-[28px] leading-[42px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                 Customise deliveries
               </span>
             </button>

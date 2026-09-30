@@ -21,16 +21,16 @@ type Source = 'Patient' | 'System';
 
 /** Colour is reserved for severity — matched to the dialogue status icons. */
 const SEVERITY_COLOR: Record<Severity, string> = {
-  critical: '#e5484d', // red error circle
-  warning: '#e8a400',  // amber warning triangle
-  routine: '#0094c5',  // blue info circle
+  critical: '#cc5457', // red error circle
+  warning: '#b3850e',  // amber warning triangle
+  routine: '#0b786a',  // blue info circle
 };
 
 /** Soft background used by an ongoing card, keyed by severity. */
 const TINT: Record<Severity, string> = {
-  critical: '#fdecee',
+  critical: '#f7d7d5',
   warning: '#fdf3d1',
-  routine: '#e6f4f9',
+  routine: '#f5fcf9',
 };
 
 const CATEGORY_LABEL: Record<CategoryKey, string> = {
@@ -71,14 +71,14 @@ type LogEvent = {
 const EVENTS: LogEvent[] = [
   {
     id: 'silenced',
-    date: '22.07.2026', time: '09:52', daysAgo: 2,
+    date: '22 Jul 2026', time: '09:52', daysAgo: 2,
     severity: 'warning', category: 'device', source: 'Patient',
     title: 'User silenced an active audible alarm',
     ongoing: true, status: 'Muted — condition still active',
   },
   {
     id: 'low-reservoir',
-    date: '22.07.2026', time: '09:41', daysAgo: 2,
+    date: '22 Jul 2026', time: '09:41', daysAgo: 2,
     severity: 'warning', category: 'refill', source: 'System',
     // Headline and summary are both restated against the live reservoir in
     // {@link Notifications}; these are the shape of them.
@@ -88,7 +88,7 @@ const EVENTS: LogEvent[] = [
   },
   {
     id: 'phys-bolus',
-    date: '21.07.2026', time: '18:40', daysAgo: 3,
+    date: '21 Jul 2026', time: '18:40', daysAgo: 3,
     severity: 'routine', category: 'therapy', source: 'Patient',
     title: 'Physician bolus completed',
     detail: 'Clinician-initiated bolus of 0.05 ml was delivered successfully.',
@@ -96,21 +96,21 @@ const EVENTS: LogEvent[] = [
   },
   {
     id: 'pat-bolus-req',
-    date: '21.07.2026', time: '18:12', daysAgo: 3,
+    date: '21 Jul 2026', time: '18:12', daysAgo: 3,
     severity: 'routine', category: 'therapy', source: 'Patient',
     title: 'Patient bolus request',
     detail: 'Patient requested an on-demand bolus from the handset. Request was accepted and queued.',
   },
   {
     id: 'prog-3-5',
-    date: '21.07.2026', time: '09:12', daysAgo: 3,
+    date: '21 Jul 2026', time: '09:12', daysAgo: 3,
     severity: 'routine', category: 'admin', source: 'System',
     title: 'Programming step (3-5)',
     detail: 'Therapy programming sequence — step 3 of 5 recorded.',
   },
   {
     id: 'next-refill',
-    date: '21.07.2026', time: '09:10', daysAgo: 3,
+    date: '21 Jul 2026', time: '09:10', daysAgo: 3,
     severity: 'warning', category: 'refill', source: 'System',
     title: 'Non-critical alarm – Next refill date',
     detail: 'A reminder was generated for the upcoming scheduled refill.',
@@ -118,7 +118,7 @@ const EVENTS: LogEvent[] = [
   },
   {
     id: 'telemetry',
-    date: '12.07.2026', time: '14:05', daysAgo: 12,
+    date: '12 Jul 2026', time: '14:05', daysAgo: 12,
     severity: 'routine', category: 'device', source: 'System',
     title: 'Telemetry recovery occurred',
     detail: 'The wireless link to the pump was re-established after a brief interruption.',
@@ -126,7 +126,7 @@ const EVENTS: LogEvent[] = [
   },
   {
     id: 'handshake',
-    date: '12.07.2026', time: '13:58', daysAgo: 12,
+    date: '12 Jul 2026', time: '13:58', daysAgo: 12,
     severity: 'critical', category: 'device', source: 'System',
     title: 'Critical alarm – Infusion handshake error',
     detail: 'The pump reported a handshake error during an infusion cycle. The session was halted and later recovered once telemetry returned.',
@@ -134,21 +134,21 @@ const EVENTS: LogEvent[] = [
   },
   {
     id: 'prog-7-7',
-    date: '08.07.2026', time: '11:30', daysAgo: 16,
+    date: '08 Jul 2026', time: '11:30', daysAgo: 16,
     severity: 'routine', category: 'admin', source: 'System',
     title: 'Programming step (7-7)',
     detail: 'Therapy programming sequence — final step 7 of 7 recorded.',
   },
   {
     id: 'status-cleared',
-    date: '08.07.2026', time: '11:28', daysAgo: 16,
+    date: '08 Jul 2026', time: '11:28', daysAgo: 16,
     severity: 'routine', category: 'admin', source: 'System',
     title: 'Event status cleared',
     detail: 'Outstanding event flags were reset by the clinician.',
   },
   {
     id: 'infusion-hist-cleared',
-    date: '08.07.2026', time: '11:27', daysAgo: 16,
+    date: '08 Jul 2026', time: '11:27', daysAgo: 16,
     severity: 'warning', category: 'admin', source: 'System',
     title: 'Non-critical alarm – Infusion history cleared',
     detail: 'Stored infusion history was cleared from the device memory.',
@@ -156,21 +156,21 @@ const EVENTS: LogEvent[] = [
   },
   {
     id: 'counters-cleared',
-    date: '30.06.2026', time: '16:44', daysAgo: 24,
+    date: '30 Jun 2026', time: '16:44', daysAgo: 24,
     severity: 'routine', category: 'admin', source: 'System',
     title: 'Patient activation event counters cleared',
     detail: 'Patient activation counters were reset to zero.',
   },
   {
     id: 'log-cleared',
-    date: '30.06.2026', time: '16:40', daysAgo: 24,
+    date: '30 Jun 2026', time: '16:40', daysAgo: 24,
     severity: 'routine', category: 'admin', source: 'System',
     title: 'System event log cleared',
     detail: 'The full system event log was cleared from the device.',
   },
   {
     id: 'pat-bolus-done',
-    date: '24.06.2026', time: '08:15', daysAgo: 30,
+    date: '24 Jun 2026', time: '08:15', daysAgo: 30,
     severity: 'routine', category: 'therapy', source: 'Patient',
     title: 'Patient bolus completed',
     detail: 'Patient-requested bolus of 0.02 ml was delivered successfully.',
@@ -190,10 +190,10 @@ type RangeKey = 'connection' | '7d' | '30d';
  * so the toolbar always says what it is currently showing.
  */
 const SEVERITY_OPTIONS: { key: SeverityFilter; label: string; color: string }[] = [
-  { key: 'all', label: 'All severities', color: '#00769e' },
+  { key: 'all', label: 'All severities', color: '#096657' },
   { key: 'critical', label: 'Critical', color: '#cc5457' },
   { key: 'warning', label: 'Warnings', color: '#b3850e' },
-  { key: 'routine', label: 'Routine', color: '#00769e' },
+  { key: 'routine', label: 'Routine', color: '#096657' },
 ];
 
 const CATEGORY_OPTIONS: { key: CategoryFilter; label: string }[] = [
@@ -206,7 +206,7 @@ const CATEGORY_OPTIONS: { key: CategoryFilter; label: string }[] = [
  * full range is bounded by that date rather than being open-ended; the shorter
  * ranges cut into it from the present.
  */
-const CONNECTED_SINCE = '24.06.2026';
+const CONNECTED_SINCE = '24 Jun 2026';
 
 const RANGE_OPTIONS: { key: RangeKey; label: string; chip: string; days: number | null }[] = [
   { key: 'connection', label: 'Last connection', chip: 'Since last connection', days: null },
@@ -256,7 +256,7 @@ function SeverityIcon({ severity, size = 30 }: { severity: Severity; size?: numb
 function Caret({ open }: { open: boolean }) {
   return (
     <svg width="24" height="12" viewBox="0 0 24 12" fill="none" className={`shrink-0 transition-transform duration-150 ${open ? 'rotate-180' : ''}`}>
-      <path d="M2 2L12 10L22 2" stroke="#0094c5" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2 2L12 10L22 2" stroke="#0b786a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -265,7 +265,7 @@ function Caret({ open }: { open: boolean }) {
 function Check() {
   return (
     <svg width="20" height="16" viewBox="0 0 20 16" fill="none" className="shrink-0">
-      <path d="M2 8.5L7 13.5L18 2.5" stroke="#0094c5" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2 8.5L7 13.5L18 2.5" stroke="#0b786a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -284,14 +284,14 @@ function Select({ label, open, onToggle, width = 380, children }: {
     <div className="relative shrink-0 z-40">
       <button
         onClick={onToggle}
-        className={`bg-white border-2 rounded-[60px] h-[88px] px-[32px] flex gap-[12px] items-center justify-center cursor-pointer ${open ? 'border-[#0094c5]' : 'border-[#e6f4f9]'}`}
+        className={`bg-white border-2 rounded-[60px] h-[88px] px-[32px] flex gap-[12px] items-center justify-center cursor-pointer ${open ? 'border-[#0b786a]' : 'border-[#f5fcf9]'}`}
       >
-        <span className={`${FONT} font-bold text-[#00769e] text-[22px] leading-[28px] whitespace-nowrap`} style={wdth}>{label}</span>
+        <span className={`${FONT} font-bold text-[#096657] text-[22px] leading-[28px] whitespace-nowrap`} style={wdth}>{label}</span>
         <Caret open={open} />
       </button>
       {open && (
         <div
-          className="absolute left-0 top-[100px] z-40 bg-white border-2 border-[#e6f4f9] rounded-[24px] py-[12px] overflow-hidden shadow-[0px_12px_32px_0px_rgba(0,0,0,0.16)]"
+          className="absolute left-0 top-[100px] z-40 bg-white border-2 border-[#f5fcf9] rounded-[24px] py-[12px] overflow-hidden shadow-[0px_12px_32px_0px_rgba(0,0,0,0.16)]"
           style={{ width }}
         >
           {children}
@@ -311,10 +311,10 @@ function Option({ label, color, selected, icon, first, onClick }: {
 }) {
   return (
     <>
-      {!first && <div className="h-[2px] bg-[#e6f4f9] w-full" />}
+      {!first && <div className="h-[2px] bg-[#f5fcf9] w-full" />}
       <button
         onClick={onClick}
-        className={`h-[76px] px-[28px] flex items-center justify-between gap-[16px] w-full cursor-pointer ${selected ? 'bg-[#e6f4f9]' : 'bg-white'}`}
+        className={`h-[76px] px-[28px] flex items-center justify-between gap-[16px] w-full cursor-pointer ${selected ? 'bg-[#f5fcf9]' : 'bg-white'}`}
       >
         <span className={`${FONT} font-bold text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap`} style={{ ...wdth, color }}>
           {label}
@@ -329,7 +329,7 @@ function Option({ label, color, selected, icon, first, onClick }: {
 function CategoryBadge({ category }: { category: CategoryKey }) {
   return (
     <span
-      className={`${FONT} font-normal text-[#45483c] text-[20px] leading-[24px] tracking-[0.1px] whitespace-nowrap rounded-[24px] px-[18px] py-[6px] bg-white border-2 border-[#e6f4f9] shrink-0`}
+      className={`${FONT} font-normal text-[#183d38] text-[20px] leading-[24px] tracking-[0.1px] whitespace-nowrap rounded-[24px] px-[18px] py-[6px] bg-white border-2 border-[#f5fcf9] shrink-0`}
       style={wdth}
     >
       {CATEGORY_LABEL[category]}
@@ -338,7 +338,7 @@ function CategoryBadge({ category }: { category: CategoryKey }) {
 }
 
 /** Disclosure chevron: points into the row at rest, down once it is open. */
-function Chevron({ open, color = '#9ea8b2' }: { open: boolean; color?: string }) {
+function Chevron({ open, color = '#9db3ad' }: { open: boolean; color?: string }) {
   return (
     <svg
       width="20" height="20" viewBox="0 0 20 20" fill="none"
@@ -358,12 +358,12 @@ function PillButton({ label, onClick, primary, icon }: { label: string; onClick:
     <button
       onClick={onClick}
       className={`h-[72px] min-w-[240px] px-[24px] rounded-[40px] flex gap-[16px] items-center justify-center cursor-pointer shrink-0 ${
-        primary ? 'bg-[#0094c5]' : 'border-[3px] border-[#0094c5]'
+        primary ? 'bg-[#0b786a]' : 'border-[3px] border-[#0b786a]'
       }`}
     >
       {icon}
       <span
-        className={`${FONT} font-bold text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap ${primary ? 'text-white' : 'text-[#0094c5]'}`}
+        className={`${FONT} font-bold text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap ${primary ? 'text-white' : 'text-[#0b786a]'}`}
         style={wdth}
       >
         {label}
@@ -387,7 +387,7 @@ function ExportIcon() {
 function DismissIcon() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="shrink-0">
-      <path d="M6 6L18 18M18 6L6 18" stroke="#8b8f84" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M6 6L18 18M18 6L6 18" stroke="#596d68" strokeWidth="2.2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -405,7 +405,7 @@ type SendTo = 'email' | 'ehr';
 /** Uppercase caption naming a group of the export sheet. */
 function GroupLabel({ children }: { children: ReactNode }) {
   return (
-    <p className={`${FONT} font-bold text-[#9ea8b2] text-[22px] leading-[26px] tracking-[1px] whitespace-nowrap`} style={wdth}>
+    <p className={`${FONT} font-bold text-[#9db3ad] text-[22px] leading-[26px] tracking-[1px] whitespace-nowrap`} style={wdth}>
       {children}
     </p>
   );
@@ -414,16 +414,16 @@ function GroupLabel({ children }: { children: ReactNode }) {
 /** Read-only pill restating one axis of the filter the export will inherit. */
 function IncludeChip({ label, icon }: { label: string; icon?: ReactNode }) {
   return (
-    <div className="h-[56px] px-[24px] rounded-[28px] bg-white border-2 border-[#b2d6e2] flex gap-[10px] items-center justify-center shrink-0">
+    <div className="h-[56px] px-[24px] rounded-[28px] bg-white border-2 border-[#9fd6c6] flex gap-[10px] items-center justify-center shrink-0">
       {icon}
-      <span className={`${FONT} font-bold text-[#00769e] text-[24px] leading-[30px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>{label}</span>
+      <span className={`${FONT} font-bold text-[#096657] text-[24px] leading-[30px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>{label}</span>
     </div>
   );
 }
 
 function Radio({ on }: { on: boolean }) {
   return (
-    <span className={`size-[36px] rounded-full shrink-0 ${on ? 'bg-[#0094c5]' : 'bg-white border-[3px] border-[#b2d6e2]'}`} />
+    <span className={`size-[36px] rounded-full shrink-0 ${on ? 'bg-[#0b786a]' : 'bg-white border-[3px] border-[#9fd6c6]'}`} />
   );
 }
 
@@ -436,12 +436,12 @@ function DestinationRow({ title, sub, selected, disabled, onSelect }: {
       onClick={disabled ? undefined : onSelect}
       className={`w-full rounded-[20px] px-[28px] py-[22px] flex gap-[24px] items-center text-left ${
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-      } ${selected ? 'bg-[#edf7fb] border-[3px] border-[#0094c5]' : 'bg-white border-2 border-[#b2d6e2]'}`}
+      } ${selected ? 'bg-[#f5fcf9] border-[3px] border-[#0b786a]' : 'bg-white border-2 border-[#9fd6c6]'}`}
     >
       <Radio on={selected} />
       <span className="flex-1 min-w-px flex flex-col gap-[6px]">
-        <span className={`${FONT} font-bold text-[#45483c] text-[26px] leading-[32px]`} style={wdth}>{title}</span>
-        <span className={`${FONT} font-normal text-[#9ea8b2] text-[22px] leading-[28px]`} style={wdth}>{sub}</span>
+        <span className={`${FONT} font-bold text-[#183d38] text-[26px] leading-[32px]`} style={wdth}>{title}</span>
+        <span className={`${FONT} font-normal text-[#9db3ad] text-[22px] leading-[28px]`} style={wdth}>{sub}</span>
       </span>
     </button>
   );
@@ -451,10 +451,10 @@ function DestinationRow({ title, sub, selected, disabled, onSelect }: {
 function EventDetail({ event }: { event: LogEvent }) {
   return (
     <div className="flex flex-col gap-[16px] pt-[16px]">
-      <p className={`${FONT} font-normal text-[#6b7880] text-[24px] leading-[34px] tracking-[0.1px]`} style={wdth}>
+      <p className={`${FONT} font-normal text-[#596d68] text-[24px] leading-[34px] tracking-[0.1px]`} style={wdth}>
         {event.detail}
       </p>
-      <p className={`${FONT} font-normal text-[#9ea8b2] text-[22px] leading-[28px] tracking-[0.1px]`} style={wdth}>
+      <p className={`${FONT} font-normal text-[#9db3ad] text-[22px] leading-[28px] tracking-[0.1px]`} style={wdth}>
         {event.source}
         {event.status ? ` · ${event.status}` : ''}
       </p>
@@ -480,14 +480,14 @@ function OngoingCard({ event, actions, onDismiss }: { event: LogEvent; actions?:
         <SeverityIcon severity={event.severity} size={40} />
         <div className="flex-1 min-w-px flex flex-col gap-[24px] justify-center pt-[8px]">
           <div className="flex gap-[24px] items-start w-full">
-            <p className={`${FONT} font-bold text-[#45483c] text-[28px] leading-[32px] tracking-[0.1px] flex-1 min-w-px`} style={wdth}>
+            <p className={`${FONT} font-bold text-[#183d38] text-[28px] leading-[32px] tracking-[0.1px] flex-1 min-w-px`} style={wdth}>
               {event.title}
             </p>
             <button onClick={onDismiss} aria-label="Dismiss" className="cursor-pointer shrink-0">
               <DismissIcon />
             </button>
           </div>
-          <p className={`${FONT} font-normal text-[#45483c] text-[24px] leading-[32px] tracking-[0.1px]`} style={wdth}>
+          <p className={`${FONT} font-normal text-[#183d38] text-[24px] leading-[32px] tracking-[0.1px]`} style={wdth}>
             {event.summary ?? `${event.date} ${event.time} · ${event.status}`}
           </p>
         </div>
@@ -501,13 +501,13 @@ function OngoingCard({ event, actions, onDismiss }: { event: LogEvent; actions?:
 
 function HistoryRow({ event, open, onToggle }: { event: LogEvent; open: boolean; onToggle: () => void }) {
   return (
-    <div className="border-b border-[#f0f0f0] w-full">
+    <div className="border-b border-[#eef3f1] w-full">
       <button onClick={onToggle} className="flex gap-[24px] items-center w-full py-[16px] text-left cursor-pointer">
-        <p className={`${FONT} font-normal text-[#a5a5a5] text-[20px] leading-[24px] tracking-[0.1px] w-[220px] shrink-0`} style={wdth}>
+        <p className={`${FONT} font-normal text-[#9db3ad] text-[20px] leading-[24px] tracking-[0.1px] w-[220px] shrink-0`} style={wdth}>
           {event.date}&nbsp;&nbsp;{event.time}
         </p>
         <SeverityIcon severity={event.severity} size={32} />
-        <p className={`${FONT} font-normal text-[#45483c] text-[24px] leading-[32px] tracking-[0.1px] flex-1 min-w-px`} style={wdth}>
+        <p className={`${FONT} font-normal text-[#183d38] text-[24px] leading-[32px] tracking-[0.1px] flex-1 min-w-px`} style={wdth}>
           {event.title}
         </p>
         <CategoryBadge category={event.category} />
@@ -533,7 +533,7 @@ function HistoryRow({ event, open, onToggle }: { event: LogEvent; open: boolean;
  */
 export function Notifications() {
   const navigate = useNavigate();
-  const { alertLevelMl, volMlPerDay, setFlowMode } = useTherapy();
+  const { alertLevelMl, volMlPerDay, setFlowMode, setRefillBranch } = useTherapy();
 
   const [severity, setSeverity] = useState<SeverityFilter>('all');
   const [category, setCategory] = useState<CategoryFilter>('all');
@@ -552,7 +552,7 @@ export function Notifications() {
 
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   // The alert level lives behind the toggle on the Refill Date step.
-  const adjustAlert = () => { setFlowMode('refill'); navigate('refill-date'); };
+  const adjustAlert = () => { setFlowMode('refill'); setRefillBranch(null); navigate('refill-date'); };
 
   // Splice the live reservoir figures into the seeded low-reservoir alert.
   const events = useMemo<LogEvent[]>(() => EVENTS.map(e =>
@@ -614,10 +614,10 @@ export function Notifications() {
       title="Logs"
       headerRight={
         <div className="flex flex-col gap-[4px] items-end text-right">
-          <p className={`${FONT} font-bold text-[#45483c] text-[26px] leading-[32px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
+          <p className={`${FONT} font-bold text-[#183d38] text-[26px] leading-[32px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
             {visible.length} {visible.length === 1 ? 'event' : 'events'}
           </p>
-          <p className={`${FONT} font-normal text-[#9ea8b2] text-[22px] leading-[28px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
+          <p className={`${FONT} font-normal text-[#9db3ad] text-[22px] leading-[28px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
             Logs since last connection on {CONNECTED_SINCE}
           </p>
         </div>
@@ -627,12 +627,12 @@ export function Notifications() {
           <div onClick={() => setExportOpen(false)} className="absolute inset-0 bg-black/40" />
           <div className="relative bg-white rounded-t-[40px] shadow-[0px_-8px_40px_0px_rgba(0,0,0,0.18)] px-[64px] pt-[32px] pb-[56px] flex flex-col gap-[40px]">
             <div className="flex justify-center w-full">
-              <div className="h-[8px] w-[120px] rounded-[4px] bg-[#d9e0e5]" />
+              <div className="h-[8px] w-[120px] rounded-[4px] bg-[#cedfd9]" />
             </div>
 
             <div className="flex flex-col gap-[10px] w-full">
-              <p className={`${FONT} font-bold text-[#45483c] text-[40px] leading-[48px] whitespace-nowrap`} style={wdth}>Export logs</p>
-              <p className={`${FONT} font-normal text-[#9ea8b2] text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
+              <p className={`${FONT} font-bold text-[#183d38] text-[40px] leading-[48px] whitespace-nowrap`} style={wdth}>Export logs</p>
+              <p className={`${FONT} font-normal text-[#9db3ad] text-[24px] leading-[32px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
                 {visible.length} {visible.length === 1 ? 'event' : 'events'} · {spanFrom} – {spanTo} · Patient ID {PATIENT_ID}
               </p>
             </div>
@@ -682,13 +682,13 @@ export function Notifications() {
             <div className="flex gap-[24px] items-start justify-end w-full">
               <button
                 onClick={() => setExportOpen(false)}
-                className="border-[3px] border-[#0094c5] rounded-[80px] h-[88px] min-w-[240px] px-[40px] flex items-center justify-center cursor-pointer"
+                className="border-[3px] border-[#0b786a] rounded-[80px] h-[88px] min-w-[240px] px-[40px] flex items-center justify-center cursor-pointer"
               >
-                <span className={`${FONT} font-bold text-[#0094c5] text-[24px] leading-[32px] tracking-[0.1px]`} style={wdth}>Cancel</span>
+                <span className={`${FONT} font-bold text-[#0b786a] text-[24px] leading-[32px] tracking-[0.1px]`} style={wdth}>Cancel</span>
               </button>
               <button
                 onClick={runExport}
-                className="bg-[#0094c5] rounded-[80px] h-[88px] min-w-[240px] px-[40px] flex items-center justify-center cursor-pointer"
+                className="bg-[#0b786a] rounded-[80px] h-[88px] min-w-[240px] px-[40px] flex items-center justify-center cursor-pointer"
               >
                 <span className={`${FONT} font-bold text-white text-[24px] leading-[32px] tracking-[0.1px]`} style={wdth}>Export</span>
               </button>
@@ -722,7 +722,7 @@ export function Notifications() {
               <Option
                 key={o.key}
                 label={o.label}
-                color="#00769e"
+                color="#096657"
                 first={i === 0}
                 selected={category === o.key}
                 onClick={() => { setCategory(o.key); setOpenSelect(null); }}
@@ -735,7 +735,7 @@ export function Notifications() {
               <Option
                 key={o.key}
                 label={o.label}
-                color="#00769e"
+                color="#096657"
                 first={i === 0}
                 selected={range === o.key}
                 onClick={() => { setRange(o.key); setOpenSelect(null); }}
@@ -745,7 +745,7 @@ export function Notifications() {
 
           <button
             onClick={() => { setOpenSelect(null); setExportOpen(true); }}
-            className="bg-[#0094c5] rounded-[80px] h-[88px] min-w-[240px] px-[40px] flex gap-[16px] items-center justify-center cursor-pointer shrink-0"
+            className="bg-[#0b786a] rounded-[80px] h-[88px] min-w-[240px] px-[40px] flex gap-[16px] items-center justify-center cursor-pointer shrink-0"
           >
             <ExportIcon />
             <span className={`${FONT} font-bold text-white text-[24px] leading-[32px] tracking-[0.1px]`} style={wdth}>Export</span>
@@ -757,7 +757,7 @@ export function Notifications() {
           {/* Ongoing — still-valid alerts, visually distinct from history */}
           {ongoing.length > 0 && (
             <div className="flex flex-col gap-[16px] w-full">
-              <p className={`${FONT} font-bold text-[#45483c] text-[28px] leading-[32px] tracking-[0.1px]`} style={wdth}>
+              <p className={`${FONT} font-bold text-[#183d38] text-[28px] leading-[32px] tracking-[0.1px]`} style={wdth}>
                 Active now
               </p>
               {ongoing.map(e => (
@@ -779,7 +779,7 @@ export function Notifications() {
           {/* History — flat, resolved */}
           {history.length > 0 && (
             <div className="flex flex-col gap-[8px] w-full">
-              <p className={`${FONT} font-bold text-[#45483c] text-[28px] leading-[32px] tracking-[0.1px]`} style={wdth}>
+              <p className={`${FONT} font-bold text-[#183d38] text-[28px] leading-[32px] tracking-[0.1px]`} style={wdth}>
                 History
               </p>
               <div className="flex flex-col w-full">
@@ -791,7 +791,7 @@ export function Notifications() {
           )}
 
           {visible.length === 0 && (
-            <p className={`${FONT} font-normal text-[#9ea8b2] text-[24px] leading-[32px] tracking-[0.1px] py-[40px] w-full text-center`} style={wdth}>
+            <p className={`${FONT} font-normal text-[#9db3ad] text-[24px] leading-[32px] tracking-[0.1px] py-[40px] w-full text-center`} style={wdth}>
               No events match these filters.
             </p>
           )}

@@ -3,6 +3,7 @@ import { HomeShell } from '../components/HomeShell';
 import { MedSummary } from '../components/MedSummary';
 import { useTherapy, withBaseFillers, estimatedDailyTotal } from '../therapy';
 import { ProfileChart } from '../components/TherapyBreakdown';
+import { BridgeBolusStatus } from '../components/BridgeBolus';
 
 const NOW_MIN = 716; // "11:56"
 
@@ -17,6 +18,8 @@ function ActiveBody() {
 
   return (
     <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-[984px]">
+      {/* Running after a medication-change refill (Figma 11178:243605). */}
+      <BridgeBolusStatus className="w-full" surface="#ffffff" />
       {/* Always show the 24-hour chart for an active therapy — flat when the
           therapy is base-dose only (no windows), with peaks once windows exist. */}
       {baseDose > 0 && (

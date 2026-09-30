@@ -14,18 +14,18 @@ import { BolusBars, PerDelAxis, HourAxis } from './TherapyHeaderChart';
 import { TherapyIcon } from './HomeShell';
 
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
-const labelCls = "font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]";
+const labelCls = "font-['Roboto',sans-serif] font-bold text-[#096657] text-[24px] tracking-[0.1px]";
 
-const HEAD_BG = '#c4e1ef';
-const TOTAL_BG = '#d8ecf7';
-const ROW_BG = '#eef6fb';
+const HEAD_BG = '#d9f0e8';
+const TOTAL_BG = '#e9f7f2';
+const ROW_BG = '#f7fcfa';
 // Exported so the Therapy detail page can tint its Total 24 h band to match the
 // medication summary rows.
 export const MED_TOTAL_BG = TOTAL_BG;
 
 function KebabIcon() {
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="#0094c5">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="#0b786a">
       <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
     </svg>
   );
@@ -34,7 +34,7 @@ function KebabIcon() {
 function Chevron({ up }: { up?: boolean }) {
   return (
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="shrink-0" style={{ transform: up ? 'rotate(180deg)' : undefined }}>
-      <path d="M6 9l6 6 6-6" stroke="#00769e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 9l6 6 6-6" stroke="#096657" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -48,8 +48,8 @@ const TOTAL_VAL_W = '88px';
 function Metric({ value, unit, bold = true, slotW }: { value: string; unit: string; bold?: boolean; slotW?: string }) {
   return (
     <span className="flex items-baseline whitespace-nowrap">
-      <span className={`font-['Roboto',sans-serif] ${bold ? 'font-bold' : 'font-normal'} text-[#00769e] text-[32px] tracking-[0.1px] ${slotW ? 'inline-block text-right shrink-0' : ''}`} style={slotW ? { width: slotW, ...wdth } : wdth}>{value}</span>
-      <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px]" style={wdth}>{unit}</span>
+      <span className={`font-['Roboto',sans-serif] ${bold ? 'font-bold' : 'font-normal'} text-[#096657] text-[32px] tracking-[0.1px] ${slotW ? 'inline-block text-right shrink-0' : ''}`} style={slotW ? { width: slotW, ...wdth } : wdth}>{value}</span>
+      <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[22px] ml-[8px]" style={wdth}>{unit}</span>
     </span>
   );
 }
@@ -85,10 +85,10 @@ export function ValueRow({ label, value, unit, bg, delta, note }: { label: strin
     <div className="grid items-center gap-[24px] [grid-template-columns:220px_1fr]">
       <p className={labelCls}>{label}</p>
       <div className="rounded-[8px] h-[60px] flex items-baseline px-[24px]" style={{ background: bg }}>
-        <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px] self-center" style={wdth}>{value}</span>
-        <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px] self-center" style={wdth}>{unit}</span>
+        <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px] self-center" style={wdth}>{value}</span>
+        <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[22px] ml-[8px] self-center" style={wdth}>{unit}</span>
         {note && (
-          <span className="ml-[16px] font-['Roboto',sans-serif] font-bold text-[#00769e] text-[22px] self-center whitespace-nowrap" style={wdth}>· {note}</span>
+          <span className="ml-[16px] font-['Roboto',sans-serif] font-bold text-[#096657] text-[22px] self-center whitespace-nowrap" style={wdth}>· {note}</span>
         )}
         {showDelta && (
           <span className="ml-auto font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[40px] self-center whitespace-nowrap" style={wdth}>
@@ -117,7 +117,7 @@ const NOW_POS = `calc(${CHART_AXIS_L}px + (100% - ${CHART_AXIS_L + 24}px) * ${NO
  */
 export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, unit, showNow = false }: { baseDose: number; bolusCount: number; maxBoluses: number; windows: Interval[]; unit: string; showNow?: boolean }) {
   return (
-    <div className="relative w-full bg-white border border-[#d9dbde] rounded-[16px]" style={{ height: 250 }}>
+    <div className="relative w-full bg-white border border-[#cedfd9] rounded-[16px]" style={{ height: 250 }}>
       {/* Shorter bars (to match the wizard chart) but the same 250px card height —
           the extra space sits as headroom above the bars. */}
       <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={windows} unit={unit}
@@ -127,11 +127,11 @@ export function ProfileChart({ baseDose, bolusCount, maxBoluses, windows, unit, 
           <BolusBars baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} nominalH={30} maxH={BAR_MAX_H} minH={10} barWidth={9} />
         </div>
       </div>
-      <div className="absolute right-[24px] h-px bg-[#e3e6e9]" style={{ left: CHART_AXIS_L, bottom: 48 }} />
+      <div className="absolute right-[24px] h-px bg-[#e3ece8]" style={{ left: CHART_AXIS_L, bottom: 48 }} />
       {showNow && (
         <>
-          <div className="absolute w-[2px] bg-[#063b66]" style={{ left: NOW_POS, top: 24, bottom: 48 }} />
-          <div className="absolute" style={{ left: NOW_POS, top: 14, transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '10px solid #063b66' }} />
+          <div className="absolute w-[2px] bg-[#183d38]" style={{ left: NOW_POS, top: 24, bottom: 48 }} />
+          <div className="absolute" style={{ left: NOW_POS, top: 14, transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '10px solid #183d38' }} />
         </>
       )}
       <HourAxis left={CHART_AXIS_L} right={24} bottom={14} />
@@ -154,7 +154,7 @@ export function TherapyChartCard({ showNow = false, showHeader = true, windowsOv
       {showHeader && (
         <div className="flex items-center gap-[16px]">
           <TherapyIcon size={48} />
-          <p className="flex-1 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>
+          <p className="flex-1 font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px]" style={wdth}>
             Medication &amp; Therapy
           </p>
           <KebabIcon />
@@ -163,7 +163,7 @@ export function TherapyChartCard({ showNow = false, showHeader = true, windowsOv
 
       {/* 24-hour view */}
       <div className="flex flex-col gap-[12px]">
-        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={wdth}>24-hour view</p>
+        <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[24px] tracking-[0.1px]" style={wdth}>24-hour view</p>
         <ProfileChart baseDose={baseDose} bolusCount={bolusCount} maxBoluses={maxBoluses} windows={windows} unit={unit} showNow={showNow} />
       </div>
     </div>
@@ -216,8 +216,8 @@ export function TherapyMedBreakdown({ showFrequency = true, windowsOverride }: {
                   the % column. */}
               <div className="rounded-[8px] h-[60px] grid items-center gap-[16px] px-[24px] [grid-template-columns:1fr_1fr_100px]" style={{ background: HEAD_BG }}>
                 <span className="flex items-baseline gap-[8px] min-w-0">
-                  <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] tracking-[0.1px] truncate" style={wdth}>{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
-                  <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] whitespace-nowrap" style={wdth}>{m.concentration} {m.unit}</span>
+                  <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[28px] tracking-[0.1px] truncate" style={wdth}>{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
+                  <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[22px] whitespace-nowrap" style={wdth}>{m.concentration} {m.unit}</span>
                 </span>
                 {/* Total 24 h value — aligned with the per-window total column below. */}
                 <Metric value={doseStringsFor(totalUg, u).perDay} unit={`${unit}/24h`} slotW={TOTAL_VAL_W} />

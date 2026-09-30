@@ -14,16 +14,16 @@ const imgPrime3 = "/icons/imp-prime-3.svg";
 const imgAccess = "/icons/imp-access.svg";
 const imgRevision = "/icons/imp-revision.svg";
 
-const labelCls = "font-['Roboto',sans-serif] font-normal text-[#00769e] text-[22px] tracking-[0.1px]";
+const labelCls = "font-['Roboto',sans-serif] font-normal text-[#096657] text-[22px] tracking-[0.1px]";
 
 /** Label on the left, light-blue value box on the right. */
 function StatPair({ label, value, unit }: { label: string; value: string; unit?: string }) {
   return (
     <div className="flex items-center gap-[20px] flex-1 min-w-px">
-      <p className="w-[200px] shrink-0 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
-      <div className="flex-1 min-w-px bg-[#e6f4f9] rounded-[8px] h-[64px] px-[20px] flex items-center gap-[8px]">
-        <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{value}</span>
-        {unit && <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[24px]">{unit}</span>}
+      <p className="w-[200px] shrink-0 font-['Roboto',sans-serif] font-bold text-[#096657] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
+      <div className="flex-1 min-w-px bg-[#f5fcf9] rounded-[8px] h-[64px] px-[20px] flex items-center gap-[8px]">
+        <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{value}</span>
+        {unit && <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[24px]">{unit}</span>}
       </div>
     </div>
   );
@@ -31,7 +31,7 @@ function StatPair({ label, value, unit }: { label: string; value: string; unit?:
 
 function Tile({ label, children, onClick }: { label: string; children: ReactNode; onClick?: () => void }) {
   return (
-    <div onClick={onClick} className="bg-[#0094c5] rounded-[16px] flex-1 h-[237px] flex flex-col items-center justify-center gap-[18px] overflow-clip px-[20px] py-[26px] cursor-pointer">
+    <div onClick={onClick} className="bg-[#0b786a] rounded-[16px] flex-1 h-[237px] flex flex-col items-center justify-center gap-[18px] overflow-clip px-[20px] py-[26px] cursor-pointer">
       <div className="overflow-clip relative shrink-0 size-[140px]">{children}</div>
       <span className="font-['Roboto',sans-serif] font-bold text-white text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</span>
     </div>
@@ -51,7 +51,7 @@ export function ImplantDetail() {
         <div className="flex items-center gap-[16px]">
           <Filling fill={fillFraction} />
           <div className="flex flex-1 items-start justify-between">
-            <div className="flex flex-col text-[#00769e] whitespace-nowrap">
+            <div className="flex flex-col text-[#096657] whitespace-nowrap">
               <p className={labelCls}>Fill level</p>
               <p className="font-['Roboto',sans-serif] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                 <span className="font-bold text-[36px] leading-[52px]">{fillMl} / </span>
@@ -59,7 +59,7 @@ export function ImplantDetail() {
               </p>
               <p className="font-['Roboto',sans-serif] font-normal text-[32px] leading-[36px]" style={{ fontVariationSettings: "'wdth' 100" }}>{fillPct} %</p>
             </div>
-            <div className="flex flex-col text-[#00769e] whitespace-nowrap">
+            <div className="flex flex-col text-[#096657] whitespace-nowrap">
               <p className={labelCls}>Medication delivery</p>
               <p className="font-['Roboto',sans-serif] font-bold text-[36px] leading-[52px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>active</p>
             </div>
@@ -75,7 +75,7 @@ export function ImplantDetail() {
         {/* Pump details */}
         <div className="flex flex-col gap-[16px]">
           <div className="flex gap-[48px]">
-            <StatPair label="Implantation" value="12.04.2018" />
+            <StatPair label="Implantation" value="12 Apr 2018" />
             <StatPair label="Con-C Version" value="0.1.7" />
           </div>
           <div className="flex gap-[48px]">
@@ -91,7 +91,7 @@ export function ImplantDetail() {
               <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCathInline} />
             </div>
           </div>
-          <div className="flex flex-col text-[#00769e] whitespace-nowrap">
+          <div className="flex flex-col text-[#096657] whitespace-nowrap">
             <p className={labelCls}>Catheter</p>
             <p className="font-['Roboto',sans-serif] font-bold text-[36px] leading-[52px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>{CATHETER.brand}</p>
           </div>

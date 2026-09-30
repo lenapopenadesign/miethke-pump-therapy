@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, REFILL_MIN_LEAD_DAYS, MIN_ALERT_ML, MAX_ALERT_ML } from '../therapy';
+import { useTherapy, formatDate, REFILL_MIN_LEAD_DAYS, MIN_ALERT_ML, MAX_ALERT_ML } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { WizardTotalsFooter, SaveButton, StepButton, ToggleSwitch, Explainer, CalendarIcon } from '../components/WizardParts';
 import { Field, Readout, fieldValueCls, fieldUnitCls, readoutUnitCls, readoutValueCls } from '../components/Field';
@@ -10,9 +10,9 @@ import { DepletionChart } from '../components/DepletionChart';
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 const FONT = "font-['Roboto',sans-serif]";
 
-/** dd.mm — the short form the chart puts under a projected marker. */
+/** `19 Aug` — the short form the chart puts under a projected marker. */
 function shortDate(date: string) {
-  return date.length === 10 ? date.slice(0, 5) : '—';
+  return date.length === 11 ? date.slice(0, 6) : '—';
 }
 
 /** Section heading: 56px glyph + title, optionally with an `i` badge. */
@@ -20,13 +20,13 @@ function SectionTitle({ icon, children, onInfo }: { icon: React.ReactNode; child
   return (
     <div className="flex gap-[16px] items-center">
       {icon}
-      <p className={`${FONT} font-bold text-[#00769e] text-[36px] leading-[40px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
+      <p className={`${FONT} font-bold text-[#096657] text-[36px] leading-[40px] tracking-[0.1px] whitespace-nowrap`} style={wdth}>
         {children}
       </p>
       {onInfo && (
         <div
           onClick={onInfo}
-          className="size-[36px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0 cursor-pointer"
+          className="size-[36px] rounded-full bg-[#0b786a] flex items-center justify-center shrink-0 cursor-pointer"
         >
           <span className={`${FONT} font-bold text-white text-[24px] leading-none`} style={wdth}>i</span>
         </div>
@@ -39,7 +39,7 @@ function SectionTitle({ icon, children, onInfo }: { icon: React.ReactNode; child
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex gap-[26px] items-center pl-[56px]">
-      <p className={`${FONT} font-extrabold text-[#00769e] text-[30px] flex-1 min-w-px`} style={wdth}>{label}</p>
+      <p className={`${FONT} font-extrabold text-[#096657] text-[30px] flex-1 min-w-px`} style={wdth}>{label}</p>
       {children}
     </div>
   );
@@ -110,7 +110,7 @@ export function RefillDate() {
       footer={
         <>
           <WizardTotalsFooter />
-          <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
+          <div className="bg-[#f5fcf9] px-[80px] pt-[24px] pb-[40px]">
             <SaveButton label="Next" onClick={() => navigate('review')} />
           </div>
         </>
@@ -132,7 +132,7 @@ export function RefillDate() {
           <DepletionChart
             fillMl={fillMl}
             alertMl={alertLevelMl}
-            todayLabel={new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+            todayLabel={formatDate(new Date())}
             alertLabel={shortDate(alertDate)}
             emptyLabel={shortDate(emptyDate)}
             refill={noTherapy ? null : { ml: levelAtRefill, label: shortDate(refillDate) }}
@@ -161,13 +161,13 @@ export function RefillDate() {
           </FieldRow>
 
           {noTherapy ? (
-            <p className={`${FONT} font-normal text-[#6b7880] text-[24px] leading-[32px] tracking-[0.1px] pl-[56px]`} style={wdth}>
+            <p className={`${FONT} font-normal text-[#596d68] text-[24px] leading-[32px] tracking-[0.1px] pl-[56px]`} style={wdth}>
               No delivery running — set a therapy to plan the refill against the alert date.
             </p>
           ) : isTooLate ? (
             <p className={`${FONT} font-normal text-[#cc5457] text-[24px] leading-[32px] tracking-[0.1px] pl-[56px]`} style={wdth}>
               This leaves under a week before the alert level is reached on {alertDate}.{' '}
-              <span onClick={() => setRefillLeadWeeks(1)} className="text-[#0094c5] font-bold cursor-pointer underline">
+              <span onClick={() => setRefillLeadWeeks(1)} className="text-[#0b786a] font-bold cursor-pointer underline">
                 Move it a week ahead
               </span>
             </p>
@@ -180,8 +180,8 @@ export function RefillDate() {
             <SectionTitle
               icon={
                 <svg width="56" height="56" viewBox="0 0 24 24" fill="none" className="shrink-0">
-                  <path d="M12 3a6 6 0 00-6 6c0 4-1.5 5.5-2 6.5h16c-.5-1-2-2.5-2-6.5a6 6 0 00-6-6z" stroke="#0094c5" strokeWidth="1.6" strokeLinejoin="round" />
-                  <path d="M10 19a2 2 0 004 0" stroke="#0094c5" strokeWidth="1.6" strokeLinecap="round" />
+                  <path d="M12 3a6 6 0 00-6 6c0 4-1.5 5.5-2 6.5h16c-.5-1-2-2.5-2-6.5a6 6 0 00-6-6z" stroke="#0b786a" strokeWidth="1.6" strokeLinejoin="round" />
+                  <path d="M10 19a2 2 0 004 0" stroke="#0b786a" strokeWidth="1.6" strokeLinecap="round" />
                 </svg>
               }
               onInfo={() => setInfoOpen(o => !o)}

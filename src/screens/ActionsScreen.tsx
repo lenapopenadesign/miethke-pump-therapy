@@ -78,25 +78,25 @@ function EditMedicationGlyph() {
 }
 
 function StopIcon() {
-  return <div className="bg-[#0094c5] rounded-[6px] size-[44px]" />;
+  return <div className="bg-[#0b786a] rounded-[6px] size-[44px]" />;
 }
 
 /* ----- tile + section ----- */
 function Tile({ filled = false, label, children, onClick }: { filled?: boolean; label: string; children: ReactNode; onClick?: () => void }) {
   return (
-    <div onClick={onClick} className={`flex flex-col gap-[18px] items-center justify-center overflow-clip px-[20px] py-[26px] rounded-[16px] size-[230px] shrink-0 cursor-pointer ${filled ? 'bg-[#0094c5]' : 'bg-white border-2 border-[#0094c5]'}`}>
+    <div onClick={onClick} className={`flex flex-col gap-[18px] items-center justify-center overflow-clip px-[20px] py-[26px] rounded-[16px] size-[230px] shrink-0 cursor-pointer ${filled ? 'bg-[#0b786a]' : 'bg-white border-2 border-[#0b786a]'}`}>
       <div className="overflow-clip relative shrink-0 size-[140px] flex items-center justify-center">{children}</div>
-      <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[28px] text-center tracking-[0.1px] ${filled ? 'text-white' : 'text-[#0094c5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
+      <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[28px] text-center tracking-[0.1px] ${filled ? 'text-white' : 'text-[#0b786a]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
     </div>
   );
 }
 
 function SectionCard({ icon, label, children }: { icon?: ReactNode; label: string; children: ReactNode }) {
   return (
-    <div className="bg-[#e6f4f9] rounded-[24px] px-[24px] py-[20px] flex flex-col gap-[16px] w-full">
+    <div className="bg-[#f5fcf9] rounded-[24px] px-[24px] py-[20px] flex flex-col gap-[16px] w-full">
       <div className="flex items-center gap-[20px]">
         {icon}
-        <p className="font-['Roboto',sans-serif] font-extrabold leading-[48px] text-[#00769e] text-[40px] tracking-[2px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
+        <p className="font-['Roboto',sans-serif] font-extrabold leading-[48px] text-[#096657] text-[40px] tracking-[2px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</p>
       </div>
       <div className="flex gap-[24px]">{children}</div>
     </div>

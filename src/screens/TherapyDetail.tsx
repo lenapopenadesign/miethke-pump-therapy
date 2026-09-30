@@ -12,7 +12,7 @@ const imgClin2 = "/icons/act-clinician-2.svg";
 /* ----- bottom action tiles (filled blue, white glyph) ----- */
 function ActionTile({ label, onClick, children }: { label: string; onClick?: () => void; children: React.ReactNode }) {
   return (
-    <div onClick={onClick} className="bg-[#0094c5] rounded-[16px] flex-1 h-[230px] flex flex-col items-center justify-center gap-[16px] overflow-clip px-[12px] py-[20px] cursor-pointer">
+    <div onClick={onClick} className="bg-[#0b786a] rounded-[16px] flex-1 h-[230px] flex flex-col items-center justify-center gap-[16px] overflow-clip px-[12px] py-[20px] cursor-pointer">
       <div className="relative size-[88px] flex items-center justify-center shrink-0">{children}</div>
       <span className="font-['Roboto',sans-serif] font-bold text-white text-[26px] tracking-[0.1px] text-center leading-[30px]" style={{ fontVariationSettings: "'wdth' 100" }}>{label}</span>
     </div>

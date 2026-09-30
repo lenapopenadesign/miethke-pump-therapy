@@ -4,6 +4,8 @@ import {
   coDoseUgDay,
   concUgPerUl,
   doseStringsFor,
+  doseUnitFor,
+  fmtPerDelivery,
   estimatedDailyTotal,
   windowDeliverySpan,
   fmtTime,
@@ -22,10 +24,10 @@ import { DayGroupToggle, repDay } from './DayToggles';
 // per-delivery dose, its total, and (after) the change %.
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 const FONT = "font-['Roboto',sans-serif]";
-const labelCls = `${FONT} font-bold text-[#00769e] text-[22px] leading-[24px] tracking-[0.1px]`;
-const HEAD_BG = '#c4e1ef';
-const ROW_BG = '#eef6fb';
-const CHANGE_BG = '#fce3a0'; // yellow — highlight for a changed "after" chip
+const labelCls = `${FONT} font-bold text-[#096657] text-[22px] leading-[24px] tracking-[0.1px]`;
+const HEAD_BG = '#d9f0e8';
+const ROW_BG = '#f7fcfa';
+const CHANGE_BG = '#fdf3d1'; // yellow — highlight for a changed "after" chip
 const GOLD = '#b3850e';
 
 // Outer row: label · before chip · arrow · after chip · change-icon/chevron. The
@@ -42,15 +44,17 @@ const GRID = 'grid items-center gap-[8px] [grid-template-columns:120px_0.95fr_24
 // as long as "mcg/24h" (179px all told). Anything narrower pushes the unit under
 // the % beside it, so the column is sized to that worst case and the main column
 // — which never needs more than ~135px, for "0.010 mg/del" — gives up the room.
-const CHIP_BEFORE = 'rounded-[8px] h-[60px] grid items-baseline content-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_184px_16px]';
-const CHIP_AFTER = 'rounded-[8px] h-[60px] grid items-baseline content-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_184px_78px]';
+const CHIP_BEFORE = 'rounded-[8px] h-[60px] grid items-baseline content-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_196px_16px]';
+const CHIP_AFTER = 'rounded-[8px] h-[60px] grid items-baseline content-center px-[14px] gap-x-[6px] [grid-template-columns:1fr_196px_78px]';
 // Right-aligned integer box + fixed fraction box: the decimal point lands on one
 // x (digits stay joined, "1.6") AND the trailing label ("total"/"mg/day") always
 // starts on the same x, since the fraction slot is a constant width.
-const INT_W = '46px';
-const FRAC_W = '64px';
+// INT_W fits a three-digit bold 30px integer ("250"); narrower and it spills
+// out of its box and knocks the decimal column out of line.
+const INT_W = '60px';
+const FRAC_W = '56px';
 
-const BEFORE_COLOR = '#00769e';
+const BEFORE_COLOR = '#096657';
 const AFTER_COLOR = GOLD; // dark yellow — the whole "after" section reads in this
 
 type Val = { value: string; ug: number };
@@ -59,7 +63,7 @@ type Cell = { v: Val; total: Val | null } | null;
 function ArrowIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-      <path d="M4 12h13M12 6l6 6-6 6" stroke="#0094c5" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 12h13M12 6l6 6-6 6" stroke="#0b786a" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -76,7 +80,7 @@ function ChangeIcon() {
 function Chevron({ up }: { up?: boolean }) {
   return (
     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" style={{ transform: up ? 'rotate(180deg)' : undefined }}>
-      <path d="M6 9l6 6 6-6" stroke="#00769e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 9l6 6 6-6" stroke="#096657" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -86,7 +90,7 @@ function Chip({ bg, after, children }: { bg: string; after: boolean; children: R
 }
 
 function Dash() {
-  return <span className={`${FONT} font-normal text-[#9aa7b0] text-[28px]`} style={wdth}>—</span>;
+  return <span className={`${FONT} font-normal text-[#9db3ad] text-[28px]`} style={wdth}>—</span>;
 }
 
 /**
@@ -94,10 +98,10 @@ function Dash() {
  * to the decimal column) · total-fraction + "total" (left) · % (after only).
  * Splitting the total at its decimal keeps every total's point on one x.
  */
-function doseCells(cell: Cell, unit: string, after: boolean, pct: number | null, changed: boolean) {
+function doseCells(cell: Cell, unit: string, after: boolean, pct: number | null, changed: boolean, totalUnit = 'total') {
   const gold = after && changed; // only a *changed* after value goes gold; unchanged stays blue
   const color = gold ? AFTER_COLOR : BEFORE_COLOR;
-  const labelColor = gold ? AFTER_COLOR : '#5f8aa0';
+  const labelColor = gold ? AFTER_COLOR : '#596d68';
   if (!cell) return (<><span className="flex items-baseline"><Dash /></span><span /><span /></>);
   const [ip, fp] = cell.total ? splitNum(cell.total.value) : ['', ''];
   return (
@@ -111,7 +115,7 @@ function doseCells(cell: Cell, unit: string, after: boolean, pct: number | null,
           <>
             <span className={`${FONT} inline-block text-right font-bold text-[30px] tracking-[0.1px]`} style={{ width: INT_W, color, ...wdth }}>{ip}</span>
             <span className={`${FONT} inline-block font-bold text-[30px] tracking-[0.1px]`} style={{ width: FRAC_W, color, ...wdth }}>{fp ? `.${fp}` : ''}</span>
-            <span className={`${FONT} font-normal text-[17px]`} style={{ color: labelColor, ...wdth }}>total</span>
+            <span className={`${FONT} font-normal text-[17px]`} style={{ color: labelColor, ...wdth }}>{totalUnit}</span>
           </>
         )}
       </span>
@@ -134,15 +138,15 @@ function deltaPct(before: Cell, after: Cell): number | null {
 }
 
 /** A before/after row for a dose metric (Frequency, Total 24 h, Default delivery, a window). */
-function DoseRow({ label, unit, before, after }: { label: string; unit: string; before: Cell; after: Cell }) {
+function DoseRow({ label, unit, before, after, totalUnit }: { label: string; unit: string; before: Cell; after: Cell; totalUnit?: string }) {
   const changed = cellChanged(before, after);
   const delta = changed ? deltaPct(before, after) : null;
   return (
     <div className={GRID}>
       <p className={labelCls}>{label}</p>
-      <Chip bg={ROW_BG} after={false}>{doseCells(before, unit, false, null, false)}</Chip>
+      <Chip bg={ROW_BG} after={false}>{doseCells(before, unit, false, null, false, totalUnit)}</Chip>
       <span />
-      <Chip bg={changed ? CHANGE_BG : ROW_BG} after={true}>{doseCells(after, unit, true, delta, changed)}</Chip>
+      <Chip bg={changed ? CHANGE_BG : ROW_BG} after={true}>{doseCells(after, unit, true, delta, changed, totalUnit)}</Chip>
       <span className="flex justify-center">{changed && <ChangeIcon />}</span>
     </div>
   );
@@ -159,7 +163,7 @@ function medCells(m: MedHeadData | null, unit: string, after: boolean, pct: numb
   const gold = after && changed; // only a *changed* after header goes gold; unchanged stays blue
   const color = gold ? AFTER_COLOR : BEFORE_COLOR;
   if (!m) return (<><span className="flex items-baseline"><Dash /></span><span /><span /></>);
-  const labelColor = gold ? AFTER_COLOR : '#5f8aa0';
+  const labelColor = gold ? AFTER_COLOR : '#596d68';
   const [ip, fp] = splitNum(m.total.value);
   return (
     <>
@@ -221,6 +225,10 @@ function computeMed(t: TherapyLike, i: number): MedComputed | null {
   const primaryDaily = estimatedDailyTotal(t.baseDose, windows);
   const totalUg = i === 0 ? primaryDaily : coDoseUgDay(primaryDaily, c0, cm);
   const val = (ug: number): Val => ({ value: doseStringsFor(ug, m.unit).perDay, ug });
+  // Per-delivery figures carry a decimal more than daily ones — two doses that
+  // differ by a single 10 µl stroke round to the same daily string otherwise.
+  const { unit: massUnit, div } = doseUnitFor(m.unit);
+  const valPer = (ug: number): Val => ({ value: fmtPerDelivery(ug / div, massUnit), ug });
 
   // Deliveries running at the default (base) dose = all deliveries the windows
   // don't carve out — used to sum the default deliveries, mirroring each window.
@@ -231,14 +239,14 @@ function computeMed(t: TherapyLike, i: number): MedComputed | null {
   for (const w of windows) {
     const rateUg = i === 0 ? w.dose : coDoseUgDay(w.dose, c0, cm);
     const span = windowDeliverySpan(w.startMin, w.endMin, t.bolusCount);
-    winMap.set(w.id, { startMin: w.startMin, endMin: w.endMin, v: val(rateUg / bolusN), total: val((rateUg / bolusN) * span.count) });
+    winMap.set(w.id, { startMin: w.startMin, endMin: w.endMin, v: valPer(rateUg / bolusN), total: val((rateUg / bolusN) * span.count) });
   }
   return {
     name: m.name || (i === 0 ? 'Primary' : 'Medication'),
     concentration: `${m.concentration} ${m.unit}`,
     unitLabel: doseStringsFor(0, m.unit).unit,
     total24h: val(totalUg),
-    defaultDelivery: { v: val(baseUg / bolusN), total: val((baseUg / bolusN) * defaultCount) },
+    defaultDelivery: { v: valPer(baseUg / bolusN), total: val((baseUg / bolusN) * defaultCount) },
     winMap,
   };
 }
@@ -260,8 +268,11 @@ export function TherapyChangeReview() {
   const displayDay = repDay(dayPattern, viewDay);
   const before: BeforeTherapy = { ...beforeSnap, intervals: beforeSnap.intervalsByDay[displayDay] };
   const after: TherapyLike = { medications, baseDose, bolusCount, intervals: intervalsByDay[displayDay] };
-  const freqBefore: Cell = { v: { value: `${before.bolusCount}`, ug: before.bolusCount }, total: null };
-  const freqAfter: Cell = { v: { value: `${bolusCount}`, ug: bolusCount }, total: null };
+  // The delivery count sits in the bold totals column so it lines up with the
+  // medication totals below it.
+  const freqCell = (n: number): Cell => ({ v: { value: '', ug: n }, total: { value: `${n}`, ug: n } });
+  const freqBefore = freqCell(before.bolusCount);
+  const freqAfter = freqCell(bolusCount);
 
   return (
     <div className="flex flex-col gap-[32px]">
@@ -271,14 +282,14 @@ export function TherapyChangeReview() {
       {/* Before / After column captions */}
       <div className={GRID}>
         <span />
-        <p className={`${FONT} font-normal text-[#8a97a1] text-[22px] tracking-[1px] uppercase`} style={wdth}>Before</p>
+        <p className={`${FONT} font-normal text-[#7d918b] text-[22px] tracking-[1px] uppercase`} style={wdth}>Before</p>
         <span />
-        <p className={`${FONT} font-normal text-[#8a97a1] text-[22px] tracking-[1px] uppercase`} style={wdth}>After</p>
+        <p className={`${FONT} font-normal text-[#7d918b] text-[22px] tracking-[1px] uppercase`} style={wdth}>After</p>
         <span />
       </div>
 
       {/* Delivery frequency (therapy-wide) */}
-      <DoseRow label="Frequency" unit="deliveries" before={freqBefore} after={freqAfter} />
+      <DoseRow label="Frequency" unit="" totalUnit="deliveries" before={freqBefore} after={freqAfter} />
 
       {/* One block per medication */}
       {medications.map((m, i) => {
@@ -305,7 +316,7 @@ export function TherapyChangeReview() {
             />
             {expandedId === m.id && (
               <>
-                <DoseRow label="Default delivery" unit={perDelUnit} before={bMed ? bMed.defaultDelivery : null} after={aMed.defaultDelivery} />
+                <DoseRow label="Default" unit={perDelUnit} before={bMed ? bMed.defaultDelivery : null} after={aMed.defaultDelivery} />
                 {orderedWins.map(([id, span]) => {
                   const aw = aMed.winMap.get(id);
                   const bw = bMed?.winMap.get(id);

@@ -1,5 +1,36 @@
 @import 'tailwindcss';
 
+/* ---------------------------------------------------------------------------
+   Clarisa mint palette — B.Braun Miethke rebrand.
+   Source of truth: Figma "Design System" (node 2677:28083). Names follow the
+   design system's own swatch names; the Tailwind utilities they generate
+   (bg-brand, text-ink, border-line, ...) are what screens should reach for.
+   --------------------------------------------------------------------------- */
+@theme {
+  --color-brand: #0b786a;            /* primary            — headings, icons, bars */
+  --color-brand-dark: #096657;       /* primary_dark       — pressed / hover */
+  --color-brand-light: #188d7b;      /* primary_light      — secondary fills */
+  --color-brand-ultralight: #f5fcf9; /* primary_ultralight — card headers */
+  --color-accent: #62dec2;           /* secondary          — bright mint accent */
+  --color-accent-ultralight: #e9f7f2;/* secondary_ultralight — selected surfaces */
+
+  --color-ink: #183d38;              /* grey_dark   — body text, status bar */
+  --color-muted: #596d68;            /* grey_medium — labels, axis text */
+  --color-line: #cedfd9;             /* grey        — borders, dividers */
+  --color-canvas: #fafcfb;           /* grey_light  — page background */
+
+  --color-success: #23ab5e;
+  --color-success-light: #e9f7ef;
+  --color-success-border: #91d5ae;
+  --color-success-text: #17703e;
+  --color-warning: #b3850e;
+  --color-warning-light: #fdf3d1;
+  --color-danger: #cc5457;
+  --color-danger-light: #f7d7d5;
+  --color-info: #164f53;
+  --color-info-light: #f7fcfa;
+}
+
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -81,3 +112,59 @@ body {
   50%      { transform: translateY(0); }
 }
 .needle-search { animation: needleSearch 5s ease-in-out infinite; }
+
+/* ---------------------------------------------------------------------------
+   Start screen (Figma 13327:67678). The design is a 980×551 landscape frame;
+   geometry is expressed in vh so the watermark keeps its proportions, with
+   the artwork width capped by vw on narrow (portrait) viewports.
+   --------------------------------------------------------------------------- */
+.splash {
+  background-image: linear-gradient(129.48deg, #f0fcf7 8.33%, #effaf6 56.67%, #e3f3fa 91.67%);
+  transition: opacity 700ms ease-in-out;
+}
+.splash-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+/* 510×609 signet, left edge 81.7px right of centre, 40.8px from the top. */
+.splash-watermark {
+  left: calc(50% + 14.82vh);
+  top: 7.41vh;
+  height: 110.56vh;
+  width: 92.63vh;
+  opacity: 0;
+  animation: splash-fade 1600ms ease-out 200ms forwards;
+}
+/* 561.46×98.77 group; its centre sits at 47.2% of the frame height. */
+.splash-artwork {
+  left: 50%;
+  top: 47.24%;
+  width: min(101.9vh, 88vw);
+  aspect-ratio: 561.46 / 98.77;
+  transform: translate(-50%, -50%);
+  justify-content: space-between;
+}
+.splash-clarisa {
+  width: 48.36%;
+  height: auto;
+  opacity: 0;
+  animation: splash-rise 1100ms cubic-bezier(0.22, 1, 0.36, 1) 250ms forwards;
+}
+.splash-bbraun {
+  width: 46.6%;
+  height: auto;
+  opacity: 0;
+  animation: splash-rise 1100ms cubic-bezier(0.22, 1, 0.36, 1) 550ms forwards;
+}
+@keyframes splash-fade {
+  to { opacity: 1; }
+}
+@keyframes splash-rise {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash-clarisa, .splash-bbraun, .splash-watermark {
+    animation: splash-fade 400ms ease-out forwards;
+  }
+}

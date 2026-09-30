@@ -33,12 +33,12 @@ export function TherapyTotalsBand() {
     `${doseStringsFor(0, m.unit).unit}/24h`;
 
   return (
-    <div className="w-full bg-[#00769e] flex items-start justify-between px-[80px] pt-[28px] pb-[24px]">
+    <div className="w-full bg-[#096657] flex items-start justify-between px-[80px] pt-[28px] pb-[24px]">
       <div className="flex flex-col gap-[8px]">
         <p className="font-['Roboto',sans-serif] font-bold leading-[38px] text-white text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           Total 24 h
         </p>
-        <p className="font-['Roboto',sans-serif] font-normal text-[#cce4ee] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-normal text-[#cedfd9] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           {active && bolusCount > 0 ? `${bolusCount} boluses` : '— boluses'}
         </p>
       </div>
@@ -72,7 +72,7 @@ export function TherapyHeaderChart({ highlight }: { highlight?: { startMin: numb
     <div className="w-[1200px] shrink-0">
       <TherapyTotalsBand />
       {/* 24-hour view */}
-      <div className="bg-[#00769e] px-[80px] pb-[40px]">
+      <div className="bg-[#096657] px-[80px] pb-[40px]">
         <p className="font-['Roboto',sans-serif] font-bold text-white text-[28px] tracking-[0.1px] mb-[12px]" style={{ fontVariationSettings: "'wdth' 100" }}>
           24-hour view
         </p>
@@ -106,9 +106,9 @@ const PEAK_FRAC = 0.9;
 // Selection palette of the pickable chart (sampled from Figma 10482:169938):
 // the picked run in solid mid-blue, everything else pale, and the band behind
 // them in the light fill the rest of the app uses for read-only values.
-export const SELECTED_BAR = '#4295c5';
-export const UNSELECTED_BAR = '#c6deea';
-export const SELECTION_BAND = '#e6f4f9';
+export const SELECTED_BAR = '#0b786a';
+export const UNSELECTED_BAR = '#c3e8dd';
+export const SELECTION_BAND = '#f5fcf9';
 
 export function BolusBars({
   baseDose, bolusCount, windows, maxH = 150, minH = 10, barWidth = 9, baseFrac,
@@ -167,7 +167,7 @@ export function BolusBars({
                 // Until anything is picked the schedule reads at full strength;
                 // once it is, the run stands out against pale unpicked bars
                 // (Figma 10482:169938).
-                background: !hasSel ? '#0094c5' : selected ? SELECTED_BAR : UNSELECTED_BAR,
+                background: !hasSel ? '#0b786a' : selected ? SELECTED_BAR : UNSELECTED_BAR,
               }}
             />
           );
@@ -179,7 +179,7 @@ export function BolusBars({
   return (
     <div className="absolute inset-0 flex items-end justify-between">
       {bars.map((h, i) => (
-        <div key={i} className="shrink-0 rounded-[3px] bg-[#0094c5]" style={{ width: barWidth, height: h }} />
+        <div key={i} className="shrink-0 rounded-[3px] bg-[#0b786a]" style={{ width: barWidth, height: h }} />
       ))}
     </div>
   );
@@ -210,11 +210,11 @@ export function PerDelAxis({
   const wdth = { fontVariationSettings: "'wdth' 100" } as const;
   return (
     <>
-      <p className="absolute font-['Roboto',sans-serif] text-[#9ea8b2]" style={{ left: 8, top: 4, fontSize: labelSize, ...wdth }}>
+      <p className="absolute font-['Roboto',sans-serif] text-[#9db3ad]" style={{ left: 8, top: 4, fontSize: labelSize, ...wdth }}>
         {doseStringsFor(0, unit).unit}/del
       </p>
-      <div className="absolute border-t border-dashed" style={{ left, right, bottom: baseline + y, borderColor: '#e6eaed' }} />
-      <p className="absolute text-right font-['Roboto',sans-serif] text-[#9ea8b2]" style={{ left: 0, width: left - 8, bottom: baseline + y - Math.round(labelSize * 0.55), fontSize: labelSize, ...wdth }}>
+      <div className="absolute border-t border-dashed" style={{ left, right, bottom: baseline + y, borderColor: '#e3ece8' }} />
+      <p className="absolute text-right font-['Roboto',sans-serif] text-[#9db3ad]" style={{ left: 0, width: left - 8, bottom: baseline + y - Math.round(labelSize * 0.55), fontSize: labelSize, ...wdth }}>
         {doseStringsFor(baseDose / bolusN, unit).perDay}
       </p>
     </>
@@ -240,7 +240,7 @@ export function HourAxis({ left, right, labelSize = 22, bottom = 16 }: { left: n
       {ticks.map(t => (
         <p
           key={t.label}
-          className="absolute font-['Roboto',sans-serif] text-[#9ea8b2]"
+          className="absolute font-['Roboto',sans-serif] text-[#9db3ad]"
           style={{
             bottom, fontSize: labelSize, ...wdth,
             ...(t.f === 0
@@ -285,8 +285,8 @@ function BolusChart({
         {/* Window highlight */}
         {hl && (
           <div
-            className="absolute top-[-12px] bottom-0 rounded-[6px] border-2 border-dashed border-[#0094c5]"
-            style={{ left: `${hlLeft}%`, width: `${hlWidth}%`, background: 'rgba(0,148,197,0.10)' }}
+            className="absolute top-[-12px] bottom-0 rounded-[6px] border-2 border-dashed border-[#0b786a]"
+            style={{ left: `${hlLeft}%`, width: `${hlWidth}%`, background: 'rgba(11,120,106,0.10)' }}
           />
         )}
         {/* Bolus strokes — fixed width; height scales with the per-bolus dose, so
@@ -295,13 +295,13 @@ function BolusChart({
       </div>
 
       {/* Baseline */}
-      <div className="absolute right-[30px] h-px bg-[#e3e6e9]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
+      <div className="absolute right-[30px] h-px bg-[#e3ece8]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
 
       {/* Axis + window label */}
       <HourAxis left={AXIS_L} right={30} />
       {hl && (
         <p
-          className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] font-bold text-[#00769e] text-[21px] whitespace-nowrap"
+          className="absolute bottom-[16px] -translate-x-1/2 font-['Roboto',sans-serif] font-bold text-[#096657] text-[21px] whitespace-nowrap"
           style={{ left: `calc(${AXIS_L}px + (100% - ${AXIS_L + 30}px) * ${hlCenter / 100})`, fontVariationSettings: "'wdth' 100" }}
         >
           {fmtTime(hl.startMin)} – {endDisplay}

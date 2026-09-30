@@ -39,9 +39,9 @@ export function DetailShell({ icon, title, headerRight, onHelp, children, pinned
   const { homeScreen } = useTherapy();
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] flex flex-col overflow-hidden">
-      <div className="bg-[#3b2d7c] h-[35px] w-[1200px] shrink-0" />
+      <div className="bg-[#183d38] h-[35px] w-[1200px] shrink-0" />
       {/* Header band */}
-      <div className="w-[1200px] bg-[#e6f4f9] flex h-[140px] items-center justify-between px-[40px] shrink-0">
+      <div className="w-[1200px] bg-[#f5fcf9] flex h-[140px] items-center justify-between px-[40px] shrink-0">
         <div className="flex flex-1 min-w-px items-center gap-[24px]">
           <div onClick={() => navigate(homeScreen)} className="flex items-center justify-center shrink-0 cursor-pointer w-[56px]">
             <div className="rotate-180 overflow-clip relative size-[56px]">
@@ -51,7 +51,7 @@ export function DetailShell({ icon, title, headerRight, onHelp, children, pinned
             </div>
           </div>
           {icon}
-          <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] text-[#00769e] text-[44px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] text-[#096657] text-[44px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             {title}
           </p>
           {onHelp && <HelpBadge onClick={onHelp} />}
@@ -84,10 +84,10 @@ export function DetailShell({ icon, title, headerRight, onHelp, children, pinned
 export function ConnectedStatus() {
   return (
     <div className="flex items-center gap-[16px]">
-      <p className="font-['Roboto',sans-serif] font-normal leading-[32px] text-[#24ab5e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+      <p className="font-['Roboto',sans-serif] font-normal leading-[32px] text-[#23ab5e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
         Connected
       </p>
-      <div className="size-[36px] rounded-full bg-[#24ab5e] flex items-center justify-center shrink-0">
+      <div className="size-[36px] rounded-full bg-[#23ab5e] flex items-center justify-center shrink-0">
         <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
           <path d="M4 11.5L9 16L18 6" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
         </svg>

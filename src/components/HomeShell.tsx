@@ -28,7 +28,6 @@ const imgNavInactivePill = "/icons/f7e2f5be-7c5c-48a1-a1bb-4744028ad99c.svg";
 const imgNavHelp = "/icons/d27fa211-b646-4694-a8e2-740d137a7c84.svg";
 const imgNavSettings = "/icons/109674c9-3940-44e4-9672-28139cb9e304.svg";
 const imgNavDisconnect = "/icons/cb04e1a6-33a3-484f-a9d2-9f0910fa9fc3.svg";
-const imgNavNotifications = "/icons/nav-notifications.svg";
 
 // New assets downloaded for the updated home screens
 const imgCathInline = "/icons/f1df5fc9-3123-4343-bf12-b6bacbd170ab.svg";
@@ -136,9 +135,9 @@ export function ImplantIcon({ size = 64 }: { size?: number }) {
 function BatteryIcon() {
   return (
     <svg width="46" height="26" viewBox="0 0 46 26" fill="none">
-      <rect x="1.5" y="4.5" width="35" height="17" rx="4" stroke="#00769e" strokeWidth="2.5" />
-      <rect x="5" y="8" width="24" height="10" rx="2" fill="#00769e" />
-      <rect x="39" y="9" width="4.5" height="8" rx="2" fill="#00769e" />
+      <rect x="1.5" y="4.5" width="35" height="17" rx="4" stroke="#096657" strokeWidth="2.5" />
+      <rect x="5" y="8" width="24" height="10" rx="2" fill="#096657" />
+      <rect x="39" y="9" width="4.5" height="8" rx="2" fill="#096657" />
     </svg>
   );
 }
@@ -180,10 +179,10 @@ export function Filling({ fill = 1 }: { fill?: number }) {
       <div className="absolute inset-[11.67%_16.38%]">
         <svg preserveAspectRatio="none" viewBox="0 0 197 230" fill="none" className="absolute block inset-0 size-full">
           <defs><clipPath id="implantResClip"><circle cx="99" cy={cy} r={r} /></clipPath></defs>
-          <rect x="19" width="160" y={bottom - h} height={h} fill="#0094C5" clipPath="url(#implantResClip)" />
-          <path d={PUMP_RING} fill="#0094C5" />
-          <path d={PUMP_BODY} fill="#0094C5" />
-          <path d={PUMP_PORT} fill="#0094C5" />
+          <rect x="19" width="160" y={bottom - h} height={h} fill="#0b786a" clipPath="url(#implantResClip)" />
+          <path d={PUMP_RING} fill="#0b786a" />
+          <path d={PUMP_BODY} fill="#0b786a" />
+          <path d={PUMP_PORT} fill="#0b786a" />
         </svg>
       </div>
     </div>
@@ -193,11 +192,11 @@ export function Filling({ fill = 1 }: { fill?: number }) {
 function PatientCard() {
   const navigate = useNavigate();
   return (
-    <div onClick={() => navigate('patient-detail')} className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
+    <div onClick={() => navigate('patient-detail')} className="bg-[#f5fcf9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
       <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
         <div className="content-stretch flex flex-1 gap-[16px] items-center min-w-px relative">
           <PatientIcon />
-          <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#096657] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Frida Kenton
           </p>
         </div>
@@ -206,8 +205,8 @@ function PatientCard() {
       <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start p-[16px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
         <div className="content-stretch flex items-start px-[24px] relative shrink-0 w-full">
           <div className="content-stretch flex flex-1 flex-col gap-[24px] items-start min-w-px relative">
-            <div className="content-stretch flex font-['Roboto',sans-serif] font-normal gap-[36px] items-center relative shrink-0 text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-              <p className="leading-[36px] relative shrink-0">*01.04.1984</p>
+            <div className="content-stretch flex font-['Roboto',sans-serif] font-normal gap-[36px] items-center relative shrink-0 text-[#096657] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+              <p className="leading-[36px] relative shrink-0">*01 Apr 1984</p>
               <p className="leading-[36px] relative shrink-0">Gender: Female</p>
               <p className="leading-[0] relative shrink-0">
                 <span className="leading-[36px]">{`Condition: `}</span>
@@ -231,16 +230,16 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
   const fillMl = Math.round(fillFraction * RESERVOIR_ML);
   const fillPct = Math.round(fillFraction * 100);
   return (
-    <div onClick={() => navigate('implant-detail')} className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
+    <div onClick={() => navigate('implant-detail')} className="bg-[#f5fcf9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] cursor-pointer">
       <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
         <div className="content-stretch flex flex-1 gap-[16px] items-center min-w-px relative">
           <ImplantIcon />
-          <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#096657] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Implant
           </p>
         </div>
         <div className="content-stretch flex gap-[16px] items-center relative shrink-0">
-          <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#24ab5e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#23ab5e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Connected
           </p>
           <div className="h-[32px] overflow-clip relative shrink-0 w-[33px]">
@@ -257,7 +256,7 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
             <Filling fill={fillFraction} />
             <div className="content-stretch flex flex-1 items-center justify-between min-w-px relative">
               {/* Fill level — physical reservoir, independent of therapy state */}
-              <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
+              <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#096657] tracking-[0.1px] whitespace-nowrap">
                 <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>Fill level</p>
                 <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                   <span className="leading-[52px] text-[36px]">{fillMl}/</span>
@@ -272,7 +271,7 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
                     <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgCathInline} />
                   </div>
                 </div>
-                <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#00769e] tracking-[0.1px] whitespace-nowrap">
+                <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 text-[#096657] tracking-[0.1px] whitespace-nowrap">
                   <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[20px]" style={{ fontVariationSettings: "'wdth' 100" }}>Catheter</p>
                   <p className="font-['Roboto',sans-serif] font-bold leading-[0] relative shrink-0 text-[0px]" style={{ fontVariationSettings: "'wdth' 100" }}>
                     <span className="leading-[52px] text-[36px]">{CATHETER.volumeMl}</span>
@@ -285,19 +284,19 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
               <div className="flex flex-row items-center self-stretch">
                 <div className="content-stretch flex flex-col h-full items-start relative shrink-0">
                   <div className="content-stretch flex items-center justify-center px-[24px] relative shrink-0">
-                    <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#00769e] text-[20px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                    <p className="font-['Roboto',sans-serif] font-normal leading-[24px] relative shrink-0 text-[#096657] text-[20px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
                       Next refill before
                     </p>
                   </div>
                   <div className={`content-stretch flex items-center justify-center px-[24px] relative rounded-[24px] shrink-0 ${noDate ? '' : 'bg-[#fdf3d1]'}`}>
-                    <p className={`font-['Roboto',sans-serif] font-bold leading-[52px] relative shrink-0 text-[36px] tracking-[0.1px] whitespace-nowrap ${noDate ? 'text-[#9ea8b2]' : 'text-[#b3850e]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+                    <p className={`font-['Roboto',sans-serif] font-bold leading-[52px] relative shrink-0 text-[36px] tracking-[0.1px] whitespace-nowrap ${noDate ? 'text-[#9db3ad]' : 'text-[#b3850e]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
                       {refillDate}
                     </p>
                   </div>
                   {/* Battery life */}
                   <div className="flex items-center gap-[12px] px-[24px] pt-[12px]">
                     <BatteryIcon />
-                    <p className="font-['Roboto',sans-serif] font-normal leading-[36px] text-[#00769e] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>4 years</p>
+                    <p className="font-['Roboto',sans-serif] font-normal leading-[36px] text-[#096657] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>4 years</p>
                   </div>
                 </div>
               </div>
@@ -316,7 +315,7 @@ function TherapyHeader({ status, onHelp }: { status: TherapyStatus; onHelp?: () 
     <div className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px]">
       <div className="content-stretch flex flex-1 gap-[16px] items-center min-w-px relative">
         <TherapyIcon />
-        <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+        <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#096657] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
           Therapy
         </p>
         {onHelp && <HelpBadge onClick={onHelp} />}
@@ -330,8 +329,8 @@ function TherapyHeader({ status, onHelp }: { status: TherapyStatus; onHelp?: () 
       )}
       {status === 'active' && (
         <div className="content-stretch flex gap-[16px] items-center relative shrink-0">
-          <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#24ab5e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-            active
+          <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#17703e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            Delivery active
           </p>
           <div className="overflow-clip relative shrink-0 size-[40px]">
             <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgActiveCheck} />
@@ -345,9 +344,9 @@ function TherapyHeader({ status, onHelp }: { status: TherapyStatus; onHelp?: () 
 
 function ActionTile({ filled, label, children, onClick }: { filled?: boolean; label: string; children: ReactNode; onClick?: () => void }) {
   return (
-    <div onClick={onClick} className={`content-stretch flex flex-col gap-[18px] h-[237px] items-center justify-center overflow-clip px-[20px] py-[26px] relative rounded-[16px] flex-1 min-w-0 ${onClick ? 'cursor-pointer' : ''} ${filled ? 'bg-[#0094c5]' : 'border-2 border-[#0094c5] border-solid'}`}>
+    <div onClick={onClick} className={`content-stretch flex flex-col gap-[18px] h-[237px] items-center justify-center overflow-clip px-[20px] py-[26px] relative rounded-[16px] flex-1 min-w-0 ${onClick ? 'cursor-pointer' : ''} ${filled ? 'bg-[#0b786a]' : 'border-2 border-[#0b786a] border-solid'}`}>
       <div className="overflow-clip relative shrink-0 size-[140px]">{children}</div>
-      <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[28px] text-center tracking-[0.1px] ${filled ? 'text-white' : 'text-[#0094c5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+      <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[28px] text-center tracking-[0.1px] ${filled ? 'text-white' : 'text-[#0b786a]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
         {label}
       </p>
     </div>
@@ -360,7 +359,7 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   const startSetup = () => { setFlowMode('setup'); navigate('add-medication'); };
   return (
-    <div className="bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px]">
+    <div className="bg-[#f5fcf9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px]">
       <div onClick={() => navigate('actions')} className="content-stretch flex gap-[24px] h-[112px] items-center pl-[16px] pr-[40px] py-[16px] relative shrink-0 w-[1040px] cursor-pointer">
         <div className="content-stretch flex flex-1 gap-[16px] items-center min-w-px relative">
           <div className="content-stretch flex items-center justify-center relative shrink-0 size-[64px]">
@@ -368,7 +367,7 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
               <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgActionsHand} />
             </div>
           </div>
-          <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#00769e] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-extrabold leading-[56px] relative shrink-0 text-[#096657] text-[48px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Actions
           </p>
         </div>
@@ -381,8 +380,8 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
             <AddTherapyIcon />
           </ActionTile>
         )}
-        {/* Refill Pump */}
-        <ActionTile filled label="Refill Pump" onClick={startRefill}>
+        {/* Refill */}
+        <ActionTile filled label="Refill" onClick={startRefill}>
           <div className="absolute flex inset-[-8.75%_-3.93%_29.79%_23.01%] items-center justify-center" style={{ containerType: "size" }}>
             <div className="flex-none h-[hypot(36.3553cqw,-67.1953cqh)] rotate-[-153.3deg] skew-x-[-2.31deg] w-[hypot(-63.6447cqw,-32.8047cqh)]">
               <div className="relative size-full">
@@ -410,17 +409,17 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
             <div className="absolute inset-[42.84%_56.65%_20.35%_20%]"><div className="absolute inset-[-1.94%_-3.06%_-1.93%_-3.06%]"><img alt="" src={imgActPrime3} className="block max-w-none size-full" /></div></div>
           </ActionTile>
         )}
+        {/* Edit Therapy — active only; enters the redesigned Edit Therapy flow */}
+        {!noTherapy && (
+          <ActionTile label="Edit Therapy" onClick={() => { setFlowMode('setup'); beginEditTherapy('home-active'); navigate('base-dose'); }}>
+            <EditTherapyIcon />
+          </ActionTile>
+        )}
         {/* Clinician Bolus — active only */}
         {!noTherapy && (
           <ActionTile label="Clinician Bolus">
             <div className="absolute inset-[6.25%_33.75%_21.25%_11.25%]"><img alt="" src={imgActClinician1} className="absolute block inset-0 max-w-none size-full" /></div>
             <div className="absolute inset-[20%_11.25%_5%_66.25%]"><img alt="" src={imgActClinician2} className="absolute block inset-0 max-w-none size-full" /></div>
-          </ActionTile>
-        )}
-        {/* Edit Therapy — active only; enters the redesigned Edit Therapy flow */}
-        {!noTherapy && (
-          <ActionTile label="Edit Therapy" onClick={() => { setFlowMode('setup'); beginEditTherapy('home-active'); navigate('base-dose'); }}>
-            <EditTherapyIcon />
           </ActionTile>
         )}
       </div>
@@ -437,14 +436,14 @@ export function BottomNav({ active = 'overview' }: { active?: NavTab } = {}) {
   // plain pill and grey label.
   const label = (tab: NavTab) =>
     `font-['Roboto',sans-serif] leading-[24px] overflow-hidden relative shrink-0 text-[20px] text-center tracking-[0.1px] whitespace-nowrap ${
-      active === tab ? 'font-bold text-[#00769e]' : 'font-normal text-[#45483c]'
+      active === tab ? 'font-bold text-[#096657]' : 'font-normal text-[#183d38]'
     }`;
   return (
-    <div className="absolute bg-[#e6f4f9] bottom-0 content-stretch flex h-[120px] items-center justify-center left-0 overflow-x-clip overflow-y-auto px-[16px] py-[8px] w-[1200px]">
+    <div className="absolute bg-[#f5fcf9] bottom-0 content-stretch flex h-[120px] items-center justify-center left-0 overflow-x-clip overflow-y-auto px-[16px] py-[8px] w-[1200px]">
       <div className="content-stretch flex flex-1 gap-[16px] items-start justify-center min-w-px relative">
         {/* Overview */}
         <a onClick={() => navigate('home-active')} className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">
-          <div className={`h-[56px] relative rounded-[24px] shrink-0 w-[80px] ${active === 'overview' ? 'bg-[#b2ecff]' : ''}`}>
+          <div className={`h-[56px] relative rounded-[24px] shrink-0 w-[80px] ${active === 'overview' ? 'bg-[#e9f7f2]' : ''}`}>
             <img alt="" className="absolute block inset-0 max-w-none size-full" src={active === 'overview' ? imgNavOverviewPill : imgNavInactivePill} />
             <div className="absolute left-[11.5px] overflow-clip size-[56px] top-0">
               <div className="absolute inset-[12.5%_12.5%_13.25%_12.5%]">
@@ -454,21 +453,12 @@ export function BottomNav({ active = 'overview' }: { active?: NavTab } = {}) {
           </div>
           <p className={label('overview')}>Overview</p>
         </a>
-        {/* Notifications */}
-        <a onClick={() => navigate('notifications')} className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[133px] cursor-pointer">
-          <div className={`h-[56px] relative rounded-[24px] shrink-0 w-[64px] ${active === 'notifications' ? 'bg-[#b2ecff]' : ''}`}>
-            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgNavInactivePill} />
-            <div className="absolute left-[3.5px] overflow-clip size-[56px] top-0">
-              <div className="absolute inset-[5%_12.5%]">
-                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgNavNotifications} />
-              </div>
-            </div>
-          </div>
-          <p className={label('notifications')}>Logs</p>
-        </a>
+        {/* The final design drops the Logs tab from the bottom nav; the
+            Notifications screen stays in the build, reachable from the dev
+            jump-list and from alerts that deep-link into it. */}
         {/* Help */}
         <a onClick={() => navigate('help')} className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">
-          <div className={`h-[56px] relative rounded-[24px] shrink-0 w-[64px] ${active === 'help' ? 'bg-[#b2ecff]' : ''}`}>
+          <div className={`h-[56px] relative rounded-[24px] shrink-0 w-[64px] ${active === 'help' ? 'bg-[#e9f7f2]' : ''}`}>
             <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgNavInactivePill} />
             <div className="absolute left-[3.5px] overflow-clip size-[56px] top-0">
               <div className="absolute inset-[2.5%_0_0_2.5%]">
@@ -488,7 +478,7 @@ export function BottomNav({ active = 'overview' }: { active?: NavTab } = {}) {
               </div>
             </div>
           </div>
-          <p className="font-['Roboto',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#183d38] text-[20px] text-center tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Settings
           </p>
         </a>
@@ -502,7 +492,7 @@ export function BottomNav({ active = 'overview' }: { active?: NavTab } = {}) {
               </div>
             </div>
           </div>
-          <p className="font-['Roboto',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#45483c] text-[20px] text-center tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-normal leading-[24px] overflow-hidden relative shrink-0 text-[#183d38] text-[20px] text-center tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Disconnect
           </p>
         </a>
@@ -524,11 +514,11 @@ export function HomeShell({ therapyStatus, therapyBody, onTherapyClick, onTherap
   const noTherapy = therapyStatus === 'none';
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] overflow-hidden">
-      <div className="absolute bg-[#3b2d7c] h-[35px] left-0 top-0 w-[1200px]" />
+      <div className="absolute bg-[#183d38] h-[35px] left-0 top-0 w-[1200px]" />
       <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[56px] px-[80px] top-[35px] w-[1200px]">
         <PatientCard />
         <ImplantCard refillDate={noTherapy ? 'N/A' : refillDate} fillFraction={fillFraction} />
-        <div onClick={onTherapyClick} className={`bg-[#e6f4f9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] ${onTherapyClick ? 'cursor-pointer' : ''}`}>
+        <div onClick={onTherapyClick} className={`bg-[#f5fcf9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] ${onTherapyClick ? 'cursor-pointer' : ''}`}>
           <TherapyHeader status={therapyStatus} onHelp={onTherapyHelp} />
           <div className="bg-[rgba(255,255,255,0.5)] content-stretch flex flex-col gap-[25px] items-start pb-[16px] pt-[8px] px-[24px] relative rounded-bl-[24px] rounded-br-[24px] shrink-0 w-full">
             {therapyBody}

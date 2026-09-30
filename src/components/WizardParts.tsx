@@ -6,14 +6,13 @@ import {
   estimatedDailyTotal,
   dailyVolumeUl,
   fmtTime,
-  splitNum,
   type Interval,
 } from '../therapy';
 import { Fragment, useRef, type ReactNode } from 'react';
 import { BolusBars, PerDelAxis, HourAxis, SELECTED_BAR, SELECTION_BAND } from './TherapyHeaderChart';
 import { readoutValueCls } from './Field';
 
-const CARD_H = 214;
+const CARD_H = 260;
 const BASELINE_FROM_BOTTOM = 78; // two label rows below the baseline: window times, then the hour axis
 const AXIS_L = 78; // left gutter for the dose-per-delivery labels
 // The base-dose bar fills this fraction of the plot; the rest is headroom the
@@ -76,7 +75,7 @@ export function HelpBadge({ onClick, className = '' }: { onClick?: () => void; c
   return (
     <div
       onClick={onClick ? (e) => { e.stopPropagation(); onClick(); } : undefined}
-      className={`size-[44px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0 ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`size-[44px] rounded-full bg-[#0b786a] flex items-center justify-center shrink-0 ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
       <span className="font-['Roboto',sans-serif] font-bold text-white text-[28px] leading-none" style={{ fontVariationSettings: "'wdth' 100" }}>?</span>
     </div>
@@ -88,7 +87,7 @@ export function InfoBadge({ onClick }: { onClick?: () => void }) {
   return (
     <div
       onClick={onClick}
-      className={`size-[36px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0 ${onClick ? 'cursor-pointer' : ''}`}
+      className={`size-[36px] rounded-full bg-[#0b786a] flex items-center justify-center shrink-0 ${onClick ? 'cursor-pointer' : ''}`}
     >
       <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] leading-none" style={{ fontVariationSettings: "'wdth' 100" }}>i</span>
     </div>
@@ -107,10 +106,10 @@ export function ToggleSwitch({ on, onChange, label }: { on: boolean; onChange: (
       aria-checked={on}
       aria-label={label}
       onClick={() => onChange(!on)}
-      className={`relative h-[40px] w-[65px] rounded-[32px] shrink-0 cursor-pointer border-2 ${on ? 'bg-[#0094c5] border-[#0094c5]' : 'bg-white border-[#cbcbcb]'}`}
+      className={`relative h-[40px] w-[65px] rounded-[32px] shrink-0 cursor-pointer border-2 ${on ? 'bg-[#0b786a] border-[#0b786a]' : 'bg-white border-[#cedfd9]'}`}
     >
       <span
-        className={`absolute top-1/2 -translate-y-1/2 size-[30px] rounded-full ${on ? 'right-[4px] bg-white' : 'left-[4px] bg-[#a5a5a5]'}`}
+        className={`absolute top-1/2 -translate-y-1/2 size-[30px] rounded-full ${on ? 'right-[4px] bg-white' : 'left-[4px] bg-[#9db3ad]'}`}
       />
     </button>
   );
@@ -135,14 +134,14 @@ export function WarningBanner({ title, children, onDismiss }: { title: string; c
       <img alt="" src={imgWarningTriangle} className="w-[41px] h-[40px] block shrink-0" />
       <div className="flex-1 min-w-px flex flex-col gap-[24px] pt-[8px]">
         <div className="flex gap-[24px] items-start">
-          <p className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#45483c] text-[28px] leading-[32px] tracking-[0.1px]" style={wdth}>{title}</p>
+          <p className="flex-1 min-w-px font-['Roboto',sans-serif] font-bold text-[#183d38] text-[28px] leading-[32px] tracking-[0.1px]" style={wdth}>{title}</p>
           {onDismiss && (
             <button onClick={onDismiss} aria-label="Dismiss warning" className="size-[40px] shrink-0 flex items-center justify-center cursor-pointer">
               <img alt="" src={imgCloseCross} className="block rotate-45" style={{ width: CROSS_SIDE, height: CROSS_SIDE }} />
             </button>
           )}
         </div>
-        <p className="font-['Roboto',sans-serif] font-normal text-[#45483c] text-[24px] leading-[32px] tracking-[0.1px]" style={wdth}>{children}</p>
+        <p className="font-['Roboto',sans-serif] font-normal text-[#183d38] text-[24px] leading-[32px] tracking-[0.1px]" style={wdth}>{children}</p>
       </div>
     </div>
   );
@@ -156,13 +155,13 @@ export function WarningBanner({ title, children, onDismiss }: { title: string; c
 export function Explainer({ title, children }: { title: string; children: ReactNode }) {
   const wdth = { fontVariationSettings: "'wdth' 100" } as const;
   return (
-    <div className="bg-[#f3f5f7] rounded-[16px] flex gap-[20px] items-start px-[28px] py-[26px]">
-      <div className="size-[36px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0">
+    <div className="bg-[#fafcfb] rounded-[16px] flex gap-[20px] items-start px-[28px] py-[26px]">
+      <div className="size-[36px] rounded-full bg-[#0b786a] flex items-center justify-center shrink-0">
         <span className="font-['Roboto',sans-serif] font-bold text-white text-[24px] leading-none" style={wdth}>i</span>
       </div>
       <div className="flex flex-col gap-[8px] flex-1 min-w-px">
-        <p className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[28px] leading-[32px] tracking-[0.1px]" style={wdth}>{title}</p>
-        <p className="font-['Roboto',sans-serif] font-normal text-[#6b7880] text-[24px] leading-[32px] tracking-[0.1px]" style={wdth}>{children}</p>
+        <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[28px] leading-[32px] tracking-[0.1px]" style={wdth}>{title}</p>
+        <p className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[24px] leading-[32px] tracking-[0.1px]" style={wdth}>{children}</p>
       </div>
     </div>
   );
@@ -219,7 +218,7 @@ export function WizardChart({ baseOnly = false, windowsOverride, selection, heig
   const hasSel = selection != null && selMin != null && selMax != null;
 
   return (
-    <div className="relative w-full bg-white rounded-[16px] border border-[#dbe3e8] overflow-hidden shrink-0" style={{ height: cardH }}>
+    <div className="relative w-full bg-white rounded-[16px] border border-[#cedfd9] overflow-hidden shrink-0" style={{ height: cardH }}>
       {/* Rough dose-per-delivery axis */}
       <PerDelAxis baseDose={baseDose} bolusCount={bolusCount} windows={barWindows} unit={unit} baseFrac={BAR_BASE_FRAC}
         barMaxH={barMaxH} left={AXIS_L} right={30} baseline={BASELINE_FROM_BOTTOM} labelSize={22} />
@@ -275,7 +274,7 @@ export function WizardChart({ baseOnly = false, windowsOverride, selection, heig
         )}
       </div>
       {/* Baseline */}
-      <div className="absolute right-[30px] h-px bg-[#e3e6e9]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
+      <div className="absolute right-[30px] h-px bg-[#e3ece8]" style={{ left: AXIS_L, bottom: BASELINE_FROM_BOTTOM }} />
       {/* Hour axis (the customised-window time labels are intentionally omitted). */}
       <HourAxis left={AXIS_L} right={30} />
     </div>
@@ -287,7 +286,7 @@ export function WizardChart({ baseOnly = false, windowsOverride, selection, heig
  * steps: delivery count on the left, per-medication daily totals on the right.
  * Full-bleed across the 1200px canvas.
  */
-export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOverride, deltaFrom }: { baseOnly?: boolean; bg?: string; windowsOverride?: Interval[]; deltaFrom?: Interval[] }) {
+export function WizardTotalsFooter({ baseOnly = false, bg = '#f5fcf9', windowsOverride, deltaFrom }: { baseOnly?: boolean; bg?: string; windowsOverride?: Interval[]; deltaFrom?: Interval[] }) {
   const { baseDose, bolusCount, medications, intervals } = useTherapy();
   // Default to the context's (Monday) schedule; the dosing-window editor passes
   // the day-group it is showing so the totals always match the chart above.
@@ -315,13 +314,19 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOv
     const d = doseStringsFor(Math.abs(diff), m.unit);
     // Below the unit's own resolution there is nothing to report.
     if (parseFloat(d.perDay) === 0) return null;
-    return `${diff > 0 ? '+' : '−'}${d.perDay} ${d.unit}`;
+    // The share alongside the amount: a change reads very differently at 5 % of
+    // the day than at 30 %, and the absolute figure alone doesn't say which.
+    const pct = before > 0 ? Math.round((diff / before) * 100) : null;
+    return {
+      amount: `${diff > 0 ? '+' : '−'}${d.perDay} ${d.unit}`,
+      pct: pct == null || pct === 0 ? null : `${pct > 0 ? '+' : '−'}${Math.abs(pct)} %`,
+    };
   };
 
   // Daily delivered volume of the reservoir mixture (µl → ml), fixed by the dose
   // regardless of how it's split into deliveries. Trim trailing zeros (1.50→1.5).
   const volMlDay = active ? dailyVolumeUl(primaryDailyUg, c0) / 1000 : 0;
-  const volLabel = `${(Math.round(volMlDay * 100) / 100).toString()} ml / 24h`;
+  const volLabel = `${volMlDay.toFixed(2)} ml / day`;
 
   const wdth = { fontVariationSettings: "'wdth' 100" } as const;
   return (
@@ -329,44 +334,45 @@ export function WizardTotalsFooter({ baseOnly = false, bg = '#e6f4f9', windowsOv
       {/* Header: delivery count (left) + "Total per 24 h" filled pill (right) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-[12px]">
-          <div className="border-2 border-[#0094c5] rounded-[40px] px-[26px] py-[8px]">
-            <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>
-              {active && bolusCount > 0 ? `${bolusCount} deliveries / 24h` : '— deliveries / 24h'}
+          <div className="border-2 border-[#0b786a] rounded-[40px] px-[26px] py-[8px]">
+            <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px]" style={wdth}>
+              {active && bolusCount > 0 ? `${bolusCount} deliveries / day` : '— deliveries / day'}
             </span>
           </div>
-          <div className="border-2 border-[#0094c5] rounded-[40px] px-[26px] py-[8px]">
-            <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]" style={wdth}>
-              {active ? volLabel : '— ml / 24h'}
+          <div className="border-2 border-[#0b786a] rounded-[40px] px-[26px] py-[8px]">
+            <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px]" style={wdth}>
+              {active ? volLabel : '— ml / day'}
             </span>
           </div>
         </div>
-        <div className="bg-[#00769e] rounded-[40px] px-[26px] py-[8px]">
+        <div className="bg-[#096657] rounded-[40px] px-[26px] py-[8px]">
           <span className="font-['Roboto',sans-serif] font-bold text-white text-[32px] tracking-[0.1px]" style={wdth}>Total per 24 h</span>
         </div>
       </div>
       {/* Compact per-medication daily totals: name · concentration · value.
           One grid for every medication rather than a row each, so the columns
-          size themselves to the widest entry: the totals' decimal points land on
-          a single x and the units end flush right, whatever the digits do. The
-          integer and fraction sit in adjacent columns with no gap between them,
-          so "15.0" still reads as one number. */}
-      <div className="grid items-baseline gap-y-[2px] [grid-template-columns:1fr_auto_auto_auto_auto]">
+          size themselves to the widest entry. Totals are right-aligned so every
+          number ends on the same x, with the units in their own column after. */}
+      <div className="grid items-baseline gap-y-[14px] [grid-template-columns:1fr_auto_auto_auto]">
         {medications.map((m, i) => {
-          const [ip, fp] = splitNum(medTotal(m, i));
           const delta = medDelta(m, i);
           return (
           <Fragment key={m.id}>
             <p className="whitespace-nowrap" style={wdth}>
-              <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]">{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
-              <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[32px] tracking-[0.1px] ml-[16px]">{m.concentration} {m.unit}</span>
+              <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px]">{m.name || (i === 0 ? 'Primary' : 'Medication')}</span>
+              <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[32px] tracking-[0.1px] ml-[16px]">{m.concentration} {m.unit}</span>
             </p>
             {/* The day's total per medication is what the footer is for, so it
                 is set a size above the name and concentration beside it — and,
                 while an edit is open, what that edit contributes to it. */}
-            <span className={`font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] tracking-[0.1px] whitespace-nowrap ${delta ? 'px-[24px]' : ''}`} style={wdth}>{delta}</span>
-            <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[44px] leading-[52px] tracking-[0.1px] text-right" style={wdth}>{ip}</span>
-            <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[44px] leading-[52px] tracking-[0.1px]" style={wdth}>{fp && `.${fp}`}</span>
-            <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[26px] text-right ml-[10px]" style={wdth}>{medUnit(m)}</span>
+            <span className={`font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] tracking-[0.1px] whitespace-nowrap ${delta ? 'px-[24px]' : ''}`} style={wdth}>
+              {delta?.amount}
+              {delta?.pct && <span className="ml-[24px]">{delta.pct}</span>}
+            </span>
+            <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[44px] leading-[52px] tracking-[0.1px] whitespace-nowrap justify-self-end" style={wdth}>
+              {medTotal(m, i)}
+            </span>
+            <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[26px] ml-[16px]" style={wdth}>{medUnit(m)}</span>
           </Fragment>
           );
         })}
@@ -385,7 +391,7 @@ export function SectionHeader({ icon, title, children, className = '' }: { icon:
   return (
     <div className={`flex gap-[16px] items-center ${className}`}>
       {icon}
-      <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#00769e] text-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+      <p className="font-['Roboto',sans-serif] font-bold leading-[40px] text-[#096657] text-[36px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
         {title}
       </p>
       {children}
@@ -466,10 +472,10 @@ export function RangeSlider({ min, max, value, disabled, steps, onChange }: { mi
       onPointerMove={e => { if (disabled) return; if (!e.currentTarget.hasPointerCapture(e.pointerId)) return; setFromX(e.clientX); }}
       className={`relative w-full h-[44px] flex items-center select-none touch-none ${disabled ? '' : 'cursor-pointer'}`}
     >
-      <div className="absolute left-0 right-0 h-[12px] rounded-full bg-[#cfe6f1]" />
-      <div className="absolute left-0 h-[12px] rounded-full bg-[#0094c5]" style={{ width: `${pct * 100}%` }} />
+      <div className="absolute left-0 right-0 h-[12px] rounded-full bg-[#e9f7f2]" />
+      <div className="absolute left-0 h-[12px] rounded-full bg-[#0b786a]" style={{ width: `${pct * 100}%` }} />
       <div
-        className="absolute size-[44px] rounded-full bg-[#0094c5] border-4 border-white -translate-x-1/2"
+        className="absolute size-[44px] rounded-full bg-[#0b786a] border-4 border-white -translate-x-1/2"
         style={{ left: `${pct * 100}%`, boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}
       />
     </div>
@@ -479,7 +485,7 @@ export function RangeSlider({ min, max, value, disabled, steps, onChange }: { mi
 /** Read-only light-blue value field (e.g. Deliveries / Delivery time gap). */
 export function ReadoutField({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-[#e6f4f9] rounded-[8px] h-[72px] flex items-center px-[24px] w-full">
+    <div className="bg-[#f5fcf9] rounded-[8px] h-[72px] flex items-center px-[24px] w-full">
       <p className={readoutValueCls} style={{ fontVariationSettings: "'wdth' 100" }}>{children}</p>
     </div>
   );
@@ -495,10 +501,10 @@ export function StepButton({ label, onClick, disabled, ariaLabel }: { label: str
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
-      className={`size-[64px] rounded-[32px] flex items-center justify-center shrink-0 ${disabled ? 'bg-[#e8eef2] cursor-not-allowed' : 'bg-[#cce4f1] cursor-pointer'}`}
+      className={`size-[64px] rounded-[32px] flex items-center justify-center shrink-0 ${disabled ? 'bg-[#e6efeb] cursor-not-allowed' : 'bg-[#e9f7f2] cursor-pointer'}`}
     >
       <span
-        className={`font-['Roboto',sans-serif] font-extrabold text-[40px] ${disabled ? 'text-[#a5a5a5]' : 'text-[#00769e]'}`}
+        className={`font-['Roboto',sans-serif] font-extrabold text-[40px] ${disabled ? 'text-[#9db3ad]' : 'text-[#096657]'}`}
         style={{ fontVariationSettings: "'wdth' 100" }}
       >
         {label}
@@ -512,14 +518,14 @@ export function StepButton({ label, onClick, disabled, ariaLabel }: { label: str
  * `enabledBg` overrides the enabled fill (e.g. the Review step turns it green
  * once the transfer is confirmed).
  */
-export function SaveButton({ enabled = true, label = 'Save', enabledBg = '#0094c5', onClick }: { enabled?: boolean; label?: string; enabledBg?: string; onClick?: () => void }) {
+export function SaveButton({ enabled = true, label = 'Save', enabledBg = '#0b786a', onClick }: { enabled?: boolean; label?: string; enabledBg?: string; onClick?: () => void }) {
   return (
     <div
       onClick={() => { if (enabled) onClick?.(); }}
-      className={`flex h-[88px] items-center justify-center px-[40px] rounded-[80px] w-full ${enabled ? 'cursor-pointer' : 'bg-[#cbcbcb] cursor-not-allowed'}`}
+      className={`flex h-[88px] items-center justify-center px-[40px] rounded-[80px] w-full ${enabled ? 'cursor-pointer' : 'bg-[#cedfd9] cursor-not-allowed'}`}
       style={enabled ? { background: enabledBg } : undefined}
     >
-      <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[24px] tracking-[0.1px] ${enabled ? 'text-white' : 'text-[#a5a5a5]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
+      <p className={`font-['Roboto',sans-serif] font-bold leading-[32px] text-[24px] tracking-[0.1px] ${enabled ? 'text-white' : 'text-[#9db3ad]'}`} style={{ fontVariationSettings: "'wdth' 100" }}>
         {label}
       </p>
     </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatDate } from '../therapy';
 
 const wdth = { fontVariationSettings: "'wdth' 100" } as const;
 const FONT = "font-['Roboto',sans-serif]";
@@ -18,12 +19,8 @@ export function parseDate(s: string): Date {
   return tryParseDate(s) ?? new Date();
 }
 
-/** Format a Date as dd.mm.yyyy — the app's canonical date string. */
-export function formatDate(d: Date): string {
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  return `${dd}.${mm}.${d.getFullYear()}`;
-}
+/** Re-exported so callers can keep importing the formatter from the sheet. */
+export { formatDate };
 
 const sameDay = (a: Date, b: Date) =>
   a.getDate() === b.getDate() && a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
@@ -31,7 +28,7 @@ const sameDay = (a: Date, b: Date) =>
 function Chevron({ dir }: { dir: 'left' | 'right' }) {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className={dir === 'left' ? 'rotate-180' : ''}>
-      <path d="M9 5l7 7-7 7" stroke="#00769e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9 5l7 7-7 7" stroke="#096657" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -81,29 +78,29 @@ export function DatePickerSheet({
 
   return (
     <div className="absolute inset-0 flex flex-col justify-end">
-      <div className="absolute inset-0 bg-[#0b1220]/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-[#0a1c19]/60" onClick={onClose} />
       <div className="relative w-[1200px] bg-white rounded-t-[44px] flex flex-col px-[80px] pt-[24px] pb-[48px]">
-        <div className="mx-auto w-[96px] h-[8px] rounded-full bg-[#d9dbde] shrink-0" />
+        <div className="mx-auto w-[96px] h-[8px] rounded-full bg-[#cedfd9] shrink-0" />
 
         {/* Sheet header */}
         <div className="flex items-center justify-between pt-[24px] pb-[16px]">
-          <p className={`${FONT} font-bold text-[#00769e] text-[36px] tracking-[0.1px]`} style={wdth}>{title}</p>
+          <p className={`${FONT} font-bold text-[#096657] text-[36px] tracking-[0.1px]`} style={wdth}>{title}</p>
           <button onClick={onClose} className="size-[56px] rounded-full flex items-center justify-center cursor-pointer" aria-label="Close">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-              <path d="M6 6l12 12M18 6L6 18" stroke="#00769e" strokeWidth="2.5" strokeLinecap="round" />
+              <path d="M6 6l12 12M18 6L6 18" stroke="#096657" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
           </button>
         </div>
 
         {/* Month navigation */}
         <div className="flex items-center justify-between py-[16px]">
-          <button onClick={() => shiftMonth(-1)} className="size-[64px] rounded-full bg-[#cce4f1] flex items-center justify-center cursor-pointer" aria-label="Previous month">
+          <button onClick={() => shiftMonth(-1)} className="size-[64px] rounded-full bg-[#e9f7f2] flex items-center justify-center cursor-pointer" aria-label="Previous month">
             <Chevron dir="left" />
           </button>
-          <p className={`${FONT} font-extrabold text-[#00769e] text-[32px] tracking-[0.1px]`} style={wdth}>
+          <p className={`${FONT} font-extrabold text-[#096657] text-[32px] tracking-[0.1px]`} style={wdth}>
             {MONTHS[month]} {year}
           </p>
-          <button onClick={() => shiftMonth(1)} className="size-[64px] rounded-full bg-[#cce4f1] flex items-center justify-center cursor-pointer" aria-label="Next month">
+          <button onClick={() => shiftMonth(1)} className="size-[64px] rounded-full bg-[#e9f7f2] flex items-center justify-center cursor-pointer" aria-label="Next month">
             <Chevron dir="right" />
           </button>
         </div>
@@ -111,7 +108,7 @@ export function DatePickerSheet({
         {/* Weekday header */}
         <div className="grid grid-cols-7 gap-[8px] pb-[8px]">
           {WEEKDAYS.map(d => (
-            <p key={d} className={`${FONT} font-normal text-[#8a97a1] text-[22px] text-center tracking-[0.1px]`} style={wdth}>{d}</p>
+            <p key={d} className={`${FONT} font-normal text-[#7d918b] text-[22px] text-center tracking-[0.1px]`} style={wdth}>{d}</p>
           ))}
         </div>
 
@@ -131,15 +128,15 @@ export function DatePickerSheet({
                 onClick={() => { onPick(formatDate(date)); onClose(); }}
                 aria-label={isAlert ? `${day} — alert level reached` : undefined}
                 className={`h-[76px] rounded-[8px] flex items-center justify-center cursor-pointer ${
-                  isSel ? 'bg-[#0094c5]'
+                  isSel ? 'bg-[#0b786a]'
                     : isAlert ? 'bg-[rgba(204,84,87,0.2)]'
-                    : isToday ? 'bg-[#e6f4f9] border-2 border-[#0094c5]'
-                    : 'bg-[#eef6fb]'
+                    : isToday ? 'bg-[#f5fcf9] border-2 border-[#0b786a]'
+                    : 'bg-[#f7fcfa]'
                 }`}
               >
                 <span
                   className={`${FONT} text-[28px] tracking-[0.1px] ${
-                    isSel ? 'font-extrabold text-white' : isAlert ? 'font-bold text-[#cc5457]' : 'font-bold text-[#00769e]'
+                    isSel ? 'font-extrabold text-white' : isAlert ? 'font-bold text-[#cc5457]' : 'font-bold text-[#096657]'
                   }`}
                   style={wdth}
                 >

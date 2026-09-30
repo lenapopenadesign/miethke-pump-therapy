@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from '../navigation';
-import { useTherapy, fmtTime, concUgPerUl, coDoseUgDay, doseStringsFor, strokesPerDay, windowDeliverySpan, pctVsDefault, BOLUS_VOLUME_UL, scopeForDay, type Medication, type Interval, type DayKey, type DayPattern } from '../therapy';
+import { useTherapy, fmtTime, concUgPerUl, coDoseUgDay, doseStringsFor, doseUnitFor, fmtPerDelivery, strokesPerDay, windowDeliverySpan, BOLUS_VOLUME_UL, scopeForDay, type Medication, type Interval, type DayKey, type DayPattern } from '../therapy';
 import { WizardShell } from '../components/WizardShell';
 import { WizardChart, WizardTotalsFooter, SaveButton, WindowsIcon, SectionHeader, StepButton, WarningBanner } from '../components/WizardParts';
 import { MedicationIcon } from '../components/MedicationIcon';
@@ -24,7 +24,7 @@ const FIELD_W = 380;
 const TIMES_GAP = 24;
 
 /** The dose rows: label · − · field · + · figure, the field track one FIELD_W. */
-const ROW_GRID = '[grid-template-columns:308px_64px_380px_64px_160px]';
+const ROW_GRID = '[grid-template-columns:230px_64px_380px_64px_1fr]';
 
 /**
  * Dev aid, alongside App.tsx's `#raw=`: `#sheet=add` opens the add-delivery
@@ -39,7 +39,7 @@ const OPEN_SHEET = new URLSearchParams(
 /** The teal name at the head of a {@link ROW_GRID} row. */
 function RowLabel({ children }: { children: ReactNode }) {
   return (
-    <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[30px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+    <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[30px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
       {children}
     </span>
   );
@@ -48,22 +48,44 @@ function RowLabel({ children }: { children: ReactNode }) {
 function Kebab({ onClick }: { onClick: () => void }) {
   return (
     <button onClick={onClick} className="size-[56px] flex items-center justify-center cursor-pointer shrink-0" aria-label="Window options">
-      <svg width="8" height="32" viewBox="0 0 8 32" fill="#98a4ad"><circle cx="4" cy="5" r="4" /><circle cx="4" cy="16" r="4" /><circle cx="4" cy="27" r="4" /></svg>
+      <svg width="8" height="32" viewBox="0 0 8 32" fill="#9db3ad"><circle cx="4" cy="5" r="4" /><circle cx="4" cy="16" r="4" /><circle cx="4" cy="27" r="4" /></svg>
     </button>
+  );
+}
+
+/** "+ Customise delivery" — the one way into the window editor. */
+function AddDeliveryButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex gap-[16px] h-[88px] items-center justify-center px-[40px] rounded-[80px] border-2 border-[#0b786a] cursor-pointer"
+    >
+      <span className="text-[#0b786a] text-[40px] leading-none">+</span>
+      <span className="font-['Roboto',sans-serif] font-bold text-[#0b786a] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+        Customise delivery
+      </span>
+    </button>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M4 7h16M10 4h4M9 7v12M15 7v12M6 7l1 14h10l1-14" stroke="#096657" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
 export function DosingWindows() {
   const navigate = useNavigate();
-  const { baseDose, bolusCount, intervalsByDay, dayPattern, setDayPattern, addWindowFor, updateWindowFor, removeWindowFor, syncAllDaysTo, medications, flowMode } = useTherapy();
-  const isRefill = flowMode === 'refill';
+  const { baseDose, bolusCount, intervalsByDay, dayPattern, setDayPattern, addWindowFor, updateWindowFor, removeWindowFor, syncAllDaysTo, medications } = useTherapy();
   // Which day-group is being edited/viewed. displayDay is its representative day;
   // scope is the set of days an edit touches.
   const [viewDay, setViewDay] = useState<DayKey>('monday');
   const displayDay = repDay(dayPattern, viewDay);
   const scope = scopeForDay(dayPattern, viewDay);
   const windows = intervalsByDay[displayDay];
-  // Switching back to "Same Daily" unifies every day onto the schedule on screen.
+  // Switching back to "Daily" unifies every day onto the schedule on screen.
   const onModeChange = (p: DayPattern) => { if (p === 'same') syncAllDaysTo(displayDay); setViewDay('monday'); setDayPattern(p); };
   const c0 = medications[0] ? concUgPerUl(medications[0]) : 1;
 
@@ -82,6 +104,15 @@ export function DosingWindows() {
   const deliveryRangeLabel = (startMin: number, endMinExclusive: number) => {
     const { firstMin, lastMin } = windowDeliverySpan(startMin, endMinExclusive, bolusCount);
     return firstMin === lastMin ? fmtTime(firstMin) : `${fmtTime(firstMin)} – ${fmtTime(lastMin)}`;
+  };
+
+  // Which list row is showing its per-medication breakdown (one at a time).
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Wipe the current day-group's customised deliveries in one go — the list's
+  // own kebab removes them one at a time, this clears the schedule.
+  const clearWindowsForScope = () => {
+    for (const w of [...windows]) removeWindowFor(scope, w.id);
   };
 
   // Add / edit editor state. `editingId` is the window being edited (null = new).
@@ -130,8 +161,8 @@ export function DosingWindows() {
   // Per-delivery dose of medication i, given the primary's daily µg, in its unit.
   const perDelivery = (primaryDailyUg: number, m: Medication, i: number) => {
     const ug = i === 0 ? primaryDailyUg : coDoseUgDay(primaryDailyUg, c0, concUgPerUl(m));
-    const d = doseStringsFor(ug / bolusN, m.unit);
-    return { value: d.perDay, unit: `${d.unit}/del` };
+    const { unit, div } = doseUnitFor(m.unit);
+    return { value: fmtPerDelivery(ug / bolusN / div, unit), unit: `${unit}/del` };
   };
 
   // While the editor is open, preview the window being edited at its live dose so
@@ -181,7 +212,6 @@ export function DosingWindows() {
   const pickFrom = (i: number) => setRange(prev => ({ a: i, b: Math.max(i, prev ? Math.max(prev.a, prev.b) : i) }));
   const pickTo = (i: number) => setRange(prev => ({ a: Math.min(i, prev ? Math.min(prev.a, prev.b) : i), b: i }));
 
-  const selPct = pctVsDefault(primaryDose, baseDose);
 
   // More than double the default delivery is the same "check for a decimal slip"
   // moment the Default Delivery step warns about. Dismissing records the stroke
@@ -202,6 +232,14 @@ export function DosingWindows() {
   // Number of deliveries a stored window covers (its slot span).
   const windowDeliveries = (w: { startMin: number; endMin: number }) =>
     windowDeliverySpan(w.startMin, w.endMin, bolusCount).count;
+
+  // What the window under construction delivers in total, per medication: the
+  // per-delivery dose times however many deliveries the selection covers.
+  const windowTotal = (m: Medication, i: number) => {
+    if (selCount === 0) return '--';
+    const ug = i === 0 ? primaryDose : coDoseUgDay(primaryDose, c0, concUgPerUl(m));
+    return doseStringsFor((ug / bolusN) * selCount, m.unit).perDay;
+  };
 
   // Step the dose by whole strokes (10 µl each), clamped to [0, MAX_K].
   const stepStrokes = (delta: number) => setStrokes(Math.max(0, Math.min(MAX_K, strokeK + delta)));
@@ -226,16 +264,15 @@ export function DosingWindows() {
       footer={
         <>
           <WizardTotalsFooter windowsOverride={windows} />
-          <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px]">
-            {/* A refill routes through the Refill Alert step before Review. */}
-            <SaveButton label="Next" onClick={() => navigate(isRefill ? 'refill-date' : 'review')} />
+          <div className="bg-[#f5fcf9] px-[80px] pt-[24px] pb-[40px]">
+            <SaveButton label="Next" onClick={() => navigate('review')} />
           </div>
         </>
       }
       overlay={open && (
         <div className="absolute inset-0 flex flex-col justify-end">
           {/* Backdrop — click to dismiss */}
-          <div className="absolute inset-0 bg-[#0b1220]/60" onClick={resetEditor} />
+          <div className="absolute inset-0 bg-[#0a1c19]/60" onClick={resetEditor} />
 
           {/* Full-width bottom sheet */}
           {/* A fixed height, not a content-driven one: the dose block and the
@@ -246,13 +283,13 @@ export function DosingWindows() {
               enough medications to exceed it. */}
           <div className="relative w-[1200px] h-[1580px] bg-white rounded-t-[44px] flex flex-col" style={{ boxShadow: '0 -16px 70px rgba(0,0,0,0.35)' }}>
             {/* Drag handle */}
-            <div className="flex justify-center pt-[20px] shrink-0"><div className="w-[96px] h-[8px] rounded-full bg-[#d4dde3]" /></div>
+            <div className="flex justify-center pt-[20px] shrink-0"><div className="w-[96px] h-[8px] rounded-full bg-[#cedfd9]" /></div>
 
             {/* Header — just the close control. No title or subtitle: the two
                 section headings below name the two decisions, and in edit mode
                 the Delete action in the footer marks the sheet as an edit. */}
             <div className="flex justify-end px-[80px] pt-[12px] pb-[8px] shrink-0">
-              <button onClick={resetEditor} aria-label="Close" className="size-[56px] rounded-full flex items-center justify-center text-[#00769e] cursor-pointer shrink-0">
+              <button onClick={resetEditor} aria-label="Close" className="size-[56px] rounded-full flex items-center justify-center text-[#096657] cursor-pointer shrink-0">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>
               </button>
             </div>
@@ -295,7 +332,7 @@ export function DosingWindows() {
                   {/* Set like the CHANGE figure on the dose rows: both are the
                       trailing readout of the control to their left. */}
                   <span className="text-right font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    {selCount > 0 ? `${selCount} selected` : ''}
+                    {selCount > 0 ? `${selCount} ${selCount === 1 ? 'delivery' : 'deliveries'} selected` : ''}
                   </span>
                 </div>
               </div>
@@ -313,9 +350,9 @@ export function DosingWindows() {
                 <div className={`grid items-baseline gap-[16px] ${ROW_GRID}`}>
                   <span />
                   <span />
-                  <FieldLabel className="whitespace-nowrap">Per delivery</FieldLabel>
+                  <FieldLabel className="whitespace-nowrap">Dose per delivery</FieldLabel>
                   <span />
-                  <span />
+                  <FieldLabel className="whitespace-nowrap">Total</FieldLabel>
                 </div>
                 <div className="flex flex-col gap-[20px]">
                 {medications.map((m, i) => {
@@ -353,9 +390,12 @@ export function DosingWindows() {
                         </button>
                       )}
 
-                      {/* Share of the default delivery, in the same amber the
-                          Review page uses for a changed value. */}
-                      <span className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] whitespace-nowrap text-right" style={{ fontVariationSettings: "'wdth' 100" }}>{selPct ?? ''}</span>
+                      {/* What the window delivers in total across its run — the
+                          figure the footer's change percentage is computed from. */}
+                      <Readout>
+                        <span className={readoutValueCls} style={{ fontVariationSettings: "'wdth' 100" }}>{windowTotal(m, i)}</span>
+                        <span className={readoutUnitCls} style={{ fontVariationSettings: "'wdth' 100" }}>{doseStringsFor(0, m.unit).unit}</span>
+                      </Readout>
                     </div>
                   );
                 })}
@@ -380,12 +420,12 @@ export function DosingWindows() {
             {/* Footer — the running 24-hour totals the change feeds into, then the actions. */}
             <div className="shrink-0">
               <WizardTotalsFooter windowsOverride={previewWindows} deltaFrom={restWindows} />
-              <div className="bg-[#e6f4f9] px-[80px] pt-[24px] pb-[40px] flex gap-[40px]">
+              <div className="bg-[#f5fcf9] px-[80px] pt-[24px] pb-[40px] flex gap-[40px]">
                 {editingId && (
-                  <button onClick={() => { removeWindowFor(scope, editingId); resetEditor(); }} className="flex-1 h-[88px] rounded-[80px] bg-white border-2 border-[#c0392b] font-['Roboto',sans-serif] font-extrabold text-[#c0392b] text-[24px] cursor-pointer" style={{ fontVariationSettings: "'wdth' 100" }}>Delete</button>
+                  <button onClick={() => { removeWindowFor(scope, editingId); resetEditor(); }} className="flex-1 h-[88px] rounded-[80px] bg-white border-2 border-[#cc5457] font-['Roboto',sans-serif] font-extrabold text-[#cc5457] text-[24px] cursor-pointer" style={{ fontVariationSettings: "'wdth' 100" }}>Delete</button>
                 )}
-                <button onClick={resetEditor} className="flex-1 h-[88px] rounded-[80px] bg-white border-2 border-[#0094c4] font-['Roboto',sans-serif] font-extrabold text-[#00769e] text-[24px] cursor-pointer" style={{ fontVariationSettings: "'wdth' 100" }}>Cancel</button>
-                <button onClick={commit} disabled={selCount === 0} className={`flex-1 h-[88px] rounded-[80px] font-['Roboto',sans-serif] font-extrabold text-[24px] ${selCount === 0 ? 'bg-[#ccc] text-[#a5a5a5]' : 'bg-[#0094c5] text-white cursor-pointer'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{editingId ? 'Save delivery' : 'Add delivery'}</button>
+                <button onClick={resetEditor} className="flex-1 h-[88px] rounded-[80px] bg-white border-2 border-[#0b786a] font-['Roboto',sans-serif] font-extrabold text-[#096657] text-[24px] cursor-pointer" style={{ fontVariationSettings: "'wdth' 100" }}>Cancel</button>
+                <button onClick={commit} disabled={selCount === 0} className={`flex-1 h-[88px] rounded-[80px] font-['Roboto',sans-serif] font-extrabold text-[24px] ${selCount === 0 ? 'bg-[#cedfd9] text-[#9db3ad]' : 'bg-[#0b786a] text-white cursor-pointer'}`} style={{ fontVariationSettings: "'wdth' 100" }}>{editingId ? 'Save delivery' : 'Add delivery'}</button>
               </div>
             </div>
           </div>
@@ -399,6 +439,9 @@ export function DosingWindows() {
         {/* Day-differentiation: choose the pattern first; for weekday-weekend /
             per-day, a second toggle opens to pick which day-group to edit. */}
         <div className="flex flex-col gap-[12px]">
+          <p className="font-['Roboto',sans-serif] font-normal text-[#7d918b] text-[22px] tracking-[1px] uppercase" style={{ fontVariationSettings: "'wdth' 100" }}>
+            Schedule
+          </p>
           <ModeToggle dayPattern={dayPattern} onChange={onModeChange} />
           <DayGroupToggle dayPattern={dayPattern} viewDay={viewDay} onPick={setViewDay} />
         </div>
@@ -406,44 +449,87 @@ export function DosingWindows() {
         {/* Existing windows list */}
         {windows.length > 0 && (
           <div className="flex flex-col gap-[16px]">
-            <p className="font-['Roboto',sans-serif] font-normal text-[#8a97a1] text-[22px] tracking-[1px] uppercase" style={{ fontVariationSettings: "'wdth' 100" }}>
+            <p className="font-['Roboto',sans-serif] font-normal text-[#7d918b] text-[22px] tracking-[1px] uppercase" style={{ fontVariationSettings: "'wdth' 100" }}>
               Customised deliveries ({windows.length})
             </p>
             {[...windows].sort((a, b) => a.startMin - b.startMin).map(w => {
-              const pct = pctVsDefault(w.dose, baseDose);
-              const pd = perDelivery(w.dose, medications[0], 0);
-              const td = doseStringsFor((w.dose / bolusN) * windowDeliveries(w), medications[0].unit);
+              const count = windowDeliveries(w);
+              const expanded = expandedId === w.id;
               return (
-                <div key={w.id} className="bg-white border border-[#cfdbe3] rounded-[16px] h-[96px] grid items-center [grid-template-columns:1fr_210px_210px_100px_56px] gap-[16px] pl-[32px] pr-[12px]">
-                  <p onClick={() => openEdit(w.id)} className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px] cursor-pointer whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    {deliveryRangeLabel(w.startMin, w.endMin)}
-                  </p>
-                  {/* Same order as the therapy/review breakdown: per delivery · total · %. */}
-                  <span className="flex items-baseline whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]">{pd.value}</span>
-                    <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px]">{pd.unit}</span>
-                  </span>
-                  <span className="flex items-baseline whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-                    <span className="font-['Roboto',sans-serif] font-bold text-[#00769e] text-[32px] tracking-[0.1px]">{td.perDay}</span>
-                    <span className="font-['Roboto',sans-serif] font-normal text-[#5f8aa0] text-[22px] ml-[8px]">{td.unit} total</span>
-                  </span>
-                  {/* Share of the default delivery — same reading, same amber as the editor's. */}
-                  <span className="font-['Roboto',sans-serif] font-bold text-[#b3850e] text-[32px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>{pct ?? ''}</span>
-                  <Kebab onClick={() => openEdit(w.id)} />
+                <div key={w.id} className="bg-white border border-[#cedfd9] rounded-[16px] overflow-hidden">
+                  <div className="h-[96px] grid items-center [grid-template-columns:1fr_auto_56px_56px] gap-[16px] pl-[32px] pr-[12px]">
+                    <p onClick={() => openEdit(w.id)} className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[32px] tracking-[0.1px] cursor-pointer whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      {deliveryRangeLabel(w.startMin, w.endMin)}
+                    </p>
+                    <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[26px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                      {count} {count === 1 ? 'delivery' : 'deliveries'}
+                    </span>
+                    <button
+                      onClick={() => setExpandedId(expanded ? null : w.id)}
+                      className="size-[56px] flex items-center justify-center cursor-pointer shrink-0"
+                      aria-label={expanded ? 'Hide doses' : 'Show doses'}
+                    >
+                      <svg width="32" height="20" viewBox="0 0 24 14" fill="none" className={expanded ? 'rotate-180' : ''}>
+                        <path d="M2 2l10 10L22 2" stroke="#096657" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                    <Kebab onClick={() => openEdit(w.id)} />
+                  </div>
+                  {/* Expanded: what this window actually delivers, per medication. */}
+                  {expanded && (
+                    <div className="px-[16px] pb-[16px] flex flex-col gap-[8px]">
+                      {medications.map((m, i) => {
+                        const ug = i === 0 ? w.dose : coDoseUgDay(w.dose, c0, concUgPerUl(m));
+                        const d = doseStringsFor((ug / bolusN) * count, m.unit);
+                        return (
+                          <div key={m.id} className="bg-[#f5fcf9] rounded-[8px] h-[64px] flex items-center justify-between px-[24px]">
+                            <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[28px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+                              {m.name || (i === 0 ? 'Primary' : 'Medication')}
+                            </span>
+                            <span className="flex items-baseline whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+                              <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[30px] tracking-[0.1px]">{d.perDay}</span>
+                              <span className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[22px] ml-[8px]">{d.unit} total</span>
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
         )}
 
-        {/* Add customised delivery — opens the editor modal */}
-        <button
-          onClick={openNew}
-          className="self-start flex gap-[16px] h-[88px] items-center justify-center px-[40px] rounded-[80px] border-2 border-[#0094c5] cursor-pointer"
-        >
-          <span className="text-[#0094c5] text-[40px] leading-none">+</span>
-          <span className="font-['Roboto',sans-serif] font-bold text-[#0094c5] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>Add customised delivery</span>
-        </button>
+        {/* Empty state — explains what a customised delivery is for before the
+            clinician has added one, rather than leaving a bare button. */}
+        {windows.length === 0 && (
+          <div className="bg-[#f5fcf9] rounded-[24px] flex flex-col items-center gap-[24px] px-[80px] py-[56px]">
+            <WindowsIcon />
+            <p className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[36px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              No customised deliveries yet
+            </p>
+            <p className="font-['Roboto',sans-serif] font-normal text-[#596d68] text-[26px] leading-[36px] tracking-[0.1px] text-center max-w-[720px]" style={{ fontVariationSettings: "'wdth' 100" }}>
+              Right now the same dose is delivered around the clock. Add a customised delivery
+              to give more or less medication during a chosen time window — for example more at night.
+            </p>
+            <AddDeliveryButton onClick={openNew} />
+          </div>
+        )}
+
+        {/* Add / delete — the delete clears every customised delivery at once */}
+        {windows.length > 0 && (
+          <div className="flex items-center justify-between">
+            <AddDeliveryButton onClick={openNew} />
+            <button
+              onClick={clearWindowsForScope}
+              className="flex gap-[16px] h-[88px] items-center justify-center px-[40px] rounded-[80px] border-2 border-[#cedfd9] cursor-pointer"
+            >
+              <TrashIcon />
+              <span className="font-['Roboto',sans-serif] font-bold text-[#096657] text-[28px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>Delete customised deliveries</span>
+            </button>
+          </div>
+        )}
       </div>
     </WizardShell>
   );

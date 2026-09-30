@@ -5,9 +5,7 @@ import { HelpBadge } from './WizardParts';
 
 const imgBack = "/icons/01195f3c-ce0c-4269-a4cc-2742bc124f77.svg";
 const imgSignet = "/icons/9f250784-cad4-4195-99ce-4b9dc94364a5.svg";
-// Refill icon (pump + syringe) — same as the Refill action tile that opens the flow.
-const imgRefillSyringe = "/icons/act-refill-syringe-b.svg";
-const imgRefillPump = "/icons/act-refill-pump-b.svg";
+const imgRefillTitle = "/icons/refill-title.svg";
 
 // Granular step a screen reports it belongs to. The setup wizard shows all of
 // these as distinct dots; the refill wizard shows them as a segmented bar.
@@ -29,8 +27,8 @@ const SETUP_STEPS = [
   { key: 'transfer', label: 'Transfer' },
 ];
 
-// Refill flow: Filling + a distinct Medication step, then the delivery steps and
-// Transfer (Figma refill variant 10189:168958). Rendered with the chevron
+// Refill flow: Filling + a distinct Medication step, then the delivery steps,
+// Review and Transfer (Figma refill flow 11103:213186). Rendered with the chevron
 // stepper. Six steps split 1200px evenly with room to spare, so — unlike the
 // seven-step version this replaced, which needed a per-segment `basis` to stop
 // "Medication" being clipped — the two-word labels only have to break over two
@@ -40,7 +38,7 @@ const REFILL_STEPS = [
   { key: 'medication', label: 'Medication' },
   { key: 'base-dose', label: 'Default\nDelivery' },
   { key: 'windows', label: 'Custom\nDelivery' },
-  { key: 'refill-date', label: 'Refill\nDate' },
+  { key: 'review', label: 'Review' },
   { key: 'transfer', label: 'Transfer' },
 ];
 
@@ -61,7 +59,7 @@ const REFILL_STEP_SCREEN: Record<string, ScreenId> = {
   medication: 'refill-same-therapy',
   'base-dose': 'base-dose',
   windows: 'windows',
-  'refill-date': 'refill-date',
+  review: 'review',
   transfer: 'activate',
 };
 
@@ -75,26 +73,18 @@ function normalizeStep(step: WizardStep): string {
   return step;
 }
 
-// Refill keeps Medication as its own step; Review (no dot in the refill stepper)
-// falls back to the Refill Date step it follows.
+// Refill keeps Medication as its own step. The refill-date screen is no longer
+// part of the refill (it is only reached from Notifications); it sits on Review.
 function normalizeRefillStep(step: WizardStep): string {
   if (step === 'frequency') return 'base-dose';
   if (step === 'intervals' || step === 'delivery') return 'windows';
-  if (step === 'review') return 'refill-date';
+  if (step === 'refill-date') return 'review';
   return step;
 }
 
+// Syringe + vial page icon of the Refill flow header (Figma Header (Flow) 9466:48180).
 function RefillTitleIcon({ size = 64 }: { size?: number }) {
-  return (
-    <div className="relative shrink-0 overflow-clip" style={{ width: size, height: size }}>
-      <div className="absolute flex inset-[-8.75%_-3.93%_29.79%_23.01%] items-center justify-center" style={{ containerType: 'size' }}>
-        <div className="flex-none h-[hypot(36.3553cqw,-67.1953cqh)] rotate-[-153.3deg] skew-x-[-2.31deg] w-[hypot(-63.6447cqw,-32.8047cqh)]">
-          <div className="relative size-full"><img alt="" src={imgRefillSyringe} className="absolute inset-0 block max-w-none size-full" /></div>
-        </div>
-      </div>
-      <div className="absolute inset-[37.62%_52.29%_9.03%_0]"><img alt="" src={imgRefillPump} className="absolute inset-0 block max-w-none size-full" /></div>
-    </div>
-  );
+  return <img alt="" src={imgRefillTitle} className="block shrink-0" style={{ width: size, height: size }} />;
 }
 
 function BackArrow({ onBack }: { onBack: () => void }) {
@@ -129,7 +119,7 @@ function Check() {
 function Dash() {
   return (
     <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-      <path d="M5 11h12" stroke="#8c99a6" strokeWidth="3" strokeLinecap="round" />
+      <path d="M5 11h12" stroke="#7d918b" strokeWidth="3" strokeLinecap="round" />
     </svg>
   );
 }
@@ -178,25 +168,25 @@ function ChevronStepper({ activeKey, steps, skippedKeys = [], onPick }: { active
             // Steps without a `basis` just share the row equally, as before.
             style={{
               flex: s.basis != null ? `1 1 ${s.basis + SEG_CHROME}px` : '1 1 0%',
-              background: state === 'upcoming' || state === 'skipped' ? '#f0f0f0' : '#d1eaf8',
+              background: state === 'upcoming' || state === 'skipped' ? '#eef3f1' : '#e9f7f2',
               clipPath: clip,
               paddingLeft: first ? 28 : 12 + CHEV,
               marginLeft: first ? 0 : -(CHEV - CHEV_GAP),
             }}
           >
             {state === 'done' ? (
-              <div className="size-[40px] rounded-full bg-[#0094c5] flex items-center justify-center shrink-0"><Check /></div>
+              <div className="size-[40px] rounded-full bg-[#0b786a] flex items-center justify-center shrink-0"><Check /></div>
             ) : state === 'skipped' ? (
-              <div className="size-[40px] rounded-full border-2 border-[#cdd5da] bg-white flex items-center justify-center shrink-0"><Dash /></div>
+              <div className="size-[40px] rounded-full border-2 border-[#cedfd9] bg-white flex items-center justify-center shrink-0"><Dash /></div>
             ) : state === 'active' ? (
-              <div className="size-[40px] rounded-full border-[3px] border-[#0094c5] bg-white flex items-center justify-center shrink-0">
-                <div className="size-[18px] rounded-full bg-[#0094c5]" />
+              <div className="size-[40px] rounded-full border-[3px] border-[#0b786a] bg-white flex items-center justify-center shrink-0">
+                <div className="size-[18px] rounded-full bg-[#0b786a]" />
               </div>
             ) : (
-              <div className="size-[40px] rounded-full border-2 border-[#cdd5da] bg-white shrink-0" />
+              <div className="size-[40px] rounded-full border-2 border-[#cedfd9] bg-white shrink-0" />
             )}
             <p
-              className={`flex-1 min-w-px whitespace-pre-line font-['Roboto',sans-serif] leading-[22px] text-[20px] tracking-[0.1px] ${state === 'upcoming' ? 'font-normal text-[#a5a5a5]' : state === 'skipped' ? 'font-normal text-[#8c99a6]' : state === 'active' ? 'font-bold text-[#00769e]' : 'font-normal text-[#00769e]'}`}
+              className={`flex-1 min-w-px whitespace-pre-line font-['Roboto',sans-serif] leading-[22px] text-[20px] tracking-[0.1px] ${state === 'upcoming' ? 'font-normal text-[#9db3ad]' : state === 'skipped' ? 'font-normal text-[#7d918b]' : state === 'active' ? 'font-bold text-[#096657]' : 'font-normal text-[#096657]'}`}
               style={{ fontVariationSettings: "'wdth' 100" }}
             >
               {s.label}
@@ -226,11 +216,11 @@ function RefillHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: 
   const skipped = useSkippedSteps();
   return (
     <div className="w-[1200px] shrink-0 flex flex-col gap-[8px]">
-      <div className="bg-[#e6f4f9] flex h-[96px] items-center justify-between px-[40px]">
+      <div className="bg-[#f5fcf9] flex h-[96px] items-center justify-between px-[40px]">
         <div className="flex gap-[16px] items-center">
           <BackArrow onBack={onBack} />
           <RefillTitleIcon size={64} />
-          <p className="font-['Roboto',sans-serif] font-extrabold text-[#00769e] text-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-extrabold text-[#096657] text-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Refill
           </p>
           {onHelp && <HelpBadge onClick={onHelp} />}
@@ -255,10 +245,10 @@ function SetupHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: (
   const skipped = useSkippedSteps();
   return (
     <div className="w-[1200px] shrink-0 flex flex-col gap-[8px]">
-      <div className="bg-[#e6f4f9] flex h-[96px] items-center justify-between px-[40px]">
+      <div className="bg-[#f5fcf9] flex h-[96px] items-center justify-between px-[40px]">
         <div className="flex gap-[20px] items-center">
           <BackArrow onBack={onBack} />
-          <p className="font-['Roboto',sans-serif] font-extrabold text-[#00769e] text-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+          <p className="font-['Roboto',sans-serif] font-extrabold text-[#096657] text-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             Edit Therapy
           </p>
           {onHelp && <HelpBadge onClick={onHelp} />}
@@ -310,7 +300,7 @@ export function WizardShell({ step, onBack, onHelp, children, banner, pinnedTop,
   const isRefill = flowMode === 'refill';
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] flex flex-col overflow-hidden">
-      <div className="bg-[#3b2d7c] h-[35px] w-[1200px] shrink-0" />
+      <div className="bg-[#183d38] h-[35px] w-[1200px] shrink-0" />
       {isRefill
         ? <RefillHeaderBand step={step} onBack={onBack} onHelp={onHelp} />
         : <SetupHeaderBand step={step} onBack={onBack} onHelp={onHelp} />}
