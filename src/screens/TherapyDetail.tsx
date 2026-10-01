@@ -39,7 +39,7 @@ function StopGlyph() {
 
 export function TherapyDetail() {
   const navigate = useNavigate();
-  const { setFlowMode, setTherapyActive, beginEditTherapy, intervalsByDay, dayPattern } = useTherapy();
+  const { setFlowMode, setTherapyPaused, beginEditTherapy, intervalsByDay, dayPattern } = useTherapy();
   const [viewDay, setViewDay] = useState<DayKey>('monday');
   const windows = intervalsByDay[repDay(dayPattern, viewDay)];
 
@@ -48,7 +48,8 @@ export function TherapyDetail() {
   // back-out restores the current therapy.
   const onEditTherapy = () => { setFlowMode('setup'); beginEditTherapy('therapy-detail'); navigate('base-dose'); };
   const onEditMedication = () => { setFlowMode('setup'); beginEditTherapy('therapy-detail'); navigate('add-medication'); };
-  const onStop = () => { setTherapyActive(false); navigate('home-no-therapy'); };
+  // Stop pauses delivery; the home screen then offers Resume Therapy.
+  const onStop = () => { setTherapyPaused(true); navigate('home-active'); };
   const onClinicianBolus = () => navigate('actions');
 
   return (

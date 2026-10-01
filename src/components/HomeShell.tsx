@@ -308,7 +308,7 @@ function ImplantCard({ refillDate, fillFraction }: { refillDate: string; fillFra
   );
 }
 
-type TherapyStatus = 'not-active' | 'active' | 'none';
+type TherapyStatus = 'not-active' | 'active' | 'paused' | 'none';
 
 function TherapyHeader({ status, onHelp }: { status: TherapyStatus; onHelp?: () => void }) {
   return (
@@ -325,6 +325,16 @@ function TherapyHeader({ status, onHelp }: { status: TherapyStatus; onHelp?: () 
           <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#b3850e] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
             not active
           </p>
+        </div>
+      )}
+      {status === 'paused' && (
+        <div className="content-stretch flex gap-[16px] items-center relative shrink-0">
+          <p className="font-['Roboto',sans-serif] font-normal leading-[32px] relative shrink-0 text-[#cc5457] text-[24px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
+            Delivery paused
+          </p>
+          <div className="flex items-center justify-center shrink-0 size-[40px]">
+            <img alt="" className="block h-[32px] w-[28.57px]" src="/icons/delivery-paused.svg" />
+          </div>
         </div>
       )}
       {status === 'active' && (
@@ -353,9 +363,9 @@ function ActionTile({ filled, label, children, onClick }: { filled?: boolean; la
   );
 }
 
-function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
+function ActionsCard({ noTherapy, paused }: { noTherapy: boolean; paused: boolean }) {
   const navigate = useNavigate();
-  const { setFlowMode, beginEditTherapy } = useTherapy();
+  const { setFlowMode, beginEditTherapy, setTherapyPaused } = useTherapy();
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   const startSetup = () => { setFlowMode('setup'); navigate('add-medication'); };
   return (
@@ -378,6 +388,12 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
         {noTherapy && (
           <ActionTile filled label="Add Therapy" onClick={startSetup}>
             <AddTherapyIcon />
+          </ActionTile>
+        )}
+        {/* Paused delivery: resuming is the first thing on offer (Figma 13330:68294). */}
+        {paused && (
+          <ActionTile filled label="Resume Therapy" onClick={() => setTherapyPaused(false)}>
+            <img alt="" src="/icons/act-resume-therapy.svg" className="absolute inset-0 block size-full object-contain" />
           </ActionTile>
         )}
         {/* Refill */}
@@ -415,8 +431,8 @@ function ActionsCard({ noTherapy }: { noTherapy: boolean }) {
             <EditTherapyIcon />
           </ActionTile>
         )}
-        {/* Clinician Bolus — active only */}
-        {!noTherapy && (
+        {/* Clinician Bolus — active only (no bolus while delivery is paused) */}
+        {!noTherapy && !paused && (
           <ActionTile label="Clinician Bolus">
             <div className="absolute inset-[6.25%_33.75%_21.25%_11.25%]"><img alt="" src={imgActClinician1} className="absolute block inset-0 max-w-none size-full" /></div>
             <div className="absolute inset-[20%_11.25%_5%_66.25%]"><img alt="" src={imgActClinician2} className="absolute block inset-0 max-w-none size-full" /></div>
@@ -515,7 +531,12 @@ export function HomeShell({ therapyStatus, therapyBody, onTherapyClick, onTherap
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] overflow-hidden">
       <div className="absolute bg-[#183d38] h-[35px] left-0 top-0 w-[1200px]" />
-      <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[56px] px-[80px] top-[35px] w-[1200px]">
+      <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[24px] px-[80px] top-[35px] w-[1200px]">
+        {/* Clarisa wordmark + signet (Figma 13330:68275). */}
+        <div className="flex items-center justify-between px-[40px] w-full">
+          <img alt="Clarisa" src="/icons/clarisa-wordmark.svg" className="block h-[49px] w-[185px]" />
+          <img alt="" src="/icons/clarisa-signet-home.svg" className="block h-[56px] w-[48px]" />
+        </div>
         <PatientCard />
         <ImplantCard refillDate={noTherapy ? 'N/A' : refillDate} fillFraction={fillFraction} />
         <div onClick={onTherapyClick} className={`bg-[#f5fcf9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] ${onTherapyClick ? 'cursor-pointer' : ''}`}>
@@ -524,7 +545,7 @@ export function HomeShell({ therapyStatus, therapyBody, onTherapyClick, onTherap
             {therapyBody}
           </div>
         </div>
-        <ActionsCard noTherapy={noTherapy} />
+        <ActionsCard noTherapy={noTherapy} paused={therapyStatus === 'paused'} />
       </div>
       <BottomNav />
     </div>

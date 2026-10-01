@@ -37,9 +37,10 @@ function ActiveBody() {
 
 export function HomeActive() {
   const navigate = useNavigate();
+  const { therapyPaused } = useTherapy();
   return (
     <HomeShell
-      therapyStatus="active"
+      therapyStatus={therapyPaused ? 'paused' : 'active'}
       therapyBody={<ActiveBody />}
       onTherapyClick={() => navigate('therapy-detail')}
       onTherapyHelp={() => navigate('help')}

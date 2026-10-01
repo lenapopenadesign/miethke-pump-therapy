@@ -341,6 +341,10 @@ type TherapyState = {
   // or null when none is running. Set on transfer.
   bridgeBolusUntil: number | null;
   startBridgeBolus: () => void;
+  // Delivery paused from the Stop action: the therapy stays programmed (and on
+  // the home screen) but nothing is delivered until it is resumed.
+  therapyPaused: boolean;
+  setTherapyPaused: (b: boolean) => void;
   // Whether a therapy has been set up + activated on the implant. Drives which
   // home screen ("home-active" vs "home-no-therapy") the chrome returns to.
   therapyActive: boolean;
@@ -508,6 +512,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   // The reservoir is topped up; the due date follows from the new fill level.
   const completeRefill = () => { setFillFraction(1); };
   const [refillBranch, setRefillBranch] = useState<RefillBranch>(null);
+  const [therapyPaused, setTherapyPaused] = useState(false);
   const [bridgeBolusUntil, setBridgeBolusUntil] = useState<number | null>(null);
   const startBridgeBolus = () => setBridgeBolusUntil(Date.now() + BRIDGE_BOLUS.minutes * 60_000);
   const [therapyActive, setTherapyActive] = useState(true);
@@ -783,6 +788,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       setRefillDate, refillLeadWeeks, setRefillLeadWeeks, refillLeadDays,
       fillFraction, setFillLevel: setFillFraction, alertLevelMl, setAlertLevelMl, completeRefill,
       refillBranch, setRefillBranch, bridgeBolusUntil, startBridgeBolus,
+      therapyPaused, setTherapyPaused,
       therapyActive, setTherapyActive, homeScreen,
     }}>
       {children}

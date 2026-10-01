@@ -113,13 +113,14 @@ function HandIcon() {
 
 export function ActionsScreen() {
   const navigate = useNavigate();
-  const { setFlowMode, beginEditTherapy, setTherapyActive } = useTherapy();
+  const { setFlowMode, beginEditTherapy, setTherapyPaused } = useTherapy();
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   // Same therapy actions as the Therapy subpage: Edit Therapy opens the decision
-  // screen; Edit Medication jumps to the medication page (add/remove); Stop ends it.
+  // screen; Edit Medication jumps to the medication page (add/remove); Stop pauses delivery.
   const editTherapy = () => { setFlowMode('setup'); beginEditTherapy('actions'); navigate('base-dose'); };
   const editMedication = () => { setFlowMode('setup'); beginEditTherapy('actions'); navigate('add-medication'); };
-  const onStop = () => { setTherapyActive(false); navigate('home-no-therapy'); };
+  // Stop pauses delivery; the home screen then offers Resume Therapy.
+  const onStop = () => { setTherapyPaused(true); navigate('home-active'); };
   return (
     <DetailShell icon={<HandIcon />} title="Actions">
       <div className="flex flex-col gap-[32px]">
