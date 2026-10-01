@@ -114,7 +114,7 @@ function HandIcon() {
 
 export function ActionsScreen() {
   const navigate = useNavigate();
-  const { setFlowMode, beginEditTherapy, setTherapyPaused } = useTherapy();
+  const { setFlowMode, beginEditTherapy, setTherapyPaused, therapyPaused, beginResumeTherapy } = useTherapy();
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   // Same therapy actions as the Therapy subpage: Edit Therapy opens the decision
   // screen; Edit Medication jumps to the medication page (add/remove); Stop pauses delivery.
@@ -130,10 +130,14 @@ export function ActionsScreen() {
       onConfirm={() => { setTherapyPaused(true); navigate('home-active'); }}
     />
   );
+  // While paused, Resume Therapy leads the recommendations and takes Stop's slot.
+  const onResume = () => { beginResumeTherapy('actions'); navigate('review'); };
+  const resumeTile = <Tile filled label="Resume Therapy" onClick={onResume}><img alt="" src="/icons/act-resume-therapy.svg" className="block size-full object-contain" /></Tile>;
   return (
     <DetailShell icon={<HandIcon />} title="Actions" overlay={stopDialog}>
       <div className="flex flex-col gap-[32px]">
         <SectionCard label="Recommended">
+          {therapyPaused && resumeTile}
           <Tile filled label="Refill" onClick={startRefill}><RefillIcon white /></Tile>
           <Tile filled label="Clinician Bolus"><ClinicianIcon white /></Tile>
         </SectionCard>
@@ -153,7 +157,7 @@ export function ActionsScreen() {
           <Tile label="Clinician Bolus"><ClinicianIcon /></Tile>
           <Tile label="Edit Therapy" onClick={editTherapy}><EditTherapyGlyph /></Tile>
           <Tile label="Edit Medication" onClick={editMedication}><EditMedicationGlyph /></Tile>
-          <Tile label="Stop" onClick={onStop}><StopIcon /></Tile>
+          {therapyPaused ? resumeTile : <Tile label="Stop" onClick={onStop}><StopIcon /></Tile>}
         </SectionCard>
       </div>
     </DetailShell>

@@ -456,8 +456,10 @@ export function BottomNav({ active = 'overview' }: { active?: NavTab } = {}) {
       active === tab ? 'font-bold text-[#096657]' : 'font-normal text-[#183d38]'
     }`;
   return (
-    <div className="absolute bg-[#f5fcf9] bottom-0 content-stretch flex h-[120px] items-center justify-center left-0 overflow-x-clip overflow-y-auto px-[16px] py-[8px] w-[1200px]">
-      <div className="content-stretch flex flex-1 gap-[16px] items-start justify-center min-w-px relative">
+    <div className="absolute bg-[#f5fcf9] bottom-0 content-stretch flex h-[120px] items-center justify-between left-0 overflow-x-clip overflow-y-auto px-[80px] py-[8px] w-[1200px]">
+      {/* Clarisa wordmark + signet lockup on the left (Figma 13330:67922). */}
+      <img alt="Clarisa" src="/icons/clarisa-lockup.svg" className="block shrink-0 h-[56px] w-[249px]" />
+      <div className="content-stretch flex gap-[32px] items-start relative shrink-0">
         {/* Overview */}
         <a onClick={() => navigate('home-active')} className="content-stretch flex flex-col gap-[8px] items-center justify-center min-h-[80px] relative shrink-0 w-[100px] cursor-pointer">
           <div className={`h-[56px] relative rounded-[24px] shrink-0 w-[80px] ${active === 'overview' ? 'bg-[#e9f7f2]' : ''}`}>
@@ -532,12 +534,7 @@ export function HomeShell({ therapyStatus, therapyBody, onTherapyClick, onTherap
   return (
     <div className="bg-white relative w-[1200px] h-[1920px] overflow-hidden">
       <div className="absolute bg-[#183d38] h-[35px] left-0 top-0 w-[1200px]" />
-      <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[24px] px-[80px] top-[35px] w-[1200px]">
-        {/* Clarisa wordmark + signet (Figma 13330:68275). */}
-        <div className="flex items-center justify-between px-[40px] w-full">
-          <img alt="Clarisa" src="/icons/clarisa-wordmark.svg" className="block h-[49px] w-[185px]" />
-          <img alt="" src="/icons/clarisa-signet-home.svg" className="block h-[56px] w-[48px]" />
-        </div>
+      <div className="absolute content-stretch flex flex-col gap-[32px] items-center left-0 pb-[80px] pt-[56px] px-[80px] top-[35px] w-[1200px]">
         <PatientCard />
         <ImplantCard refillDate={noTherapy ? 'N/A' : refillDate} fillFraction={fillFraction} />
         <div onClick={onTherapyClick} className={`bg-[#f5fcf9] content-stretch flex flex-col items-start relative rounded-[24px] shrink-0 w-[1040px] ${onTherapyClick ? 'cursor-pointer' : ''}`}>

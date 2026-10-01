@@ -348,7 +348,7 @@ type TherapyState = {
   // True while the paused therapy is being re-confirmed (Review → Transfer)
   // before delivery resumes. Abandoning the edit clears it.
   resumingTherapy: boolean;
-  beginResumeTherapy: () => void;
+  beginResumeTherapy: (returnTo?: ScreenId) => void;
   // Whether a therapy has been set up + activated on the implant. Drives which
   // home screen ("home-active" vs "home-no-therapy") the chrome returns to.
   therapyActive: boolean;
@@ -585,9 +585,9 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   };
   // Resume Therapy re-confirms the paused therapy on Review before transfer,
   // through the edit lifecycle so a back-out returns home unchanged.
-  const beginResumeTherapy = () => {
+  const beginResumeTherapy = (returnTo: ScreenId = 'home-active') => {
     setFlowMode('setup');
-    beginEditTherapy('home-active');
+    beginEditTherapy(returnTo);
     setResumingTherapy(true);
   };
 

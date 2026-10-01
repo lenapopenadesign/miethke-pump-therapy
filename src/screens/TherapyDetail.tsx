@@ -40,7 +40,7 @@ function StopGlyph() {
 
 export function TherapyDetail() {
   const navigate = useNavigate();
-  const { setFlowMode, setTherapyPaused, beginEditTherapy, intervalsByDay, dayPattern } = useTherapy();
+  const { setFlowMode, setTherapyPaused, beginEditTherapy, intervalsByDay, dayPattern, therapyPaused, beginResumeTherapy } = useTherapy();
   const [viewDay, setViewDay] = useState<DayKey>('monday');
   const windows = intervalsByDay[repDay(dayPattern, viewDay)];
 
@@ -60,6 +60,8 @@ export function TherapyDetail() {
     />
   );
   const onClinicianBolus = () => navigate('actions');
+  // While paused, Stop's slot offers Resume Therapy (re-confirmed on Review).
+  const onResume = () => { beginResumeTherapy('therapy-detail'); navigate('review'); };
 
   return (
     <DetailShell
@@ -73,7 +75,9 @@ export function TherapyDetail() {
           <ActionTile label="Clinician Bolus" onClick={onClinicianBolus}><ClinicianGlyph /></ActionTile>
           <ActionTile label="Edit Therapy" onClick={onEditTherapy}><EditTherapyGlyph /></ActionTile>
           <ActionTile label="Edit Medication" onClick={onEditMedication}><EditMedicationGlyph /></ActionTile>
-          <ActionTile label="Stop" onClick={onStop}><StopGlyph /></ActionTile>
+          {therapyPaused
+            ? <ActionTile label="Resume Therapy" onClick={onResume}><img alt="" src="/icons/act-resume-therapy.svg" className="block size-full object-contain" /></ActionTile>
+            : <ActionTile label="Stop" onClick={onStop}><StopGlyph /></ActionTile>}
         </div>
       }
     >
