@@ -345,6 +345,10 @@ type TherapyState = {
   // the home screen) but nothing is delivered until it is resumed.
   therapyPaused: boolean;
   setTherapyPaused: (b: boolean) => void;
+  // True while the paused therapy is being re-confirmed (Review → Transfer)
+  // before delivery resumes. Abandoning the edit clears it.
+  resumingTherapy: boolean;
+  beginResumeTherapy: () => void;
   // Whether a therapy has been set up + activated on the implant. Drives which
   // home screen ("home-active" vs "home-no-therapy") the chrome returns to.
   therapyActive: boolean;
@@ -513,6 +517,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   const completeRefill = () => { setFillFraction(1); };
   const [refillBranch, setRefillBranch] = useState<RefillBranch>(null);
   const [therapyPaused, setTherapyPaused] = useState(false);
+  const [resumingTherapy, setResumingTherapy] = useState(false);
   const [bridgeBolusUntil, setBridgeBolusUntil] = useState<number | null>(null);
   const startBridgeBolus = () => setBridgeBolusUntil(Date.now() + BRIDGE_BOLUS.minutes * 60_000);
   const [therapyActive, setTherapyActive] = useState(true);
@@ -565,13 +570,26 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
   };
   // Abandon the wizard: restore the snapshot and return to where it was started.
   const cancelTherapyEdit = (): ScreenId => {
+    setResumingTherapy(false);
     const s = snapshotRef.current;
     snapshotRef.current = null;
     if (s) restoreSnapshot(s);
     return setupReturnRef.current;
   };
-  // Activation completed: keep the working state and drop the snapshot.
-  const commitTherapy = () => { snapshotRef.current = null; setTherapyActive(true); };
+  // Activation completed: keep the working state and drop the snapshot. A
+  // resume that reaches the transfer restarts delivery.
+  const commitTherapy = () => {
+    snapshotRef.current = null;
+    setTherapyActive(true);
+    if (resumingTherapy) { setTherapyPaused(false); setResumingTherapy(false); }
+  };
+  // Resume Therapy re-confirms the paused therapy on Review before transfer,
+  // through the edit lifecycle so a back-out returns home unchanged.
+  const beginResumeTherapy = () => {
+    setFlowMode('setup');
+    beginEditTherapy('home-active');
+    setResumingTherapy(true);
+  };
 
   const setBaseDose = (n: number) => {
     const next = Math.max(0, n);
@@ -788,7 +806,7 @@ export function TherapyProvider({ children }: { children: ReactNode }) {
       setRefillDate, refillLeadWeeks, setRefillLeadWeeks, refillLeadDays,
       fillFraction, setFillLevel: setFillFraction, alertLevelMl, setAlertLevelMl, completeRefill,
       refillBranch, setRefillBranch, bridgeBolusUntil, startBridgeBolus,
-      therapyPaused, setTherapyPaused,
+      therapyPaused, setTherapyPaused, resumingTherapy, beginResumeTherapy,
       therapyActive, setTherapyActive, homeScreen,
     }}>
       {children}

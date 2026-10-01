@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy, type DayKey } from '../therapy';
 import { DetailShell } from '../components/DetailShell';
+import { StopTherapyDialog } from '../components/ConfirmDialog';
 import { TherapyIcon } from '../components/HomeShell';
 import { TherapyChartCard, TherapyMedBreakdown } from '../components/TherapyBreakdown';
 import { DayGroupToggle, repDay } from '../components/DayToggles';
@@ -48,8 +49,16 @@ export function TherapyDetail() {
   // back-out restores the current therapy.
   const onEditTherapy = () => { setFlowMode('setup'); beginEditTherapy('therapy-detail'); navigate('base-dose'); };
   const onEditMedication = () => { setFlowMode('setup'); beginEditTherapy('therapy-detail'); navigate('add-medication'); };
-  // Stop pauses delivery; the home screen then offers Resume Therapy.
-  const onStop = () => { setTherapyPaused(true); navigate('home-active'); };
+  // Stop asks first; confirming pauses delivery and the home screen then offers
+  // Resume Therapy.
+  const [confirmStop, setConfirmStop] = useState(false);
+  const onStop = () => setConfirmStop(true);
+  const stopDialog = confirmStop && (
+    <StopTherapyDialog
+      onCancel={() => setConfirmStop(false)}
+      onConfirm={() => { setTherapyPaused(true); navigate('home-active'); }}
+    />
+  );
   const onClinicianBolus = () => navigate('actions');
 
   return (
@@ -57,6 +66,7 @@ export function TherapyDetail() {
       icon={<TherapyIcon size={56} />}
       title="Therapy"
       onHelp={() => navigate('help')}
+      overlay={stopDialog}
       pinnedTop={<TherapyChartCard showNow showHeader={false} windowsOverride={windows} />}
       footer={
         <div className="flex gap-[16px] px-[80px] pt-[24px] pb-[32px]">

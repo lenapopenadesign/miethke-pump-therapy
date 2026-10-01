@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate } from '../navigation';
 import { useTherapy } from '../therapy';
 import { DetailShell } from '../components/DetailShell';
+import { StopTherapyDialog } from '../components/ConfirmDialog';
 import { PatientIcon, ImplantIcon, TherapyIcon } from '../components/HomeShell';
 
 const imgHand = "/icons/5d577001-d49c-4bb9-9a48-3948e35d4261.svg";
@@ -119,10 +120,18 @@ export function ActionsScreen() {
   // screen; Edit Medication jumps to the medication page (add/remove); Stop pauses delivery.
   const editTherapy = () => { setFlowMode('setup'); beginEditTherapy('actions'); navigate('base-dose'); };
   const editMedication = () => { setFlowMode('setup'); beginEditTherapy('actions'); navigate('add-medication'); };
-  // Stop pauses delivery; the home screen then offers Resume Therapy.
-  const onStop = () => { setTherapyPaused(true); navigate('home-active'); };
+  // Stop asks first; confirming pauses delivery and the home screen then offers
+  // Resume Therapy.
+  const [confirmStop, setConfirmStop] = useState(false);
+  const onStop = () => setConfirmStop(true);
+  const stopDialog = confirmStop && (
+    <StopTherapyDialog
+      onCancel={() => setConfirmStop(false)}
+      onConfirm={() => { setTherapyPaused(true); navigate('home-active'); }}
+    />
+  );
   return (
-    <DetailShell icon={<HandIcon />} title="Actions">
+    <DetailShell icon={<HandIcon />} title="Actions" overlay={stopDialog}>
       <div className="flex flex-col gap-[32px]">
         <SectionCard label="Recommended">
           <Tile filled label="Refill" onClick={startRefill}><RefillIcon white /></Tile>

@@ -39,7 +39,9 @@ function RefillIcon() {
 
 export function Activate() {
   const navigate = useNavigate();
-  const { flowMode, setFlowMode, completeRefill, therapyActive, commitTherapy, refillDate, refillBranch, setRefillBranch, startBridgeBolus } = useTherapy();
+  const { flowMode, setFlowMode, completeRefill, therapyActive, commitTherapy, refillDate, refillBranch, setRefillBranch, startBridgeBolus, resumingTherapy } = useTherapy();
+  // Captured on entry: commitTherapy clears the flag once the transfer lands.
+  const [resumed] = useState(resumingTherapy);
   const isRefill = flowMode === 'refill';
   // Once the bar finishes, the therapy is committed/activated and we reveal the
   // success message + "Back to Mainscreen" button (Figma 9579:176417). The user
@@ -84,7 +86,7 @@ export function Activate() {
             <div className="bg-[#e9f7ef] flex gap-[24px] items-center p-[24px] rounded-[24px]">
               <SuccessCheck />
               <p className="flex-1 font-['Roboto',sans-serif] font-normal leading-[32px] text-[#183d38] text-[24px] tracking-[0.1px]" style={{ fontVariationSettings: "'wdth' 100" }}>
-                {isRefill ? 'The therapy was successfully reactivated.' : 'Therapy successfully transferred and activated.'}
+                {isRefill || resumed ? 'The therapy was successfully reactivated.' : 'Therapy successfully transferred and activated.'}
               </p>
             </div>
             {isRefill && <BridgeBolusStatus />}

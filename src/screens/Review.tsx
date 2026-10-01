@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from '../navigation';
 import { WizardShell } from '../components/WizardShell';
 import { WizardTotalsFooter, SaveButton, CalendarIcon } from '../components/WizardParts';
-import { TherapyChartCard } from '../components/TherapyBreakdown';
+import { TherapyChartCard, TherapyMedBreakdown } from '../components/TherapyBreakdown';
 import { TherapyChangeReview } from '../components/TherapyChangeReview';
 import { useTherapy, BRIDGE_BOLUS, fmtTime } from '../therapy';
 import { BridgeBolusIcon, BridgeBolusExplainer } from '../components/BridgeBolus';
@@ -69,16 +69,20 @@ function RefillDateSection() {
 export function Review() {
   const navigate = useNavigate();
   const [confirmed, setConfirmed] = useState(false);
-  const { flowMode, refillBranch } = useTherapy();
+  const { flowMode, refillBranch, resumingTherapy, cancelTherapyEdit } = useTherapy();
   const isRefill = flowMode === 'refill';
   // Same-medication refill re-confirms the therapy; anything else is a change.
-  const title = isRefill && refillBranch === 'same' ? 'Review for' : 'Review changes for';
+  const title = (isRefill && refillBranch === 'same') || resumingTherapy ? 'Review for' : 'Review changes for';
 
   return (
     <WizardShell
       step="review"
       // A refill-date adjustment (from Notifications) has no therapy branch.
-      onBack={() => navigate(isRefill && refillBranch == null ? 'refill-date' : 'windows')}
+      // Resuming came straight from home, so backing out abandons it there.
+      onBack={() => {
+        if (resumingTherapy) navigate(cancelTherapyEdit());
+        else navigate(isRefill && refillBranch == null ? 'refill-date' : 'windows');
+      }}
       onHelp={() => navigate('help')}
       pinnedTop={
         <div className="flex flex-col gap-[24px]">
@@ -112,7 +116,8 @@ export function Review() {
     >
       {/* Scrollable before/after comparison of the committed vs. edited therapy. */}
       <div className="flex flex-col gap-[32px]">
-        <TherapyChangeReview />
+        {/* Resuming re-confirms an unchanged therapy: show it plainly. */}
+        {resumingTherapy ? <TherapyMedBreakdown /> : <TherapyChangeReview />}
         {isRefill && refillBranch === 'different' && <BridgeBolusSection />}
         {isRefill && refillBranch == null && <RefillDateSection />}
       </div>

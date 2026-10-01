@@ -365,7 +365,7 @@ function ActionTile({ filled, label, children, onClick }: { filled?: boolean; la
 
 function ActionsCard({ noTherapy, paused }: { noTherapy: boolean; paused: boolean }) {
   const navigate = useNavigate();
-  const { setFlowMode, beginEditTherapy, setTherapyPaused } = useTherapy();
+  const { setFlowMode, beginEditTherapy, beginResumeTherapy } = useTherapy();
   const startRefill = () => { setFlowMode('refill'); navigate('refill-filling'); };
   const startSetup = () => { setFlowMode('setup'); navigate('add-medication'); };
   return (
@@ -390,9 +390,10 @@ function ActionsCard({ noTherapy, paused }: { noTherapy: boolean; paused: boolea
             <AddTherapyIcon />
           </ActionTile>
         )}
-        {/* Paused delivery: resuming is the first thing on offer (Figma 13330:68294). */}
+        {/* Paused delivery: resuming is the first thing on offer (Figma 13330:68294);
+            it re-confirms the therapy on Review before transferring it. */}
         {paused && (
-          <ActionTile filled label="Resume Therapy" onClick={() => setTherapyPaused(false)}>
+          <ActionTile filled label="Resume Therapy" onClick={() => { beginResumeTherapy(); navigate('review'); }}>
             <img alt="" src="/icons/act-resume-therapy.svg" className="absolute inset-0 block size-full object-contain" />
           </ActionTile>
         )}

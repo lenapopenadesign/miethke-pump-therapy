@@ -243,13 +243,14 @@ function SetupHeaderBand({ step, onBack, onHelp }: { step: WizardStep; onBack: (
   const activeKey = normalizeStep(step);
   const steps = SETUP_STEPS;
   const skipped = useSkippedSteps();
+  const { resumingTherapy } = useTherapy();
   return (
     <div className="w-[1200px] shrink-0 flex flex-col gap-[8px]">
       <div className="bg-[#f5fcf9] flex h-[96px] items-center justify-between px-[40px]">
         <div className="flex gap-[20px] items-center">
           <BackArrow onBack={onBack} />
           <p className="font-['Roboto',sans-serif] font-extrabold text-[#096657] text-[40px] tracking-[0.1px] whitespace-nowrap" style={{ fontVariationSettings: "'wdth' 100" }}>
-            Edit Therapy
+            {resumingTherapy ? 'Resume Therapy' : 'Edit Therapy'}
           </p>
           {onHelp && <HelpBadge onClick={onHelp} />}
         </div>
