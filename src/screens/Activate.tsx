@@ -28,13 +28,9 @@ function SuccessCheck() {
   );
 }
 
-// Small syringe glyph beside the next-refill line.
+// Syringe + vial beside the next-refill line (Figma icons/refill 2325:27713).
 function RefillIcon() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden className="shrink-0">
-      <path d="M14 3l7 7M18.5 5.5L21 3M16 7l-9 9-3 1 1-3 9-9M9.5 9.5l2 2M12.5 6.5l2 2" stroke="#0b786a" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+  return <img alt="" src="/icons/next-refill.svg" className="block shrink-0 size-[40px]" />;
 }
 
 export function Activate() {
