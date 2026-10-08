@@ -39,8 +39,7 @@ export default defineConfig({
         navigateFallbackDenylist: [/\.[a-z0-9]+$/i],
         runtimeCaching: [
           {
-            urlPattern: ({ url }) =>
-              url.origin === 'https://fonts.googleapis.com' || url.origin === 'https://fonts.gstatic.com',
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\//,
             handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'google-fonts',
