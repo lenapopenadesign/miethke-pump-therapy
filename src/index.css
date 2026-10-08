@@ -58,6 +58,18 @@ body {
   }
 }
 
+/* Installed as an app (PWA): no grey letterbox around the scaled screen, and
+   no pull-to-refresh / rubber-banding or tap flashes giving away the browser. */
+@media (display-mode: fullscreen), (display-mode: standalone) {
+  body {
+    background: white;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
 .device-mode-shell {
   background: white;
   overflow: hidden;
